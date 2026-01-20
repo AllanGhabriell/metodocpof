@@ -1,0 +1,86 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Treino F2L — Método CPOF</title>
+  <link rel="stylesheet" href="assets/css/global.css">
+</head>
+<body>
+  <header class="topbar">
+    <button id="back-btn" class="icon-btn" aria-label="Voltar">✕</button>
+    <div class="header-right">
+      <button id="menu-btn" class="icon-btn" aria-label="Abrir menu">☰</button>
+    </div>
+  </header>
+
+  <main class="f2l-container">
+    <section class="image-area" role="main" aria-label="Área de treino">
+      <div class="img-wrap" id="img-wrap">
+        <img id="case-image" src="f2l/1.png" alt="Caso F2L" loading="eager">
+      </div>
+
+      <div class="controls-row">
+        <button id="next-case-btn" class="big-btn">Próximo caso</button>
+        <button id="mark-solved-btn" class="big-btn secondary" hidden>Marcar como resolvido</button>
+      </div>
+    </section>
+
+    <!-- floating counter (visible when mode active) -->
+    <div id="cases-remaining" class="cases-remaining" hidden>Casos restantes: <span id="remaining-count">41</span></div>
+
+    <!-- Menu panel (opened by three-bars button) -->
+    <aside id="menu-panel" class="menu-panel" aria-hidden="true" role="dialog" aria-label="Controles">
+      <button class="panel-close" id="panel-close" aria-label="Fechar painel">✕</button>
+
+      <div class="panel-section">
+        <h3>1 • Excluir casos</h3>
+        <p>Digite (ex.: 3,7,12-15)</p>
+        <input id="excluded-input" type="text" placeholder="Ex.: 3,7,12-15" inputmode="numeric">
+        <div class="modal-actions">
+          <button id="exclude-confirm" class="btn">Salvar</button>
+          <button id="exclude-reset" class="btn ghost">Limpar</button>
+        </div>
+      </div>
+
+      <hr>
+
+      <div class="panel-section">
+        <h3>2 • Remover quando resolvido</h3>
+        <label class="switch">
+          <input type="checkbox" id="remove-when-solved-toggle">
+          <span class="switch-slider"></span>
+        </label>
+        <div style="height:10px"></div>
+        <button id="clear-solved" class="btn ghost">Limpar resolvidos</button>
+      </div>
+
+      <hr>
+
+      <div class="panel-section">
+        <h3>3 • Cronômetro</h3>
+        <label class="switch">
+          <input type="checkbox" id="timer-toggle">
+          <span class="switch-slider"></span>
+        </label>
+        <div id="timer-floating" class="timer-floating" hidden>
+          <div id="timer-display">00:00.00</div>
+          <div class="timer-controls">
+            <button id="timer-start" class="small-btn">Start</button>
+            <button id="timer-pause" class="small-btn" hidden>Pause</button>
+            <button id="timer-reset" class="small-btn">Reset</button>
+          </div>
+        </div>
+      </div>
+    </aside>
+
+    <!-- toast -->
+    <div id="toast" class="toast" aria-live="polite" hidden></div>
+
+  </main>
+
+  <script src="assets/js/utils.js" defer></script>
+  <script src="assets/js/f2l.js" defer></script>
+  <script src="assets/js/main.js" defer></script>
+</body>
+</html>
