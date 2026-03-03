@@ -16,6 +16,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
   const btnF2L = document.getElementById('btn-f2l');
   if (btnF2L) btnF2L.addEventListener('click', () => location.href = 'f2l.html');
+  const btnOLL = document.getElementById('btn-oll');
+  if (btnOLL) btnOLL.addEventListener('click', () => location.href = 'oll.html');
+  const btnPLL = document.getElementById('btn-pll');
+  if (btnPLL) btnPLL.addEventListener('click', () => location.href = 'pll.html');
 
   document.querySelectorAll('.card.disabled').forEach((button) => {
     button.addEventListener('click', () => {
