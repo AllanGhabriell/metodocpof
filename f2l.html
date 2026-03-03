@@ -2,85 +2,187 @@
 <html lang="pt-BR">
 <head>
   <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Treino F2L — Método CPOF</title>
-  <link rel="stylesheet" href="assets/css/global.css">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <title>Treino F2L - Metodo CPOF</title>
+  <link rel="stylesheet" href="assets/css/global.css?v=20260303g">
 </head>
 <body>
   <header class="topbar">
-    <button id="back-btn" class="icon-btn" aria-label="Voltar">✕</button>
+    <button id="back-btn" class="icon-btn" aria-label="Voltar">X</button>
     <div class="header-right">
-      <button id="menu-btn" class="icon-btn" aria-label="Abrir menu">☰</button>
+      <button id="menu-btn" class="icon-btn has-tooltip" aria-label="Abrir menu" data-tooltip="Atalho: M">Menu</button>
     </div>
   </header>
 
   <main class="f2l-container">
-    <section class="image-area" role="main" aria-label="Área de treino">
-      <div class="img-wrap" id="img-wrap">
-        <img id="case-image" src="f2l/1.png" alt="Caso F2L" loading="eager">
-      </div>
-
-      <div class="controls-row">
-        <button id="next-case-btn" class="big-btn">Próximo caso</button>
-        <button id="mark-solved-btn" class="big-btn secondary" hidden>Marcar como resolvido</button>
-      </div>
-    </section>
-
-    <!-- floating counter (visible when mode active) -->
-    <div id="cases-remaining" class="cases-remaining" hidden>Casos restantes: <span id="remaining-count">41</span></div>
-
-    <!-- Menu panel (opened by three-bars button) -->
-    <aside id="menu-panel" class="menu-panel" aria-hidden="true" role="dialog" aria-label="Controles">
-      <button class="panel-close" id="panel-close" aria-label="Fechar painel">✕</button>
-
-      <div class="panel-section">
-        <h3>1 • Excluir casos</h3>
-        <p>Digite (ex.: 3,7,12-15)</p>
-        <input id="excluded-input" type="text" placeholder="Ex.: 3,7,12-15" inputmode="numeric">
-        <div class="modal-actions">
-          <button id="exclude-confirm" class="btn">Salvar</button>
-          <button id="exclude-reset" class="btn ghost">Limpar</button>
+    <section class="image-area" role="main" aria-label="Area de treino">
+      <div id="session-timer-bar" class="session-timer-bar" hidden>
+        <div class="session-timer-main">
+          <span class="timer-label">Tempo total</span>
+          <strong id="session-timer-display">00:00.00</strong>
         </div>
-      </div>
-
-      <hr>
-
-      <div class="panel-section">
-        <h3>2 • Remover quando resolvido</h3>
-        <label class="switch">
-          <input type="checkbox" id="remove-when-solved-toggle">
-          <span class="switch-slider"></span>
-        </label>
-        <div style="height:10px"></div>
-        <button id="clear-solved" class="btn ghost">Limpar resolvidos</button>
-      </div>
-
-      <hr>
-
-      <div class="panel-section">
-        <h3>3 • Cronômetro</h3>
-        <label class="switch">
-          <input type="checkbox" id="timer-toggle">
-          <span class="switch-slider"></span>
-        </label>
-        <div id="timer-floating" class="timer-floating" hidden>
-          <div id="timer-display">00:00.00</div>
-          <div class="timer-controls">
-            <button id="timer-start" class="small-btn">Start</button>
-            <button id="timer-pause" class="small-btn" hidden>Pause</button>
-            <button id="timer-reset" class="small-btn">Reset</button>
+        <div class="timer-visibility-wrap">
+          <button id="timer-visibility-btn" class="small-icon-btn has-tooltip" data-tooltip="Mostrar ou ocultar cronometro">&#128065;</button>
+          <div class="timer-visibility-menu">
+            <button id="show-timer-btn" class="small-btn">Mostrar</button>
+            <button id="hide-timer-btn" class="small-btn">Ocultar</button>
           </div>
         </div>
       </div>
+
+      <div id="case-timer-bar" class="case-timer-bar" hidden>
+        Tempo do caso: <strong id="case-timer-display">00:00.00</strong>
+      </div>
+
+      <div class="img-wrap" id="img-wrap">
+        <img id="case-image" src="f2l/1.png" alt="Caso F2L" loading="eager">
+
+        <div id="case-mask" class="case-mask" hidden>
+          <div class="case-mask-question">?</div>
+          <div class="last-case-info" id="last-case-info">Nenhum caso resolvido ainda.</div>
+        </div>
+
+        <div id="final-screen" class="final-screen" hidden>
+          <h2>Parabens! Todos os casos foram concluidos.</h2>
+          <p id="final-time-line" class="final-time-line"></p>
+          <button id="restart-session-btn" class="big-btn">Limpar resolvidos e reiniciar sessao</button>
+        </div>
+      </div>
+
+      <div class="controls-row">
+        <button id="prev-case-btn" class="big-btn secondary has-tooltip" data-tooltip="Atalho: Seta esquerda">Caso anterior</button>
+        <button id="next-case-btn" class="big-btn has-tooltip" data-tooltip="Atalhos: Espaco / Seta direita">Proximo caso</button>
+      </div>
+    </section>
+
+    <div id="cases-remaining" class="cases-remaining" hidden>
+      <div>Casos restantes: <span id="remaining-count">41</span></div>
+      <div id="competitive-breakdown" class="competitive-breakdown" hidden>
+        <span>Casos ruins: <strong id="remaining-bad">0</strong></span>
+        <span>Casos bons: <strong id="remaining-good">0</strong></span>
+      </div>
+    </div>
+
+    <aside id="menu-panel" class="menu-panel" aria-hidden="true" role="dialog" aria-label="Controles">
+      <div class="settings-head">
+        <h2>Configuracoes de treino</h2>
+        <button class="panel-close" id="panel-close" aria-label="Fechar painel">X</button>
+      </div>
+
+      <div class="settings-card">
+        <h3>1 - Excluir casos</h3>
+        <p>Clique para abrir a galeria e escolher os casos para excluir.</p>
+        <button id="toggle-exclusion-gallery" class="btn">Abrir galeria</button>
+        <div id="exclusion-gallery-wrap" class="exclusion-gallery-wrap" hidden>
+          <div id="exclusion-gallery" class="exclusion-gallery" aria-label="Galeria de casos"></div>
+          <div id="exclusion-loading" class="exclusion-loading" hidden>Carregando mais casos...</div>
+          <button id="exclude-reset" class="btn ghost">Limpar exclusoes</button>
+          <p class="kbd-help">Atalho para excluir caso atual: Ctrl + Backspace ou Ctrl + Delete.</p>
+        </div>
+      </div>
+
+      <div class="settings-card">
+        <h3>2 - Fluxo de resolucao</h3>
+        <div class="line-setting">
+          <span>Remover quando resolvido</span>
+          <label class="switch">
+            <input type="checkbox" id="remove-when-solved-toggle">
+            <span class="switch-slider"></span>
+          </label>
+        </div>
+        <button id="clear-solved" class="btn ghost">Limpar resolvidos</button>
+      </div>
+
+      <div class="settings-card">
+        <h3>3 - Cronometro</h3>
+        <div class="line-setting">
+          <span>Ativar cronometro</span>
+          <label class="switch">
+            <input type="checkbox" id="timer-toggle">
+            <span class="switch-slider"></span>
+          </label>
+        </div>
+        <div class="line-setting">
+          <span>Inicio automatico</span>
+          <label class="switch">
+            <input type="checkbox" id="timer-autostart-toggle">
+            <span class="switch-slider"></span>
+          </label>
+        </div>
+        <div id="timer-floating" class="timer-floating" hidden>
+          <div id="timer-display">00:00.00</div>
+          <div class="timer-controls">
+            <button id="timer-start" class="small-btn has-tooltip" data-tooltip="Atalho: C">Start</button>
+            <button id="timer-pause" class="small-btn" hidden>Pause</button>
+            <button id="timer-reset" class="small-btn">Reset</button>
+          </div>
+          <p class="kbd-help">Atalhos: C (iniciar/pausar), C + Backspace (resetar).</p>
+        </div>
+      </div>
+
+      <div class="settings-card">
+        <h3>4 - Atalhos de teclado</h3>
+        <div class="line-setting">
+          <span>Ativar atalhos</span>
+          <label class="switch">
+            <input type="checkbox" id="keyboard-actions-toggle">
+            <span class="switch-slider"></span>
+          </label>
+        </div>
+        <p class="kbd-help">Seta direita/espaco: proximo, seta esquerda: anterior, Ctrl+Z: desfazer, Esc: fechar, M: abrir menu.</p>
+      </div>
+
+      <div class="settings-card">
+        <h3>5 - Tamanho da interface</h3>
+        <label class="range-group" for="image-size-range">
+          <span>Tamanho da imagem</span>
+          <input id="image-size-range" type="range" min="0.8" max="1.25" step="0.05" value="1">
+        </label>
+        <label class="range-group" for="button-size-range">
+          <span>Tamanho dos botoes</span>
+          <input id="button-size-range" type="range" min="0.85" max="1.25" step="0.05" value="1">
+        </label>
+        <button id="reset-size-btn" class="btn ghost">Restaurar tamanho padrao</button>
+      </div>
+
+      <div class="settings-card">
+        <h3>6 - Modo Competitivo</h3>
+        <div class="line-setting">
+          <span>Ativar modo competitivo</span>
+          <label class="switch">
+            <input type="checkbox" id="competitive-toggle">
+            <span class="switch-slider"></span>
+          </label>
+        </div>
+        <label class="field-group" for="competitive-limit-input">
+          <span>Tempo limite por caso (segundos)</span>
+          <input id="competitive-limit-input" type="number" min="3" max="180" step="1" value="12">
+        </label>
+        <label class="field-group" for="competitive-repeat-input">
+          <span>Intensidade de repeticao</span>
+          <input id="competitive-repeat-input" type="number" min="1" max="10" step="1" value="2">
+        </label>
+        <div class="line-setting">
+          <span>Mudar cor por desempenho</span>
+          <label class="switch">
+            <input type="checkbox" id="dynamic-bg-toggle">
+            <span class="switch-slider"></span>
+          </label>
+        </div>
+        <button id="reset-competitive-btn" class="btn ghost">Resetar modo competitivo</button>
+      </div>
+
+      <div class="settings-card final-actions">
+        <button id="reset-all-btn" class="btn danger">Resetar todas as configuracoes</button>
+      </div>
     </aside>
 
-    <!-- toast -->
     <div id="toast" class="toast" aria-live="polite" hidden></div>
-
   </main>
 
-  <script src="assets/js/utils.js" defer></script>
-  <script src="assets/js/f2l.js" defer></script>
-  <script src="assets/js/main.js" defer></script>
+  <script src="assets/js/utils.js?v=20260303g" defer></script>
+  <script src="assets/js/f2l.js?v=20260303g" defer></script>
+  <script src="assets/js/main.js?v=20260303g" defer></script>
 </body>
 </html>
+
