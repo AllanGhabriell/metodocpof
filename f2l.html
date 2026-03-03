@@ -4,7 +4,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
   <title>Treino F2L - Metodo CPOF</title>
-  <link rel="stylesheet" href="assets/css/global.css?v=20260303j">
+  <link rel="stylesheet" href="assets/css/global.css?v=20260303o">
 </head>
 <body data-set="f2l" data-total="41">
   <header class="topbar">
@@ -70,7 +70,7 @@
       </div>
 
       <div class="settings-card">
-        <h3>1 - Excluir casos</h3>
+        <h3>Excluir casos</h3>
         <p>Clique para abrir a galeria e escolher os casos para excluir.</p>
         <button id="toggle-exclusion-gallery" class="btn">Abrir galeria</button>
         <div id="exclusion-gallery-wrap" class="exclusion-gallery-wrap" hidden>
@@ -82,7 +82,7 @@
       </div>
 
       <div class="settings-card">
-        <h3>2 - Fluxo de resolucao</h3>
+        <h3>Fluxo de resolucao</h3>
         <div class="line-setting">
           <span>Remover quando resolvido</span>
           <label class="switch">
@@ -94,7 +94,7 @@
       </div>
 
       <div class="settings-card">
-        <h3>3 - Cronometro</h3>
+        <h3>Cronometro</h3>
         <div class="line-setting">
           <span>Ativar cronometro</span>
           <label class="switch">
@@ -121,7 +121,7 @@
       </div>
 
       <div class="settings-card">
-        <h3>4 - Atalhos de teclado</h3>
+        <h3>Atalhos de teclado</h3>
         <div class="line-setting">
           <span>Ativar atalhos</span>
           <label class="switch">
@@ -133,7 +133,7 @@
       </div>
 
       <div class="settings-card">
-        <h3>5 - Tamanho da interface</h3>
+        <h3>Tamanho da interface</h3>
         <label class="range-group" for="image-size-range">
           <span>Tamanho da imagem</span>
           <input id="image-size-range" type="range" min="0.8" max="1.25" step="0.05" value="1">
@@ -146,7 +146,7 @@
       </div>
 
       <div class="settings-card">
-        <h3>6 - Modo Competitivo</h3>
+        <h3>Modo Competitivo</h3>
         <div class="line-setting">
           <span>Ativar modo competitivo</span>
           <label class="switch">
@@ -156,7 +156,7 @@
         </div>
         <label class="field-group" for="competitive-limit-input">
           <span>Tempo limite por caso (segundos)</span>
-          <input id="competitive-limit-input" type="number" min="3" max="180" step="1" value="12">
+          <input id="competitive-limit-input" type="number" min="3" max="180" step="1" value="6">
         </label>
         <label class="field-group" for="competitive-repeat-input">
           <span>Intensidade de repeticao</span>
@@ -180,11 +180,18 @@
     <div id="toast" class="toast" aria-live="polite" hidden></div>
   </main>
 
-  <script src="assets/js/utils.js?v=20260303j" defer></script>
-  <script src="assets/js/main.js?v=20260303j" defer></script>
-  <script type="module" src="assets/js/trainer/index.js?v=20260303j"></script>
+  <script src="assets/js/utils.js?v=20260303o" defer></script>
+  <script src="assets/js/main.js?v=20260303o" defer></script>
+  <script src="assets/js/f2l.js?v=20260303o" defer></script>
 </body>
 </html>
+
+
+
+
+
+
+
 
 
 
