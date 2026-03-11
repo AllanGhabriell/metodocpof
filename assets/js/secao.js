@@ -1,13 +1,163 @@
 document.addEventListener('DOMContentLoaded', () => {
   const C = window.CPOF;
   const pageSet = (document.body.dataset.set || 'f2l').toLowerCase();
-  const TOTAL = Math.max(1, Number(document.body.dataset.total) || 41);
+  const BODY_TOTAL = Math.max(1, Number(document.body.dataset.total) || 41);
+  const CASE_IDS = parseCaseIds(document.body.dataset.cases, BODY_TOTAL);
+  const CASE_ID_SET = new Set(CASE_IDS);
+  const CASE_INDEX = new Map(CASE_IDS.map((id, idx) => [id, idx]));
+  const TOTAL = CASE_IDS.length;
   const STATE_KEY = `cpof_prefs_${pageSet}`;
   const UI_SCALE_KEY = 'cpof_ui_scale';
   const PAGE_SIZE = 6;
   const MAX_UNDO = 160;
   const C_ARM_MS = 1500;
   const IS_TOUCH_DEVICE = window.matchMedia('(hover: none), (pointer: coarse)').matches;
+  const ORDERED_CASES_BY_SET = {
+    f2l: (() => {
+      const out = ['38', '39', '40', '41'];
+      for (let i = 1; i <= 37; i += 1) out.push(String(i));
+      return out;
+    })(),
+    pll: ['Ua', 'Ub', 'H', 'Z', 'Aa', 'Ab', 'E', 'Ra', 'Rb', 'Ja', 'Jb', 'T', 'F', 'V', 'Y', 'Na', 'Nb', 'Ga', 'Gb', 'Gc', 'Gd']
+  };
+  const MOVES_BY_SET = {
+    f2l: {
+      1: "U' (R U R' U) (R U R')",
+      2: "U' (R U' R' U) y' (R' U' R)",
+      3: "U' (R U2' R' U) y' (R' U' R)",
+      4: "(R U' R') U (R U R' U) U2 (R U' R')",
+      5: "y' U (R' U R U') (R' U' R)",
+      6: "U' (R U' R' U) (R U R')",
+      7: "(U' R U R') U2 (R U' R')",
+      8: "U' Rw U' R' U R U Rw'",
+      9: "y' U (R' U2' R) U2 (R' U R)",
+      10: "U' (R U2' R') U2 (R U' R')",
+      11: "U (R U2' R') U (R U' R')",
+      12: "U2 (R U R' U) (R U' R')",
+      13: "Rw U' Rw' U2 Rw U Rw'",
+      14: "y' U' (R' U2 R) U' (R' U R)",
+      15: "M U (L F' L') U' M'",
+      16: "(R U' R' U2) y' (R' U' R)",
+      17: "(R U2 R') U' (R U R')",
+      18: "y' (R' U2' R) U (R' U' R)",
+      19: "U (R U' R') U' (R U' R' U R U' R')",
+      20: "F (U R U' R') F' (R U' R')",
+      21: "U' F' (R U R' U') R' F R",
+      22: "U (R U' R' U') y (L' U L)",
+      23: "(R U' R' U) (R U' R')",
+      24: "y' (R' U R U') (R' U R)",
+      25: "y' (R' U' R U) (R' U' R)",
+      26: "(R U R' U') (R U R')",
+      27: "U' (R' F R F') (R U' R')",
+      28: "(U R U' R')3",
+      29: "(U' R U' R') U2 (R U' R')",
+      30: "U (R U R') U2' (R U R')",
+      31: "(U' R U R') U y' (R' U' R)",
+      32: "U (F' U' F) U' (R U R')",
+      33: "R' F R F' R U' R' U R U' R' U2 R U' R'",
+      34: "(R U' R') U' (R U R') U2 (R U' R')",
+      35: "(R U' R') U (R U2' R') U (R U' R')",
+      36: "(Rw U' Rw') U2 (Rw U Rw')",
+      37: "R U' R' (Rw U' Rw') U2 (Rw U Rw')",
+      38: "U (R U' R')",
+      39: "y U' (L' U L)",
+      40: "R U R'",
+      41: "y L' U' L"
+    },
+    oll: {},
+    pll: {
+      Ua: "(M2' U M) U2 (M' U M2')",
+      Ub: "(M2' U' M) U2 (M' U' M2')",
+      H: "(M2' U M2') U2 (M2' U M2') (M2' U M2' U) (M' U2) (M2' U2 M')",
+      Z: "(M2' U M2') U2 (M2' U M2') (M2' U M2' U) (M' U2) (M2' U2 M')",
+      Aa: "x (R' U R') D2 (R U' R') D2 R2 x'",
+      Ab: "x R2' D2 (R U R') D2 (R U' R) x'",
+      E: "x' (R U' R' D) (R U R' D') (R U R' D) (R U' R' D') x",
+      Ra: "(R U R' F') (R U2' R' U2') (R' F R U) (R U2' R')",
+      Rb: "(R' U2 R U2') R' F (R U R' U') R' F' R2",
+      Ja: "x R2' (F R F' R) U2' (Rw' U Rw U2')",
+      Jb: "(R U R' F') (R U R' U') R' F R2 U' R' U'",
+      T: "(R U R' U') (R' F R2 U') R' U' (R U R' F')",
+      F: "(R' U' F') (R U R' U') (R' F R2 U') (R' U' R) (U R' U R)",
+      V: "(R' U R' U') y (R' F' R2 U') (R' U R' F) R F",
+      Y: "(R U R' U) (R U R' F') (R U R' U') (R' F R2 U') R' U2 (R U' R')",
+      Na: "Rw' D' F Rw U' Rw' F' D Rw2 U Rw' U' Rw' F Rw F'",
+      Nb: "Rw' D' F Rw U' Rw' F' D Rw2 U Rw' U' Rw' F Rw F'",
+      Ga: "R2 U (R' U R' U') (R U' R2) {D U'} (R' U R D')",
+      Gb: "R2' U' (R U' R U) (R' U R2) {D' U} (R U' R' D)",
+      Gc: "(R U R') {U' D} (R2 U' R U') (R' U R' U) R2 D'",
+      Gd: "(R' U' R) {U D'} (R2 U R' U) (R U' R U') R2' D"
+    }
+  };
+  const SETUPS_BY_SET = {
+    f2l: {
+      1: "R U' R' U' R U' R' U",
+      2: "F' U F U' R U R' U",
+      3: "F' U F U' R U2' R' U",
+      4: "R' U' R2' U' R2 U2' R",
+      5: "R' U R U R' U' R U' y",
+      6: "R U' R' U R U' R' U R U' R'",
+      7: "R U R' U2 R U' R' U",
+      8: "R' U' R U2 R' U R U' y",
+      9: "R' U' R U2 R' U2 R U' y",
+      10: "R U R' U2 R U2 R' U",
+      11: "R U R' U' R U2' R' U'",
+      12: "R U R' U' R U' R' U2",
+      13: "R' U' R U R' U R U2 y",
+      14: "R' U' R U R' U2 R U y",
+      15: "M U L F L' U' M'",
+      16: "F' U F U2' R U R'",
+      17: "R U' R' U R U2 R'",
+      18: "R' U R U R' U2 R y",
+      19: "R U R' U R U R' U' R U R'",
+      20: "R U R' F R U R' U' F'",
+      21: "U' F' R U R' U' R' F R",
+      22: "F' U' F U R U R' U'",
+      23: "R U R' U' R U R'",
+      24: "R' U R U R' U R' y",
+      25: "R' U R U R' U R y",
+      26: "R U R' U R U R'",
+      27: "R U R' F R' F' R U",
+      28: "(R U R' U')3",
+      29: "R U R' U2 R U R' U",
+      30: "R U' R' U2 R U' R' U'",
+      31: "F' U F U' R U R' U",
+      32: "R U' R' U F' U F U'",
+      33: "R U2 R' U2 F' U' F",
+      34: "R U R' U2 R U' R' U R U R'",
+      35: "R U R' U R U2 R' U R U R'",
+      36: "R' U' Rw U' Rw' U2 Rw U Rw'",
+      37: "Rw U' Rw' U2 Rw U Rw' R U R'",
+      38: "R U R' U'",
+      39: "F' U' F U",
+      40: "R U' R'",
+      41: "F' U F"
+    },
+    oll: {},
+    pll: {
+      Ua: "(M2' U' M) U2 (M' U' M2')",
+      Ub: "(M2' U M) U2 (M' U M2')",
+      H: "(M2' U M2') U2 (M2' U M2')",
+      Z: "(M2' U M2') (U' M' U2) (M2' U2 M')",
+      Aa: "x R2' D2 (R U R') D2 (R U' R) x'",
+      Ab: "x (R' U R') D2 (R U' R') D2 R2 x'",
+      E: "x' (R U' R' D) (R U R' D') (R U R' D) (R U' R' D') x",
+      Ra: "(R U R' F') (R U2' R' U2') (R' F R U) (R U2' R') U'",
+      Rb: "(R' U2 R U2') R' F (R U R' U') R' F' R2 U'",
+      Ja: "x R2' (F R F' R) U2' (Rw' U Rw U2')",
+      Jb: "(R U R' F') (R U R' U') R' F R2 U' R' U'",
+      T: "(R U R' U') (R' F R2 U') R' U' (R U R' F')",
+      F: "(R' U' F') (R U R' U') (R' F R2 U') (R' U' R) (U R' U R)",
+      V: "(R' U R' U') y (R' F' R2 U') (R' U R' F) R F",
+      Y: "F (R U' R' U') (R U R' F') (R U R' U') (R' F R F')",
+      Na: "(R U R' F') (R U R' U') (R' F R2 U') (R' U' R)",
+      Nb: "Rw' D' F Rw U' Rw' F' D Rw2 U Rw' U' Rw' F Rw F'",
+      Ga: "(R U R') {U' D} (R2 U' R U') (R' U R' U) R2 D'",
+      Gb: "(R' U' R) {U D'} (R2 U R' U) (R U' R U') R2' D",
+      Gc: "R2 U (R' U R' U') (R U' R2) {D U'} (R' U R D')",
+      Gd: "R2' U' (R U' R U) (R' U R2) {D' U} (R U' R' D)"
+    }
+  };
 
   const imgEl = document.getElementById('case-image');
   const imgWrap = document.getElementById('img-wrap');
@@ -17,6 +167,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const menuBtn = document.getElementById('menu-btn');
   const menuPanel = document.getElementById('menu-panel');
   const panelClose = document.getElementById('panel-close');
+  const skipBtn = document.getElementById('skip-case-btn');
   const removeToggle = document.getElementById('remove-when-solved-toggle');
   const timerToggle = document.getElementById('timer-toggle');
   const timerAutoToggle = document.getElementById('timer-autostart-toggle');
@@ -32,13 +183,26 @@ document.addEventListener('DOMContentLoaded', () => {
   const hideTimerBtn = document.getElementById('hide-timer-btn');
   const caseTimerBar = document.getElementById('case-timer-bar');
   const caseTimerDisplay = document.getElementById('case-timer-display');
+  const caseMoves = document.getElementById('case-moves');
+  const caseMovesToggle = document.getElementById('case-moves-toggle');
+  const caseMovesBody = document.getElementById('case-moves-body');
+  const caseMovesCaseId = document.getElementById('case-moves-caseid');
+  const caseMovesText = document.getElementById('case-moves-text');
+  const caseMovesSetupWrap = document.getElementById('case-moves-setup-wrap');
+  const caseMovesSetupText = document.getElementById('case-moves-setup-text');
   const casesRemainingEl = document.getElementById('cases-remaining');
+  const remainingLabel = document.getElementById('remaining-label');
   const remainingCount = document.getElementById('remaining-count');
   const competitiveBreakdown = document.getElementById('competitive-breakdown');
   const remainingBadEl = document.getElementById('remaining-bad');
   const remainingGoodEl = document.getElementById('remaining-good');
   const clearSolved = document.getElementById('clear-solved');
   const keyboardToggle = document.getElementById('keyboard-actions-toggle');
+  const keyboardShortcutsExpand = document.getElementById('keyboard-shortcuts-expand');
+  const keyboardShortcutsPanel = document.getElementById('keyboard-shortcuts-panel');
+  const keyboardShortcutsList = document.getElementById('keyboard-shortcuts-list');
+  const keyboardShortcutsReset = document.getElementById('keyboard-shortcuts-reset');
+  const kbdSummary = document.getElementById('kbd-summary');
   const galleryWrap = document.getElementById('exclusion-gallery-wrap');
   const galleryEl = document.getElementById('exclusion-gallery');
   const galleryToggleBtn = document.getElementById('toggle-exclusion-gallery');
@@ -47,6 +211,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const imageSizeRange = document.getElementById('image-size-range');
   const buttonSizeRange = document.getElementById('button-size-range');
   const resetSizeBtn = document.getElementById('reset-size-btn');
+  const orderedToggle = document.getElementById('ordered-toggle');
   const competitiveToggle = document.getElementById('competitive-toggle');
   const competitiveLimitInput = document.getElementById('competitive-limit-input');
   const competitiveRepeatInput = document.getElementById('competitive-repeat-input');
@@ -54,6 +219,9 @@ document.addEventListener('DOMContentLoaded', () => {
   const resetCompetitiveBtn = document.getElementById('reset-competitive-btn');
   const resetAllBtn = document.getElementById('reset-all-btn');
   const caseMask = document.getElementById('case-mask');
+  const caseSetup = document.getElementById('case-setup');
+  const caseSetupCaseId = document.getElementById('case-setup-caseid');
+  const caseSetupText = document.getElementById('case-setup-text');
   const lastCaseInfo = document.getElementById('last-case-info');
   const finalScreen = document.getElementById('final-screen');
   const finalTimeLine = document.getElementById('final-time-line');
@@ -62,10 +230,22 @@ document.addEventListener('DOMContentLoaded', () => {
 
   const defaults = {
     excluded: [],
-    removeWhenSolved: false,
+    removeWhenSolved: true,
     solved: [],
     solvedHistory: [],
     keyboardActions: true,
+    orderedTraining: {
+      enabled: false,
+      index: 0,
+      queue: []
+    },
+    keybinds: {
+      next: ['Space', 'ArrowRight'],
+      prev: ['ArrowLeft'],
+      menu: ['KeyM'],
+      timer: ['KeyC'],
+      competitiveToggle: ['Digit1']
+    },
     uiScale: { image: 1, button: 1 },
     timerState: {
       elapsed: 0,
@@ -94,6 +274,10 @@ document.addEventListener('DOMContentLoaded', () => {
   let completed = false;
   let completionTotalMs = null;
   let undoStack = [];
+  let movesOpen = false;
+  let shortcutsPanelOpen = false;
+  let capturingKeybind = null;
+  let captureConflictEls = [];
 
   let sessionTimerInterval = null;
   let caseTimerInterval = null;
@@ -109,29 +293,120 @@ document.addEventListener('DOMContentLoaded', () => {
   let galleryRendered = 0;
   let galleryBusy = false;
 
+  function normalizeKeybinds(raw) {
+    const base = defaults.keybinds || {};
+    const input = raw && typeof raw === 'object' ? raw : {};
+
+    const maxByAction = {
+      next: 2,
+      prev: 1,
+      menu: 1,
+      timer: 1,
+      competitiveToggle: 1
+    };
+    const order = ['next', 'prev', 'menu', 'timer', 'competitiveToggle'];
+
+    const cleaned = {};
+    order.forEach((action) => {
+      const max = maxByAction[action] || 1;
+      const candidate = Array.isArray(input[action]) ? input[action] : (Array.isArray(base[action]) ? base[action] : []);
+      const out = [];
+      const seenLocal = new Set();
+      candidate.forEach((v) => {
+        const code = String(v || '').trim();
+        if (!code || seenLocal.has(code)) return;
+        seenLocal.add(code);
+        out.push(code);
+      });
+      cleaned[action] = out.slice(0, max);
+    });
+
+    const used = new Set();
+    const normalized = {};
+    order.forEach((action) => {
+      const max = maxByAction[action] || 1;
+      const out = [];
+      (cleaned[action] || []).forEach((code) => {
+        if (out.length >= max) return;
+        if (used.has(code)) return;
+        used.add(code);
+        out.push(code);
+      });
+
+      const fallback = Array.isArray(base[action]) ? base[action] : [];
+      fallback.forEach((code) => {
+        if (out.length >= max) return;
+        if (used.has(code)) return;
+        used.add(code);
+        out.push(code);
+      });
+
+      normalized[action] = out;
+    });
+
+    return normalized;
+  }
+
   function normalizeState(raw) {
     const merged = {
       ...defaults,
       ...raw,
       timerState: { ...defaults.timerState, ...(raw.timerState || {}) },
       uiScale: { ...defaults.uiScale, ...(raw.uiScale || {}) },
-      competitive: { ...defaults.competitive, ...(raw.competitive || {}) }
+      competitive: { ...defaults.competitive, ...(raw.competitive || {}) },
+      orderedTraining: { ...defaults.orderedTraining, ...(raw.orderedTraining || {}) }
     };
-    merged.excluded = uniqueIntList(merged.excluded);
-    merged.solved = uniqueIntList(merged.solved);
+    merged.excluded = uniqueCaseIdList(merged.excluded);
+    merged.solved = uniqueCaseIdList(merged.solved);
     merged.solvedHistory = Array.isArray(merged.solvedHistory) ? merged.solvedHistory : [];
     merged.competitive.caseStats = merged.competitive.caseStats || {};
+    merged.keybinds = normalizeKeybinds(merged.keybinds);
+    merged.orderedTraining.enabled = !!merged.orderedTraining.enabled;
+    merged.orderedTraining.index = Math.max(0, Number(merged.orderedTraining.index) || 0);
+    merged.orderedTraining.queue = Array.isArray(merged.orderedTraining.queue) ? merged.orderedTraining.queue.map((v) => String(v).trim()).filter(Boolean) : [];
     return merged;
   }
 
-  function uniqueIntList(input) {
+  function parseCaseIds(raw, fallbackTotal) {
+    const fallback = Array.from({ length: Math.max(1, Number(fallbackTotal) || 1) }, (_, i) => String(i + 1));
+    if (!raw) return fallback;
+    const txt = String(raw).trim();
+    if (!txt) return fallback;
+
+    let list = null;
+    if (txt.startsWith('[')) {
+      try {
+        const parsed = JSON.parse(txt);
+        if (Array.isArray(parsed)) list = parsed;
+      } catch (e) {
+        list = null;
+      }
+    }
+    if (!list) list = txt.split(',');
+
+    const out = [];
+    const seen = new Set();
+    list.forEach((v) => {
+      const id = String(v).trim();
+      if (!id || seen.has(id)) return;
+      seen.add(id);
+      out.push(id);
+    });
+    return out.length ? out : fallback;
+  }
+
+  function sortCaseIds(ids) {
+    return [...ids].sort((a, b) => (CASE_INDEX.get(a) ?? 1e9) - (CASE_INDEX.get(b) ?? 1e9));
+  }
+
+  function uniqueCaseIdList(input) {
     if (!Array.isArray(input)) return [];
     const out = new Set();
     input.forEach((v) => {
-      const n = Number(v);
-      if (Number.isFinite(n) && n >= 1 && n <= TOTAL) out.add(n);
+      const id = String(v).trim();
+      if (CASE_ID_SET.has(id)) out.add(id);
     });
-    return Array.from(out).sort((a, b) => a - b);
+    return sortCaseIds(Array.from(out));
   }
 
   function save() {
@@ -157,6 +432,55 @@ document.addEventListener('DOMContentLoaded', () => {
 
   function isMobileCompetitiveTimerLocked() {
     return IS_TOUCH_DEVICE && state.competitive.enabled;
+  }
+
+  function isOrderedTrainingMode() {
+    return !!(state.orderedTraining && state.orderedTraining.enabled);
+  }
+
+  function baseOrderedList() {
+    const desired = ORDERED_CASES_BY_SET[pageSet];
+    const base = Array.isArray(desired) && desired.length ? desired : CASE_IDS;
+    return base.map((v) => String(v).trim()).filter(Boolean);
+  }
+
+  function orderedQueue() {
+    const excluded = new Set(state.excluded);
+    const base = baseOrderedList().filter((id) => CASE_ID_SET.has(id) && !excluded.has(id));
+    const stored = (state.orderedTraining && Array.isArray(state.orderedTraining.queue))
+      ? state.orderedTraining.queue.map((v) => String(v).trim()).filter(Boolean)
+      : [];
+
+    const seen = new Set();
+    const out = [];
+
+    stored.forEach((id) => {
+      if (!CASE_ID_SET.has(id) || excluded.has(id) || seen.has(id)) return;
+      seen.add(id);
+      out.push(id);
+    });
+    base.forEach((id) => {
+      if (seen.has(id)) return;
+      seen.add(id);
+      out.push(id);
+    });
+    CASE_IDS.forEach((id) => {
+      if (excluded.has(id) || seen.has(id)) return;
+      seen.add(id);
+      out.push(id);
+    });
+
+    return out.length ? out : CASE_IDS.filter((id) => !excluded.has(id));
+  }
+
+  function orderedTotal() {
+    return orderedQueue().length;
+  }
+
+  function clampOrderedIndex() {
+    const total = orderedTotal();
+    const idx = Math.max(0, Number(state.orderedTraining.index) || 0);
+    state.orderedTraining.index = total ? Math.min(idx, total - 1) : 0;
   }
 
   function enforceMobileCompetitiveTimerRule() {
@@ -193,8 +517,160 @@ document.addEventListener('DOMContentLoaded', () => {
     }, t);
   }
 
+  function codeToLabel(code) {
+    const c = String(code || '').trim();
+    if (!c) return '-';
+    if (c === 'Space') return 'Espaço';
+    if (c === 'ArrowRight') return 'Seta direita';
+    if (c === 'ArrowLeft') return 'Seta esquerda';
+    if (c === 'ArrowUp') return 'Seta cima';
+    if (c === 'ArrowDown') return 'Seta baixo';
+    if (c.startsWith('Key') && c.length === 4) return c.slice(3);
+    if (c.startsWith('Digit') && c.length === 6) return c.slice(5);
+    if (c.startsWith('Numpad')) return c.replace('Numpad', 'Num ');
+    return c;
+  }
+
+  function isPlainKeydown(e) {
+    return !e.ctrlKey && !e.altKey && !e.metaKey;
+  }
+
+  function keyMatches(action, e) {
+    const binds = state.keybinds && state.keybinds[action];
+    if (!Array.isArray(binds) || !binds.length) return false;
+    const code = String(e.code || '').trim();
+    const key = String(e.key || '').trim();
+    return binds.includes(code) || (key && binds.includes(key));
+  }
+
+  function updateShortcutTooltips() {
+    const nextKeys = (state.keybinds.next || []).map(codeToLabel).join(' / ');
+    const prevKeys = (state.keybinds.prev || []).map(codeToLabel).join(' / ');
+    const menuKeys = (state.keybinds.menu || []).map(codeToLabel).join(' / ');
+    const timerKeys = (state.keybinds.timer || []).map(codeToLabel).join(' / ');
+
+    if (nextBtn) nextBtn.dataset.tooltip = `Atalhos: ${nextKeys || '-'}`;
+    if (prevBtn) prevBtn.dataset.tooltip = `Atalho: ${prevKeys || '-'}`;
+    if (menuBtn) menuBtn.dataset.tooltip = `Atalho: ${menuKeys || '-'}`;
+    if (timerStart) timerStart.dataset.tooltip = `Atalho: ${timerKeys || '-'}`;
+  }
+
+  function updateKbdSummary() {
+    if (!kbdSummary) return;
+    const nextKeys = (state.keybinds.next || []).map(codeToLabel).join(' / ') || '-';
+    const prevKeys = (state.keybinds.prev || []).map(codeToLabel).join(' / ') || '-';
+    const menuKeys = (state.keybinds.menu || []).map(codeToLabel).join(' / ') || '-';
+    kbdSummary.textContent = `${nextKeys}: próximo, ${prevKeys}: anterior, Ctrl+Z: desfazer, Esc: fechar, ${menuKeys}: abrir menu.`;
+  }
+
+  function clearCaptureConflicts() {
+    captureConflictEls.forEach((el) => el.classList.remove('is-conflict'));
+    captureConflictEls = [];
+  }
+
+  function cancelKeyCapture() {
+    if (!capturingKeybind) return;
+    capturingKeybind = null;
+    clearCaptureConflicts();
+    renderKeyboardShortcutsPanel();
+  }
+
+  function captureKeyForBinding(action, index, el) {
+    cancelKeyCapture();
+    capturingKeybind = { action, index, el };
+    clearCaptureConflicts();
+    el.classList.add('is-capturing');
+    el.textContent = 'Pressione uma tecla...';
+    showToast('Pressione a tecla desejada (Esc cancela)', 1600);
+  }
+
+  function renderKeyboardShortcutsPanel() {
+    if (!keyboardShortcutsList || !keyboardShortcutsPanel) return;
+    if (keyboardShortcutsPanel.hidden) return;
+
+    const editable = [
+      { action: 'next', label: 'Próximo caso' },
+      { action: 'prev', label: 'Caso anterior' },
+      { action: 'menu', label: 'Abrir/fechar menu' },
+      { action: 'timer', label: 'Cronômetro (start/pausar)' },
+      { action: 'competitiveToggle', label: 'Alternar competitivo' }
+    ];
+
+    keyboardShortcutsList.innerHTML = '';
+
+    function row(label, keysEl) {
+      const wrap = document.createElement('div');
+      wrap.className = 'kbd-row';
+      const l = document.createElement('div');
+      l.className = 'kbd-row-label';
+      l.textContent = label;
+      wrap.appendChild(l);
+      wrap.appendChild(keysEl);
+      keyboardShortcutsList.appendChild(wrap);
+    }
+
+    function keyChip(text, isButton) {
+      const el = document.createElement(isButton ? 'button' : 'span');
+      el.className = isButton ? 'key-chip keybind-field' : 'key-chip';
+      if (isButton) el.type = 'button';
+      el.textContent = text;
+      return el;
+    }
+
+    function keyButton(action, index, code) {
+      const el = keyChip(codeToLabel(code), true);
+      el.dataset.action = action;
+      el.dataset.index = String(index);
+      el.dataset.kbdCode = String(code || '');
+      el.addEventListener('click', () => captureKeyForBinding(action, index, el));
+      return el;
+    }
+
+    editable.forEach(({ action, label }) => {
+      const keys = Array.isArray(state.keybinds[action]) ? state.keybinds[action] : [];
+      const keysWrap = document.createElement('div');
+      keysWrap.className = 'kbd-row-keys';
+      keys.forEach((code, idx) => keysWrap.appendChild(keyButton(action, idx, code)));
+      row(label, keysWrap);
+    });
+
+    const timerLabel = (state.keybinds.timer || []).map(codeToLabel)[0] || '-';
+    const readonly = [
+      { label: 'Desfazer', keys: ['Ctrl + Z'] },
+      { label: 'Fechar', keys: ['Esc'] },
+      { label: 'Excluir caso atual', keys: ['Ctrl + Backspace', 'Ctrl + Delete'] },
+      { label: 'Resetar cronômetro', keys: [`${timerLabel} + Backspace`] }
+    ];
+
+    readonly.forEach(({ label, keys }) => {
+      const keysWrap = document.createElement('div');
+      keysWrap.className = 'kbd-row-keys';
+      keys.forEach((t) => keysWrap.appendChild(keyChip(t, false)));
+      row(label, keysWrap);
+    });
+  }
+
+  function resetKeybindsToDefault() {
+    cancelKeyCapture();
+    state.keybinds = normalizeKeybinds(JSON.parse(JSON.stringify(defaults.keybinds || {})));
+    save();
+    if (shortcutsPanelOpen) renderKeyboardShortcutsPanel();
+    updateShortcutTooltips();
+    updateKbdSummary();
+    showToast('Atalhos resetados');
+  }
+
   function cloneState() {
     return JSON.parse(JSON.stringify(state));
+  }
+
+  function resetSolvedProgress() {
+    state.solved = [];
+    state.solvedHistory = [];
+    state.lastCaseReport = null;
+    sessionResolved = new Set();
+    sessionActive = true;
+    sessionTargetCount = unexcludedCases().length;
   }
 
   function pushUndo(action) {
@@ -230,7 +706,7 @@ document.addEventListener('DOMContentLoaded', () => {
     syncUiFromState();
     renderCaseScene();
     refreshGalleryIfOpen();
-    showToast('Ultima acao desfeita');
+    showToast('Última ação desfeita');
   }
 
   function fmt(ms) {
@@ -357,18 +833,18 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   function availableNormalCases() {
-    const all = Array.from({ length: TOTAL }, (_, i) => i + 1);
     const blocked = new Set(state.excluded);
     if (state.removeWhenSolved) sessionResolved.forEach((id) => blocked.add(id));
-    return all.filter((id) => !blocked.has(id));
+    return CASE_IDS.filter((id) => !blocked.has(id));
   }
 
   function availableCompetitiveCases() {
     const out = [];
-    for (let id = 1; id <= TOTAL; id += 1) {
-      if (state.excluded.includes(id)) continue;
+    const excluded = new Set(state.excluded);
+    CASE_IDS.forEach((id) => {
+      if (excluded.has(id)) return;
       if (!isCaseMastered(id)) out.push(id);
-    }
+    });
     return out;
   }
 
@@ -377,11 +853,8 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   function unexcludedCases() {
-    const list = [];
-    for (let id = 1; id <= TOTAL; id += 1) {
-      if (!state.excluded.includes(id)) list.push(id);
-    }
-    return list;
+    const excluded = new Set(state.excluded);
+    return CASE_IDS.filter((id) => !excluded.has(id));
   }
 
   function competitiveWeight(caseId) {
@@ -442,6 +915,7 @@ document.addEventListener('DOMContentLoaded', () => {
     lastShown = caseId;
     caseVisible = !!visible;
     appendHistory(caseId, visible);
+    closeMovesPanel();
   }
 
   function updateHistoryVisibility() {
@@ -450,8 +924,15 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   function preloadAnother() {
-    const list = availableCases();
-    const next = list.find((id) => id !== currentCase);
+    let next = null;
+    if (isOrderedTrainingMode()) {
+      const list = orderedQueue();
+      const idx = Math.max(0, Number(state.orderedTraining.index) || 0);
+      next = list[idx + 1] || null;
+    } else {
+      const list = availableCases();
+      next = list.find((id) => id !== currentCase) || null;
+    }
     if (next) C.preloadImage(`${pageSet}/${next}.png`).catch(() => {});
   }
 
@@ -559,13 +1040,72 @@ document.addEventListener('DOMContentLoaded', () => {
       lastCaseInfo.textContent = 'Nenhum caso resolvido ainda.';
       return;
     }
-    const labels = { good: 'bom', medium: 'medio', bad: 'ruim' };
+    const labels = { good: 'bom', medium: 'médio', bad: 'ruim' };
     lastCaseInfo.textContent = [
-      `Ultimo caso: ${report.caseId}`,
+      `Último caso: ${report.caseId}`,
       `Tempo: ${fmt(report.timeMs)}`,
       `Desempenho: ${labels[report.grade] || '-'}`,
       `Resolvido ${report.solveCount} vez(es)`
     ].join(' | ');
+  }
+
+  function renderCompetitiveSetup() {
+    if (!caseSetup || !caseSetupCaseId || !caseSetupText) return;
+    const shouldShow = state.competitive.enabled && !completed && !!currentCase && !caseVisible;
+    caseSetup.hidden = !shouldShow;
+    if (!shouldShow) return;
+
+    caseSetupCaseId.textContent = String(currentCase);
+    const setSetups = SETUPS_BY_SET[pageSet] || {};
+    const setup = setSetups[currentCase] || '';
+    caseSetupText.textContent = setup || `Setup ainda não cadastrado para ${String(pageSet || '').toUpperCase()}.`;
+  }
+
+  function closeMovesPanel() {
+    movesOpen = false;
+    if (caseMovesBody) caseMovesBody.hidden = true;
+    if (caseMovesToggle) {
+      caseMovesToggle.setAttribute('aria-expanded', 'false');
+      caseMovesToggle.classList.remove('case-moves-toggle-on');
+    }
+  }
+
+  function renderMovesPanel() {
+    if (!caseMoves || !caseMovesToggle || !caseMovesBody || !caseMovesCaseId || !caseMovesText) return;
+
+    const shouldHide = completed || !currentCase || (state.competitive.enabled && !caseVisible);
+    if (shouldHide) {
+      caseMoves.hidden = true;
+      closeMovesPanel();
+      return;
+    }
+
+    caseMoves.hidden = false;
+    caseMovesCaseId.textContent = String(currentCase);
+
+    const setMoves = MOVES_BY_SET[pageSet] || {};
+    const alg = setMoves[currentCase] || '';
+
+    caseMovesToggle.disabled = false;
+    caseMovesText.textContent = alg || `Movimentos ainda não cadastrados para ${String(pageSet || '').toUpperCase()}.`;
+    const orderedMode = isOrderedTrainingMode();
+    if (orderedMode) movesOpen = true;
+    caseMovesBody.hidden = !movesOpen;
+    caseMovesToggle.hidden = orderedMode;
+    caseMovesToggle.setAttribute('aria-expanded', String(movesOpen));
+    caseMovesToggle.classList.toggle('case-moves-toggle-on', movesOpen);
+
+    if (caseMovesSetupWrap && caseMovesSetupText) {
+      if (orderedMode && movesOpen) {
+        const setSetups = SETUPS_BY_SET[pageSet] || {};
+        const setup = setSetups[currentCase] || '';
+        caseMovesSetupWrap.hidden = false;
+        caseMovesSetupText.textContent = setup || `Setup ainda não cadastrado para ${String(pageSet || '').toUpperCase()}.`;
+      } else {
+        caseMovesSetupWrap.hidden = true;
+        caseMovesSetupText.textContent = '';
+      }
+    }
   }
 
   async function renderCaseScene() {
@@ -574,14 +1114,17 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     renderLastCaseInfo();
+    renderCompetitiveSetup();
     updateTimerDisplays();
     updateRemaining();
     updateControlsState();
     applyScale();
+    renderMovesPanel();
 
     finalScreen.hidden = !completed;
     prevBtn.hidden = completed;
     nextBtn.hidden = completed;
+    if (skipBtn) skipBtn.hidden = completed || (state.competitive.enabled && !caseVisible);
 
     if (completed) {
       imgEl.hidden = true;
@@ -604,7 +1147,7 @@ document.addEventListener('DOMContentLoaded', () => {
       return;
     }
 
-    nextBtn.textContent = 'Proximo caso';
+    nextBtn.textContent = 'Próximo caso';
     caseMask.hidden = true;
     imgEl.hidden = false;
     const src = `${pageSet}/${currentCase}.png`;
@@ -617,13 +1160,22 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   function updateControlsState() {
+    const orderedMode = isOrderedTrainingMode();
     if (controlsRow) controlsRow.classList.toggle('single-next', state.competitive.enabled && !completed);
     prevBtn.hidden = completed || state.competitive.enabled;
-    prevBtn.disabled = historyIndex <= 0 || completed || state.competitive.enabled;
-    const shouldShowRemaining = state.removeWhenSolved || state.competitive.enabled;
+    if (orderedMode) {
+      const list = orderedListFiltered();
+      const idx = list.indexOf(currentCase);
+      const curIdx = idx >= 0 ? idx : Math.max(0, Number(state.orderedTraining.index) || 0);
+      prevBtn.disabled = completed || state.competitive.enabled || curIdx <= 0;
+    } else {
+      prevBtn.disabled = historyIndex <= 0 || completed || state.competitive.enabled;
+    }
+    const shouldShowRemaining = state.removeWhenSolved || state.competitive.enabled || orderedMode;
     casesRemainingEl.hidden = !shouldShowRemaining;
 
     if (state.competitive.enabled) {
+      if (remainingLabel) remainingLabel.textContent = 'Casos restantes';
       const pending = availableCompetitiveCases();
       const left = pending.length;
       let bad = 0;
@@ -637,7 +1189,15 @@ document.addEventListener('DOMContentLoaded', () => {
       competitiveBreakdown.hidden = false;
       remainingBadEl.textContent = String(bad);
       remainingGoodEl.textContent = String(good);
+    } else if (orderedMode) {
+      clampOrderedIndex();
+      const total = orderedTotal();
+      const current = total ? Math.min(total, (Number(state.orderedTraining.index) || 0) + 1) : 0;
+      if (remainingLabel) remainingLabel.textContent = 'Casos';
+      remainingCount.textContent = `${current}/${total}`;
+      competitiveBreakdown.hidden = true;
     } else {
+      if (remainingLabel) remainingLabel.textContent = 'Casos restantes';
       const blocked = new Set(state.excluded);
       if (state.removeWhenSolved) sessionResolved.forEach((id) => blocked.add(id));
       remainingCount.textContent = String(Math.max(0, TOTAL - blocked.size));
@@ -657,15 +1217,15 @@ document.addEventListener('DOMContentLoaded', () => {
     const seen = new Set();
     for (let i = state.solvedHistory.length - 1; i >= 0; i -= 1) {
       const entry = state.solvedHistory[i];
-      const id = Number(entry.caseId);
-      if (id >= 1 && id <= TOTAL && !seen.has(id)) {
+      const id = String(entry.caseId).trim();
+      if (CASE_ID_SET.has(id) && !seen.has(id)) {
         seen.add(id);
         ranked.push(id);
       }
     }
-    for (let i = 1; i <= TOTAL; i += 1) {
-      if (!seen.has(i)) ranked.push(i);
-    }
+    CASE_IDS.forEach((id) => {
+      if (!seen.has(id)) ranked.push(id);
+    });
     return ranked;
   }
 
@@ -688,11 +1248,16 @@ document.addEventListener('DOMContentLoaded', () => {
     const excludedNow = idx === -1;
     if (excludedNow) {
       state.excluded.push(caseId);
-      state.excluded.sort((a, b) => a - b);
+      state.excluded = sortCaseIds(state.excluded);
     } else {
       state.excluded.splice(idx, 1);
     }
     save();
+    if (isOrderedTrainingMode()) {
+      clampOrderedIndex();
+      state.orderedTraining.queue = orderedQueue();
+      sessionTargetCount = orderedTotal();
+    }
     updateRemaining();
 
     const card = cardEl || galleryEl.querySelector(`.exclude-card[data-case="${caseId}"]`);
@@ -771,22 +1336,26 @@ document.addEventListener('DOMContentLoaded', () => {
       state.solvedHistory = [];
       state.lastCaseReport = null;
       state.competitive.caseStats = {};
+      state.orderedTraining.index = 0;
     } else if (clearCompetitiveStats) {
       state.competitive.caseStats = {};
     }
     resetSessionTimer();
     resetRun();
-    sessionTargetCount = unexcludedCases().length;
+    clampOrderedIndex();
+    sessionTargetCount = isOrderedTrainingMode() ? orderedTotal() : unexcludedCases().length;
     sessionResolved = new Set();
     sessionActive = true;
-    const first = pickNextCase();
-    if (!first) {
-      const fallback = unexcludedCases()[0] || 1;
-      setCurrentCase(fallback, !state.competitive.enabled);
-      save();
-      renderCaseScene();
-      return;
+    let first = null;
+    if (isOrderedTrainingMode()) {
+      state.orderedTraining.index = 0;
+      const q = orderedQueue();
+      state.orderedTraining.queue = q;
+      first = q[0] || null;
+    } else {
+      first = pickNextCase();
     }
+    if (!first) first = unexcludedCases()[0] || CASE_IDS[0];
     setCurrentCase(first, !state.competitive.enabled);
     save();
     renderCaseScene();
@@ -875,9 +1444,23 @@ document.addEventListener('DOMContentLoaded', () => {
       return;
     }
 
-    const next = pickNextCase();
+    let next = null;
+    if (isOrderedTrainingMode()) {
+      const list = orderedListFiltered();
+      const curIdxInList = list.indexOf(currentCase);
+      const curIdx = curIdxInList >= 0 ? curIdxInList : Math.max(0, Number(state.orderedTraining.index) || 0);
+      const nextIdx = curIdx + 1;
+      state.orderedTraining.index = nextIdx;
+      if (nextIdx >= list.length) {
+        completeSession();
+        return;
+      }
+      next = list[nextIdx];
+    } else {
+      next = pickNextCase();
+    }
     if (!next) {
-      showToast('Sem proximo caso no momento');
+      showToast('Sem próximo caso no momento');
       return;
     }
 
@@ -902,14 +1485,80 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     pushUndo('next');
+    if (isOrderedTrainingMode()) {
+      moveToNextCaseAfterSolve(0, 'good', true);
+      return;
+    }
     const elapsed = state.competitive.enabled ? stopCaseTimer() : 0;
     moveToNextCaseAfterSolve(elapsed, classifyPerformance(elapsed), true);
   }
 
+  function onSkipCase() {
+    if (completed || !currentCase) return;
+    if (state.competitive.enabled && !caseVisible) return;
+
+    pushUndo('skip');
+    stopCaseTimer();
+
+    if (isOrderedTrainingMode()) {
+      const list = orderedQueue();
+      const idx = list.indexOf(currentCase);
+      const curIdx = idx >= 0 ? idx : Math.max(0, Number(state.orderedTraining.index) || 0);
+      const removed = list.splice(curIdx, 1)[0];
+      if (removed) list.push(removed);
+      state.orderedTraining.queue = list;
+      clampOrderedIndex();
+      const next = list[Math.min(curIdx, list.length - 1)] || list[0] || null;
+      if (!next) return;
+      setCurrentCase(next, true);
+      save();
+      renderCaseScene();
+      preloadAnother();
+      showToast('Caso pulado');
+      return;
+    }
+
+    if (state.competitive.enabled) {
+      const stat = getCaseStat(currentCase);
+      stat.boost = Math.min(12, (Number(stat.boost) || 0) + 2);
+    }
+
+    const next = pickNextCase();
+    if (!next) {
+      showToast('Sem próximo caso no momento');
+      return;
+    }
+    setCurrentCase(next, !state.competitive.enabled);
+    save();
+    renderCaseScene();
+    preloadAnother();
+    showToast('Caso pulado');
+  }
+
   function onPreviousCase() {
     if (state.competitive.enabled) return;
+    if (isOrderedTrainingMode()) {
+      if (completed) return;
+      const list = orderedQueue();
+      const idx = list.indexOf(currentCase);
+      const curIdx = idx >= 0 ? idx : Math.max(0, Number(state.orderedTraining.index) || 0);
+      const prevIdx = curIdx - 1;
+      if (prevIdx < 0 || !list[prevIdx]) {
+        showToast('Não há caso anterior');
+        return;
+      }
+      pushUndo('prev-ordered');
+      stopCaseTimer();
+      state.orderedTraining.index = prevIdx;
+      state.orderedTraining.queue = list;
+      setCurrentCase(list[prevIdx], true);
+      save();
+      renderCaseScene();
+      preloadAnother();
+      return;
+    }
     if (completed || historyIndex <= 0) {
-      showToast('Nao ha caso anterior');
+      showToast('Não há caso anterior');
       return;
     }
     pushUndo('prev');
@@ -929,13 +1578,18 @@ document.addEventListener('DOMContentLoaded', () => {
     const idx = state.excluded.indexOf(currentCase);
     if (idx === -1) {
       state.excluded.push(currentCase);
-      state.excluded.sort((a, b) => a - b);
-      showToast(`Caso ${currentCase} excluido`);
+      state.excluded = sortCaseIds(state.excluded);
+      showToast(`Caso ${currentCase} excluído`);
     } else {
       state.excluded.splice(idx, 1);
-      showToast(`Caso ${currentCase} reincluido`);
+      showToast(`Caso ${currentCase} reincluído`);
     }
     save();
+    if (isOrderedTrainingMode()) {
+      state.orderedTraining.queue = orderedQueue();
+      clampOrderedIndex();
+      sessionTargetCount = orderedTotal();
+    }
     refreshGalleryIfOpen();
     renderCaseScene();
     if (state.excluded.includes(currentCase)) onResolveAdvance();
@@ -958,13 +1612,18 @@ document.addEventListener('DOMContentLoaded', () => {
     save();
     syncUiFromState();
     restartSession(true, true);
-    showToast('Configuracoes restauradas para o padrao');
+    showToast('Configurações restauradas para o padrão');
   }
 
   function toggleCompetitiveMode(nextValue) {
     const enable = typeof nextValue === 'boolean' ? nextValue : !state.competitive.enabled;
     state.competitive.enabled = enable;
     competitiveToggle.checked = enable;
+    if (enable && state.orderedTraining.enabled) {
+      state.orderedTraining.enabled = false;
+      if (orderedToggle) orderedToggle.checked = false;
+      state.orderedTraining.index = 0;
+    }
     if (state.competitive.enabled && !IS_TOUCH_DEVICE) state.timerState.enabled = true;
     if (isMobileCompetitiveTimerLocked()) {
       state.timerState.enabled = false;
@@ -975,6 +1634,24 @@ document.addEventListener('DOMContentLoaded', () => {
     showToast(`Modo competitivo ${state.competitive.enabled ? 'ativado' : 'desativado'}`);
   }
 
+  function toggleOrderedTrainingMode(nextValue) {
+    const enable = typeof nextValue === 'boolean' ? nextValue : !state.orderedTraining.enabled;
+    state.orderedTraining.enabled = enable;
+    if (orderedToggle) orderedToggle.checked = enable;
+
+    if (enable && state.competitive.enabled) {
+      state.competitive.enabled = false;
+      competitiveToggle.checked = false;
+    }
+
+    state.orderedTraining.index = 0;
+    state.orderedTraining.queue = orderedQueue();
+    closeMovesPanel();
+    save();
+    restartSession(false, false);
+    showToast(`Modo treino ${state.orderedTraining.enabled ? 'ativado' : 'desativado'}`);
+  }
+
   function syncUiFromState() {
     state.uiScale = loadSharedScale();
     enforceMobileCompetitiveTimerRule();
@@ -982,6 +1659,7 @@ document.addEventListener('DOMContentLoaded', () => {
     keyboardToggle.checked = !!state.keyboardActions;
     timerToggle.checked = !!state.timerState.enabled;
     timerAutoToggle.checked = !!state.timerState.autoStart;
+    if (orderedToggle) orderedToggle.checked = !!state.orderedTraining.enabled;
     competitiveToggle.checked = !!state.competitive.enabled;
     dynamicBgToggle.checked = !!state.competitive.dynamicBg;
     competitiveLimitInput.value = String(state.competitive.limitSec || 6);
@@ -992,6 +1670,9 @@ document.addEventListener('DOMContentLoaded', () => {
     updateTimerDisplays();
     renderLastCaseInfo();
     updateRemaining();
+    updateShortcutTooltips();
+    updateKbdSummary();
+    if (shortcutsPanelOpen) renderKeyboardShortcutsPanel();
   }
 
   function isInteractiveInput(target) {
@@ -1001,6 +1682,72 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   function handleShortcuts(e) {
+    if (capturingKeybind) {
+      e.preventDefault();
+      e.stopPropagation();
+
+      if (e.key === 'Escape') {
+        cancelKeyCapture();
+        return;
+      }
+
+      if (e.ctrlKey || e.altKey || e.metaKey) {
+        showToast('Use uma tecla sem Ctrl/Alt/Win', 1600);
+        return;
+      }
+
+      const code = String(e.code || '').trim();
+      if (!code) return;
+
+      const blocked = new Set(['Escape', 'Backspace', 'Delete', 'Tab']);
+      if (blocked.has(code)) {
+        showToast('Tecla não permitida', 1600);
+        return;
+      }
+
+      const { action, index, el } = capturingKeybind;
+      const conflicts = [];
+      const bindsObj = state.keybinds || {};
+      Object.keys(bindsObj).forEach((a) => {
+        const arr = Array.isArray(bindsObj[a]) ? bindsObj[a] : [];
+        arr.forEach((c, i) => {
+          if (a === action && i === index) return;
+          if (String(c) === code) conflicts.push({ action: a, index: i });
+        });
+      });
+
+      clearCaptureConflicts();
+      if (conflicts.length) {
+        if (el) {
+          el.classList.add('is-conflict');
+          captureConflictEls.push(el);
+        }
+        conflicts.forEach(({ action: a, index: i }) => {
+          const other = keyboardShortcutsList
+            ? keyboardShortcutsList.querySelector(`.keybind-field[data-action="${a}"][data-index="${i}"]`)
+            : null;
+          if (other) {
+            other.classList.add('is-conflict');
+            captureConflictEls.push(other);
+          }
+        });
+        showToast('Essa tecla já tem atalho. Escolha outra.', 1900);
+        return;
+      }
+
+      if (!Array.isArray(state.keybinds[action])) state.keybinds[action] = [];
+      state.keybinds[action][index] = code;
+      state.keybinds = normalizeKeybinds(state.keybinds);
+      save();
+      capturingKeybind = null;
+      clearCaptureConflicts();
+      renderKeyboardShortcutsPanel();
+      updateShortcutTooltips();
+      updateKbdSummary();
+      showToast('Atalho atualizado');
+      return;
+    }
+
     if (e.key === 'Escape') {
       if (!galleryWrap.hidden) {
         galleryWrap.hidden = true;
@@ -1012,14 +1759,14 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     if (isInteractiveInput(e.target)) return;
-    if (!e.ctrlKey && !e.altKey && !e.metaKey && e.key === '1') {
+    if (isPlainKeydown(e) && keyMatches('competitiveToggle', e)) {
       e.preventDefault();
       toggleCompetitiveMode();
       return;
     }
     if (!state.keyboardActions) return;
 
-    if (e.key.toLowerCase() === 'm') {
+    if (isPlainKeydown(e) && keyMatches('menu', e)) {
       e.preventDefault();
       if (menuPanel.getAttribute('aria-hidden') === 'true') openMenu();
       else closeMenu();
@@ -1032,10 +1779,10 @@ document.addEventListener('DOMContentLoaded', () => {
       return;
     }
 
-    if (!e.ctrlKey && !e.altKey && !e.metaKey && e.key.toLowerCase() === 'c') {
+    if (isPlainKeydown(e) && keyMatches('timer', e)) {
       e.preventDefault();
       if (isMobileCompetitiveTimerLocked()) {
-        showToast('Cronometro total indisponivel no competitivo mobile');
+        showToast('Cronômetro total indisponível no competitivo mobile');
         return;
       }
       cArmedUntil = Date.now() + C_ARM_MS;
@@ -1043,7 +1790,7 @@ document.addEventListener('DOMContentLoaded', () => {
       if (state.timerState.running) stopSessionTimer();
       else startSessionTimer(true);
       syncUiFromState();
-      showToast(state.timerState.running ? 'Cronometro iniciado' : 'Cronometro pausado');
+      showToast(state.timerState.running ? 'Cronômetro iniciado' : 'Cronômetro pausado');
       save();
       return;
     }
@@ -1060,18 +1807,18 @@ document.addEventListener('DOMContentLoaded', () => {
         cArmedUntil = 0;
         resetSessionTimer();
         syncUiFromState();
-        showToast('Cronometro resetado');
+        showToast('Cronômetro resetado');
       }
       return;
     }
 
-    if (e.code === 'Space' || e.key === 'ArrowRight') {
+    if (isPlainKeydown(e) && keyMatches('next', e)) {
       e.preventDefault();
       onResolveAdvance();
       return;
     }
 
-    if (e.key === 'ArrowLeft') {
+    if (isPlainKeydown(e) && keyMatches('prev', e)) {
       e.preventDefault();
       onPreviousCase();
     }
@@ -1079,6 +1826,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   nextBtn.addEventListener('click', onResolveAdvance);
   prevBtn.addEventListener('click', onPreviousCase);
+  if (skipBtn) skipBtn.addEventListener('click', onSkipCase);
   menuBtn.addEventListener('click', () => {
     if (menuPanel.getAttribute('aria-hidden') === 'true') openMenu();
     else closeMenu();
@@ -1108,17 +1856,12 @@ document.addEventListener('DOMContentLoaded', () => {
     save();
     refreshGalleryIfOpen();
     renderCaseScene();
-    showToast('Exclusoes limpas');
+    showToast('Exclusões limpas');
   });
 
   clearSolved.addEventListener('click', () => {
     pushUndo('clear-solved');
-    state.solved = [];
-    state.solvedHistory = [];
-    state.lastCaseReport = null;
-    sessionResolved = new Set();
-    sessionActive = true;
-    sessionTargetCount = unexcludedCases().length;
+    resetSolvedProgress();
     save();
     refreshGalleryIfOpen();
     renderCaseScene();
@@ -1127,10 +1870,38 @@ document.addEventListener('DOMContentLoaded', () => {
 
   removeToggle.addEventListener('change', (e) => {
     pushUndo('toggle-remove');
-    state.removeWhenSolved = !!e.target.checked;
+    const next = !!e.target.checked;
+    const prev = !!state.removeWhenSolved;
+    state.removeWhenSolved = next;
+    if (next !== prev) {
+      resetSolvedProgress();
+      showToast(next ? 'Fluxo ativado: reiniciando casos' : 'Fluxo desativado: resolvidos resetados');
+    }
     save();
+    refreshGalleryIfOpen();
     renderCaseScene();
   });
+
+  if (keyboardShortcutsExpand && keyboardShortcutsPanel) {
+    keyboardShortcutsExpand.addEventListener('click', () => {
+      shortcutsPanelOpen = !shortcutsPanelOpen;
+      keyboardShortcutsPanel.hidden = !shortcutsPanelOpen;
+      keyboardShortcutsExpand.setAttribute('aria-expanded', String(shortcutsPanelOpen));
+      if (shortcutsPanelOpen) {
+        renderKeyboardShortcutsPanel();
+        updateKbdSummary();
+      } else {
+        cancelKeyCapture();
+      }
+    });
+  }
+
+  if (keyboardShortcutsReset) {
+    keyboardShortcutsReset.addEventListener('click', () => {
+      if (!keyboardShortcutsPanel || keyboardShortcutsPanel.hidden) return;
+      resetKeybindsToDefault();
+    });
+  }
 
   keyboardToggle.addEventListener('change', (e) => {
     state.keyboardActions = !!e.target.checked;
@@ -1142,7 +1913,7 @@ document.addEventListener('DOMContentLoaded', () => {
     if (isMobileCompetitiveTimerLocked()) {
       e.target.checked = false;
       state.timerState.enabled = false;
-      showToast('Cronometro total indisponivel no competitivo mobile');
+      showToast('Cronômetro total indisponível no competitivo mobile');
       save();
       syncUiFromState();
       return;
@@ -1157,7 +1928,7 @@ document.addEventListener('DOMContentLoaded', () => {
   timerAutoToggle.addEventListener('change', (e) => {
     state.timerState.autoStart = !!e.target.checked;
     save();
-    showToast(`Inicio automatico ${state.timerState.autoStart ? 'ativado' : 'desativado'}`);
+    showToast(`Início automático ${state.timerState.autoStart ? 'ativado' : 'desativado'}`);
   });
 
   timerStart.addEventListener('click', () => {
@@ -1183,6 +1954,15 @@ document.addEventListener('DOMContentLoaded', () => {
     save();
   });
 
+  if (caseMovesToggle) {
+    caseMovesToggle.addEventListener('click', () => {
+      if (caseMovesToggle.disabled) return;
+      if (state.competitive.enabled && !caseVisible) return;
+      movesOpen = !movesOpen;
+      renderMovesPanel();
+    });
+  }
+
   imageSizeRange.addEventListener('input', (e) => {
     state.uiScale.image = Number(e.target.value);
     saveSharedScale();
@@ -1202,6 +1982,12 @@ document.addEventListener('DOMContentLoaded', () => {
     save();
     showToast('Tamanho restaurado');
   });
+
+  if (orderedToggle) {
+    orderedToggle.addEventListener('change', (e) => {
+      toggleOrderedTrainingMode(!!e.target.checked);
+    });
+  }
 
   competitiveToggle.addEventListener('change', (e) => {
     toggleCompetitiveMode(!!e.target.checked);
@@ -1239,15 +2025,22 @@ document.addEventListener('DOMContentLoaded', () => {
   (async function init() {
     syncUiFromState();
     updateTimerDisplays();
-    sessionTargetCount = unexcludedCases().length;
+    clampOrderedIndex();
+    sessionTargetCount = isOrderedTrainingMode() ? orderedTotal() : unexcludedCases().length;
     sessionResolved = new Set();
     sessionActive = true;
     completed = false;
     finalScreen.hidden = true;
 
-    const first = pickNextCase();
+    let first = null;
+    if (isOrderedTrainingMode()) {
+      state.orderedTraining.index = 0;
+      first = orderedListFiltered()[0] || null;
+    } else {
+      first = pickNextCase();
+    }
     if (!first) {
-      const fallback = unexcludedCases()[0] || 1;
+      const fallback = unexcludedCases()[0] || CASE_IDS[0];
       setCurrentCase(fallback, !state.competitive.enabled);
       save();
       imgEl.hidden = false;

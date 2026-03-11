@@ -3,10 +3,10 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-  <title>Treino PLL - Metodo CPOF</title>
-  <link rel="stylesheet" href="assets/css/global.css?v=20260303o">
+  <title>Treino PLL - Método CPOF</title>
+  <link rel="stylesheet" href="assets/css/global.css?v=20260311d">
 </head>
-<body data-set="pll" data-total="21">
+<body data-set="pll" data-total="21" data-cases="Aa,Ab,E,F,Ga,Gb,Gc,Gd,H,Ja,Jb,Na,Nb,Ra,Rb,T,Ua,Ub,V,Y,Z">
   <header class="topbar">
     <button id="back-btn" class="icon-btn" aria-label="Voltar">X</button>
     <div class="header-right">
@@ -15,14 +15,14 @@
   </header>
 
   <main class="f2l-container">
-    <section class="image-area" role="main" aria-label="Area de treino">
+    <section class="image-area" role="main" aria-label="Área de treino">
       <div id="session-timer-bar" class="session-timer-bar" hidden>
         <div class="session-timer-main">
           <span class="timer-label">Tempo total</span>
           <strong id="session-timer-display">00:00.00</strong>
         </div>
         <div class="timer-visibility-wrap">
-          <button id="timer-visibility-btn" class="small-icon-btn has-tooltip" data-tooltip="Mostrar ou ocultar cronometro">&#128065;</button>
+          <button id="timer-visibility-btn" class="small-icon-btn has-tooltip" data-tooltip="Mostrar ou ocultar cronômetro">&#128065;</button>
           <div class="timer-visibility-menu">
             <button id="show-timer-btn" class="small-btn">Mostrar</button>
             <button id="hide-timer-btn" class="small-btn">Ocultar</button>
@@ -34,29 +34,49 @@
         Tempo do caso: <strong id="case-timer-display">00:00.00</strong>
       </div>
 
+      <section id="case-moves" class="case-moves" aria-label="Movimentos do caso" hidden>
+        <div class="case-moves-head">
+          <span class="case-moves-title">Movimentos</span>
+          <button id="case-moves-toggle" class="small-icon-btn has-tooltip" data-tooltip="Mostrar ou ocultar movimentos" aria-expanded="false">&#128065;</button>
+        </div>
+        <div id="case-moves-body" class="case-moves-body" hidden>
+          <div class="case-moves-meta">Caso <strong id="case-moves-caseid">-</strong></div>
+          <code id="case-moves-text" class="case-moves-text"></code>
+          <div id="case-moves-setup-wrap" class="case-moves-setup-wrap" hidden>
+            <div class="case-moves-setup-label">Setup</div>
+            <code id="case-moves-setup-text" class="case-moves-setup-text"></code>
+          </div>
+        </div>
+      </section>
+
       <div class="img-wrap" id="img-wrap">
-        <img id="case-image" src="pll/1.png" alt="Caso PLL" loading="eager">
+        <img id="case-image" src="pll/Aa.png" alt="Caso PLL" loading="eager">
 
         <div id="case-mask" class="case-mask" hidden>
           <div class="case-mask-question">?</div>
+          <div class="case-setup" id="case-setup" hidden>
+            <div class="case-setup-label">Setup do caso <strong id="case-setup-caseid">-</strong></div>
+            <code id="case-setup-text" class="case-setup-text"></code>
+          </div>
           <div class="last-case-info" id="last-case-info">Nenhum caso resolvido ainda.</div>
         </div>
 
         <div id="final-screen" class="final-screen" hidden>
-          <h2>Parabens! Todos os casos foram concluidos.</h2>
+          <h2>Parabéns! Todos os casos foram concluídos.</h2>
           <p id="final-time-line" class="final-time-line"></p>
-          <button id="restart-session-btn" class="big-btn">Limpar resolvidos e reiniciar sessao</button>
+          <button id="restart-session-btn" class="big-btn">Limpar resolvidos e reiniciar sessão</button>
         </div>
       </div>
 
       <div class="controls-row">
         <button id="prev-case-btn" class="big-btn secondary has-tooltip" data-tooltip="Atalho: Seta esquerda">Caso anterior</button>
-        <button id="next-case-btn" class="big-btn has-tooltip" data-tooltip="Atalhos: Espaco / Seta direita">Proximo caso</button>
+        <button id="next-case-btn" class="big-btn has-tooltip" data-tooltip="Atalhos: Espaço / Seta direita">Próximo caso</button>
+        <button id="skip-case-btn" class="small-btn ghost has-tooltip" data-tooltip="Pular sem contar como resolvido" type="button">Pular</button>
       </div>
     </section>
 
     <div id="cases-remaining" class="cases-remaining" hidden>
-      <div>Casos restantes: <span id="remaining-count">0</span></div>
+      <div><span id="remaining-label">Casos restantes</span>: <span id="remaining-count">0</span></div>
       <div id="competitive-breakdown" class="competitive-breakdown" hidden>
         <span>Casos ruins: <strong id="remaining-bad">0</strong></span>
         <span>Casos bons: <strong id="remaining-good">0</strong></span>
@@ -65,7 +85,7 @@
 
     <aside id="menu-panel" class="menu-panel" aria-hidden="true" role="dialog" aria-label="Controles">
       <div class="settings-head">
-        <h2>Configuracoes de treino</h2>
+        <h2>Configurações de treino</h2>
         <button class="panel-close" id="panel-close" aria-label="Fechar painel">X</button>
       </div>
 
@@ -76,7 +96,7 @@
         <div id="exclusion-gallery-wrap" class="exclusion-gallery-wrap" hidden>
           <div id="exclusion-gallery" class="exclusion-gallery" aria-label="Galeria de casos"></div>
           <div id="exclusion-loading" class="exclusion-loading" hidden>Carregando mais casos...</div>
-          <button id="exclude-reset" class="btn ghost">Limpar exclusoes</button>
+          <button id="exclude-reset" class="btn ghost">Limpar exclusões</button>
           <p class="kbd-help">Atalho para excluir caso atual: Ctrl + Backspace ou Ctrl + Delete.</p>
         </div>
       </div>
@@ -94,16 +114,16 @@
       </div>
 
       <div class="settings-card">
-        <h3>Cronometro</h3>
+        <h3>Cronômetro</h3>
         <div class="line-setting">
-          <span>Ativar cronometro</span>
+          <span>Ativar cronômetro</span>
           <label class="switch">
             <input type="checkbox" id="timer-toggle">
             <span class="switch-slider"></span>
           </label>
         </div>
         <div class="line-setting">
-          <span>Inicio automatico</span>
+          <span>Início automático</span>
           <label class="switch">
             <input type="checkbox" id="timer-autostart-toggle">
             <span class="switch-slider"></span>
@@ -129,7 +149,17 @@
             <span class="switch-slider"></span>
           </label>
         </div>
-        <p class="kbd-help">Seta direita/espaco: proximo, seta esquerda: anterior, Ctrl+Z: desfazer, Esc: fechar, M: abrir menu.</p>
+        <button id="keyboard-shortcuts-expand" class="btn ghost keyboard-shortcuts-expand" aria-expanded="false" type="button">
+          Ver e configurar atalhos <span class="keyboard-chev" aria-hidden="true">&#9662;</span>
+        </button>
+        <div id="keyboard-shortcuts-panel" class="keyboard-shortcuts-panel" hidden>
+          <div id="keyboard-shortcuts-list" class="keyboard-shortcuts-list" aria-label="Lista de atalhos"></div>
+          <div class="keyboard-shortcuts-actions">
+            <button id="keyboard-shortcuts-reset" class="btn ghost" type="button">Resetar atalhos</button>
+          </div>
+          <p id="kbd-summary" class="kbd-help"></p>
+          <p class="kbd-help">Atalhos com Ctrl/Alt/Win não podem ser alterados.</p>
+        </div>
       </div>
 
       <div class="settings-card">
@@ -142,7 +172,19 @@
           <span>Tamanho dos botoes</span>
           <input id="button-size-range" type="range" min="0.85" max="1.25" step="0.05" value="1">
         </label>
-        <button id="reset-size-btn" class="btn ghost">Restaurar tamanho padrao</button>
+        <button id="reset-size-btn" class="btn ghost">Restaurar tamanho padrão</button>
+      </div>
+
+      <div class="settings-card">
+        <h3>Modo Treino (Sequência)</h3>
+        <div class="line-setting">
+          <span>Ativar modo treino</span>
+          <label class="switch">
+            <input type="checkbox" id="ordered-toggle">
+            <span class="switch-slider"></span>
+          </label>
+        </div>
+        <p class="kbd-help">Mostra progresso x/x e segue uma ordem fixa de casos (sem aleatório).</p>
       </div>
 
       <div class="settings-card">
@@ -159,7 +201,7 @@
           <input id="competitive-limit-input" type="number" min="3" max="180" step="1" value="6">
         </label>
         <label class="field-group" for="competitive-repeat-input">
-          <span>Intensidade de repeticao</span>
+          <span>Intensidade de repetição</span>
           <input id="competitive-repeat-input" type="number" min="1" max="10" step="1" value="2">
         </label>
         <div class="line-setting">
@@ -173,7 +215,7 @@
       </div>
 
       <div class="settings-card final-actions">
-        <button id="reset-all-btn" class="btn danger">Resetar todas as configuracoes</button>
+        <button id="reset-all-btn" class="btn danger">Resetar todas as configurações</button>
       </div>
     </aside>
 
@@ -181,8 +223,8 @@
   </main>
 
   <script src="assets/js/utils.js?v=20260303o" defer></script>
-  <script src="assets/js/main.js?v=20260303o" defer></script>
-  <script src="assets/js/f2l.js?v=20260303o" defer></script>
+  <script src="assets/js/main.js?v=20260311a" defer></script>
+  <script src="assets/js/secao.js?v=20260311m" defer></script>
 </body>
 </html>
 
