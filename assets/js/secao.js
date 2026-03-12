@@ -1164,9 +1164,8 @@ document.addEventListener('DOMContentLoaded', () => {
     if (controlsRow) controlsRow.classList.toggle('single-next', state.competitive.enabled && !completed);
     prevBtn.hidden = completed || state.competitive.enabled;
     if (orderedMode) {
-      const list = orderedListFiltered();
-      const idx = list.indexOf(currentCase);
-      const curIdx = idx >= 0 ? idx : Math.max(0, Number(state.orderedTraining.index) || 0);
+      clampOrderedIndex();
+      const curIdx = Math.max(0, Number(state.orderedTraining.index) || 0);
       prevBtn.disabled = completed || state.competitive.enabled || curIdx <= 0;
     } else {
       prevBtn.disabled = historyIndex <= 0 || completed || state.competitive.enabled;
@@ -1446,11 +1445,15 @@ document.addEventListener('DOMContentLoaded', () => {
 
     let next = null;
     if (isOrderedTrainingMode()) {
-      const list = orderedListFiltered();
+      const list = orderedQueue();
+      state.orderedTraining.queue = list;
+      clampOrderedIndex();
+
       const curIdxInList = list.indexOf(currentCase);
       const curIdx = curIdxInList >= 0 ? curIdxInList : Math.max(0, Number(state.orderedTraining.index) || 0);
       const nextIdx = curIdx + 1;
       state.orderedTraining.index = nextIdx;
+
       if (nextIdx >= list.length) {
         completeSession();
         return;
@@ -2035,7 +2038,8 @@ document.addEventListener('DOMContentLoaded', () => {
     let first = null;
     if (isOrderedTrainingMode()) {
       state.orderedTraining.index = 0;
-      first = orderedListFiltered()[0] || null;
+      state.orderedTraining.queue = orderedQueue();
+      first = (state.orderedTraining.queue && state.orderedTraining.queue[0]) ? state.orderedTraining.queue[0] : null;
     } else {
       first = pickNextCase();
     }
