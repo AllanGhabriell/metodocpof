@@ -1124,7 +1124,7 @@ document.addEventListener('DOMContentLoaded', () => {
     finalScreen.hidden = !completed;
     prevBtn.hidden = completed;
     nextBtn.hidden = completed;
-    if (skipBtn) skipBtn.hidden = completed || (state.competitive.enabled && !caseVisible);
+    if (skipBtn) skipBtn.hidden = completed || isOrderedTrainingMode() || (state.competitive.enabled && !caseVisible);
 
     if (completed) {
       imgEl.hidden = true;
@@ -1163,6 +1163,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const orderedMode = isOrderedTrainingMode();
     if (controlsRow) controlsRow.classList.toggle('single-next', state.competitive.enabled && !completed);
     prevBtn.hidden = completed || state.competitive.enabled;
+    if (skipBtn) skipBtn.hidden = completed || orderedMode || (state.competitive.enabled && !caseVisible);
     if (orderedMode) {
       clampOrderedIndex();
       const curIdx = Math.max(0, Number(state.orderedTraining.index) || 0);
