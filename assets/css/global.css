@@ -279,6 +279,16 @@ h1{
   position:relative;
 }
 
+@media (min-width:701px){
+  .case-stage{
+    width:100%;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    gap:12px;
+  }
+}
+
 .img-wrap{
   width:100%;
   display:flex;
