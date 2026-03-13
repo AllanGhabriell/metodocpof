@@ -1108,8 +1108,16 @@ body{
   .session-timer-bar{order:0}
   .case-timer-bar{order:1}
   .case-moves{order:2}
-  .img-wrap{order:3}
-  .controls-row{order:4;margin-top:auto}
+  .case-stage{
+    order:3;
+    flex:1;
+    width:100%;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content:center;
+  }
+  .controls-row{margin-top:10px}
 
   .img-wrap{
     flex:0 0 auto;
