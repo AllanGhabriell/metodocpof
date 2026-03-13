@@ -276,6 +276,7 @@ h1{
   gap:12px;
   width:100%;
   max-width:740px;
+  position:relative;
 }
 
 .img-wrap{
@@ -1089,6 +1090,8 @@ body{
   }
 
   .f2l-container{
+    align-items:stretch;
+    justify-content:flex-start;
     gap:10px;
     padding:
       calc(56px + env(safe-area-inset-top))
@@ -1097,8 +1100,16 @@ body{
   }
 
   .image-area{
+    flex:1;
+    width:100%;
     gap:10px;
   }
+
+  .session-timer-bar{order:0}
+  .case-timer-bar{order:1}
+  .img-wrap{order:2}
+  .case-moves{order:3}
+  .controls-row{order:4;margin-top:auto}
 
   .img-wrap{
     min-height:clamp(210px, 42vh, 360px);
@@ -1134,10 +1145,13 @@ body{
   }
 
   .cases-remaining{
-    position:static;
-    width:100%;
-    padding:6px 9px;
-    font-size:0.84rem;
+    position:absolute;
+    top:0;
+    right:0;
+    width:auto;
+    max-width:min(320px, 72vw);
+    padding:4px 8px;
+    font-size:0.78rem;
   }
 
   .menu-panel{
