@@ -792,9 +792,10 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   function setBodyPerformanceClass(grade) {
+    const limitMs = Math.max(3000, Number(state.competitive.limitSec || 6) * 1000);
     if (grade === 'good') applyDynamicBackground(0);
-    else if (grade === 'medium') applyDynamicBackground(Math.max(3000, Number(state.competitive.limitSec || 6) * 1120));
-    else applyDynamicBackground(Math.max(3000, Number(state.competitive.limitSec || 6) * 1700));
+    else if (grade === 'medium') applyDynamicBackground(limitMs * 1.2);
+    else applyDynamicBackground(limitMs * 2.6);
   }
 
   function clearPerformanceClass() {
