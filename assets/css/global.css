@@ -1124,6 +1124,10 @@ body{
     padding:3px;
   }
 
+  .img-wrap.show-mask{
+    min-height:clamp(320px, 55vh, 520px);
+  }
+
   .img-wrap img{
     max-width:100%;
     max-height:calc(38vh * var(--case-scale));

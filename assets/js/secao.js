@@ -1122,6 +1122,9 @@ document.addEventListener('DOMContentLoaded', () => {
     applyScale();
     renderMovesPanel();
 
+    const showMask = !completed && state.competitive.enabled && !caseVisible;
+    if (imgWrap) imgWrap.classList.toggle('show-mask', showMask);
+
     finalScreen.hidden = !completed;
     prevBtn.hidden = completed || state.competitive.enabled;
     nextBtn.hidden = completed;
