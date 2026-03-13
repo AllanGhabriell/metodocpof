@@ -1107,11 +1107,12 @@ body{
 
   .session-timer-bar{order:0}
   .case-timer-bar{order:1}
-  .img-wrap{order:2}
-  .case-moves{order:3}
+  .case-moves{order:2}
+  .img-wrap{order:3}
   .controls-row{order:4;margin-top:auto}
 
   .img-wrap{
+    flex:1;
     min-height:clamp(210px, 42vh, 360px);
     padding:6px;
   }
@@ -1131,6 +1132,12 @@ body{
   .controls-row.single-next{
     grid-template-columns:minmax(180px, 320px);
     justify-content:center;
+  }
+
+  #skip-case-btn{
+    grid-column:1 / -1;
+    justify-self:center;
+    width:min(260px, 100%);
   }
 
   .big-btn{
