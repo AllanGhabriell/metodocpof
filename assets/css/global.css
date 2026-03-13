@@ -1107,9 +1107,8 @@ body{
 
   .session-timer-bar{order:0}
   .case-timer-bar{order:1}
-  .case-moves{order:2}
   .case-stage{
-    order:3;
+    order:2;
     flex:1;
     width:100%;
     display:flex;
