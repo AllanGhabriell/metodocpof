@@ -4,7 +4,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
   <title>Treino F2L - Método CPOF</title>
-  <link rel="stylesheet" href="assets/css/global.css?v=20260311d">
+  <link rel="stylesheet" href="assets/css/global.css?v=20260313a">
 </head>
 <body data-set="f2l" data-total="41">
   <header class="topbar">
@@ -32,6 +32,14 @@
 
       <div id="case-timer-bar" class="case-timer-bar" hidden>
         Tempo do caso: <strong id="case-timer-display">00:00.00</strong>
+      </div>
+
+      <div id="cases-remaining" class="cases-remaining" hidden>
+        <div><span id="remaining-label">Casos restantes</span>: <span id="remaining-count">0</span></div>
+        <div id="competitive-breakdown" class="competitive-breakdown" hidden>
+          <span>Casos ruins: <strong id="remaining-bad">0</strong></span>
+          <span>Casos bons: <strong id="remaining-good">0</strong></span>
+        </div>
       </div>
 
       <section id="case-moves" class="case-moves" aria-label="Movimentos do caso" hidden>
@@ -75,13 +83,7 @@
       </div>
     </section>
 
-    <div id="cases-remaining" class="cases-remaining" hidden>
-      <div><span id="remaining-label">Casos restantes</span>: <span id="remaining-count">0</span></div>
-      <div id="competitive-breakdown" class="competitive-breakdown" hidden>
-        <span>Casos ruins: <strong id="remaining-bad">0</strong></span>
-        <span>Casos bons: <strong id="remaining-good">0</strong></span>
-      </div>
-    </div>
+    <!-- moved: cases-remaining -->
 
     <aside id="menu-panel" class="menu-panel" aria-hidden="true" role="dialog" aria-label="Controles">
       <div class="settings-head">

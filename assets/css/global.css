@@ -336,6 +336,7 @@ h1{
   position:fixed;
   top:80px;
   right:18px;
+  z-index:2400;
   background:var(--panel-glass);
   padding:8px 12px;
   border-radius:10px;
@@ -1133,8 +1134,8 @@ body{
   }
 
   .cases-remaining{
-    top:54px;
-    right:10px;
+    position:static;
+    width:100%;
     padding:6px 9px;
     font-size:0.84rem;
   }
