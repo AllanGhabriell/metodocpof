@@ -1114,7 +1114,7 @@ body{
   .img-wrap{
     flex:1;
     min-height:clamp(210px, 42vh, 360px);
-    padding:6px;
+    padding:3px;
   }
 
   .img-wrap img{
