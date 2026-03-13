@@ -292,12 +292,32 @@ h1{
 }
 
 @media (min-width:701px){
+  body[data-set] .f2l-container{
+    align-items:stretch;
+  }
+
+  body[data-set] .image-area{
+    height:100%;
+    min-height:0;
+  }
+
   .case-stage{
     width:100%;
     display:flex;
     flex-direction:column;
     align-items:center;
     gap:12px;
+    flex:1;
+    min-height:0;
+  }
+
+  body[data-set] .img-wrap{
+    flex:1;
+    min-height:0;
+  }
+
+  body[data-set] .img-wrap img{
+    max-height:min(62vh, 100%);
   }
 }
 
