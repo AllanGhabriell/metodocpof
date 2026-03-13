@@ -53,6 +53,18 @@ body[data-set]{
   overflow:hidden;
 }
 
+@media (min-width:701px){
+  body[data-set] .f2l-container{
+    padding-bottom:calc(28px + env(safe-area-inset-bottom));
+    overflow-y:auto;
+    scrollbar-width:none;
+  }
+  body[data-set] .f2l-container::-webkit-scrollbar{
+    width:0;
+    height:0;
+  }
+}
+
 .centered-page{
   min-height:100vh;
   display:flex;
@@ -298,6 +310,28 @@ h1{
   background:var(--panel-glass);
   border-radius:12px;
   border:1px solid var(--line-soft);
+}
+
+.case-media{
+  position:relative;
+  display:inline-block;
+  max-width:100%;
+  border-radius:8px;
+  overflow:hidden;
+}
+
+.case-media > img{
+  display:block;
+}
+
+.case-media .case-mask{
+  inset:0;
+  border-radius:8px;
+}
+
+.case-media .final-screen{
+  inset:0;
+  border-radius:8px;
 }
 
 .img-wrap img{
