@@ -1112,8 +1112,8 @@ body{
   .controls-row{order:4;margin-top:auto}
 
   .img-wrap{
-    flex:1;
-    min-height:clamp(210px, 42vh, 360px);
+    flex:0 0 auto;
+    min-height:unset;
     padding:3px;
   }
 
