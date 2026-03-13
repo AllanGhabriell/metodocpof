@@ -312,28 +312,6 @@ h1{
   border:1px solid var(--line-soft);
 }
 
-.case-media{
-  position:relative;
-  display:inline-block;
-  max-width:100%;
-  border-radius:8px;
-  overflow:hidden;
-}
-
-.case-media > img{
-  display:block;
-}
-
-.case-media .case-mask{
-  inset:0;
-  border-radius:8px;
-}
-
-.case-media .final-screen{
-  inset:0;
-  border-radius:8px;
-}
-
 .img-wrap img{
   max-width:92vw;
   max-height:62vh;
