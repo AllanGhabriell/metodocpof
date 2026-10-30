@@ -243,3 +243,31 @@ button:disabled{opacity:.55;cursor:not-allowed}
 .academy-progress{display:flex;align-items:center;gap:7px;margin:20px 0 10px}
 .academy-progress span{height:8px;flex:1;background:rgba(166,141,197,.23);border-radius:5px}
 .academy-progress span.current{background:rgba(183,149,246,.55)}.academy-progress span.completed{background:#9970e4}
+
+/* Conta segura e comunidade CFOP */
+.cloud-panel{margin:22px 0;padding:24px}
+.cloud-panel .studio-form{max-width:540px}
+.cloud-panel details{margin:15px 0}
+.cloud-panel details summary{cursor:pointer;color:#d4c3f0;font-size:13px}
+.cloud-panel .cloud-status{font-size:12px;line-height:1.6;border-top:1px solid rgba(168,142,207,.18);padding-top:14px}
+.cloud-actions{margin-top:20px}
+.online-selected{margin:15px 0 22px}
+.online-selected h2{margin:8px 0 10px}
+.online-selected h3{font-size:18px;margin:25px 0 10px}
+.online-selected .alg{margin:16px 0}
+.online-list{display:grid;gap:8px}
+.online-list-item{display:flex;align-items:center;justify-content:space-between;text-align:left;gap:12px;width:100%;padding:14px;border-radius:12px;background:rgba(88,57,142,.13);border:1px solid rgba(185,157,224,.22);color:#e9dffa}
+.online-list-item:hover{border-color:#ba9bf5;background:rgba(131,95,201,.22)}
+.online-list-item strong,.online-list-item small{display:block}
+.online-list-item small{font-size:11px;color:#bdaed0;margin-top:4px}
+.online-list-item>span:last-child{font-size:21px}
+.online-leaderboard{display:grid;gap:7px}
+.leaderboard-entry{display:grid;grid-template-columns:45px minmax(0,1fr) auto;align-items:center;gap:8px;padding:11px 13px;border:1px solid rgba(169,141,217,.18);border-radius:10px;background:rgba(21,14,40,.47)}
+.leaderboard-entry span{font-size:13px;color:#c1aadc}
+.leaderboard-entry strong{font-size:13px}
+.online-result-form{display:grid;grid-template-columns:1fr 1fr;align-items:end}
+.online-result-form>button{grid-column:1/-1;justify-self:start}
+.case-reference-image{display:block;max-width:100%;max-height:310px;width:auto;height:auto;border-radius:12px}
+.admin-publish-actions{margin:15px 0}
+.admin-publish-actions button:disabled{opacity:.42;cursor:not-allowed}
+@media(max-width:680px){.cloud-panel{padding:18px}.online-result-form{grid-template-columns:1fr}.leaderboard-entry{grid-template-columns:33px minmax(0,1fr) auto;padding:9px}.online-list-item{padding:12px}}
