@@ -1,6 +1,6 @@
 import {apply,solved,verifyDiagram,verifySetupAndSolution} from './engine.mjs';
 // Aprovação editorial é independente da validade matemática.
-export function reviewCase(record){
+export function reviewCase(record,{requireDiagram=false,requireExpectedState=false}={}){
  const checks=[];
  const check=(name,valid,details=null)=>checks.push({name,valid,details});
  let initial=null;
@@ -13,6 +13,8 @@ export function reviewCase(record){
  }catch(error){
   check('estrutura_ou_notacao',false,{message:error.message});
  }
+ if(requireDiagram&&!record?.diagram)check('diagrama',false,{message:'Diagrama de referência obrigatório'});
+ if(requireExpectedState&&!record?.expectedState)check('estado_esperado',false,{message:'Estado de referência obrigatório'});
  if(initial&&record.diagram){
   try{const result=verifyDiagram(initial,record.diagram);check('diagrama',result.valid,result.mismatches)}
   catch(error){check('diagrama',false,{message:error.message})}
