@@ -2302,6 +2302,13 @@ document.addEventListener('DOMContentLoaded', () => {
   document.addEventListener('keydown', handleShortcuts);
 
   (async function init() {
+    const requested=new URLSearchParams(location.search).get('mode');
+    if(coach.MODES.includes(requested)){
+      state.trainingMode=requested;
+      state.orderedTraining.enabled=requested==='sequential';
+      state.competitive.enabled=requested==='competitive';
+      save();
+    }
     syncUiFromState();
     updateTimerDisplays();
     clampOrderedIndex();
