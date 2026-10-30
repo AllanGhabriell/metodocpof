@@ -172,3 +172,18 @@ body:has(.original-studio){background:radial-gradient(ellipse at 13% 3%,rgba(29,
 @media(max-width:800px){.academy-training-stage-grid{grid-template-columns:1fr 1fr}.academy-training-stage:last-child{grid-column:1/-1}}
 @media(max-width:690px){.academy-goal-settings{grid-template-columns:1fr 1fr}.academy-goal-settings label:first-child{grid-column:1/-1}.academy-goal-settings button{grid-column:1/-1}.academy-goal-visual{flex-wrap:wrap}.academy-goal-progress{flex-basis:100%}.academy-training-stage-grid{grid-template-columns:1fr}.academy-training-stage:last-child{grid-column:auto}.academy-stage-metrics{grid-template-columns:repeat(4,minmax(0,1fr))}.academy-stage-metrics strong{font-size:13px}.academy-training-calendar{gap:2px}.academy-goal-visual small{white-space:normal}}
 @media(max-width:400px){.academy-stage-metrics{grid-template-columns:1fr 1fr}.academy-mode-stats>div{grid-template-columns:75px 1fr 26px}}
+
+
+/* Missões opcionais de velocidade, prática e retenção. */
+.academy-missions{margin:0 0 16px}
+.academy-missions-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:11px;margin-top:15px}
+.academy-mission{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:10px;padding:15px 16px;border:1px solid #84acc345;border-radius:13px;background:#102b4bba}
+.academy-mission.complete{border-color:#81d0a168;background:#154b4b80}
+.academy-mission>div:first-child{display:grid;gap:5px}
+.academy-mission strong{font:750 13px/1.3 system-ui,sans-serif;color:#e8f6ff}
+.academy-mission small{font:500 11px system-ui,sans-serif;color:#a4c0da}
+.academy-mission>span{font:750 13px system-ui,sans-serif;color:#c7e9fb;font-variant-numeric:tabular-nums}
+.academy-mission-track{grid-column:1/-1;width:100%;height:6px;border-radius:15px;background:#28445f;overflow:hidden}
+.academy-mission-track>i{height:100%;display:block;border-radius:15px;background:linear-gradient(90deg,#3b91c9,#8bd9e2)}
+.academy-mission.complete .academy-mission-track>i{background:linear-gradient(90deg,#2e9e86,#a9e9ac)}
+@media(max-width:600px){.academy-missions-grid{grid-template-columns:1fr}.academy-mission{padding:12px 13px}}
