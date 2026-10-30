@@ -171,7 +171,7 @@ async function handleCloudForm(form,submitter){
   }
   if(id==='cloud-auth'){
    const email=String(fields.get('email')||''),password=String(fields.get('password')||'');
-   if(mode==='login'){await signIn(email,password);cloudMessage='Conta conectada com sucesso.';await onlineLoad().catch(()=>{})}
+   if(mode==='login'){await signIn(email,password);cloudMessage='Conta conectada com sucesso.';const invite=new URLSearchParams(location.search).get('challenge');await onlineLoad(invite?{id:invite}:{}).catch(()=>{})}
    else if(mode==='signup')cloudMessage=await signUp(email,password);
    else if(mode==='recover')cloudMessage=await recoverPassword(email);
   }
