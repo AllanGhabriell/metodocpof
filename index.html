@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-  <title>Método CPOF</title>
+  <title>Academia CPOF</title>
   <link rel="stylesheet" href="assets/css/global.css?v=20260313k">
   <style>
     .original-utility-bar{position:fixed;top:0;right:0;z-index:20;display:flex;align-items:center;gap:8px;padding:16px 20px;flex-wrap:wrap;justify-content:flex-end}
@@ -15,12 +15,13 @@
     .scramble-entry-link{align-self:center;display:inline-flex;gap:10px;align-items:center;margin-top:16px;padding:10px 16px;border:1px solid rgba(145,184,255,.32);border-radius:12px;background:rgba(9,20,42,.54);color:#dceaff;text-decoration:none;font:600 13px system-ui,sans-serif}.scramble-entry-link:hover{border-color:#78fff5}
   </style>
 <link rel="stylesheet" href="assets/css/cursor-glow.css?v=1">
+<link rel="stylesheet" href="assets/css/academy.css?v=20261030-1">
 </head>
-<body>
-  <header class="original-utility-bar" aria-label="Ferramentas adicionais"><a href="studio.html?page=learn">Aprender</a><a href="studio.html?page=dashboard">Evolução</a><a href="studio.html?page=profile">Conta e perfil</a></header>
+<body class="academy-home">
+  <header class="academy-utility"><details><summary aria-label="Abrir menu de ferramentas">Menu</summary><nav aria-label="Ferramentas adicionais"><a href="studio.html?page=learn">Aprender</a><a href="studio.html?page=dashboard">Evolução</a><a href="studio.html?page=profile">Conta e perfil</a><a href="scramble.html">Embaralhamento</a></nav></details></header>
   <main class="centered-page home-page">
     <section class="hero-panel">
-      <h1 id="title-cpof" aria-label="Método C P O F">Método
+      <h1 id="title-cpof" aria-label="Academia C P O F">Academia
         <span class="cpof" aria-hidden="true">
           <span class="cpof-letter">C</span>
           <span class="cpof-letter">P</span>
@@ -29,13 +30,13 @@
         </span>
       </h1>
 
-      <p class="hint">Clique em alguma seção pra começar.</p>
+      <p class="hint">Escolha uma etapa e comece a praticar.</p>
 
       <nav class="home-actions" role="navigation" aria-label="Navegação principal">
-        <a href="cross.html" class="card primary">CROSS</a>
-        <a href="f2l.html" class="card primary">F2L</a>
-        <a href="oll.html" class="card primary">OLL</a>
-        <a href="pll.html" class="card primary">PLL</a>
+        <a href="cross.html" class="card primary">CROSS<span class="stage-subtitle">Cruz inicial</span></a>
+        <a href="f2l.html" class="card primary">F2L<span class="stage-subtitle">41 casos</span></a>
+        <a href="oll.html" class="card primary">OLL<span class="stage-subtitle">57 casos</span></a>
+        <a href="pll.html" class="card primary">PLL<span class="stage-subtitle">21 casos</span></a>
       </nav>
       <a class="scramble-entry-link" href="scramble.html">◷ Embaralhamento e cronômetro <span aria-hidden="true">↗</span></a>
     </section>
