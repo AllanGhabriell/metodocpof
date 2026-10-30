@@ -28,9 +28,15 @@ export function progressDashboard(){
  ];
  const recent=Array.from({length:7},(_,i)=>{const day=new Date();day.setHours(12,0,0,0);day.setDate(day.getDate()-6+i);return {date:dateOf(day),label:['D','S','T','Q','Q','S','S'][day.getDay()]}}).map(x=>({...x,value:data.records.filter(r=>r.date===x.date).reduce((s,r)=>s+(r.xp||0),0)}));
  const max=Math.max(30,...recent.map(x=>x.value));
+ const due=data.cards.filter(c=>!c.due||c.due<=today()).length;
+ const todayPlan=data.plan.filter(x=>x.day===new Date().getDay());
+ const recommended=due>0?{title:'Revisar '+due+' cartões',text:'Há cartões de memorização esperando por você.',page:'srs',action:'Começar revisão'}:
+ todayPlan.length?{title:todayPlan[0].stage+' por '+todayPlan[0].minutes+' minutos',text:'Esta atividade está no seu planejamento para hoje.',page:todayPlan[0].stage==='Cross'?'cross':'train',action:'Abrir treino'}:
+ {title:'Faça uma atividade curta',text:'Um exercício de Cross ou observação já ajuda a manter a constância.',page:'cross',action:'Treinar agora'};
  const tile=(t,n)=>'<div class="studio-metric"><span>'+t+'</span><strong>'+n+'</strong></div>';
  return '<div class="eyebrow">Meu progresso</div><h1>Seu painel CFOP</h1><p class="muted">Evolução registrada neste navegador, sem sincronização entre dispositivos.</p>'+
  '<div class="studio-metrics">'+tile('Nível',s.level)+tile('XP acumulado',s.xp)+tile('Sequência',s.streak+' dias')+tile('Atividades hoje',s.today)+'</div>'+
+ '<section class="card studio-recommendation"><div><span class="panel-overline">Próxima atividade sugerida</span><h2>'+esc(recommended.title)+'</h2><p class="muted">'+esc(recommended.text)+'</p></div><button data-page="'+recommended.page+'">'+recommended.action+'</button></section>'+
  '<div class="studio-two"><section class="card"><h2>Últimos 7 dias</h2><div class="studio-bars">'+recent.map(x=>'<div class="studio-bar-col"><span>'+x.value+'</span><div class="studio-bar-track"><div class="studio-bar" style="height:'+Math.round(x.value/max*100)+'%"></div></div><small>'+x.label+'</small></div>').join('')+'</div></section>'+
  '<section class="card"><h2>Conquistas</h2><div class="studio-achievements">'+achievements.map(([title,yes,desc])=>'<div class="studio-achievement '+(yes?'achieved':'')+'"><b>'+ (yes?'★':'☆')+'</b><div><strong>'+title+'</strong><small>'+desc+'</small></div></div>').join('')+'</div></section></div>'+
  '<div class="studio-actions"><button data-page="cross">Treinar Cross</button><button class="secondary" data-page="srs">Revisão espaçada</button><button class="secondary" data-page="plan">Planejar treinos</button></div>';
@@ -92,8 +98,11 @@ export async function progressImport(file){
 export function checkReminder(){
  if(!data.reminder||typeof Notification==='undefined'||Notification.permission!=='granted')return;
  const now=new Date(),clock=[String(now.getHours()).padStart(2,'0'),String(now.getMinutes()).padStart(2,'0')].join(':');
- if(clock===data.reminder&&data.notified!==today()){
-  data.notified=today();save();new Notification('Treino CFOP',{body:'Sua meta diária é '+data.goal+' minutos.'});
+ if(clock===data.reminder&&data.notified!==today()&&progressSummary().today===0){
+  const planned=data.plan.filter(x=>x.day===now.getDay());
+  const due=data.cards.filter(c=>!c.due||c.due<=today()).length;
+  const body=due?'Você tem '+due+' cartões para revisar.':planned.length?'Hoje: '+planned[0].stage+' por '+planned[0].minutes+' minutos.':'Sua meta de hoje é '+data.goal+' minutos.';
+  data.notified=today();save();new Notification('Treino CFOP',{body});
  }
 }
 export function saveFeatureData(){save()}
