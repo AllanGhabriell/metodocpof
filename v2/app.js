@@ -1,5 +1,5 @@
 import {adminPanel,adminLoad,adminClick,adminSubmit} from './cloud/admin.mjs';
-import {cloudStatus,loadAccountExtras,startActivityTracking,recordActivity,isConfigured,isAuthenticated,isAdmin,cloudUser,cloudPanel,configureCloud,disconnectCloud,signInWithGoogle,signIn,signUp,recoverPassword,updatePassword,signOut,syncCloud,initializeCloud,acceptAuthRedirect,markLocalChange,markDraftDeleted,cloudProfileRefresh,publishedCases,publishCase,unpublishCase,loadPublishedCases} from './cloud/cloud.mjs';
+import {cloudStatus,loadAccountExtras,startActivityTracking,recordActivity,isConfigured,isAuthenticated,isAdmin,cloudUser,cloudPanel,signInWithGoogle,signIn,signUp,recoverPassword,updatePassword,signOut,syncCloud,initializeCloud,acceptAuthRedirect,markLocalChange,markDraftDeleted,cloudProfileRefresh,publishedCases,publishCase,unpublishCase,loadPublishedCases} from './cloud/cloud.mjs';
 import {onlinePage,onlineInit,onlineLoad,onlineClick,onlineSubmit} from './cloud/online.mjs';
 import {crossPage,crossClick,crossChange} from './features/cross.mjs';
 import {awardActivity,progressDashboard,progressData,reloadProgress,saveFeatureData,planPage,profilePage,progressClick,progressSubmit,progressImport,checkReminder} from './features/progress.mjs';
@@ -206,7 +206,6 @@ root.addEventListener('change',async e=>{if(crossChange(e.target)){render();retu
   if(cmd==='sync')await syncCloud();
   if(cmd==='copyid'&&cloudUser()?.id){await navigator.clipboard.writeText(cloudUser().id);cloudMessage='ID da conta copiado.'}
   if(cmd==='logout')await signOut();
-  if(cmd==='disconnect'&&confirm('Desconectar este projeto Supabase? O progresso local será preservado.'))disconnectCloud();
  }catch(err){cloudMessage=err.message}
  render();
 }
@@ -214,11 +213,6 @@ async function handleCloudForm(form,submitter){
  const fields=new FormData(form),id=form.id,mode=submitter?.value||'login';
  cloudMessage='Processando...';
  try{
-  if(id==='cloud-configuration'){
-   configureCloud(String(fields.get('url')),String(fields.get('key')));
-   await loadPublishedCases();
-   cloudMessage='Projeto conectado. Entre na sua conta para sincronizar.';
-  }
   if(id==='cloud-auth'){
    const email=String(fields.get('email')||''),password=String(fields.get('password')||'');
    if(mode==='login'){await signIn(email,password);cloudMessage='Conta conectada com sucesso.';const invite=new URLSearchParams(location.search).get('challenge');await onlineLoad(invite?{id:invite}:{}).catch(()=>{})}
