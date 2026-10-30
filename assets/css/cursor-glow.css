@@ -1,0 +1,6 @@
+/* Pointer-only ambient glow; no impact on interactions. */
+body{isolation:isolate}
+.cfop-cursor-glow{position:fixed;top:0;left:0;width:155px;height:155px;border-radius:50%;pointer-events:none;z-index:0;opacity:0;transform:translate3d(-400px,-400px,0);background:radial-gradient(circle,rgba(155,111,255,.25) 0%,rgba(116,73,214,.14) 40%,rgba(92,59,175,0) 73%);filter:blur(22px);will-change:transform;transition:opacity .3s ease}
+.cfop-cursor-glow.is-active{opacity:1}
+body>main,body>.topbar,body>.original-utility-bar,body>.site-footer{position:relative;z-index:1}
+@media(hover:none),(pointer:coarse),(prefers-reduced-motion:reduce){.cfop-cursor-glow{display:none!important}}
