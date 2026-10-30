@@ -1,0 +1,211 @@
+/* Studio shell — one full-viewport blue atmosphere, no legacy purple layers.
+   Loaded last so older Studio styles cannot repaint unrelated rectangles. */
+html.studio-page{
+  min-height:100%;
+  overflow-x:hidden;
+  background:#071427;
+  scrollbar-color:#355d8a #08182b;
+}
+body.studio-page{
+  min-height:100vh;
+  min-height:100dvh;
+  margin:0;
+  overflow-x:hidden;
+  color:#edf7ff;
+  background:
+    radial-gradient(ellipse 75vw 66vh at 15% 19%,rgba(29,83,143,.42),transparent 80%),
+    radial-gradient(ellipse 69vw 58vh at 86% 80%,rgba(22,73,112,.26),transparent 83%),
+    linear-gradient(135deg,#091b33 0%,#071629 49%,#061225 100%)!important;
+  background-attachment:fixed!important;
+  background-size:cover!important;
+}
+/* The old app creates two animated violet full-screen layers; retire them
+   on the Studio screens without touching the home and trainers. */
+body.studio-page::before,
+body.studio-page::after{
+  content:none!important;
+  display:none!important;
+  animation:none!important;
+}
+body.studio-page #root{
+  position:relative;
+  isolation:isolate;
+  min-height:100vh;
+  min-height:100dvh;
+  background:transparent;
+  z-index:1;
+}
+body.studio-page .original-studio{
+  min-height:100vh;
+  min-height:100dvh;
+  background:transparent;
+  overflow:visible;
+  position:relative;
+}
+body.studio-page .original-studio-header{
+  max-width:1120px;
+  min-width:0;
+  padding:12px 17px;
+  background:rgba(8,25,47,.84)!important;
+  border:1px solid rgba(132,186,241,.30);
+  box-shadow:0 14px 34px rgba(2,9,22,.22),inset 0 1px rgba(255,255,255,.045);
+  backdrop-filter:blur(15px);
+}
+body.studio-page .original-studio-header > *{min-width:0}
+body.studio-page .studio-brand-mark{
+  font-size:clamp(1.20rem,2.5vw,1.70rem);
+  letter-spacing:-.045em;
+  flex:0 0 auto;
+}
+body.studio-page .studio-page-identity{
+  display:flex;
+  flex:1;
+  flex-direction:column;
+  justify-content:center;
+  gap:2px;
+  margin-left:clamp(9px,1.5vw,17px);
+  padding:0;
+  border:0!important;
+  border-left:0!important;
+  min-width:0;
+}
+body.studio-page .studio-page-identity small{color:#9abddc}
+body.studio-page .studio-page-identity strong{color:#f2f8ff}
+body.studio-page .original-studio-nav,
+body.studio-page .original-studio-content{
+  max-width:1120px;
+  min-width:0;
+}
+body.studio-page .original-studio-nav{
+  gap:8px;
+  padding:0 2px;
+}
+body.studio-page .original-studio-nav button{
+  background:rgba(10,32,60,.78);
+  border:1px solid rgba(129,178,229,.25);
+  box-shadow:inset 0 1px rgba(255,255,255,.025);
+}
+body.studio-page .original-studio-nav button.active{
+  border-color:#72c9ee9c;
+  background:linear-gradient(120deg,rgba(32,93,144,.73),rgba(19,55,103,.76));
+}
+body.studio-page .original-studio-content{
+  padding-bottom:26px;
+}
+body.studio-page .original-studio-content .card,
+body.studio-page .original-studio-content .academy-insight-card,
+body.studio-page .academy-profile-hero{
+  border-color:rgba(128,184,239,.24);
+  box-shadow:0 11px 31px rgba(0,7,24,.16);
+}
+body.studio-page .cfop-cursor-glow{
+  background:radial-gradient(circle,rgba(89,183,241,.19) 0%,rgba(56,137,204,.09) 41%,rgba(40,103,162,0) 73%);
+  filter:blur(25px);
+}
+/* Loading and real failures share the same palette and align to the content. */
+.studio-loading-screen,
+.academy-load-error{
+  width:min(520px,calc(100% - 36px));
+  min-height:260px;
+  margin:clamp(75px,15vh,155px) auto 40px;
+  padding:clamp(25px,4vw,39px);
+  display:flex;
+  flex-direction:column;
+  align-items:flex-start;
+  justify-content:center;
+  gap:15px;
+  color:#e8f7ff;
+  background:linear-gradient(145deg,rgba(15,42,77,.91),rgba(7,24,48,.94));
+  border:1px solid rgba(122,193,236,.30);
+  border-radius:22px;
+  box-shadow:0 24px 56px rgba(0,7,20,.3);
+}
+.studio-loading-logo{
+  font-size:clamp(1.25rem,2vw,1.55rem);
+  font-weight:850;
+  letter-spacing:-.035em;
+}
+.studio-loading-logo strong{color:#8bdcf6}
+.studio-loading-screen p,
+.academy-load-error p{margin:0;color:#aac6e3;font-size:14px;line-height:1.6}
+.studio-loading-indicator{
+  width:100%;height:4px;
+  border-radius:99px;
+  overflow:hidden;
+  background:linear-gradient(90deg,transparent 0%,#53adcf 45%,transparent 90%);
+  background-size:200% 100%;
+  animation:studio-loading-shimmer 1.8s linear infinite;
+}
+@keyframes studio-loading-shimmer{
+  from{background-position:100% 0}to{background-position:-100% 0}
+}
+.academy-load-error h1,
+.academy-view-error h1{
+  font-size:clamp(1.35rem,3vw,2rem);
+  line-height:1.2;
+  letter-spacing:-.04em;
+  margin:0;
+}
+.academy-error-symbol{
+  display:grid;
+  place-items:center;
+  width:45px;height:45px;
+  flex:0 0 45px;
+  border-radius:13px;
+  color:#c7ecff;
+  font-size:22px;
+  font-weight:800;
+  background:rgba(39,108,152,.24);
+  border:1px solid rgba(105,184,237,.35);
+}
+.academy-load-actions{
+  display:flex;align-items:center;flex-wrap:wrap;
+  gap:10px;
+  margin-top:9px;
+}
+.academy-load-actions button,
+.academy-load-actions a{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  min-height:44px;
+  padding:11px 16px;
+  border-radius:11px;
+  background:linear-gradient(120deg,#2868a5,#1e5689);
+  border:1px solid rgba(125,205,240,.5);
+  color:#effaff;
+  font:750 13px system-ui,sans-serif;
+  text-decoration:none;
+  cursor:pointer;
+}
+.academy-load-actions a,
+.academy-load-actions button.secondary{
+  background:rgba(13,36,66,.9);
+  border-color:rgba(131,179,230,.37);
+}
+.academy-load-actions button:hover,
+.academy-load-actions a:hover{filter:brightness(1.13)}
+.academy-view-error{
+  min-height:240px;
+  padding:clamp(21px,3vw,32px);
+  border-radius:19px;
+  border:1px solid rgba(126,189,233,.35);
+  background:linear-gradient(125deg,rgba(16,46,79,.89),rgba(9,30,55,.94));
+  display:flex;
+  flex-direction:column;
+  align-items:flex-start;
+  justify-content:center;
+  gap:12px;
+}
+.academy-view-error p{margin:0;color:#b2cce4;font-size:14px;line-height:1.55}
+@media(max-width:760px){
+ body.studio-page .original-studio-header{width:calc(100% - 20px);padding:10px 11px;gap:9px}
+ body.studio-page .original-studio-nav{width:calc(100% - 20px)}
+ body.studio-page .original-studio-content{width:calc(100% - 24px)}
+ body.studio-page .studio-brand-mark{font-size:clamp(1.02rem,4.5vw,1.34rem)}
+ body.studio-page .studio-page-identity{display:none}
+ body.studio-page .studio-header-actions{margin-left:auto}
+}
+@media(prefers-reduced-motion:reduce){
+ .studio-loading-indicator{animation:none}
+}
