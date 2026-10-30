@@ -10,13 +10,14 @@ export function awardActivity(type,xp=10){data.records=[...data.records.slice(-1
 export function reloadProgress(){data=load();return data}
 export function progressData(){return data}
 export function progressSummary(){
- const xp=data.records.reduce((s,r)=>s+(Number(r.xp)||0),0);
+ const coachEvents=academyActivityData(data.records).cases;
+ const xp=data.records.reduce((s,r)=>s+(Number(r.xp)||0),0)+coachEvents.reduce((sum,e)=>sum+Math.max(0,Math.min(20,Number(e.xp)||0)),0);
  const activity=new Set(data.records.map(r=>r.date));
  let streak=0,d=new Date();d.setHours(12,0,0,0);if(!activity.has(dateOf(d)))d.setDate(d.getDate()-1);
  while(activity.has(dateOf(d))){streak++;d.setDate(d.getDate()-1)}
  const kinds={};data.records.forEach(r=>{kinds[r.type]=(kinds[r.type]||0)+1});
  streak=academyActivityData(data.records).streak;
- return {xp,level:Math.floor(xp/200)+1,streak,today:data.records.filter(r=>r.date===today()).length,kinds};
+ return {xp,level:Math.floor(xp/200)+1,streak,today:data.records.filter(r=>r.date===today()).length+coachEvents.filter(e=>dateOf(new Date(e.at))===today()).length,kinds};
 }
 export function progressDashboard(){
  const summary=progressSummary();
@@ -56,7 +57,14 @@ export function progressClick(button){
   let drafts=[],times=[];
   try{drafts=JSON.parse(localStorage.getItem('cfop-case-drafts')||'[]')}catch{}
   try{times=JSON.parse(localStorage.getItem('cfop-v2-times')||'[]')}catch{}
-  downloadJSON('cfop-studio-backup-completo.json',{format:KEY,data,extras:{drafts,times}});
+  let coach=null,academyActivity=[],scrambleTimes=[];
+  try{coach=JSON.parse(localStorage.getItem('cpof-academy-coach-v1')||'null')}catch{}
+  try{academyActivity=JSON.parse(localStorage.getItem('cpof-academy-activity-v1')||'[]')}catch{}
+  try{scrambleTimes=JSON.parse(localStorage.getItem('cpof-scramble-times-v1')||'[]')}catch{}
+  downloadJSON('academia-cpof-backup-completo.json',{
+    format:KEY,data,
+    extras:{drafts,times,coach,academyActivity,scrambleTimes}
+  });
  }
  if(cmd==='restore'){document.getElementById('studio-file')?.click();return false}
  return true;
@@ -73,18 +81,26 @@ export function progressSubmit(form){
  save();return true;
 }
 export async function progressImport(file){
- if(!file||file.size>10000000){message='Arquivo muito grande ou inválido.';return false}
+ if(!file||file.size>18000000){message='Arquivo muito grande ou inválido.';return false}
  try{
   const incoming=JSON.parse(await file.text());
   if(incoming.format!==KEY||!incoming.data||!Array.isArray(incoming.data.records)||!Array.isArray(incoming.data.cards))throw Error('Formato de backup inválido');
   if(!confirm('Substituir seus dados locais pelo backup?'))return false;
   const extra=incoming.extras||{};
   const drafts=Array.isArray(extra.drafts)?extra.drafts:null,times=Array.isArray(extra.times)?extra.times:null;
-  if((drafts&&drafts.length>300)||(times&&times.length>30000))throw Error('Backup com registros em excesso');
+  const coach=extra.coach&&typeof extra.coach==='object'&&!Array.isArray(extra.coach)?extra.coach:null;
+  const academyActivity=Array.isArray(extra.academyActivity)?extra.academyActivity:null;
+  const scrambleTimes=Array.isArray(extra.scrambleTimes)?extra.scrambleTimes:null;
+  if((drafts&&drafts.length>300)||(times&&times.length>30000)||
+     (academyActivity&&academyActivity.length>4500)||(scrambleTimes&&scrambleTimes.length>2500))throw Error('Backup com registros em excesso');
+  if(coach&&(!coach.settings||!coach.stages||!['f2l','oll','pll'].every(k=>typeof coach.stages[k]?.cases==='object')))throw Error('Dados de treino inválidos');
   localStorage.setItem(KEY,JSON.stringify(incoming.data));
   if(drafts)localStorage.setItem('cfop-case-drafts',JSON.stringify(drafts));
   if(times)localStorage.setItem('cfop-v2-times',JSON.stringify(times));
-  data=load();message='Backup importado. Os dados do cronômetro e editor também foram recuperados.';return true;
+  if(coach)localStorage.setItem('cpof-academy-coach-v1',JSON.stringify(coach));
+  if(academyActivity)localStorage.setItem('cpof-academy-activity-v1',JSON.stringify(academyActivity));
+  if(scrambleTimes)localStorage.setItem('cpof-scramble-times-v1',JSON.stringify(scrambleTimes));
+  data=load();message='Backup importado: perfil, registros de treino e cronômetro foram recuperados quando presentes.';return true;
  }catch(e){message='Não foi possível importar: '+e.message;return false}
 }
 export function checkReminder(){
