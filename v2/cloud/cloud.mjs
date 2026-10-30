@@ -180,7 +180,12 @@ async function remoteState(){
 }
 async function syncIteration(){
  for(let tries=0;tries<4;tries++){
-  const remote=await remoteState(),merged=mergeData(localData(),remote?.payload||{});
+  const remote=await remoteState(),local=localData(),merged=mergeData(local,remote?.payload||{});
+  const sameLocal=JSON.stringify(local)===JSON.stringify(merged);
+  if(remote&&JSON.stringify(remote.payload)===JSON.stringify(merged)){
+   if(!sameLocal)hydrate(merged);
+   lastSynced=Date.now();setStatus('sincronizado');return true;
+  }
   const user=session.user.id,body={user_id:user,payload:merged,revision:remote?remote.revision+1:0,updated_at:new Date().toISOString()};
   let saved;
   if(remote){
@@ -188,7 +193,7 @@ async function syncIteration(){
   }else{
    saved=await rest('cfop_user_state',{method:'POST',body,prefer:'resolution=ignore-duplicates,return=representation'});
   }
-  if(Array.isArray(saved)&&saved.length){hydrate(merged);lastSynced=Date.now();setStatus('sincronizado');return true}
+  if(Array.isArray(saved)&&saved.length){if(!sameLocal)hydrate(merged);lastSynced=Date.now();setStatus('sincronizado');return true}
  }
  throw Error('Conflito de sincronização. Tente novamente para preservar as alterações de ambos os dispositivos.');
 }
