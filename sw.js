@@ -1,6 +1,6 @@
 /* GitHub Pages app shell — network-first, version-aware resource fallback.
    Never reuse an old JS module under a different ?v= version. */
-const CACHE='cfop-studio-offline-20261030-v6';
+const CACHE='cfop-studio-offline-20261030-v7';
 const CORE=[
  './index.html','./studio.html','./f2l.html','./oll.html','./pll.html',
  './cross.html','./scramble.html',
@@ -26,9 +26,9 @@ const OPTIONAL=[
  './v2/cloud/cloud.mjs','./v2/cloud/coach-merge.mjs',
  './v2/cloud/admin.mjs','./v2/cloud/online.mjs',
  './v2/data/pdf-import.mjs','./v2/data/pdf-cases.json',
- './assets/js/trainer-coach.js?v=20261030-26',
- './assets/js/secao.js?v=20261030-26',
- './assets/css/trainer-unified.css?v=20261030-22',
+ './assets/js/trainer-coach.js?v=20261030-41',
+ './assets/js/secao.js?v=20261030-41',
+ './assets/css/trainer-unified.css?v=20261030-41',
  './assets/js/scramble.js?v=20261030-22',
  './assets/css/scramble.css?v=20261030-8'
 ];
