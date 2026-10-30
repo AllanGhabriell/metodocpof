@@ -3,21 +3,40 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-  <title>Treino OLL - Academia CPOF</title>
+  <title>Treino OLL — Academia CPOF</title>
   <link rel="stylesheet" href="assets/css/global.css?v=20260313k">
 <link rel="stylesheet" href="assets/css/cursor-glow.css?v=1">
 <link rel="stylesheet" href="assets/css/academy.css?v=20261030-1">
+<link rel="stylesheet" href="assets/css/trainer-unified.css?v=20261030-11">
 </head>
 <body data-set="oll" data-total="57">
   <header class="topbar">
-    <button id="back-btn" class="icon-btn" aria-label="Voltar">X</button>
-    <div class="header-right">
-      <button id="menu-btn" class="icon-btn has-tooltip" aria-label="Abrir menu" data-tooltip="Atalho: M">Menu</button>
+    <button id="back-btn" class="icon-btn" aria-label="Voltar">←</button>
+    <div class="trainer-top-brand">Academia <span>CPOF</span></div><div class="header-right">
+      <button id="menu-btn" class="icon-btn has-tooltip" aria-label="Abrir configurações" data-tooltip="Atalho: M">Menu</button>
     </div>
   </header>
 
   <main class="f2l-container">
-    <section class="image-area" role="main" aria-label="Área de treino">
+    <section class="image-area" aria-label="Área de treino">
+      <div class="trainer-toolbar">
+        <div class="trainer-toolbar-title"><span class="trainer-overline">TREINAMENTO CPOF</span><h1 class="trainer-stage-name">OLL</h1><span id="trainer-mode-caption">Treino aleatório · seu ritmo</span></div>
+        <label class="trainer-mode-picker">Modo de treino
+          <select id="trainer-mode-select" aria-label="Selecionar modo">
+            <option value="random">Aleatório</option>
+            <option value="sequential">Sequencial</option>
+            <option value="competitive">Competitivo</option>
+            <option value="adaptive">Adaptativo</option>
+            <option value="review">Revisão espaçada</option>
+            <option value="focus">Foco em dificuldades</option>
+          </select>
+        </label>
+      </div>
+      <div class="trainer-progress-strip" aria-label="Progresso da sessão">
+        <span id="trainer-case-label">Preparando caso…</span>
+        <span id="trainer-session-counter">0 / 0</span>
+        <div class="trainer-progress-track"><span id="trainer-progress-fill"></span></div>
+      </div>
       <div id="session-timer-bar" class="session-timer-bar" hidden>
         <div class="session-timer-main">
           <span class="timer-label">Tempo total</span>
@@ -83,6 +102,20 @@
         <button id="next-case-btn" class="big-btn has-tooltip" data-tooltip="Atalhos: Espaço / Seta direita">Próximo caso</button>
         <button id="skip-case-btn" class="small-btn ghost has-tooltip" data-tooltip="Pular sem contar como resolvido" type="button">Pular</button>
       </div>
+      <section class="trainer-feedback" aria-label="Avaliação da dificuldade do caso">
+        <div class="trainer-feedback-heading"><div><strong>Como está este caso?</strong><span id="trainer-feedback-hint">Sua avaliação define a prioridade nos treinos adaptativos.</span></div><span id="trainer-case-history" aria-live="polite"></span></div>
+        <div class="trainer-rating-group" role="group" aria-label="Avaliar dificuldade">
+          <button type="button" class="trainer-rating" data-trainer-rating="easy">Fácil</button>
+          <button type="button" class="trainer-rating" data-trainer-rating="medium">Médio</button>
+          <button type="button" class="trainer-rating" data-trainer-rating="hard">Difícil</button>
+        </div>
+        <div class="trainer-optional-controls">
+          <button type="button" id="trainer-timed-practice">◷ Cronometrar este caso</button>
+          <button type="button" id="trainer-recognized" hidden>Reconheci o caso</button>
+          <button type="button" id="trainer-missed">Não consegui resolver</button>
+          <span id="trainer-attempt-time" aria-live="polite">Tempo opcional</span>
+        </div>
+      </section>
       </div>
     </section>
 
@@ -90,10 +123,20 @@
 
     <aside id="menu-panel" class="menu-panel" aria-hidden="true" role="dialog" aria-label="Controles">
       <div class="settings-head">
-        <h2>Configurações de treino</h2>
+        <h2>Seu treinamento</h2>
         <button class="panel-close" id="panel-close" aria-label="Fechar painel">X</button>
       </div>
 
+      <div class="trainer-menu-summary" id="trainer-menu-summary" role="status">Selecione um modo e personalize seu treino.</div>
+      <div class="settings-card trainer-coach-options">
+        <h3>Aprendizagem personalizada</h3>
+        <p>Seu ritmo de treino é livre. As revisões são sugestões e nunca tarefas acumuladas.</p>
+        <label class="line-setting" for="trainer-prioritize">Priorizar dificuldades no aleatório <input id="trainer-prioritize" type="checkbox"></label>
+        <label class="line-setting" for="trainer-sequence-reinforce">Revisar difíceis ao final da sequência <input id="trainer-sequence-reinforce" type="checkbox"></label>
+        <label class="field-group" for="trainer-daily-goal"><span>Meta diária opcional (casos)</span><input id="trainer-daily-goal" type="number" min="1" max="119" value="12"></label>
+        <label class="field-group" for="trainer-weekly-goal"><span>Meta semanal opcional (casos)</span><input id="trainer-weekly-goal" type="number" min="1" max="999" value="80"></label>
+        <a class="trainer-open-progress" href="studio.html?page=dashboard">Ver calendário, gráficos e sequência →</a>
+      </div>
       <div class="settings-card">
         <h3>Excluir casos</h3>
         <p>Clique para abrir a galeria e escolher os casos para excluir.</p>
@@ -107,7 +150,7 @@
       </div>
 
       <div class="settings-card">
-        <h3>Fluxo de resolucao</h3>
+        <h3>Fluxo de resolução</h3>
         <div class="line-setting">
           <span>Remover quando resolvido</span>
           <label class="switch">
@@ -174,14 +217,14 @@
           <input id="image-size-range" type="range" min="0.8" max="1.25" step="0.05" value="1">
         </label>
         <label class="range-group" for="button-size-range">
-          <span>Tamanho dos botoes</span>
+          <span>Tamanho dos botões</span>
           <input id="button-size-range" type="range" min="0.85" max="1.25" step="0.05" value="1">
         </label>
         <button id="reset-size-btn" class="btn ghost">Restaurar tamanho padrão</button>
       </div>
 
       <div class="settings-card">
-        <h3>Modo Treino (Sequência)</h3>
+        <h3>Modo Sequencial</h3>
         <div class="line-setting">
           <span>Ativar modo treino</span>
           <label class="switch">
@@ -229,7 +272,8 @@
 
   <script src="assets/js/utils.js?v=20260303o" defer></script>
   <script src="assets/js/main.js?v=20260311a" defer></script>
-  <script src="assets/js/secao.js?v=20260313d" defer></script>
+  <script src="assets/js/trainer-coach.js?v=20261030-11" defer></script>
+  <script src="assets/js/secao.js?v=20261030-11" defer></script>
 <script src="v2/cursor-glow.js?v=20261030-27" defer></script>
 </body>
 </html>
