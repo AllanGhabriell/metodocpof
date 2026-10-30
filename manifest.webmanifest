@@ -1,11 +1,11 @@
 {
-  "name": "CFOP Studio — Treino de Cubo Mágico",
-  "short_name": "CFOP Studio",
-  "description": "Treine Cross, pratique CFOP e acompanhe sua evolução local.",
+  "name": "Academia CPOF — Treinamento de Cubo Mágico",
+  "short_name": "Academia CPOF",
+  "description": "Treine CROSS, F2L, OLL e PLL, acompanhe sua evolução e pratique com cronômetro.",
   "start_url": "./",
   "scope": "./",
   "display": "standalone",
   "background_color": "#090713",
-  "theme_color": "#171028",
+  "theme_color": "#0a1630",
   "lang": "pt-BR"
 }
