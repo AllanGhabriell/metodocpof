@@ -145,7 +145,7 @@ function mergeProgress(a={},b={}){
  const completedLessons=Array.from(new Set([...(x.completedLessons||[]),...(y.completedLessons||[])]));
  return {...y,...x,name:x.name&&x.name!=='Cubista'?x.name:(y.name||x.name||'Cubista'),records,cards,plan,completedLessons,
   goal:(Number(x.goal)!==20&&x.goal)?x.goal:(y.goal||x.goal||20),
-  notified:x.notified===new Date().toISOString().slice(0,10)?x.notified:y.notified||x.notified};
+  notified:x.notified===new Date().toISOString().slice(0,10)?x.notified:(y.notified||x.notified||'')};
 }
 function mergeDraft(a,b){
  const ax=Number(a.updatedAt)||0,bx=Number(b.updatedAt)||0;
