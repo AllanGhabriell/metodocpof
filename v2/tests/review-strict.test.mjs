@@ -11,5 +11,5 @@ test('publicação rigorosa exige diagrama, estado e revisão humana',()=>{
  const valid={...base,expectedState:initial,diagram:{U:facelets(initial).U},review:{approved:true,reviewer:'Allan'}};
  const report=reviewCase(valid,{requireDiagram:true,requireExpectedState:true});
  assert.equal(report.publicationReady,true);
- assert.equal(reviewCase({...valid,diagram:{U:['R',...Array(8).fill('?')]}},{requireDiagram:true,requireExpectedState:true}).publicationReady,false);
+ assert.equal(reviewCase({...valid,diagram:{U:[initial[0]==='R'?'U':'R',...Array(8).fill('?')]}},{requireDiagram:true,requireExpectedState:true}).publicationReady,false);
 });
