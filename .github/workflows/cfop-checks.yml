@@ -1,0 +1,21 @@
+name: CFOP Studio — verificações
+on:
+  push:
+    branches: [main, reconstrucao-cfop-2026]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Verificar sintaxe JavaScript
+        run: node --check v2/app.js
+      - name: Executar testes de integração inicial
+        run: node --test v2/tests/*.test.mjs
