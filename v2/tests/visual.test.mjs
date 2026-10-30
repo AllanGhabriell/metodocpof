@@ -14,6 +14,6 @@ test('a visualização 3D acompanha movimentos reais',()=>{
 test('academia e cronômetro usam visualização dinâmica',()=>{
  const js=readFileSync(new URL('../app.js',import.meta.url),'utf8');
  assert.match(js,/lessonCube\(\)/);
- assert.match(js,/cube3D\(demoState\)/);
+ assert.match(js,/cube3D\(learningView\(demoState\)\)/);
  assert.match(js,/cube3D\(apply\(solved\(\),scramble\)/);
 });
