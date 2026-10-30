@@ -24,3 +24,14 @@
 .cross-original-main .cross-moves{display:grid;gap:9px;margin-top:16px}
 .cross-original-main .cross-move-row{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
 @media(max-width:750px){.cross-original-main .cross-layout{grid-template-columns:1fr}.cross-original-main .card{padding:17px}}
+
+/* Cross is an information panel, not a clickable home tile: disable the global metallic sweep. */
+body[data-set="cross"]{overflow-y:auto;overflow-x:hidden}
+body[data-set="cross"] .cross-original-main .card{overflow:visible;cursor:default;transition:none;transform:none!important;box-shadow:0 12px 28px rgba(0,0,0,.18)}
+body[data-set="cross"] .cross-original-main .card::before,body[data-set="cross"] .cross-original-main .card::after{content:none!important;display:none!important}
+body[data-set="cross"] .cross-original-main .card:hover,body[data-set="cross"] .cross-original-main .card:focus-visible{transform:none!important;box-shadow:0 12px 28px rgba(0,0,0,.18);border-color:rgba(145,184,255,.3)}
+body[data-set="cross"] .cross-original-main .cross-layout{align-items:start}
+body[data-set="cross"] .cross-original-main .cross-visual{min-height:285px}
+body[data-set="cross"] .cross-original-main .cross-net{max-width:100%;filter:none}
+body[data-set="cross"] .cross-original-main button:focus-visible{outline:2px solid #78fff5;outline-offset:2px}
+@media(max-width:750px){body[data-set="cross"] .cross-original-main{margin-top:70px}body[data-set="cross"] .cross-original-main .cross-visual{min-height:210px}}
