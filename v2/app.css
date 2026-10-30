@@ -163,3 +163,71 @@ aside{background:rgba(15,11,29,.86);border-right-color:rgba(169,130,231,.16);bac
 .mode-back{margin-top:22px}
 @media(max-width:620px){.training-mode-grid{grid-template-columns:1fr;gap:10px}.training-mode{min-height:230px;padding:19px}}
 @media(prefers-reduced-motion:reduce){.training-mode{transition:none}.training-mode:hover{transform:none}}
+
+
+/* CFOP Studio 2026: módulos de treino, evolução e revisão. */
+aside{overflow-y:auto}
+aside .nav{padding-bottom:24px}
+.studio-two,.cross-layout{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px;align-items:start}
+.studio-metrics{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin:20px 0}
+.studio-metric{display:flex;flex-direction:column;gap:9px;padding:18px;border-radius:15px;border:1px solid rgba(166,135,218,.2);background:rgba(30,21,54,.73)}
+.studio-metric>span{font-size:12px;color:#b9acd2}
+.studio-metric strong{font-size:clamp(21px,3vw,34px);font-weight:850;letter-spacing:-.7px}
+.studio-bars{min-height:235px;display:flex;align-items:stretch;justify-content:center;gap:12px;padding:15px 4px 4px}
+.studio-bar-col{flex:1;min-width:0;max-width:75px;display:flex;align-items:center;flex-direction:column;gap:8px}
+.studio-bar-col>span,.studio-bar-col small{font-size:12px;color:#c9b8ea}
+.studio-bar-track{width:100%;flex:1;min-height:130px;display:flex;align-items:flex-end;justify-content:center;border-radius:9px 9px 3px 3px;background:rgba(122,86,188,.12);overflow:hidden}
+.studio-bar{width:100%;min-height:2px;background:linear-gradient(180deg,#bb92ff,#6746c5);border-radius:8px 8px 0 0}
+.studio-achievements{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+.studio-achievement{display:flex;gap:10px;align-items:center;border:1px solid rgba(173,148,207,.15);background:rgba(19,15,32,.48);border-radius:11px;padding:11px;opacity:.55}
+.studio-achievement.achieved{opacity:1;border-color:rgba(192,146,244,.4);background:rgba(86,56,147,.2)}
+.studio-achievement>b{font-size:24px;color:#c9a9ff}
+.studio-achievement strong,.studio-achievement small{display:block}
+.studio-achievement strong{font-size:13px}
+.studio-achievement small{font-size:11px;color:#b8a8c9;margin-top:3px}
+.studio-actions{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin:18px 0}
+.studio-actions button,.studio-navigation-tile,.studio-tabs button,.study-grade button{background:rgba(121,85,191,.24);border:1px solid rgba(177,146,231,.25);border-radius:11px;color:#e9e0ff;font-weight:750;padding:12px 15px}
+.studio-actions button:hover,.studio-navigation-tile:hover,.studio-tabs button:hover,.study-grade button:hover{border-color:#b294f0;background:rgba(148,99,210,.4)}
+.studio-navigation-tile{text-align:left;min-height:76px}
+.studio-form{display:grid;gap:12px;margin:14px 0}
+.studio-form label{display:grid;gap:6px;color:#d0c3e7;font-size:13px}
+.studio-form .field{width:100%;max-width:100%;font-size:14px}
+.studio-form textarea{font:inherit;resize:vertical;line-height:1.55}
+.studio-form button,.studio-actions button{justify-self:start}
+.studio-h2{margin-top:28px}
+.studio-week{display:grid;gap:5px;margin:16px 0 20px}
+.studio-weekday{display:flex;justify-content:space-between;align-items:center;gap:15px;padding:11px 12px;border-radius:9px;border:1px solid rgba(174,145,221,.12);background:rgba(17,12,30,.42)}
+.studio-weekday strong{font-size:13px}
+.studio-weekday span{font-size:12px;color:#bdafd0;text-align:right}
+.cross-layout{grid-template-columns:minmax(0,1.15fr) minmax(0,.85fr)}
+.cross-visual{display:grid;place-items:center;border-radius:15px;background:radial-gradient(ellipse at center,rgba(120,96,190,.18),transparent 70%);min-height:270px;margin:10px 0 24px}
+.cross-net{display:block;width:100%;max-width:470px;height:auto;filter:drop-shadow(0 10px 25px rgba(0,0,0,.3))}
+.cross-select{display:block;width:100%;margin:8px 0 16px}
+.cross-label{display:block;font-size:13px;font-weight:750;color:#d0c0e4;margin:15px 0 8px}
+.cross-edge{display:inline-flex;align-items:center;margin:4px;padding:5px 9px;border-radius:8px;border:1px solid rgba(194,164,255,.33);background:rgba(117,79,171,.2);color:#f0e9ff;font-size:12px}
+.cross-moves{display:grid;gap:8px;max-width:460px}
+.cross-move-row{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+.studio-tabs{display:flex;gap:8px;margin:16px 0}
+.studio-tabs button.active{background:linear-gradient(135deg,#7451c6,#9269e7);border-color:rgba(213,179,255,.56)}
+.study-flashcard{display:flex;flex-direction:column;justify-content:center;min-height:220px;gap:13px;padding:30px;border:1px solid rgba(191,159,242,.36);border-radius:16px;background:radial-gradient(circle at top right,rgba(138,89,210,.22),transparent 63%),rgba(15,11,29,.8);margin:15px 0}
+.study-flashcard p{font-size:clamp(18px,2.4vw,24px);line-height:1.5;margin:0}
+.study-grade{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px}
+.study-grade button{padding:12px 5px;font-size:12px}
+.practice-drill{max-width:850px}
+.practice-drill details summary{cursor:pointer;font-size:13px;color:#d1b6ff}
+.practice-sequence{margin:30px 0;padding:26px;border-radius:14px;background:#120c22;text-align:center;font-size:clamp(29px,6vw,48px);font-weight:850;letter-spacing:2px}
+.challenge-code{width:100%;min-height:120px;resize:vertical;margin:8px 0 14px;font:13px ui-monospace,monospace!important}
+.review-editor{margin:24px 0;padding-top:20px;border-top:1px solid rgba(172,138,232,.22)}
+.review-editor h3{font-size:19px;margin:0 0 10px}
+.review-file-label{display:inline-block!important;border:1px solid rgba(184,144,251,.4);padding:12px 14px;border-radius:10px;background:rgba(109,76,178,.25);color:#ecdcff!important;cursor:pointer;margin:10px 0}
+.review-canvas-frame{max-width:448px;margin:8px auto 16px;padding:10px;border-radius:16px;background:rgba(14,10,26,.76);border:1px solid rgba(185,156,224,.25)}
+#review-canvas{display:block;width:100%;height:auto;border-radius:9px;touch-action:none;cursor:grab}
+#review-canvas:active{cursor:grabbing}
+.review-editor-controls{display:flex;flex-wrap:wrap;align-items:center;gap:12px;margin:15px 0}
+.review-editor-controls label{display:flex!important;align-items:center;gap:8px}
+.review-editor-controls input{max-width:130px}
+.review-saved-image{display:block;width:100%;max-width:210px;height:auto;margin:9px 0 20px;border-radius:12px;border:1px solid rgba(199,170,244,.3)}
+button:disabled{opacity:.55;cursor:not-allowed}
+@media(max-width:1000px){.studio-metrics{grid-template-columns:repeat(2,minmax(0,1fr))}.studio-two,.cross-layout{grid-template-columns:1fr}}
+@media(max-width:680px){.studio-achievements{grid-template-columns:1fr 1fr}.studio-weekday{align-items:flex-start;flex-direction:column;gap:4px}.studio-weekday span{text-align:left}.study-grade{grid-template-columns:repeat(2,minmax(0,1fr))}.studio-tabs button{flex:1;font-size:12px;padding:12px 7px}.studio-metrics{margin:12px 0}.cross-visual{min-height:190px}.studio-bar-track{min-height:105px}}
+@media(max-width:350px){.studio-achievements{grid-template-columns:1fr}.studio-metrics{grid-template-columns:1fr 1fr}}
