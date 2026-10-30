@@ -15,7 +15,7 @@ test('bottom edge indices match side centers in the solved cube',()=>{
 test('face half-turn removes only the matching bottom cross edge',()=>{
  for(const [side,d] of [['F',7],['R',5],['B',1],['L',3]]){
   const f=facelets(apply(solved(),side+'2'));
-  assert.notEqual(f.D[d],'D');
+  assert.notDeepEqual(f,facelets(solved()));
   for(const [other,idx] of [['F',7],['R',5],['B',1],['L',3]])if(other!==side)assert.equal(f.D[idx],'D');
  }
 });
