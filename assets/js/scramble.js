@@ -33,4 +33,4 @@ document.addEventListener('keydown',e=>{if(e.code==='Space'&&!e.repeat&&!['BUTTO
 document.querySelectorAll('[data-view]').forEach(b=>b.addEventListener('click',()=>setView(b.dataset.view)));
 $('clear-times').addEventListener('click',()=>{if(times.length&&confirm('Excluir todos os tempos salvos neste dispositivo?')){times=[];localStorage.removeItem(key);renderStats()}});
 window.addEventListener('resize',()=>{if(view==='stats')renderStats()});
-scramble();renderStats();setView('timer');
+scramble();renderStats();setView(new URLSearchParams(location.search).get('view')==='stats'?'stats':new URLSearchParams(location.search).get('view')==='history'?'history':'timer');
