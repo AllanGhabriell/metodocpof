@@ -180,8 +180,9 @@ async function handleCloudForm(form,submitter){
 document.addEventListener('cfop:local-change',markLocalChange);
 scramble=makeScramble();render();
 onlineInit({updated:()=>{if(page==='challenges')render()}});
+let cloudUIKey='';
 initializeCloud({
- changed:()=>render(),
+ changed:state=>{const key=[state.configured,state.authenticated,state.admin].join('|');if(key!==cloudUIKey){cloudUIKey=key;render()}},
  hydrated:()=>{reloadProgress();try{times=JSON.parse(localStorage.getItem('cfop-v2-times')||'[]')}catch{times=[]}
   try{caseDrafts=JSON.parse(localStorage.getItem('cfop-case-drafts')||'[]')}catch{caseDrafts=[]}
   render()}
