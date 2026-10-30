@@ -1086,6 +1086,127 @@ document.addEventListener('DOMContentLoaded', () => {
     menuPanel.setAttribute('aria-hidden', 'true');
   }
 
+  const COACH_MODE_TITLES={
+    random:'Aleatório',sequential:'Sequencial',competitive:'Competitivo',
+    adaptive:'Adaptativo',review:'Revisão espaçada',focus:'Foco em dificuldades'
+  };
+  const COACH_CAPTIONS={
+    random:'Casos variados · dificuldade marcada por você',
+    sequential:'Ordem fixa · reforço opcional no final',
+    competitive:'Tempo automático · consistência e repetições',
+    adaptive:'O treinador prioriza suas dificuldades',
+    review:'Pratique os casos recomendados · sem cobranças',
+    focus:'Treine principalmente os casos marcados difíceis'
+  };
+
+  function stopPracticeTimer(discard=false){
+    if(practiceTimer){clearInterval(practiceTimer);practiceTimer=null}
+    if(practiceStarted){practiceElapsed=Math.max(0,Date.now()-practiceStarted);practiceStarted=0}
+    if(discard)practiceElapsed=null;
+    if(trainerTimingButton){
+      trainerTimingButton.classList.remove('is-running');
+      trainerTimingButton.textContent=practiceElapsed===null?'◷ Cronometrar este caso':'◷ Cronometrar novamente';
+    }
+    if(trainerAttemptTime)trainerAttemptTime.textContent=practiceElapsed===null?'Tempo opcional':'Tempo: '+fmt(practiceElapsed);
+    return practiceElapsed;
+  }
+  function togglePracticeTimer(){
+    if(state.competitive.enabled||completed||!currentCase)return;
+    if(practiceStarted){stopPracticeTimer();return}
+    practiceElapsed=null;
+    practiceStarted=Date.now();
+    trainerTimingButton.classList.add('is-running');
+    trainerTimingButton.textContent='Parar medição';
+    const tick=()=>{if(practiceStarted&&trainerAttemptTime)trainerAttemptTime.textContent='Medindo: '+fmt(Date.now()-practiceStarted)};
+    tick();practiceTimer=setInterval(tick,70);
+  }
+  function updateCoachInterface(){
+    const mode=currentTrainingMode(),stats=coach.summaries(pageSet),stored=coach.getCase(pageSet,currentCase)||{};
+    const prefs=coach.preferences();
+    if(trainerModeSelect)trainerModeSelect.value=mode;
+    if(trainerModeCaption)trainerModeCaption.textContent=COACH_CAPTIONS[mode];
+    if(trainerCaseLabel)trainerCaseLabel.textContent=completed?'Sessão encerrada':currentCase?'Caso '+currentCase+' · '+pageSet.toUpperCase():'Escolha um caso';
+    if(trainerFeedback){
+      trainerFeedback.hidden=completed||(mode==='competitive'&&!caseVisible);
+      const group=trainerFeedback.querySelector('.trainer-rating-group');
+      if(group)group.hidden=mode==='competitive';
+    }
+    if(trainerFeedbackHint)trainerFeedbackHint.textContent=mode==='competitive'?
+      'O tempo define a dificuldade. Você pode marcar o reconhecimento durante a tentativa.':
+      mode==='sequential'?'Marque a dificuldade; os casos difíceis poderão ser repetidos ao final.':
+      mode==='review'?'Revisão com execução real, sem contagem de atrasos.':
+      'Sua avaliação influencia os treinos adaptativos e as revisões.';
+    document.querySelectorAll('[data-trainer-rating]').forEach(button=>{
+      button.setAttribute('aria-pressed',String(stored.rating===button.dataset.trainerRating));
+    });
+    if(trainerCaseHistory){
+      const average=stored.avgMs?' · média '+(stored.avgMs/1000).toFixed(2)+'s':'';
+      trainerCaseHistory.textContent=(Number(stored.attempts)||0)+' práticas'+average;
+    }
+    if(trainerTimingButton)trainerTimingButton.hidden=mode==='competitive';
+    if(trainerRecognizedButton){
+      trainerRecognizedButton.hidden=mode!=='competitive'||!caseVisible||completed||!!recognitionAt;
+      trainerRecognizedButton.disabled=!!recognitionAt;
+    }
+    if(trainerMissedButton)trainerMissedButton.hidden=mode==='competitive';
+    const total=Math.max(1,unexcludedCases().length);
+    let progress=0,counter='';
+    if(mode==='sequential'){
+      const current=Math.max(0,Number(state.orderedTraining.index)||0);
+      const done=sequentialReview?total+reviewIndex:current;
+      const max=total+(sequentialReview?reviewQueue.length:0);
+      progress=Math.min(1,done/Math.max(1,max));
+      counter=sequentialReview?'Reforço '+(reviewIndex+1)+'/'+reviewQueue.length:(current+1)+' / '+total;
+    }else if(mode==='competitive'){
+      const mastered=total-availableCompetitiveCases().length;
+      progress=Math.max(0,Math.min(1,mastered/total));
+      counter=mastered+' / '+total+' dominados';
+    }else if(mode==='random'){
+      progress=sessionResolved.size/total;counter=sessionResolved.size+' / '+total+' casos vistos';
+    }else{
+      progress=Math.min(1,stats.today/Math.max(1,prefs.dailyGoal));
+      counter=stats.today+' / '+prefs.dailyGoal+' hoje · meta livre';
+    }
+    if(trainerSessionCounter)trainerSessionCounter.textContent=counter;
+    if(trainerProgressFill)trainerProgressFill.style.width=(progress*100).toFixed(0)+'%';
+    if(trainerMenuSummary)trainerMenuSummary.textContent=COACH_MODE_TITLES[mode]+' · '+stats.today+' práticas hoje · '+stats.hard+' marcados difíceis · '+stats.due+' sugeridos para revisão.';
+    if(trainerPrioritize)trainerPrioritize.checked=!!state.trainingConfig.prioritizeHard;
+    if(trainerReinforce)trainerReinforce.checked=!!state.trainingConfig.reinforceSequential;
+    if(trainerDailyGoal&&document.activeElement!==trainerDailyGoal)trainerDailyGoal.value=prefs.dailyGoal;
+    if(trainerWeeklyGoal&&document.activeElement!==trainerWeeklyGoal)trainerWeeklyGoal.value=prefs.weeklyGoal;
+  }
+  function organizeSettingsMenu(){
+    const cards=[...menuPanel.querySelectorAll(':scope > .settings-card')];
+    if(!cards.length)return;
+    const groups=[
+      {title:'Modos e objetivos',indices:[0,6,7],open:true},
+      {title:'Casos e progresso',indices:[1,2]},
+      {title:'Cronômetro e atalhos',indices:[3,4]},
+      {title:'Aparência e acessibilidade',indices:[5]},
+      {title:'Configurações avançadas',indices:[8]}
+    ];
+    groups.forEach(group=>{
+      const details=document.createElement('details');details.className='trainer-settings-group';
+      details.open=!!group.open;
+      const summary=document.createElement('summary');summary.textContent=group.title;
+      details.appendChild(summary);
+      group.indices.forEach(i=>{if(cards[i])details.appendChild(cards[i])});
+      menuPanel.appendChild(details);
+    });
+  }
+  function changeTrainingMode(mode){
+    if(!coach.MODES.includes(mode))return;
+    stopPracticeTimer(true);stopCaseTimer();
+    state.trainingMode=mode;
+    state.competitive.enabled=mode==='competitive';
+    state.orderedTraining.enabled=mode==='sequential';
+    if(competitiveToggle)competitiveToggle.checked=state.competitive.enabled;
+    if(orderedToggle)orderedToggle.checked=state.orderedTraining.enabled;
+    if(mode==='competitive')enforceMobileCompetitiveTimerRule();
+    save();syncUiFromState();restartSession(mode==='competitive',false);
+    showToast('Modo '+COACH_MODE_TITLES[mode]+' ativado',1600);
+  }
+
   function renderLastCaseInfo() {
     const report = state.lastCaseReport;
     if (!report) {
