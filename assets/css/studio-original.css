@@ -1,0 +1,17 @@
+/* Secondary tools share the original Método CPOF appearance. */
+body{overflow-x:hidden;background:radial-gradient(ellipse at 8% 8%,#1a335e 0%,transparent 42%),radial-gradient(ellipse at 90% 85%,#28113e 0%,transparent 50%),#090f20;color:#f1f5ff}
+.original-studio{min-height:100vh;position:relative;z-index:1}
+.original-studio-header{display:flex;align-items:center;gap:12px;justify-content:space-between;width:min(1040px,calc(100% - 28px));margin:16px auto 0;padding:12px 16px;background:rgba(8,18,38,.76);border:1px solid rgba(128,181,235,.3);border-radius:15px}
+.original-studio-header>strong{font-size:clamp(16px,2.5vw,22px);text-align:center}
+.original-back{color:#fff;text-decoration:none;padding:9px 13px;border:1px solid rgba(128,181,235,.4);border-radius:10px;font-weight:700}
+.original-studio-header .header-profile{min-width:0;max-width:220px}
+.original-studio-nav{display:flex;gap:8px;flex-wrap:wrap;justify-content:center;width:min(1040px,calc(100% - 28px));margin:12px auto 0}
+.original-studio-nav button,.original-studio-subnav button{border:1px solid rgba(128,181,235,.3);border-radius:11px;padding:10px 14px;background:rgba(8,18,38,.65);color:#b9cde8;font-weight:650;cursor:pointer}
+.original-studio-nav button.active{color:#fff;background:rgba(57,102,166,.38);border-color:#78b9ee}
+.original-studio-content{width:min(1040px,calc(100% - 28px));margin:24px auto 70px;min-width:0}
+.original-studio-content .card{cursor:default;overflow:visible;transform:none!important;box-shadow:0 10px 26px rgba(0,0,0,.17)}
+.original-studio-content .card::before{display:none!important}
+.original-studio-content .card:hover{transform:none!important;box-shadow:0 10px 26px rgba(0,0,0,.17)}
+.original-studio-subnav{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:18px}
+.original-studio-footer{text-align:center;color:#8f9fb9;font-size:12px;margin:42px 0 10px}
+@media(max-width:600px){.original-studio-header{padding:9px}.original-studio-header .header-profile-text{display:none}.original-studio-nav button{flex:1;font-size:12px;padding:10px 6px}.original-studio-content{margin-top:18px}}
