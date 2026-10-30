@@ -16,12 +16,13 @@ function fixture(){
   constructor(...args){super(...args.length?args:[now])}
   static now(){return now}
  }
- const context={localStorage:store,Date:Clock,Math,console};
+ const math=Object.create(Math);let random=0.25;math.random=()=>random;
+ const context={localStorage:store,Date:Clock,Math:math,console};
  context.globalThis=context;
  runInNewContext(read('assets/js/trainer-coach.js'),context,{filename:'trainer-coach.js'});
- return {coach:context.CPOFCoach,store,advance:ms=>{now+=ms},records:()=>JSON.parse(store.getItem('cpof-academy-activity-v1')||'[]')};
+ return {coach:context.CPOFCoach,store,setRandom:value=>{random=value},advance:ms=>{now+=ms},records:()=>JSON.parse(store.getItem('cpof-academy-activity-v1')||'[]')};
 }
-test('three original trainers have the same modes, feedback and settings, and keep original PNGs',()=>{
+test('three original trainers share compact controls and keep original case PNGs',()=>{
  const pages=['f2l.html','oll.html','pll.html'].map(read);
  const ids=pages.map(html=>[...html.matchAll(/\bid="([^"]+)"/g)].map(m=>m[1]));
  assert.deepEqual(ids[0],ids[1]);
@@ -30,7 +31,11 @@ test('three original trainers have the same modes, feedback and settings, and ke
  for(let i=0;i<3;i++){
   const html=pages[i],stage=['f2l','oll','pll'][i];
   for(const mode of options)assert.ok(html.includes('value="'+mode+'"'),mode);
-  for(const difficulty of ['easy','medium','hard'])assert.ok(html.includes('data-trainer-rating="'+difficulty+'"'));
+  for(const id of ['trainer-easy-btn','trainer-hard-btn','prev-case-btn','skip-case-btn','trainer-mode-help'])assert.ok(html.includes('id="'+id+'"'),id);
+  assert.ok(!html.includes('class="trainer-feedback"'),'no separate review panel');
+  assert.ok(!html.includes('data-trainer-rating="medium"'),'only two decisions');
+  assert.ok(html.indexOf('<section id="case-moves"')>html.indexOf('<div class="img-wrap"'),'algorithm follows image');
+  assert.ok(html.indexOf('<div class="controls-row"')>html.indexOf('<section id="case-moves"'),'controls follow optional algorithm');
   assert.ok(html.includes('src="'+stage+'/'),stage+' PNG');
   assert.ok(html.includes('trainer-coach.js'));
   assert.ok(html.includes('trainer-unified.css'));
@@ -93,4 +98,49 @@ test('coach is connected in classic trainer and analytics, no card-based review 
  assert.ok(app.includes("if(page==='srs')return '<section"));
  assert.ok(!app.includes("if(page==='srs')return studyPage"));
  assert.ok(trainer.includes("new URLSearchParams(location.search).get('mode')"));
+});
+
+test('easy and difficult are recorded as attempts and two consecutive easy results remove a hard priority',()=>{
+ const {coach,records}=fixture();
+ const hard=coach.complete('f2l','12',{mode:'random',result:'hard'});
+ assert.equal(hard.record.grade,'bad');
+ assert.equal(hard.record.result,'hard');
+ assert.equal(hard.stats.hardClicks,1);
+ assert.equal(hard.stats.needsPractice,true);
+ assert.equal(hard.stats.rating,'hard');
+ const once=coach.complete('f2l','12',{mode:'random',result:'easy'});
+ assert.equal(once.record.grade,'good');
+ assert.equal(once.stats.needsPractice,true);
+ assert.equal(once.stats.consecutiveEasy,1);
+ const twice=coach.complete('f2l','12',{mode:'random',result:'easy'});
+ assert.equal(twice.stats.needsPractice,false);
+ assert.equal(twice.stats.rating,'easy');
+ assert.equal(twice.stats.consecutiveEasy,2);
+ const hardAgain=coach.complete('f2l','12',{mode:'sequential',result:'hard'});
+ assert.equal(hardAgain.stats.needsPractice,true);
+ assert.equal(hardAgain.stats.hardClicks,2);
+ assert.equal(hardAgain.stats.consecutiveEasy,0);
+ assert.equal(records().length,4);
+});
+
+test('random mode increases the chance of difficult cases without always showing them',()=>{
+ const {coach,setRandom}=fixture();
+ coach.complete('oll','1',{mode:'random',result:'hard'});
+ coach.complete('oll','2',{mode:'random',result:'easy'});
+ setRandom(0.25);
+ assert.equal(coach.weightedPick('oll',['1','2'],'random'),'1');
+ setRandom(0.99999);
+ assert.equal(coach.weightedPick('oll',['1','2'],'random'),'2');
+ assert.equal(coach.weightedPick('oll',['1','2','3','4'],'random',{recent:['1','2','3']}),'4');
+});
+
+test('sequential difficult cases are reinforced without counting skips as successful attempts',()=>{
+ const trainer=read('assets/js/secao.js');
+ assert.ok(trainer.includes("advanceSequentialPractice('hard')"));
+ assert.ok(trainer.includes("advanceSequentialPractice('easy')"));
+ assert.ok(trainer.includes("advanceSequentialPractice('skip')"));
+ assert.ok(trainer.includes('if(outcome!==\'skip\'&&needsMorePractice(last))'));
+ assert.ok(trainer.includes("logCasePractice(caseId,elapsed,'hard')"));
+ assert.ok(trainer.includes("logCasePractice(currentCase,elapsedMs,state.competitive.enabled?'completed':'easy')"));
+ assert.ok(trainer.includes("['random','adaptive','review','focus'].includes(currentTrainingMode())"));
 });
