@@ -4,9 +4,17 @@
 F2L, OLL e PLL compartilham a mesma estrutura de HTML e o mesmo CSS (`trainer-unified.css`).
 As imagens de casos continuam sendo os PNGs existentes nas pastas `f2l/`, `oll/` e `pll/`. **Não substituir imagens por cubos 3D gerados.**
 
+## Interface simplificada de treino (F2L / OLL / PLL)
+- Os três treinadores mostram a imagem PNG original em um quadro do **mesmo tamanho em todos os modos**. A opção de tamanho da imagem continua ajustável nas preferências.
+- O fluxo principal tem somente **Caso anterior / Fácil / Difícil / Pular**. Os movimentos e setups são um painel compacto, fechado por padrão, inclusive no sequencial. Não existe uma segunda caixa obrigatória de avaliação.
+- **Fácil** registra a execução informada pelo usuário e avança; **Difícil** registra uma tentativa com dificuldade e avança, dando mais peso ao caso até haver duas execuções consecutivas marcadas Fácil; **Pular** avança sem registrar resolução ou conceder XP.
+- No **Competitivo**, a escolha manual de Fácil e Difícil é substituída pelos controles temporizados **Iniciar tentativa / Registrar tempo** e pelo marcador opcional **Reconheci**. Nesse modo, a classificação permanece baseada no tempo.
+- Os seis modos têm uma explicação curta acessível pelo botão **?** ao lado da seleção e uma comparação completa em **Menu → Como funcionam os modos?**. Não há informações de contagem de práticas ou coaching ocupando a área da imagem.
+- O menu agrupa preferências em seções recolhidas: metas, casos, cronômetro/atalhos, aparência, sequência/competitivo e restauração.
+
 ## Modos e metodologia
-- **Aleatório:** variedade livre, sem repetição imediata. Dificuldade informada manualmente (Fácil/Médio/Difícil). Pode priorizar casos difíceis opcionalmente.
-- **Sequencial:** ordem fixa da etapa. Casos pulados não contam como resolvidos. Opcionalmente, ao finalizar os casos, entra em um bloco separado de reforço dos casos marcados Médio/Difícil.
+- **Aleatório:** variedade livre, sem repetição imediata. As decisões disponíveis são apenas Fácil/Difícil, que alteram automaticamente a prioridade; o foco extra no difícil continua opcional.
+- **Sequencial:** ordem fixa da etapa. Casos pulados não contam como resolvidos. Opcionalmente, ao finalizar os casos, entra em um bloco de reforço dos marcados difíceis até duas confirmações seguidas de Fácil.
 - **Competitivo:** tempo medido por caso após o PNG estar carregado. Classificação automática pelo tempo-alvo (até 100%: bom; até 135%: médio; acima: ruim). Caso ruim recebe maior prioridade de repetição. Botão **Reconheci o caso** mede o tempo de reconhecimento explicitamente; sem clique não inventa essa métrica.
 - **Adaptativo:** escolha ponderada por classificação manual, caso devido para revisão, tempo médio, tempo de reconhecimento e desempenho anterior, com proteção contra repetição imediata. Não substitui a escolha do usuário.
 - **Revisão espaçada:** resolve os casos reais do cubo com intervalos heurísticos. Dá prioridade aos casos já praticados e prontos para revisão, depois aos marcados difíceis/médios, e usa casos comuns se nenhum estiver pendente. Não é um sistema de flashcards.
@@ -15,7 +23,7 @@ As imagens de casos continuam sendo os PNGs existentes nas pastas `f2l/`, `oll/`
 ## Hábitos, autonomia e XP
 - Objetivos opcionais: **diário**, **semanal** ou **livre**. Nenhum modo obriga o usuário a zerar uma lista de revisões acumuladas.
 - A sequência 🔥 contabiliza dias consecutivos **com atividade registrada**. O calendário mostra 42 dias; os gráficos técnicos mostram atividades por modalidade, variações de tempo, modalidades utilizadas e tempos completos do 3×3.
-- A dificuldade manual, sozinha, **não conta como resolução e não concede XP**.
+- A marcação isolada de dificuldade **não conta como resolução nem concede XP**. O botão Difícil durante a sessão registra uma tentativa informada pelo usuário, mas não conta como caso dominado.
 - O botão de conclusão registra uma **declaração do usuário**, não uma verificação física. Tarefas não resolvidas e dificuldades também podem ser registradas, com XP reduzido. O XP por caso é limitado depois de muitas repetições no mesmo dia.
 - A separação reconhecimento/execução só existe se o usuário pressionar o botão de reconhecimento durante o cronômetro.
 
