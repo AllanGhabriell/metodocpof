@@ -1,7 +1,7 @@
 import {solved,apply,facelets} from '../../v2/cube/engine.mjs';
 import {cube3D} from '../../v2/cube/visual.mjs?v=20261030-8';
 const key='cpof-scramble-times-v1';
-let times=[];try{const t=JSON.parse(localStorage.getItem(key)||'[]');if(Array.isArray(t))times=t.filter(x=>Number.isFinite(x.ms)&&x.ms>=0&&typeof x.scramble==='string').slice(-2000)}catch{}
+let times=[];try{const t=JSON.parse(localStorage.getItem(key)||'[]');if(Array.isArray(t))times=t.filter(x=>Number.isFinite(x.ms)&&x.ms>=0&&typeof x.scramble==='string').slice(-3500)}catch{}
 let sequence='',state=solved(),running=false,started=0,raf=0,elapsed=0,view='timer',yaw=-35,pitch=-27,inspection=false,inspectionStarted=0,inspectionRaf=0,inspectionEnabled=localStorage.getItem('academy-inspection')==='true',scrambleLength=[15,20,25].includes(Number(localStorage.getItem('academy-scramble-length')))?Number(localStorage.getItem('academy-scramble-length')):20,cubeView=localStorage.getItem('academy-cube-view')==='2d'?'2d':'3d';
 const $=id=>document.getElementById(id);
 const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
@@ -20,7 +20,7 @@ function cube2D(current){
 function drawCube(){const target=$('scramble-cube');if(!target)return;target.innerHTML=cubeView==='2d'?cube2D(state):cube3D(state,{yaw,pitch,size:174});target.setAttribute('aria-label','Cubo '+(cubeView==='2d'?'2D':'3D')+' embaralhado: '+sequence);document.querySelector('.scramble-cube-controls').hidden=cubeView==='2d';}
 function tick(){if(!running)return;elapsed=performance.now()-started;$('timer-display').textContent=fmt(elapsed);raf=requestAnimationFrame(tick)}
 function start(){if(running)return;if(inspection){inspection=false;cancelAnimationFrame(inspectionRaf)}running=true;started=performance.now();$('timer-display').textContent='0.00';$('timer-status').textContent='Toque ou pressione espaço para parar';document.body.classList.add('is-timing');tick()}
-function stop(){if(!running)return;running=false;cancelAnimationFrame(raf);elapsed=performance.now()-started;times.push({ms:Math.round(elapsed),scramble:sequence,date:new Date().toISOString()});localStorage.setItem(key,JSON.stringify(times.slice(-2000)));$('timer-display').textContent=fmt(elapsed);$('timer-status').textContent='Tempo salvo · toque para começar outra resolução';document.body.classList.remove('is-timing');scramble();renderStats()}
+function stop(){if(!running)return;running=false;cancelAnimationFrame(raf);elapsed=performance.now()-started;times.push({ms:Math.round(elapsed),scramble:sequence,date:new Date().toISOString()});localStorage.setItem(key,JSON.stringify(times.slice(-3500)));$('timer-display').textContent=fmt(elapsed);$('timer-status').textContent='Tempo salvo · toque para começar outra resolução';document.body.classList.remove('is-timing');scramble();renderStats()}
 function inspectionTick(){if(!inspection)return;const left=15-(performance.now()-inspectionStarted)/1000;if(left<=0){inspection=false;cancelAnimationFrame(inspectionRaf);start();$('timer-status').textContent='Inspeção encerrada · cronômetro iniciado';return}$('timer-display').textContent=left.toFixed(1);inspectionRaf=requestAnimationFrame(inspectionTick)}
 function action(){if(running){stop();return}if(inspectionEnabled&&!inspection){inspection=true;inspectionStarted=performance.now();$('timer-status').textContent='Inspeção de 15 segundos · toque para iniciar';inspectionTick();return}start()}
 function mean(values){return values.length?values.reduce((a,b)=>a+b,0)/values.length:null}
