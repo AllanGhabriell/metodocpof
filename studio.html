@@ -1,0 +1,28 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#171028">
+<link rel="manifest" href="./manifest.webmanifest">
+<title>CFOP Studio — Aprenda e treine cubo mágico</title>
+<meta name="description" content="CFOP Studio: fundamentos, F2L intuitivo, treinos e cronômetro.">
+<link rel="stylesheet" href="./v2/app.css?v=20261030-31">
+</head>
+<body><div id="root"></div><script>
+(function(){
+ var ready=false;
+ window.addEventListener('cfop:ready',function(){ready=true;});
+ function show(){
+  if(ready||document.querySelector('#root .app'))return;
+  var root=document.getElementById('root');
+  if(!root)return;
+  root.innerHTML='<main style="max-width:540px;margin:12vh auto;padding:30px;border-radius:20px;background:#171e30;color:#f4f0ff;font:16px system-ui"><h1>Não foi possível carregar o CFOP Studio</h1><p>Uma parte do aplicativo não iniciou. Atualize a página para tentar novamente.</p><button id="cfop-retry" style="background:#8e67ef;color:white;border:0;border-radius:12px;padding:12px 20px;cursor:pointer">Atualizar página</button></main>';
+  document.getElementById('cfop-retry').onclick=function(){location.reload()};
+ }
+ window.addEventListener('error',function(e){if(e.target&&e.target.tagName==='SCRIPT')show()},true);
+ window.addEventListener('unhandledrejection',function(){setTimeout(show,300)});
+ setTimeout(show,5500);
+})();
+</script><script type="module" src="./v2/app.js?v=20261030-31"></script><script defer src="./v2/cursor-glow.js?v=20261030-31"></script></body>
+</html>
