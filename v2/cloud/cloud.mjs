@@ -250,7 +250,7 @@ export function cloudPanel(){
  '<p class="muted">Projeto: '+esc(conf.url)+'</p>'+
  (!status.authenticated?
  '<form id="cloud-auth" class="studio-form"><label>E-mail<input class="field" name="email" type="email" autocomplete="email" required></label><label>Senha<input class="field" name="password" type="password" minlength="8" autocomplete="current-password" required></label><div class="row"><button name="mode" value="login" type="submit">Entrar</button><button name="mode" value="signup" type="submit" class="secondary">Criar conta</button><button name="mode" value="recover" type="submit" class="secondary" formnovalidate>Recuperar senha</button></div></form>':
- '<p class="notice">Conectado como '+esc(status.user?.email||'usuário')+(status.admin?' · Administrador autorizado':'')+'</p>'+
+ '<p class="notice">Conectado como '+esc(status.user?.email||'usuário')+(status.admin?' · Administrador autorizado':'')+'</p><p class="muted cloud-user-id">ID da sua conta: <code>'+esc(status.user?.id||'')+'</code> <button type="button" class="secondary" data-cloud="copyid">Copiar ID</button></p>'+
  '<div class="row"><button data-cloud="sync" type="button">Sincronizar agora</button><button data-cloud="logout" type="button" class="secondary">Sair da conta</button></div>'+
  '<details><summary>Alterar senha</summary><form id="cloud-password" class="studio-form"><label>Nova senha<input class="field" name="password" type="password" required minlength="8"></label><button>Atualizar senha</button></form></details>')+
  '<div class="row cloud-actions"><button data-cloud="disconnect" type="button" class="secondary">Desconectar projeto</button></div>')+
