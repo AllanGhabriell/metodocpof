@@ -858,7 +858,22 @@ document.addEventListener('DOMContentLoaded', () => {
     return 'bad';
   }
 
+  function currentTrainingMode() {return state.competitive.enabled?'competitive':isOrderedTrainingMode()?'sequential':state.trainingMode||'random'}
   function availableNormalCases() {
+    const mode=currentTrainingMode();
+    if (['adaptive','review','focus'].includes(mode)) {
+      const pool=unexcludedCases();
+      if(mode==='review'){
+        const due=coach.dueCases(pageSet,pool);
+        const selected=pool.filter(id=>['hard','medium'].includes(coach.getCase(pageSet,id)?.rating));
+        return due.length?due:selected.length?selected:pool;
+      }
+      if(mode==='focus'){
+        const difficult=pool.filter(id=>['hard','medium'].includes(coach.getCase(pageSet,id)?.rating));
+        return difficult.length?difficult:pool;
+      }
+      return pool;
+    }
     const blocked = new Set(state.excluded);
     if (state.removeWhenSolved) sessionResolved.forEach((id) => blocked.add(id));
     return CASE_IDS.filter((id) => !blocked.has(id));
@@ -923,8 +938,14 @@ document.addEventListener('DOMContentLoaded', () => {
       pick = pickWeighted(effectivePool);
       const stat = getCaseStat(pick);
       stat.boost = Math.max(0, stat.boost - 1);
+    } else if(['adaptive','review','focus'].includes(currentTrainingMode()) || state.trainingConfig.prioritizeHard){
+      pick=coach.weightedPick(pageSet,effectivePool,currentTrainingMode(),{
+        recent:recentCoachCases,targetMs:Number(state.competitive.limitSec||6)*1000,
+        prioritizeHard:state.trainingConfig.prioritizeHard
+      });
     } else {
-      pick = C.pickRandom(effectivePool, lastShown);
+      const notRecent=effectivePool.filter(id=>!recentCoachCases.slice(-3).includes(id));
+      pick=C.pickRandom(notRecent.length?notRecent:effectivePool,lastShown);
     }
     return pick;
   }
@@ -941,6 +962,10 @@ document.addEventListener('DOMContentLoaded', () => {
     lastShown = caseId;
     caseVisible = !!visible;
     appendHistory(caseId, visible);
+    recentCoachCases.push(caseId);
+    recentCoachCases=recentCoachCases.slice(-8);
+    stopPracticeTimer(true);
+    recognitionAt=null;
     closeMovesPanel();
   }
 
@@ -1027,6 +1052,7 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   function startCaseTimer() {
+    recognitionAt=null;
     caseStartAt = Date.now();
     caseElapsed = 0;
     smoothedCaseElapsed = 0;
@@ -1146,6 +1172,7 @@ document.addEventListener('DOMContentLoaded', () => {
     updateControlsState();
     applyScale();
     renderMovesPanel();
+    updateCoachInterface();
 
     const showMask = !completed && state.competitive.enabled && !caseVisible;
     if (imgWrap) imgWrap.classList.toggle('show-mask', showMask);
@@ -1153,7 +1180,7 @@ document.addEventListener('DOMContentLoaded', () => {
     finalScreen.hidden = !completed;
     prevBtn.hidden = completed || state.competitive.enabled;
     nextBtn.hidden = completed;
-    if (skipBtn) skipBtn.hidden = completed || isOrderedTrainingMode() || state.competitive.enabled;
+    if (skipBtn) skipBtn.hidden = completed || state.competitive.enabled;
 
     if (completed) {
       imgEl.hidden = true;
@@ -1171,12 +1198,12 @@ document.addEventListener('DOMContentLoaded', () => {
     if (state.competitive.enabled && !caseVisible) {
       imgEl.hidden = true;
       caseMask.hidden = false;
-      nextBtn.textContent = 'Resolver caso';
+      nextBtn.textContent = 'Começar tentativa';
       caseTimerBar.hidden = true;
       return;
     }
 
-    nextBtn.textContent = 'Próximo caso';
+    nextBtn.textContent = state.competitive.enabled?'Registrar tempo':'Concluí · próximo caso';
     caseMask.hidden = true;
     imgEl.hidden = false;
     const src = `${pageSet}/${currentCase}.png`;
@@ -1192,7 +1219,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const orderedMode = isOrderedTrainingMode();
     if (controlsRow) controlsRow.classList.toggle('single-next', state.competitive.enabled && !completed);
     prevBtn.hidden = completed || state.competitive.enabled;
-    if (skipBtn) skipBtn.hidden = completed || orderedMode || state.competitive.enabled;
+    if (skipBtn) skipBtn.hidden = completed || state.competitive.enabled;
     if (orderedMode) {
       clampOrderedIndex();
       const curIdx = Math.max(0, Number(state.orderedTraining.index) || 0);
@@ -1200,7 +1227,7 @@ document.addEventListener('DOMContentLoaded', () => {
     } else {
       prevBtn.disabled = historyIndex <= 0 || completed || state.competitive.enabled;
     }
-    const shouldShowRemaining = state.removeWhenSolved || state.competitive.enabled || orderedMode;
+    const shouldShowRemaining = (state.removeWhenSolved && !['adaptive','review','focus'].includes(currentTrainingMode())) || state.competitive.enabled || orderedMode;
     casesRemainingEl.hidden = !shouldShowRemaining;
 
     if (state.competitive.enabled) {
