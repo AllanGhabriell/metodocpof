@@ -400,3 +400,26 @@ body::before{z-index:0}.cfop-cursor-glow{z-index:0}.app{z-index:1}
 @media(max-width:800px){.training-preferences{grid-template-columns:1fr}.training-hidden-alg{flex-direction:column;align-items:stretch}}
 @media(max-width:480px){.training-difficulty{gap:6px}.training-difficulty button{padding:12px 9px}.training-difficulty small{font-size:10px}}
 @media(prefers-reduced-motion:reduce){.training-difficulty button{transition:none}}
+
+/* Focused navigation: one CFOP landing, three primary areas, progressive discovery. */
+.training-quiet-tools{margin:24px 0 6px;display:flex;flex-direction:column;gap:12px}
+.training-quiet-tools details{border:1px solid rgba(171,141,220,.17);border-radius:16px;background:rgba(24,27,43,.45);padding:0 18px}
+.training-quiet-tools summary{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:16px 0;cursor:pointer;list-style:none;color:#d4c5ed;font-weight:650}
+.training-quiet-tools summary::-webkit-details-marker{display:none}
+.training-quiet-tools details[open]{padding-bottom:18px;border-color:rgba(177,140,236,.36)}
+.training-quiet-tools details p{font-size:13px;margin:0 0 15px}
+.training-quiet-links{display:flex;gap:10px;flex-wrap:wrap}
+.training-quiet-links button{background:transparent;border:1px solid rgba(164,132,215,.2);color:#bcb0d2;padding:10px 15px;border-radius:12px;font-size:13px}
+.training-quiet-links button:hover{color:#fff;border-color:#9975d9}
+.profile-destinations{margin-top:25px}
+.profile-destinations h2{margin-bottom:14px}
+.profile-destination-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
+.profile-destination-grid button{display:flex;flex-direction:column;align-items:flex-start;gap:10px;text-align:left;border:1px solid rgba(165,132,217,.22);border-radius:15px;background:rgba(93,63,152,.12);padding:17px;color:#f2eaff}
+.profile-destination-grid button:hover{border-color:#b08be9;background:rgba(109,71,182,.23)}
+.profile-destination-grid button span{font-size:12px;color:#afa2c3}
+.profile-admin-hub{margin-top:22px}
+.profile-admin-hub summary{display:flex;justify-content:space-between;align-items:center;cursor:pointer;list-style:none}
+.profile-admin-hub summary::-webkit-details-marker{display:none}
+.profile-admin-hub summary span{font-size:12px;color:#b4a7c8}
+.profile-admin-hub .profile-destination-grid{margin-top:20px;grid-template-columns:repeat(2,minmax(0,1fr))}
+@media(max-width:720px){.profile-destination-grid{grid-template-columns:1fr}.profile-admin-hub .profile-destination-grid{grid-template-columns:1fr}}
