@@ -1,7 +1,8 @@
+import {mergeCoachState,mergeCoachActivity,mergeCubeTimes} from './coach-merge.mjs';
 // Cloud backend: Supabase Auth + PostgREST. Somente chave pública no navegador.
 // TODA autorização administrativa é revalidada por RLS no banco; UI não é uma barreira de segurança.
 const CONF='cfop-cloud-config-v1',AUTH='cfop-cloud-session-v1',TOMBS='cfop-case-tombstones-v1';
-const KEYS={progress:'cfop-studio-progress-v1',times:'cfop-v2-times',drafts:'cfop-case-drafts',tombstones:TOMBS};
+const KEYS={progress:'cfop-studio-progress-v1',times:'cfop-v2-times',drafts:'cfop-case-drafts',tombstones:TOMBS,coach:'cpof-academy-coach-v1',academyActivity:'cpof-academy-activity-v1',scrambleTimes:'cpof-scramble-times-v1'};
 let accountMessages=[],accountXp=0;let conf=read(CONF,null),session=read(AUTH,null),admin=false, published=[],lastError='',phase='local',onUpdate=()=>{},onHydrate=()=>{},busy=false,queue=false,muted=false,refreshing=null,lastSynced=0;
 const esc=x=>String(x??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
 function read(k,otherwise){try{const v=JSON.parse(localStorage.getItem(k)||'null');return v??otherwise}catch{return otherwise}}
@@ -157,7 +158,12 @@ export async function unpublishCase(id){
  await loadPublishedCases();return true;
 }
 function localData(){
- return {progress:read(KEYS.progress,{}),times:read(KEYS.times,[]),drafts:read(KEYS.drafts,[]),tombstones:read(KEYS.tombstones,[])};
+ return {progress:read(KEYS.progress,{}),times:read(KEYS.times,[]),
+  drafts:read(KEYS.drafts,[]),tombstones:read(KEYS.tombstones,[]),
+  coach:read(KEYS.coach,{}),
+  academyActivity:read(KEYS.academyActivity,[]),
+  scrambleTimes:read(KEYS.scrambleTimes,[])};
+
 }
 function mergeList(a=[],b=[],id,max=4000,choose=null){
  const map=new Map();
@@ -196,7 +202,10 @@ function mergeData(a={},b={}){
  return {
   progress:mergeProgress(a.progress,b.progress),
   times:mergeList(a.times,b.times,t=>[t.date,t.ms,t.scramble,t.penalty].join('|'),30000),
-  drafts,tombstones:ta
+  drafts,tombstones:ta,
+  coach:mergeCoachState(a.coach,b.coach),
+  academyActivity:mergeCoachActivity(a.academyActivity,b.academyActivity),
+  scrambleTimes:mergeCubeTimes(a.scrambleTimes,b.scrambleTimes)
  };
 }
 function hydrate(data){
@@ -206,6 +215,9 @@ function hydrate(data){
   save(KEYS.times,data.times);
   save(KEYS.drafts,data.drafts);
   save(KEYS.tombstones,data.tombstones);
+  save(KEYS.coach,data.coach);
+  save(KEYS.academyActivity,data.academyActivity);
+  save(KEYS.scrambleTimes,data.scrambleTimes);
   onHydrate(data);
  }finally{muted=false}
 }
@@ -268,6 +280,10 @@ export async function initializeCloud({changed=()=>{},hydrated=()=>{}}={}){
    await postLogin();
   }else{setStatus('configurado');await loadPublishedCases()}
  }catch(e){setStatus('erro-conexao',e.message)}
+ // Treinos feitos em outra aba são sincronizados após uma alteração local.
+ if(typeof window!=='undefined')window.addEventListener('storage',event=>{
+  if([KEYS.coach,KEYS.academyActivity,KEYS.scrambleTimes].includes(event.key))markLocalChange();
+ });
  // Cloud data is periodically reconciled when signed in; local saving also triggers an upload.
  setInterval(()=>{if(isAuthenticated())syncCloud().catch(()=>{})},45000);
 }
