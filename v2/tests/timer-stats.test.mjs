@@ -1,0 +1,10 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import {stats,averageOf,formatMs,removeSolve,updatePenalty} from '../timer/stats.mjs';
+const s=(ms,penalty='OK')=>({ms,penalty,scramble:'R U'});
+test('estatísticas básicas excluem DNF da média simples',()=>{const r=stats([s(10000),s(12000),s(null,'DNF')]);assert.equal(r.total,3);assert.equal(r.dnf,1);assert.equal(r.best,10000);assert.equal(r.mean,11000)});
+test('penalidade +2 altera tempo efetivo',()=>{assert.equal(stats([s(10000,'+2')]).best,12000)});
+test('ao5 descarta melhor e pior tempo',()=>{assert.equal(averageOf([s(10000),s(12000),s(14000),s(16000),s(18000)],5),14000)});
+test('ao5 com um DNF permite média, com dois resulta em DNF',()=>{assert.equal(averageOf([s(10000),s(12000),s(14000),s(16000),s(null,'DNF')],5),14000);assert.equal(averageOf([s(10000),s(12000),s(14000),s(null,'DNF'),s(null,'DNF')],5),'DNF')});
+test('edição e exclusão não modificam lista original',()=>{const input=[s(10000),s(null,'DNF')];const edited=updatePenalty(input,1,'OK');assert.equal(input[1].penalty,'DNF');assert.equal(edited[1].penalty,'OK');assert.equal(removeSolve(input,1).length,1)});
+test('formatação de DNF',()=>assert.equal(formatMs('DNF'),'DNF'));
