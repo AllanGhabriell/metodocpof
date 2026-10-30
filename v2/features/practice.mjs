@@ -14,14 +14,14 @@ const nowDate=()=>new Date().toLocaleDateString('en-CA');
 function today(){const d=new Date();return [d.getFullYear(),String(d.getMonth()+1).padStart(2,'0'),String(d.getDate()).padStart(2,'0')].join('-')}
 let currentId='',revealed=false,message='',mode='lookahead',scramble='',shown=false,completed=false,challenge='',challengeMessage='';
 function prepareCards(cases=[]){
- const data=progressData(),ids=new Set(data.cards.map(c=>c.id));
- for(const [id,question,answer] of baseCards)if(!ids.has(id))data.cards.push({id,question,answer,due:'2000-01-01',interval:0});
+ const data=progressData(),ids=new Set(data.cards.map(c=>c.id));let changed=false;
+ for(const [id,question,answer] of baseCards)if(!ids.has(id)){data.cards.push({id,question,answer,due:'2000-01-01',interval:0});ids.add(id);changed=true}
  for(const item of cases){
   if(!((item.reviewStatus==='verified'||item.reviewed===true)&&['f2l','oll','pll'].includes(item.stage)))continue;
   const id='case-'+item.id;if(ids.has(id))continue;
-  data.cards.push({id,question:'Reconheça o caso '+item.id+' e recorde seu algoritmo.',answer:item.algorithm,stage:item.stage,caseId:item.id,setup:item.setup,due:'2000-01-01',interval:0});ids.add(id);
+  data.cards.push({id,question:'Reconheça o caso '+item.id+' e recorde seu algoritmo.',answer:item.algorithm,stage:item.stage,caseId:item.id,setup:item.setup,due:'2000-01-01',interval:0});ids.add(id);changed=true;
  }
- saveFeatureData();
+ if(changed)saveFeatureData();
 }
 function dueCards(){return progressData().cards.filter(c=>!c.due||c.due<=today())}
 function currentCard(){const due=dueCards();const c=due.find(x=>x.id===currentId)||due[0]||null;currentId=c?.id||'';return c}
