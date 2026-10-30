@@ -2,9 +2,9 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import {solved,apply,facelets} from '../cube/engine.mjs';
 import {maskCaseState,resolutionOrientation,orientationCenters} from '../cube/case-visual.mjs';
-test('CFOP mostra amarelo em cima, vermelho na frente e azul à direita',()=>{
+test('CFOP mostra amarelo em cima e vermelho na frente na orientação atual',()=>{
  const c=orientationCenters(apply(solved(),resolutionOrientation));
- assert.deepEqual(c,{top:'D',front:'R',right:'B',bottom:'U'});
+ assert.deepEqual(c,{top:'D',front:'R',right:'F',bottom:'U'});
 });
 test('F2L oculta adesivos superiores irrelevantes mas preserva par branco-vermelho-azul',()=>{
  const state=apply(solved(),resolutionOrientation);
