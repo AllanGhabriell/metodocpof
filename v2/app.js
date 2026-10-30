@@ -1,3 +1,4 @@
+import {recognitionDiagram} from './cube/recognition.mjs';
 import {maskCaseState,resolutionOrientation} from './cube/case-visual.mjs';
 import {readPdfCases} from './data/pdf-import.mjs';
 import {stats as calculateStats,formatMs,effectiveMs,removeSolve,updatePenalty} from './timer/stats.mjs';
@@ -22,7 +23,7 @@ let draftSelection=0,reviewMessage='';
 function persistDrafts(){localStorage.setItem('cfop-case-drafts',JSON.stringify(caseDrafts))}
 function draftReport(record){return reviewCase(record,{requireDiagram:true,requireExpectedState:true})}
 function availableCases(stage){return pdfCases.filter(c=>c.stage===stage)}
-function algorithmsPage(){const cases=availableCases(caseFilter);const selected=cases[Math.min(activeCase,cases.length-1)];let cube='';if(selected){try{cube=cube3D(maskCaseState(learningView(apply(solved(),selected.setup||inverse(selected.algorithm))),caseFilter),{size:150})}catch{cube=cube3D(maskCaseState(learningView(solved()),caseFilter),{size:150})}}
+function algorithmsPage(){const cases=availableCases(caseFilter);const selected=cases[Math.min(activeCase,cases.length-1)];let cube='';if(selected){try{const state=learningView(apply(solved(),selected.setup||inverse(selected.algorithm)));cube=recognitionDiagram(state,caseFilter)}catch{cube=recognitionDiagram(learningView(solved()),caseFilter)}}
  return '<div class="eyebrow">Treinar / Algoritmos</div><h1>Biblioteca de casos</h1><div class="row algorithm-toolbar">'+['f2l','oll','pll'].map(x=>'<button class="'+(caseFilter===x?'':'secondary')+'" data-casefilter="'+x+'">'+x.toUpperCase()+' ('+availableCases(x).length+')</button>').join('')+'</div><label class="review-check"><input type="checkbox" id="showsetups" '+(showSetups?'checked':'')+'> Mostrar os setups dos casos</label><div class="split"><section class="card"><h2>Escolha um caso</h2><div class="case-grid">'+cases.map((c,i)=>'<button class="draft-item '+(i===activeCase?'selected':'')+'" data-caseindex="'+i+'">'+escapeHtml(c.id)+'</button>').join('')+'</div></section><section class="card">'+(selected?'<div class="row between"><h2>'+escapeHtml(selected.id)+'</h2><span class="tag">'+caseFilter.toUpperCase()+'</span></div><div class="cube-wrap">'+cube+'</div><p class="muted">Algoritmo</p><p class="case-alg">'+escapeHtml(selected.algorithm)+'</p>'+(showSetups?'<p class="muted">Setup</p><p class="case-alg">'+escapeHtml(selected.setup||'Não informado')+'</p>':'')+'<div class="row"><button data-action="casepractice">Praticar no simulador</button><button class="secondary" data-action="casereview">Revisar este caso</button></div>':'<p>Nenhum caso encontrado.</p>')+'</section></div>'}
 function reviewPage(){
  const d=caseDrafts[draftSelection]||null;
