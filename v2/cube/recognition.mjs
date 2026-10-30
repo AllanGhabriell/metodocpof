@@ -1,7 +1,9 @@
+import {f2lRecognitionDiagram} from './f2l-recognition.mjs';
 import {facelets} from './engine.mjs';
 const palette={U:'#f2f3f7',D:'#f4d448',F:'#239e63',B:'#3779d6',L:'#ef8e37',R:'#d44b47',X:'#303038'};
 const rect=(x,y,w,h,color)=>'<rect x="'+x+'" y="'+y+'" width="'+w+'" height="'+h+'" rx="1" fill="'+(palette[color]||palette.X)+'" stroke="#15151a" stroke-width="1.6"/>';
 export function recognitionDiagram(state,stage,{size=230}={}){
+ if(stage==='f2l')return f2lRecognitionDiagram(state,{size});
  const f=facelets(state),tile=26,gap=2,unit=tile+gap,origin=43;
  const paint=(face,index)=>stage==='oll'?(f[face][index]==='D'?'D':'X'):f[face][index];
  let cells='';
