@@ -367,3 +367,6 @@ body::before{content:"";position:fixed;inset:0;z-index:-2;pointer-events:none;ba
 @keyframes cfop-ambient-drift{from{background-position:0 0}to{background-position:40px -28px}}
 @media(hover:none),(pointer:coarse){.cfop-cursor-glow{display:none}}
 @media(prefers-reduced-motion:reduce){body::before{animation:none}.cfop-cursor-glow{display:none!important}}
+
+/* Keep the decorative glow above the body backdrop but below the interface. */
+body::before{z-index:0}.cfop-cursor-glow{z-index:0}.app{z-index:1}
