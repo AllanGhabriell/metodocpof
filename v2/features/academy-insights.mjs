@@ -112,10 +112,22 @@ export function academyTrainingPanel(records){
  const modesCount=Object.fromEntries(modes.map(([id])=>[id,records.filter(r=>r.mode===id).length]));
  const maxMode=Math.max(1,...Object.values(modesCount));
  const xp=coachXp(records);
+ const lastWeek=records.filter(r=>r.at>=now-7*DAY);
+ const measured=lastWeek.filter(r=>Number.isFinite(r.ms)&&r.ms>=100);
+ const difficult=lastWeek.filter(r=>r.grade==='bad'||r.grade==='medium'||settings.stages?.[r.stage]?.cases?.[r.caseId]?.rating==='hard');
+ const touched=new Set(lastWeek.map(r=>r.stage));
+ const missions=[
+  {label:'Praticar 12 casos',progress:lastWeek.length,target:12,detail:'Qualquer modo'},
+  {label:'Reforçar 3 casos difíceis',progress:difficult.length,target:3,detail:'Casos desafiadores'},
+  {label:'Registrar 3 tempos',progress:measured.length,target:3,detail:'Cronometragem real'},
+  {label:'Passar pelas 3 etapas',progress:touched.size,target:3,detail:'F2L, OLL e PLL'}
+ ];
+ const missionsHtml='<section class="academy-insight-card academy-missions"><header><div><span class="academy-overline">MISSÕES DA SEMANA</span><h2>Pequenos desafios, sem obrigação</h2></div><span class="academy-stat-mark">'+missions.filter(m=>m.progress>=m.target).length+' / '+missions.length+' concluídos</span></header>'+
+ '<p>Propostas de prática da última semana, sem tarefas atrasadas ou perda de progresso.</p><div class="academy-missions-grid">'+missions.map(m=>'<article class="academy-mission '+(m.progress>=m.target?'complete':'')+'"><div><strong>'+m.label+'</strong><small>'+m.detail+'</small></div><span>'+Math.min(m.progress,m.target)+'/'+m.target+'</span><div class="academy-mission-track"><i style="width:'+Math.min(100,Math.round(m.progress/m.target*100))+'%"></i></div></article>').join('')+'</div></section>';
  const stageRows=TRAINING_STAGES.map(([id,label,total])=>{
   const n=coachNumbers(records,id,settings.stages?.[id]?.cases,now);
   const pct=Math.round(n.unique/total*100);
-  return '<article class="academy-training-stage"><header><div><h3>'+label+'</h3><p>'+n.unique+' dos '+total+' casos já praticados</p></div><a href="'+id+'.html">Treinar →</a></header><div class="academy-skill-progress"><span style="width:'+pct+'%"></span></div><div class="academy-stage-metrics"><span><strong>'+n.attempts+'</strong> práticas</span><span><strong>'+formatSeconds(n.avg)+'</strong> média do caso</span><span><strong>'+n.hard+'</strong> difíceis</span><span><strong>'+n.due+'</strong> revisões sugeridas</span></div></article>';
+  return '<article class="academy-training-stage"><header><div><h3>'+label+'</h3><p>'+n.unique+' dos '+total+' casos já praticados</p></div><a href="'+id+'.html">Treinar →</a></header><div class="academy-skill-progress"><span style="width:'+pct+'%"></span></div><div class="academy-stage-metrics"><span><strong>'+n.attempts+'</strong> práticas</span><span><strong>'+formatSeconds(n.avg)+'</strong> média do caso</span><span><strong>'+n.hard+'</strong> difíceis</span><span><strong>'+n.due+'</strong> revisões sugeridas</span><span><strong>'+formatSeconds(n.recognition)+'</strong> reconhecimento marcado</span></div></article>';
  }).join('');
  return '<section class="academy-insight-card academy-goal-config"><header><div><span class="academy-overline">SUA ROTINA</span><h2>Metas flexíveis</h2></div><span class="academy-stat-mark">'+xp+' XP de treinos</span></header>'+
  '<p>Você decide quando praticar. A sequência conta dias ativos, mas nenhuma revisão vira obrigação.</p>'+
@@ -124,6 +136,7 @@ export function academyTrainingPanel(records){
  '<label>Casos por semana<input type="number" id="academy-weekly-goal" min="1" max="999" value="'+settings.weeklyGoal+'"></label>'+
  '<button type="button" data-action="academy-save-goals">Salvar metas</button></div>'+
  (settings.goalPeriod!=='free'?'<div class="academy-goal-visual"><div class="academy-goal-progress"><span style="width:'+completion+'%"></span></div><strong>'+current+' / '+target+'</strong><small>'+completion+'% da meta '+(settings.goalPeriod==='daily'?'diária':'semanal')+'</small></div>':'<p class="academy-no-goal">Modo livre: você pratica sem metas numéricas.</p>')+'</section>'+
+ missionsHtml+
  '<div class="academy-training-stage-grid">'+stageRows+'</div>'+
  '<div class="academy-insight-grid"><section class="academy-insight-card"><header><div><span class="academy-overline">FREQUÊNCIA</span><h2>Práticas por modalidade</h2></div></header><p>Últimos 14 dias · F2L, OLL e PLL.</p>'+practiceDaysChart(records)+
  '<div class="academy-training-legend"><span><i class="stage-f2l"></i>F2L</span><span><i class="stage-oll"></i>OLL</span><span><i class="stage-pll"></i>PLL</span></div></section>'+
