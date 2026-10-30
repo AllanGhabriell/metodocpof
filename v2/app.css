@@ -90,3 +90,5 @@ aside{background:rgba(15,11,29,.86);border-right-color:rgba(169,130,231,.16);bac
 .case-grid .draft-item{margin:0;text-align:center;padding:10px 4px;font-size:12px}
 .case-alg{font-family:ui-monospace,SFMono-Regular,Consolas,monospace;font-size:clamp(16px,2vw,21px);line-height:1.8;overflow-wrap:anywhere;padding:15px;border:1px solid rgba(175,145,229,.25);border-radius:12px;background:rgba(116,78,180,.12);user-select:text}
 @media(max-width:680px){.case-grid{grid-template-columns:repeat(4,minmax(0,1fr));max-height:200px}}
+
+.recognition-diagram{max-width:100%;height:auto;filter:drop-shadow(0 8px 15px rgba(0,0,0,.18));display:block;margin:auto}
