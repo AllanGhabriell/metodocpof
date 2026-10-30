@@ -152,6 +152,7 @@ root.addEventListener('change',async e=>{if(crossChange(e.target)){render();retu
  cloudMessage='';
  try{
   if(cmd==='sync')await syncCloud();
+  if(cmd==='copyid'&&cloudUser()?.id){await navigator.clipboard.writeText(cloudUser().id);cloudMessage='ID da conta copiado.'}
   if(cmd==='logout')await signOut();
   if(cmd==='disconnect'&&confirm('Desconectar este projeto Supabase? O progresso local será preservado.'))disconnectCloud();
  }catch(err){cloudMessage=err.message}
