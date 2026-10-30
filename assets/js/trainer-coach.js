@@ -44,6 +44,9 @@ function complete(stage,id,options={}){
  else grade='good';
  const update=schedule(old,grade,now);
  const times=[...(Array.isArray(old.times)?old.times:[]),...(ms===null?[]:[ms])].slice(-25);
+ const recognitionValid=recognitionMs!==null&&ms!==null&&recognitionMs<=ms;
+ const recognitionTimes=[...(Array.isArray(old.recognitionTimes)?old.recognitionTimes:[]),...(recognitionValid?[recognitionMs]:[])].slice(-25);
+ const executionTimes=[...(Array.isArray(old.executionTimes)?old.executionTimes:[]),...(recognitionValid?[ms-recognitionMs]:[])].slice(-25);
  const count=(Number(old.attempts)||0)+1;
  const priorDue=Number(old.dueAt)||0;
  const reviewed=priorDue>0&&now>=priorDue;
@@ -51,13 +54,15 @@ function complete(stage,id,options={}){
  const priorToday=activity().filter(e=>e.stage===stage&&e.caseId===id&&localDay(e.at)===localDay(now)).length;
  const xp=priorToday>=8?0:grade==='bad'?2:8+(reviewed?4:0)+(mode==='competitive'&&grade==='good'?4:0)+(mode==='adaptive'?2:0);
  const next={...old,...update,attempts:count,lastAt:now,lastMs:ms??(old.lastMs??null),grade,
-  successes:(Number(old.successes)||0)+(grade==='good'?1:0),times,
-  avgMs:times.length?Math.round(times.reduce((a,b)=>a+b,0)/times.length):null};
+  successes:(Number(old.successes)||0)+(grade==='good'?1:0),times,recognitionTimes,executionTimes,
+  avgMs:times.length?Math.round(times.reduce((a,b)=>a+b,0)/times.length):null,
+  avgRecognitionMs:recognitionTimes.length?Math.round(recognitionTimes.reduce((a,b)=>a+b,0)/recognitionTimes.length):null,
+  avgExecutionMs:executionTimes.length?Math.round(executionTimes.reduce((a,b)=>a+b,0)/executionTimes.length):null};
  data.stages[stage].cases[id]=next;
  write(data);
  const records=readJson(ACTIVITY,[]);
  const history=Array.isArray(records)?records:[];
- const event={stage,caseId:id,at:now,mode,ms,recognitionMs,
+ const event={stage,caseId:id,at:now,mode,ms,recognitionMs:recognitionValid?recognitionMs:null,
   grade,reviewed,xp,verified:false}; // indicação do usuário, não detecção automática do cubo físico
  history.push(event);
  try{storage()?.setItem(ACTIVITY,JSON.stringify(history.slice(-4500)))}catch{}
@@ -91,6 +96,7 @@ function weightedPick(stage,ids,mode,options={}){
    w=manual==='hard'?7:manual==='medium'?3:manual==='easy'?1:3;
    if(c.attempts>0&&Number(c.dueAt)<=now)w+=5;
    if(c.avgMs&&c.avgMs>targetMs)w+=Math.min(6,Math.ceil(c.avgMs/targetMs));
+   if(c.avgRecognitionMs&&c.avgRecognitionMs>targetMs*.45)w+=3;
    if(c.grade==='bad')w+=3;
   }
   return {id,w};
