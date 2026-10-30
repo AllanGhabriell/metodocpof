@@ -4,7 +4,7 @@ const dateOf=d=>[d.getFullYear(),String(d.getMonth()+1).padStart(2,'0'),String(d
 const today=()=>dateOf(new Date());
 const load=()=>{try{const r=JSON.parse(localStorage.getItem(KEY)||'{}');return {name:typeof r.name==='string'?r.name:'Cubista',records:Array.isArray(r.records)?r.records:[],goal:Number(r.goal)||20,plan:Array.isArray(r.plan)?r.plan:[],reminder:r.reminder||'',notified:r.notified||'',cards:Array.isArray(r.cards)?r.cards:[],challenges:Array.isArray(r.challenges)?r.challenges:[]}}catch{return {name:'Cubista',records:[],goal:20,plan:[],reminder:'',notified:'',cards:[],challenges:[]}}};
 let data=load(),message='';
-const save=()=>localStorage.setItem(KEY,JSON.stringify(data));
+const save=()=>{localStorage.setItem(KEY,JSON.stringify(data));if(typeof document!=='undefined'&&typeof document.dispatchEvent==='function')document.dispatchEvent(new Event('cfop:local-change'))};
 export function awardActivity(type,xp=10){data.records=[...data.records.slice(-1499),{type:String(type).slice(0,24),xp:Math.min(100,Math.max(0,xp)),date:today(),time:Date.now()}];save()}
 export function progressData(){return data}
 export function progressSummary(){
@@ -50,7 +50,7 @@ export function planPage(){
  '<p class="muted">Sem push em segundo plano: as notificações só são verificadas enquanto o site estiver aberto e autorizado.</p></section></div>';
 }
 export function profilePage(){
- return '<div class="eyebrow">Perfil e dados</div><h1>Seu perfil local</h1><p class="muted">Você pode usar o aplicativo sem conta. Login real e sincronização em nuvem requerem servidor e autenticação ainda não configurados.</p>'+
+ return '<div class="eyebrow">Perfil e dados</div><h1>Seu perfil local</h1><p class="muted">Você pode usar o aplicativo sem conta. A conta online e a sincronização só ficam ativas depois que você conecta um projeto Supabase. Seu progresso local continua disponível sem conexão.</p>'+
  '<div class="studio-two"><section class="card"><h2>Personalização</h2><form class="studio-form" id="studio-profile-form"><label>Apelido<input name="name" class="field" value="'+esc(data.name)+'" maxlength="36" required></label><button>Salvar</button></form>'+
  '<p class="notice">Perfil local · Não é uma conta online.</p><div class="studio-actions"><button data-progress="backup">Exportar progresso</button><button class="secondary" data-progress="restore">Importar progresso</button></div><input type="file" id="studio-file" accept=".json,application/json" hidden>'+
  '<p class="muted" role="status">'+esc(message)+'</p></section><section class="card"><h2>Seus dados</h2><p class="muted">O backup inclui progresso, cartões, planejamento, tempos e rascunhos de revisão, inclusive imagens locais. Para trocar de dispositivo, exporte e importe o arquivo. Não o compartilhe publicamente.</p></section></div>';
