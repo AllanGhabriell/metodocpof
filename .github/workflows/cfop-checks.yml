@@ -22,5 +22,10 @@ jobs:
           node --check assets/js/trainer-coach.js
           node --check v2/features/academy-insights.mjs
           node --check v2/features/progress.mjs
+          node --check v2/cloud/cloud.mjs
+          node --check v2/cloud/coach-merge.mjs
+          node --check v2/features/cross.mjs
+          node --check v2/cube/visual.mjs
+          node --check assets/js/scramble.js
       - name: Executar testes de integração inicial
         run: node --test v2/tests/*.test.mjs
