@@ -11,7 +11,7 @@ import {maskCaseState,resolutionOrientation} from './cube/case-visual.mjs';
 import {readPdfCases} from './data/pdf-import.mjs';
 import {stats as calculateStats,formatMs,effectiveMs,removeSolve,updatePenalty} from './timer/stats.mjs';
 import {reviewCase} from './cube/validation.mjs';
-import {cube3D} from './cube/visual.mjs';
+import {cube3D} from './cube/visual.mjs?v=20261030-8';
 import {solved,apply,facelets,inverse} from './cube/engine.mjs';
 const learningView=state=>apply(state,resolutionOrientation);const root=document.getElementById('root');let pdfCases=[],showSetups=false,caseFilter='f2l',activeCase=0;const sections=[['train','Treinar'],['learn','Aprender'],['profile','Meu espaço']];
 const sectionItems={
