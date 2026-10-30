@@ -104,3 +104,21 @@ body:has(.original-studio){background:radial-gradient(ellipse at 13% 3%,rgba(29,
 @media(max-width:690px){.original-studio-header{width:calc(100% - 20px);min-height:63px;margin-top:10px;padding:9px 10px;gap:9px}.studio-brand-mark{font-size:clamp(15px,4.1vw,21px);margin-right:auto}.original-studio-header .original-back{height:41px;width:41px}.studio-header-actions{gap:5px}.original-studio-nav{width:calc(100% - 20px);gap:7px;margin-top:10px}.original-studio-nav button{font-size:12px;padding:9px 6px;min-height:43px}.original-studio-content{width:calc(100% - 24px);margin-top:16px}.academy-dashboard-kpis{grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}.academy-dashboard-kpi{padding:15px}.academy-insight-grid,.academy-learning-layout{grid-template-columns:1fr}.academy-goals-card{flex-direction:column;align-items:stretch;gap:10px}.academy-goal-actions{grid-template-columns:repeat(4,minmax(0,1fr))}.academy-goal-actions a{min-width:0;padding:9px 6px;font-size:11px}.academy-activity-calendar{gap:6px}.academy-learning-preview .cube3d-stage{overflow:hidden}.academy-speed-stats{gap:7px}}
 @media(max-width:370px){.studio-brand-mark{font-size:14px}.original-studio-header .original-back{height:39px;width:39px}.original-studio-nav button{font-size:11px}.original-studio-content .card,.academy-insight-card{padding:14px}}
 @media(prefers-reduced-motion:reduce){.studio-brand-letters i{animation:none!important}.original-studio-content *{scroll-behavior:auto!important}}
+
+
+/* Modern account overview */
+.academy-profile-hero{padding:clamp(20px,3vw,32px);border:1px solid var(--academy-line);border-radius:20px;background:radial-gradient(ellipse at 85% 5%,#204b7e77,transparent 53%),linear-gradient(135deg,#15365dbb,#0b2042e8);margin-bottom:17px}
+.academy-profile-main{display:flex;align-items:center;gap:17px;margin-top:14px;min-width:0}
+.academy-profile-big-avatar{width:76px;height:76px;flex:0 0 76px;border-radius:22px;background:linear-gradient(145deg,#308bc1,#58c3b1);display:grid;place-items:center;color:#fff;font-weight:850;font-size:30px;box-shadow:0 10px 30px #2c8fc344}
+.academy-profile-person{flex:1;min-width:0}
+.academy-profile-person h1{overflow-wrap:anywhere;margin:0 0 5px}
+.academy-profile-person p{margin:0;font-size:13px;color:#b5c9e5}
+.original-studio-content .academy-profile-main button{min-height:45px;background:#21548a;border:1px solid #83c7eb65;border-radius:12px;white-space:nowrap;padding:11px 14px;color:#fff;font-weight:700}
+.academy-profile-numbers{display:flex;flex-wrap:wrap;gap:9px;margin-top:23px}
+.academy-profile-numbers span{display:flex;align-items:center;gap:8px;border:1px solid #84aed44f;border-radius:11px;background:#0f2848ae;padding:10px 13px;color:#b5d4ee;font-size:12px}
+.academy-profile-numbers strong{font-size:19px;color:#f6fcff;font-variant-numeric:tabular-nums}
+.academy-profile-settings .academy-settings-head h2{margin:5px 0}
+.academy-profile-settings .academy-settings-head p{margin:0 0 20px;font-size:13px}
+.academy-profile-settings .profile-fold{border-radius:12px;margin-bottom:10px;background:#0b2040a3}
+.original-studio-content .profile-destinations{margin-top:18px}
+@media(max-width:690px){.academy-profile-main{flex-wrap:wrap}.academy-profile-person{flex:1 1 calc(100% - 100px)}.academy-profile-main button{flex:1 1 100%}.academy-profile-numbers{gap:7px}.academy-profile-numbers span{flex:1 1 110px;flex-direction:column;align-items:flex-start;gap:2px}.academy-profile-big-avatar{height:64px;width:64px;flex-basis:64px;border-radius:18px}}
