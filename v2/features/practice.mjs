@@ -1,3 +1,4 @@
+import {recognitionDiagram} from '../cube/recognition.mjs';
 import {awardActivity,progressData,saveFeatureData} from './progress.mjs';
 import {solved,apply,stickerPositions} from '../cube/engine.mjs';
 import {cube3D} from '../cube/visual.mjs';
@@ -12,18 +13,23 @@ const baseCards=[
 const nowDate=()=>new Date().toLocaleDateString('en-CA');
 function today(){const d=new Date();return [d.getFullYear(),String(d.getMonth()+1).padStart(2,'0'),String(d.getDate()).padStart(2,'0')].join('-')}
 let currentId='',revealed=false,message='',mode='lookahead',scramble='',shown=false,completed=false,challenge='',challengeMessage='';
-function prepareCards(){
+function prepareCards(cases=[]){
  const data=progressData(),ids=new Set(data.cards.map(c=>c.id));
  for(const [id,question,answer] of baseCards)if(!ids.has(id))data.cards.push({id,question,answer,due:'2000-01-01',interval:0});
+ for(const item of cases){
+  if(!((item.reviewStatus==='verified'||item.reviewed===true)&&['f2l','oll','pll'].includes(item.stage)))continue;
+  const id='case-'+item.id;if(ids.has(id))continue;
+  data.cards.push({id,question:'Reconheça o caso '+item.id+' e recorde seu algoritmo.',answer:item.algorithm,stage:item.stage,caseId:item.id,setup:item.setup,due:'2000-01-01',interval:0});ids.add(id);
+ }
  saveFeatureData();
 }
 function dueCards(){return progressData().cards.filter(c=>!c.due||c.due<=today())}
 function currentCard(){const due=dueCards();const c=due.find(x=>x.id===currentId)||due[0]||null;currentId=c?.id||'';return c}
-export function studyPage(){
- prepareCards();const due=dueCards(),card=currentCard();
+export function studyPage(cases=[]){
+ prepareCards(cases);const due=dueCards(),card=currentCard();
  return '<div class="eyebrow">Aprendizado / Memória</div><h1>Revisão espaçada</h1><p class="muted">Estude conceitos e crie cartões pessoais. Os casos do PDF só entram no baralho após a validação individual.</p>'+
  '<div class="studio-two"><section class="card"><div class="row between"><h2>Cartão do dia</h2><span class="tag">'+due.length+' pendentes</span></div>'+
- (card?'<div class="study-flashcard"><span class="panel-overline">'+(revealed?'Resposta':'Pergunta')+'</span><p>'+esc(revealed?card.answer:card.question)+'</p></div>'+
+ (card?'<div class="study-flashcard"><span class="panel-overline">'+(revealed?'Resposta':'Pergunta')+'</span>'+(card.stage&&!revealed?'<div class="cube-wrap">'+recognitionDiagram(apply(apply(solved(),card.setup),'x2 y'),card.stage)+'</div>':'')+'<p>'+esc(revealed?card.answer:card.question)+'</p></div>'+
  (revealed?'<div class="study-grade">'+[['again','Errei'],['hard','Difícil'],['good','Acertei'],['easy','Fácil']].map(([id,label])=>'<button type="button" data-grade="'+id+'">'+label+'</button>').join('')+'</div>':'<button data-practice="reveal">Mostrar resposta</button>'):
  '<p class="notice">Nenhum cartão pendente. Volte mais tarde!</p>')+
  '<p class="muted">O algoritmo de revisão aumenta o intervalo dos cartões dominados e repete os difíceis.</p></section>'+
