@@ -96,6 +96,8 @@ async function rest(table,{method='GET',query='',body=null,anon=false,prefer=''}
  if(prefer)opts.headers.Prefer=prefer;
  return response(await fetch(endpoint('/rest/v1/'+table+(query?'?'+query:'')),opts));
 }
+export async function cloudTable(table,options={}){return rest(table,options)}
+export async function cloudProfileRefresh(){return updateProfile()}
 export async function checkAdmin(){
  if(!isAuthenticated()){admin=false;emit();return false}
  const rows=await rest('cfop_admins',{query:'select=user_id&user_id=eq.'+encodeURIComponent(session.user.id)});
