@@ -1216,7 +1216,7 @@ document.addEventListener('DOMContentLoaded', () => {
     if(competitiveToggle)competitiveToggle.checked=state.competitive.enabled;
     if(orderedToggle)orderedToggle.checked=state.orderedTraining.enabled;
     if(mode==='competitive')enforceMobileCompetitiveTimerRule();
-    save();syncUiFromState();restartSession(mode==='competitive',false);
+    save();syncUiFromState();restartSession(false,false);
     showToast('Modo '+COACH_MODE_TITLES[mode]+' ativado',1600);
   }
 
@@ -1229,7 +1229,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const labels = { good: 'bom', medium: 'médio', bad: 'ruim' };
     lastCaseInfo.textContent = [
       `Último caso: ${report.caseId}`,
-      `Tempo: ${fmt(report.timeMs)}`,
+      report.timeMs===null?'Tempo: não cronometrado':`Tempo: ${fmt(report.timeMs)}`,
       ...(report.recognitionMs?[`Reconhecimento: ${fmt(report.recognitionMs)}`]:[]),
       `Desempenho: ${labels[report.grade] || '-'}`,
       `Resolvido ${report.solveCount} vez(es)`
@@ -1583,13 +1583,14 @@ document.addEventListener('DOMContentLoaded', () => {
     return grade;
   }
 
-  function handleNormalResult(caseId) {
+  function handleNormalResult(caseId,elapsedMs=null) {
+    const timed=Number.isFinite(elapsedMs)&&elapsedMs>=100?Math.round(elapsedMs):null;
     if (state.removeWhenSolved && !state.solved.includes(caseId)) state.solved.push(caseId);
-    state.solvedHistory.push({ caseId, ts: Date.now(), grade: 'good', timeMs: 0 });
+    state.solvedHistory.push({ caseId, ts: Date.now(), grade: 'good', timeMs: timed });
     state.lastCaseReport = {
       caseId,
       grade: 'good',
-      timeMs: 0,
+      timeMs: timed,
       solveCount: (state.lastCaseReport && state.lastCaseReport.caseId === caseId)
         ? (state.lastCaseReport.solveCount + 1)
         : 1
@@ -1644,7 +1645,7 @@ document.addEventListener('DOMContentLoaded', () => {
       if (state.competitive.enabled) {
         handleCompetitiveResult(currentCase, elapsedMs);
       } else {
-        handleNormalResult(currentCase);
+        handleNormalResult(currentCase,elapsedMs);
       }
       logCasePractice(currentCase,elapsedMs);
     } else {
@@ -1716,6 +1717,7 @@ document.addEventListener('DOMContentLoaded', () => {
       return;
     }
     if(competitiveLoading){showToast('Aguarde a imagem do caso carregar');return}
+    if(state.competitive.enabled&&!caseStartAt){showToast('Inicie uma nova tentativa para registrar o tempo');return}
 
     if(state.competitive.enabled&&caseStartAt&&Date.now()-caseStartAt<250){
       showToast('Espere ao menos 0,25s antes de registrar o tempo');
@@ -1801,6 +1803,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     pushUndo('prev');
     stopCaseTimer();
+    stopPracticeTimer(true);
     historyIndex -= 1;
     const entry = history[historyIndex];
     currentCase = entry.caseId;
@@ -1830,7 +1833,15 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     refreshGalleryIfOpen();
     renderCaseScene();
-    if (state.excluded.includes(currentCase)) onResolveAdvance();
+    if (state.excluded.includes(currentCase)) {
+      if(isOrderedTrainingMode()){
+        const list=orderedQueue();
+        if(!list.length){showToast('Nenhum caso disponível');return}
+        const idx=Math.min(Math.max(0,Number(state.orderedTraining.index)||0),list.length-1);
+        state.orderedTraining.index=idx;
+        setCurrentCase(list[idx],true);save();renderCaseScene();preloadAnother();
+      }else onSkipCase();
+    }
   }
 
   function resetCompetitiveSettings() {
