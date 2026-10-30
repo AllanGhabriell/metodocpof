@@ -8,11 +8,14 @@ function choose(n){return Math.floor(Math.random()*n)}
 function complete(t){const f=facelets(state);return f.D[t.d]==='D'&&f[t.face][7]===t.face}
 export function newCross(){
  const shuffled=targetsAll.slice().sort(()=>Math.random()-.5);selected=shuffled.slice(0,count);
- const moves=['U','D','L','R','F','B'],axis={U:0,D:0,L:1,R:1,F:2,B:2},endings=['',"'",'2'];
- let last='',sequence=[];
- for(let i=0;i<20;i++){const pool=moves.filter(m=>axis[m]!==axis[last]);const m=pool[choose(pool.length)];sequence.push(m+endings[choose(3)]);last=m}
+ // Embaralhamento direcionado: apenas as arestas escolhidas ficam fora da cruz.
+ // Os movimentos U misturam as peças da camada superior sem desfazer as outras arestas da base.
+ const upper=['U',"U'",'U2'],sequence=[];
+ for(const target of selected){sequence.push(upper[choose(3)],target.face+'2')}
+ sequence.push(upper[choose(3)]);
  scramble=sequence.join(' ');state=apply(solved(),scramble);history=[];message='';awarded=false;
 }
+
 function net(){
  const f=facelets(state),highlight=new Set();
  for(const t of selected){highlight.add('D'+t.d);highlight.add(t.face+'7')}
@@ -28,7 +31,7 @@ function net(){
 export function crossPage(){
  if(!scramble)newCross();
  const correct=selected.filter(complete).length;
- return '<div class="eyebrow">Treinar / Cross</div><h1>Cruz 2D</h1><p class="muted">Branco embaixo. Selecione de uma a quatro arestas e resolva-as alinhadas aos centros.</p>'+
+ return '<div class="eyebrow">Treinar / Cross</div><h1>Cruz 2D</h1><p class="muted">Branco embaixo. O embaralhamento mexe especificamente nas arestas escolhidas e mantém as demais arestas da cruz resolvidas.</p>'+
  '<div class="cross-layout"><section class="card"><div class="row between"><h2>Estado do cubo</h2><span class="tag">'+correct+' / '+selected.length+' arestas</span></div><div class="cross-visual">'+net()+'</div>'+
  '<p class="panel-overline">Embaralhamento</p><p class="alg">'+escape(scramble)+'</p><div class="row"><button data-cross="new">Novo desafio</button><button class="secondary" data-cross="undo" '+(history.length?'':'disabled')+'>Desfazer</button><button class="secondary" data-cross="check">Conferir cruz</button></div><p class="muted" role="status">'+escape(message)+'</p></section>'+
  '<section class="card"><h2>Personalizar</h2><label class="cross-label" for="cross-count">Arestas a resolver</label><select class="field cross-select" id="cross-count">'+[1,2,3,4].map(n=>'<option value="'+n+'" '+(n===count?'selected':'')+'>'+n+'</option>').join('')+'</select>'+
