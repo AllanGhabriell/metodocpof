@@ -1693,7 +1693,6 @@ document.addEventListener('DOMContentLoaded', () => {
       return;
     }
     let next=pickNextCase();
-    }
     if (!next) {
       showToast('Sem próximo caso no momento');
       return;
