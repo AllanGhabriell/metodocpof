@@ -15,3 +15,11 @@ body{overflow-x:hidden;background:radial-gradient(ellipse at 8% 8%,#1a335e 0%,tr
 .original-studio-subnav{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:18px}
 .original-studio-footer{text-align:center;color:#8f9fb9;font-size:12px;margin:42px 0 10px}
 @media(max-width:600px){.original-studio-header{padding:9px}.original-studio-header .header-profile-text{display:none}.original-studio-nav button{flex:1;font-size:12px;padding:10px 6px}.original-studio-content{margin-top:18px}}
+
+/* Admin is visible only after isAdmin() confirms an authorized session. */
+.original-admin-button{border:1px solid rgba(145,184,255,.4);background:rgba(39,79,135,.4);border-radius:10px;padding:9px 13px;color:#f3f8ff;font:650 12px system-ui,sans-serif;cursor:pointer}
+.original-admin-button:hover{border-color:#78fff5;background:rgba(39,79,135,.65)}
+.original-progress-tools{margin-top:20px}
+.original-progress-tools .profile-destination-grid{grid-template-columns:repeat(auto-fit,minmax(180px,1fr))}
+.original-studio-content .profile-destination-grid{grid-template-columns:repeat(auto-fit,minmax(180px,1fr))}
+@media(max-width:620px){.original-studio-header{flex-wrap:wrap}.original-studio-header>strong{flex:1}.original-admin-button{order:3;width:100%}.original-studio-content .profile-destination-grid{grid-template-columns:1fr}}
