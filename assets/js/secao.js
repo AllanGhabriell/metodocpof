@@ -283,6 +283,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const trainerMissedButton=document.getElementById('trainer-missed');
   const trainerPrioritize=document.getElementById('trainer-prioritize');
   const trainerReinforce=document.getElementById('trainer-sequence-reinforce');
+  const trainerGoalPeriod=document.getElementById('trainer-goal-period');
   const trainerDailyGoal=document.getElementById('trainer-daily-goal');
   const trainerWeeklyGoal=document.getElementById('trainer-weekly-goal');
   const trainerMenuSummary=document.getElementById('trainer-menu-summary');
@@ -1164,12 +1165,21 @@ document.addEventListener('DOMContentLoaded', () => {
     }else if(mode==='random'){
       progress=sessionResolved.size/total;counter=sessionResolved.size+' / '+total+' casos vistos';
     }else{
-      progress=Math.min(1,stats.today/Math.max(1,prefs.dailyGoal));
-      counter=stats.today+' / '+prefs.dailyGoal+' hoje · meta livre';
+      const week=coach.activity().filter(e=>e.stage===pageSet&&e.at>=Date.now()-7*86400000).length;
+      if(prefs.goalPeriod==='weekly'){
+        progress=Math.min(1,week/Math.max(1,prefs.weeklyGoal));
+        counter=week+' / '+prefs.weeklyGoal+' na semana';
+      }else if(prefs.goalPeriod==='free'){
+        progress=0;counter=sessionAttempts+' práticas nesta sessão';
+      }else{
+        progress=Math.min(1,stats.today/Math.max(1,prefs.dailyGoal));
+        counter=stats.today+' / '+prefs.dailyGoal+' hoje';
+      }
     }
     if(trainerSessionCounter)trainerSessionCounter.textContent=counter;
     if(trainerProgressFill)trainerProgressFill.style.width=(progress*100).toFixed(0)+'%';
     if(trainerMenuSummary)trainerMenuSummary.textContent=COACH_MODE_TITLES[mode]+' · '+stats.today+' práticas hoje · '+stats.hard+' marcados difíceis · '+stats.due+' sugeridos para revisão.';
+    if(trainerGoalPeriod)trainerGoalPeriod.value=prefs.goalPeriod;
     if(trainerPrioritize)trainerPrioritize.checked=!!state.trainingConfig.prioritizeHard;
     if(trainerReinforce)trainerReinforce.checked=!!state.trainingConfig.reinforceSequential;
     if(trainerDailyGoal&&document.activeElement!==trainerDailyGoal)trainerDailyGoal.value=prefs.dailyGoal;
@@ -1616,7 +1626,7 @@ document.addEventListener('DOMContentLoaded', () => {
       result:result==='missed'?'missed':'completed'
     });
     sessionAttempts++;
-    if(info)showToast(result==='missed'?'Dificuldade registrada · tente novamente depois':'+'+info.record.xp+' XP · prática registrada',1500);
+    if(info)showToast(result==='missed'?'Dificuldade registrada · tente novamente depois':info.record.xp?('+'+info.record.xp+' XP · prática registrada'):'Prática registrada',1500);
     recognitionAt=null;recognitionElapsed=null;
   }
 
@@ -2079,6 +2089,10 @@ document.addEventListener('DOMContentLoaded', () => {
   });
   trainerReinforce?.addEventListener('change',e=>{
     state.trainingConfig.reinforceSequential=!!e.target.checked;save();updateCoachInterface();
+  });
+  trainerGoalPeriod?.addEventListener('change',e=>{
+    coach.preferences({goalPeriod:e.target.value});
+    updateCoachInterface();
   });
   trainerDailyGoal?.addEventListener('change',e=>{
     const prefs=coach.preferences({dailyGoal:Number(e.target.value)});
