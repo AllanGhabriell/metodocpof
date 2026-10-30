@@ -151,3 +151,15 @@ aside{background:rgba(15,11,29,.86);border-right-color:rgba(169,130,231,.16);bac
 @media(max-width:760px){.library-layout{grid-template-columns:1fr}.case-list-panel .case-grid{grid-template-columns:repeat(4,minmax(0,1fr));max-height:185px}.stage-switcher{width:100%}.stage-switch{flex:1;min-width:0;padding:12px 6px}.case-diagram-box .cube-wrap{min-height:210px}}
 @media(max-width:490px){.training-stage-grid{grid-template-columns:1fr 1fr;gap:9px}.training-stage{padding:14px;min-height:225px;border-radius:15px}.stage-glyph{width:39px;height:39px;font-size:20px}.stage-title{font-size:23px}.stage-subtitle{font-size:12px}.stage-description{font-size:11px}.stage-enter{font-size:11px}.case-list-panel .case-grid{grid-template-columns:repeat(3,minmax(0,1fr))}.case-detail-top h2{font-size:20px}}
 @media(prefers-reduced-motion:reduce){.training-stage,.stage-switch{transition:none}.training-stage:hover{transform:none}}
+
+/* Escolha do modo F2L */
+.training-mode-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px;max-width:950px;margin-top:20px}
+.training-mode{display:flex;flex-direction:column;align-items:flex-start;gap:12px;min-height:285px;border:1px solid rgba(181,143,234,.28);border-radius:19px;padding:24px;text-align:left;color:#eee7fa;background:linear-gradient(145deg,rgba(44,31,71,.88),rgba(18,13,32,.92));transition:border-color .2s,transform .2s,box-shadow .2s}
+.training-mode:hover,.training-mode:focus-visible{border-color:#ac87ff;transform:translateY(-2px);box-shadow:0 18px 38px rgba(8,3,23,.3)}
+.training-mode .mode-emblem{display:grid;place-items:center;width:47px;height:47px;border-radius:13px;background:rgba(145,105,230,.23);font-size:27px;color:#d8baff}
+.training-mode strong{font-size:clamp(21px,2.5vw,27px);letter-spacing:-.4px}
+.training-mode>span:not(.mode-emblem):not(.panel-overline):not(.mode-cta){color:#b7a9cb;font-size:14px;line-height:1.5}
+.mode-cta{margin-top:auto;color:#d7c3ff;font-weight:800;font-size:13px}
+.mode-back{margin-top:22px}
+@media(max-width:620px){.training-mode-grid{grid-template-columns:1fr;gap:10px}.training-mode{min-height:230px;padding:19px}}
+@media(prefers-reduced-motion:reduce){.training-mode{transition:none}.training-mode:hover{transform:none}}
