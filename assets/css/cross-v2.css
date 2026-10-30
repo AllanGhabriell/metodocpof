@@ -1,0 +1,51 @@
+/* Academia CPOF: clear, responsive Cross training workspace. */
+body[data-set="cross"] .cross-original-main{width:min(1060px,calc(100% - 32px));margin:94px auto 60px}
+.cross-intro{margin-bottom:22px}.cross-intro h1{margin:8px 0;font-size:clamp(27px,4vw,39px)}.cross-intro p{margin:0;max-width:700px;font-size:14px}
+.cross-workspace{display:grid;grid-template-columns:minmax(0,1.45fr) minmax(280px,.85fr);align-items:start;gap:18px}
+.cross-training-panel,.cross-side-panel{min-width:0}
+.cross-training-panel,.cross-options,.cross-instructions,.cross-move-panel{background:rgba(9,20,41,.86);border:1px solid rgba(145,184,255,.27);border-radius:19px;box-shadow:0 12px 34px rgba(0,0,0,.17)}
+.cross-training-panel{padding:clamp(16px,3vw,25px)}
+.cross-panel-heading{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.cross-panel-heading h2{margin:5px 0 0;font-size:21px}
+.cross-kicker,.cross-scramble span{font-size:11px;font-weight:750;letter-spacing:.11em;color:#9dcaf6}
+.cross-progress{border:1px solid rgba(145,184,255,.28);background:rgba(37,70,114,.25);border-radius:99px;padding:9px 12px;color:#c9e3ff;font-size:12px;font-weight:700}
+.cross-progress.is-complete{border-color:#55c6a7;color:#9df6d9}
+.cross-view-tabs{display:flex;gap:7px;margin-top:20px}
+.cross-view-tabs button{flex:1;min-height:42px;border:1px solid rgba(145,184,255,.25);background:rgba(8,17,36,.7);border-radius:10px;color:#a9bfdc;cursor:pointer}
+.cross-view-tabs button.selected{color:#fff;border-color:#75bdec;background:rgba(47,92,155,.4)}
+.cross-cube-area{min-height:290px;display:flex;justify-content:center;align-items:center;overflow:hidden;background:radial-gradient(circle at 50% 45%,rgba(35,64,111,.24),rgba(5,13,27,.4) 70%);border:1px solid rgba(145,184,255,.15);border-radius:15px;margin-top:12px}
+.cross-cube-area .cross-net{width:min(100%,400px);height:auto}
+.cross-cube-area .cube3d-stage{display:grid;place-items:center;width:100%;min-height:285px;perspective:800px;overflow:hidden}
+.cross-cube-area .cube3d-scene{width:var(--cube-size);height:var(--cube-size);transform-style:preserve-3d;transform:rotateX(var(--pitch)) rotateY(var(--yaw));transition:transform .24s ease}
+.cross-cube-area .cube3d-object{position:relative;width:100%;height:100%;transform-style:preserve-3d}
+.cross-cube-area .cube3d-face{position:absolute;inset:0;display:grid;grid-template-columns:repeat(3,1fr);grid-template-rows:repeat(3,1fr);gap:3px;padding:4px;background:#15121d;border:2px solid #0a0810;border-radius:8px;backface-visibility:visible}
+.cross-cube-area .cube3d-tile{border-radius:5px;border:1px solid rgba(0,0,0,.22);box-shadow:inset 0 1px 3px rgba(255,255,255,.13)}
+.cross-cube-area .cube3d-F{transform:translateZ(calc(var(--cube-size)/2))}.cross-cube-area .cube3d-B{transform:rotateY(180deg) translateZ(calc(var(--cube-size)/2))}
+.cross-cube-area .cube3d-R{transform:rotateY(90deg) translateZ(calc(var(--cube-size)/2))}.cross-cube-area .cube3d-L{transform:rotateY(-90deg) translateZ(calc(var(--cube-size)/2))}
+.cross-cube-area .cube3d-U{transform:rotateX(90deg) translateZ(calc(var(--cube-size)/2))}.cross-cube-area .cube3d-D{transform:rotateX(-90deg) translateZ(calc(var(--cube-size)/2))}
+.cross-camera{display:flex;justify-content:center;gap:8px;margin:10px 0 15px}
+.cross-camera button{min-width:42px;min-height:40px}
+.cross-scramble{padding:14px;background:rgba(5,13,29,.65);border:1px solid rgba(145,184,255,.17);border-radius:12px}
+.cross-scramble span{display:block;margin-bottom:8px}.cross-scramble strong{display:block;font:650 clamp(14px,2vw,18px)/1.6 monospace;overflow-wrap:anywhere}
+.cross-main-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:15px}
+.cross-main-actions button{flex:1 1 110px;min-height:44px}
+.cross-main-actions .cross-primary{background:linear-gradient(130deg,#174b85,#245b91);border-color:#6ba9de;color:#fff}
+.cross-feedback{min-height:20px;color:#aee2fb;font-size:13px;line-height:1.5;margin:12px 0 0}
+.cross-side-panel{display:grid;gap:14px}
+.cross-options,.cross-instructions,.cross-move-panel{padding:18px}
+.cross-options summary{cursor:pointer;font-size:17px;font-weight:750;min-height:28px}
+.cross-settings{display:grid;grid-template-columns:1fr;gap:8px;padding-top:17px}
+.cross-settings label{color:#aebfdd;font-size:12px;font-weight:650;margin-top:5px}
+.cross-settings select{width:100%;min-height:44px}
+.cross-instructions h2,.cross-move-panel h2{font-size:17px;margin:0 0 10px}
+.cross-instructions p,.cross-move-panel p{font-size:13px;line-height:1.65;color:#b2c3dd;margin:7px 0}
+.cross-targets{display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin-top:15px!important}
+.cross-targets span{background:rgba(55,105,165,.25);border:1px solid rgba(145,184,255,.25);border-radius:8px;padding:4px 8px;color:#e7f1ff}
+.cross-move-panel .cross-moves{display:grid;gap:8px;margin-top:13px}
+.cross-move-panel .cross-move-row{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+.cross-move-panel button{min-height:44px;font-size:14px}
+body[data-set="cross"] .cross-training-panel,body[data-set="cross"] .cross-options,body[data-set="cross"] .cross-instructions,body[data-set="cross"] .cross-move-panel{transform:none!important}
+body[data-set="cross"] .cross-training-panel::before,body[data-set="cross"] .cross-training-panel::after{display:none!important}
+@media(max-width:800px){.cross-workspace{grid-template-columns:minmax(0,1fr)}.cross-side-panel{grid-template-columns:minmax(0,1fr) minmax(0,1fr)}.cross-options{grid-column:1/-1}}
+@media(max-width:560px){body[data-set="cross"] .cross-original-main{width:calc(100% - 24px);margin:83px auto 45px}.cross-workspace{gap:12px}.cross-training-panel{padding:15px}.cross-side-panel{grid-template-columns:1fr}.cross-options{grid-column:auto}.cross-cube-area{min-height:260px}.cross-cube-area .cube3d-stage{min-height:260px}.cross-panel-heading h2{font-size:19px}}
+@media(prefers-reduced-motion:reduce){.cross-cube-area .cube3d-scene{transition:none}}
