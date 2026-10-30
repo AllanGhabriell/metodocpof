@@ -1,5 +1,7 @@
 document.addEventListener('DOMContentLoaded', () => {
   const C = window.CPOF;
+  const coach = window.CPOFCoach;
+  if (!C || !coach) { console.error('Treinador: motor compartilhado indisponível.'); return; }
   const pageSet = (document.body.dataset.set || 'f2l').toLowerCase();
   const BODY_TOTAL = Math.max(1, Number(document.body.dataset.total) || 41);
   const CASE_IDS = parseCaseIds(document.body.dataset.cases, BODY_TOTAL);
@@ -261,10 +263,31 @@ document.addEventListener('DOMContentLoaded', () => {
       dynamicBg: true,
       caseStats: {}
     },
-    lastCaseReport: null
+    lastCaseReport: null,
+    trainingMode: 'random',
+    trainingConfig: {prioritizeHard:false,reinforceSequential:true}
   };
 
   let state = normalizeState(C.getCookie(STATE_KEY) || {});
+  const trainerModeSelect=document.getElementById('trainer-mode-select');
+  const trainerModeCaption=document.getElementById('trainer-mode-caption');
+  const trainerCaseLabel=document.getElementById('trainer-case-label');
+  const trainerSessionCounter=document.getElementById('trainer-session-counter');
+  const trainerProgressFill=document.getElementById('trainer-progress-fill');
+  const trainerFeedback=document.querySelector('.trainer-feedback');
+  const trainerFeedbackHint=document.getElementById('trainer-feedback-hint');
+  const trainerCaseHistory=document.getElementById('trainer-case-history');
+  const trainerAttemptTime=document.getElementById('trainer-attempt-time');
+  const trainerTimingButton=document.getElementById('trainer-timed-practice');
+  const trainerRecognizedButton=document.getElementById('trainer-recognized');
+  const trainerMissedButton=document.getElementById('trainer-missed');
+  const trainerPrioritize=document.getElementById('trainer-prioritize');
+  const trainerReinforce=document.getElementById('trainer-sequence-reinforce');
+  const trainerDailyGoal=document.getElementById('trainer-daily-goal');
+  const trainerWeeklyGoal=document.getElementById('trainer-weekly-goal');
+  const trainerMenuSummary=document.getElementById('trainer-menu-summary');
+  let practiceStarted=0,practiceTimer=0,practiceElapsed=null,recognitionAt=null;
+  let recentCoachCases=[],sessionAttempts=0,sequentialReview=false,reviewQueue=[],reviewIndex=0;
   state.uiScale = loadSharedScale();
   let history = [];
   let historyIndex = -1;
@@ -354,13 +377,15 @@ document.addEventListener('DOMContentLoaded', () => {
       timerState: { ...defaults.timerState, ...(raw.timerState || {}) },
       uiScale: { ...defaults.uiScale, ...(raw.uiScale || {}) },
       competitive: { ...defaults.competitive, ...(raw.competitive || {}) },
-      orderedTraining: { ...defaults.orderedTraining, ...(raw.orderedTraining || {}) }
+      orderedTraining: { ...defaults.orderedTraining, ...(raw.orderedTraining || {}) },
+      trainingConfig: { ...defaults.trainingConfig, ...(raw.trainingConfig || {}) }
     };
     merged.excluded = uniqueCaseIdList(merged.excluded);
     merged.solved = uniqueCaseIdList(merged.solved);
     merged.solvedHistory = Array.isArray(merged.solvedHistory) ? merged.solvedHistory : [];
     merged.competitive.caseStats = merged.competitive.caseStats || {};
     merged.keybinds = normalizeKeybinds(merged.keybinds);
+    merged.trainingMode = raw.competitive?.enabled ? 'competitive' : raw.orderedTraining?.enabled ? 'sequential' : ['random','adaptive','review','focus'].includes(raw.trainingMode) ? raw.trainingMode : 'random';
     merged.orderedTraining.enabled = !!merged.orderedTraining.enabled;
     merged.orderedTraining.index = Math.max(0, Number(merged.orderedTraining.index) || 0);
     merged.orderedTraining.queue = Array.isArray(merged.orderedTraining.queue) ? merged.orderedTraining.queue.map((v) => String(v).trim()).filter(Boolean) : [];
