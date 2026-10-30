@@ -375,7 +375,7 @@ body[data-set] .trainer-settings-group .settings-card h3{
   margin-bottom:10px;
 }
 body[data-set] .menu-panel .settings-card .btn,
-body[data-set] .menu-panel .settings-card button:not(.switch *){
+body[data-set] .menu-panel .settings-card button:not(.switch){
   min-height:40px;
   padding:10px 12px;
   border-radius:10px;
@@ -473,4 +473,14 @@ body[data-set] .settings-card p:empty{display:none}
 }
 @media(prefers-reduced-motion:reduce){
  body[data-set] .trainer-case-action{transition:none}
+}
+
+/* Extremely narrow screens: keep all four actions visible without horizontal scroll. */
+@media(max-width:620px){
+ body[data-set] .controls-row .trainer-case-action{
+   white-space:normal;
+   line-height:1.2;
+   overflow-wrap:normal;
+   text-wrap:balance;
+ }
 }
