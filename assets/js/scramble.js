@@ -1,22 +1,27 @@
-import {solved,apply} from '../../v2/cube/engine.mjs';
+import {solved,apply,facelets} from '../../v2/cube/engine.mjs';
 import {cube3D} from '../../v2/cube/visual.mjs';
 const key='cpof-scramble-times-v1';
 let times=[];try{const t=JSON.parse(localStorage.getItem(key)||'[]');if(Array.isArray(t))times=t.filter(x=>Number.isFinite(x.ms)&&x.ms>=0&&typeof x.scramble==='string').slice(-2000)}catch{}
-let sequence='',state=solved(),running=false,started=0,raf=0,elapsed=0,view='timer',yaw=-35,pitch=-27,inspection=false,inspectionStarted=0,inspectionRaf=0,inspectionEnabled=localStorage.getItem('academy-inspection')==='true';
+let sequence='',state=solved(),running=false,started=0,raf=0,elapsed=0,view='timer',yaw=-35,pitch=-27,inspection=false,inspectionStarted=0,inspectionRaf=0,inspectionEnabled=localStorage.getItem('academy-inspection')==='true',scrambleLength=[15,20,25].includes(Number(localStorage.getItem('academy-scramble-length')))?Number(localStorage.getItem('academy-scramble-length')):20,cubeView=localStorage.getItem('academy-cube-view')==='2d'?'2d':'3d';
 const $=id=>document.getElementById(id);
 const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
 const fmt=ms=>((ms/1000).toFixed(2));
 function scramble(){
  const faces=['U','D','R','L','F','B'],suffix=['',"'",'2'];let prev='',axis='',moves=[];
  const axisOf=f=>f==='U'||f==='D'?'y':f==='R'||f==='L'?'x':'z';
- for(let i=0;i<20;i++){let options=faces.filter(f=>f!==prev&&!(axisOf(f)===axis&&axisOf(prev)===axis));if(!options.length)options=faces.filter(f=>f!==prev);const f=options[Math.floor(Math.random()*options.length)];moves.push(f+suffix[Math.floor(Math.random()*3)]);axis=axisOf(f);prev=f}
+ for(let i=0;i<scrambleLength;i++){let options=faces.filter(f=>f!==prev&&!(axisOf(f)===axis&&axisOf(prev)===axis));if(!options.length)options=faces.filter(f=>f!==prev);const f=options[Math.floor(Math.random()*options.length)];moves.push(f+suffix[Math.floor(Math.random()*3)]);axis=axisOf(f);prev=f}
  sequence=moves.join(' ');state=apply(solved(),sequence);$('scramble-text').textContent=sequence;drawCube();
 }
-function drawCube(){const target=$('scramble-cube');if(!target)return;target.innerHTML=cube3D(state,{yaw,pitch,size:174});target.setAttribute('aria-label','Cubo 3D embaralhado: '+sequence)}
+const cubePalette={U:'#f1f4f7',D:'#f4d448',F:'#239e63',B:'#3779d6',L:'#ef8e37',R:'#d44b47'};
+function cube2D(current){
+ const faces=facelets(current),slots=[['U',1,0],['L',0,1],['F',1,1],['R',2,1],['B',3,1],['D',1,2]];
+ return '<div class="scramble-cube-net" role="img" aria-label="Planificação do cubo 3 por 3">'+slots.map(([name,x,y])=>'<div class="scramble-net-face" style="grid-column:'+(x+1)+';grid-row:'+(y+1)+'" aria-label="Face '+name+'">'+faces[name].map(c=>'<span style="background:'+cubePalette[c]+'"></span>').join('')+'</div>').join('')+'</div>';
+}
+function drawCube(){const target=$('scramble-cube');if(!target)return;target.innerHTML=cubeView==='2d'?cube2D(state):cube3D(state,{yaw,pitch,size:174});target.setAttribute('aria-label','Cubo '+(cubeView==='2d'?'2D':'3D')+' embaralhado: '+sequence);document.querySelector('.scramble-cube-controls').hidden=cubeView==='2d';}
 function tick(){if(!running)return;elapsed=performance.now()-started;$('timer-display').textContent=fmt(elapsed);raf=requestAnimationFrame(tick)}
 function start(){if(running)return;if(inspection){inspection=false;cancelAnimationFrame(inspectionRaf)}running=true;started=performance.now();$('timer-display').textContent='0.00';$('timer-status').textContent='Toque ou pressione espaço para parar';document.body.classList.add('is-timing');tick()}
 function stop(){if(!running)return;running=false;cancelAnimationFrame(raf);elapsed=performance.now()-started;times.push({ms:Math.round(elapsed),scramble:sequence,date:new Date().toISOString()});localStorage.setItem(key,JSON.stringify(times.slice(-2000)));$('timer-display').textContent=fmt(elapsed);$('timer-status').textContent='Tempo salvo · toque para começar outra resolução';document.body.classList.remove('is-timing');scramble();renderStats()}
-function inspectionTick(){if(!inspection)return;const left=15-(performance.now()-inspectionStarted)/1000;if(left<=0){inspection=false;$('timer-status').textContent='Inspeção encerrada · inicie o cronômetro';$('timer-display').textContent='0.00';return}$('timer-display').textContent=left.toFixed(1);inspectionRaf=requestAnimationFrame(inspectionTick)}
+function inspectionTick(){if(!inspection)return;const left=15-(performance.now()-inspectionStarted)/1000;if(left<=0){inspection=false;cancelAnimationFrame(inspectionRaf);start();$('timer-status').textContent='Inspeção encerrada · cronômetro iniciado';return}$('timer-display').textContent=left.toFixed(1);inspectionRaf=requestAnimationFrame(inspectionTick)}
 function action(){if(running){stop();return}if(inspectionEnabled&&!inspection){inspection=true;inspectionStarted=performance.now();$('timer-status').textContent='Inspeção de 15 segundos · toque para iniciar';inspectionTick();return}start()}
 function mean(values){return values.length?values.reduce((a,b)=>a+b,0)/values.length:null}
 function ao(values,n){if(values.length<n)return null;const sample=values.slice(-n).sort((a,b)=>a-b);const trim=n===5?1:Math.ceil(n*.05);return mean(sample.slice(trim,n-trim))}
@@ -27,7 +32,11 @@ function renderStats(){const nums=times.map(t=>t.ms);const last=n=>nums.length>=
 function setView(next){view=next;document.querySelectorAll('[data-view]').forEach(b=>{b.classList.toggle('active',b.dataset.view===next);b.setAttribute('aria-pressed',String(b.dataset.view===next))});document.querySelectorAll('[data-panel]').forEach(p=>p.hidden=p.dataset.panel!==next);if(next==='stats')requestAnimationFrame(renderStats)}
 $('new-scramble').addEventListener('click',()=>{if(!running&&!inspection)scramble()});
 $('inspection-toggle').checked=inspectionEnabled;
-$('inspection-toggle').addEventListener('change',e=>{inspectionEnabled=e.target.checked;localStorage.setItem('academy-inspection',String(inspectionEnabled));if(inspection){inspection=false;cancelAnimationFrame(inspectionRaf);$('timer-display').textContent='0.00'}});
+$('scramble-length').value=String(scrambleLength);
+$('scramble-length').addEventListener('change',e=>{scrambleLength=Number(e.target.value);localStorage.setItem('academy-scramble-length',String(scrambleLength));if(!running&&!inspection)scramble()});
+$('cube-view').value=cubeView;
+$('cube-view').addEventListener('change',e=>{cubeView=e.target.value==='2d'?'2d':'3d';localStorage.setItem('academy-cube-view',cubeView);$('scramble-cube-heading').textContent=cubeView==='2d'?'Cubo 2D':'Cubo 3D';drawCube()});
+$('inspection-toggle').addEventListener('change',e=>{inspectionEnabled=e.target.checked;localStorage.setItem('academy-inspection',String(inspectionEnabled));if(inspection){inspection=false;cancelAnimationFrame(inspectionRaf);$('timer-display').textContent='0.00';$('timer-status').textContent='Toque no tempo ou pressione espaço para começar'}});
 $('cube-left').addEventListener('click',()=>{yaw-=35;drawCube()});
 $('cube-right').addEventListener('click',()=>{yaw+=35;drawCube()});
 $('cube-up').addEventListener('click',()=>{pitch=Math.max(-75,pitch-20);drawCube()});
