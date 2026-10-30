@@ -1123,7 +1123,9 @@ document.addEventListener('DOMContentLoaded', () => {
   }
   const COACH_EXPLANATIONS={
     random:'Casos em ordem variada. Ao marcar Difícil, o caso ganha mais chances de voltar, evitando repetição imediata.',
-    sequential:'Percorre os casos em ordem. Se o reforço estiver ligado, os difíceis voltam ao final até você indicar Fácil duas vezes seguidas.',
+    sequential:pageSet==='f2l'
+      ?'Ordem de aprendizado: começa pelos casos 38 a 41, depois segue do 1 ao 37. Os difíceis voltam ao final para reforço, se ativado.'
+      :'Segue uma ordem fixa de casos. Os difíceis voltam ao final até duas marcações de Fácil seguidas, se o reforço estiver ativado.',
     competitive:'O tempo mede seu desempenho. Casos lentos voltam mais vezes. Use Reconheci para separar reconhecimento e execução.',
     adaptive:'Combina seus cliques em Fácil e Difícil, tempos medidos, reconhecimento e histórico para escolher o próximo caso.',
     review:'Prioriza casos recomendados pelos intervalos de prática. Você resolve no cubo, sem tarefas atrasadas obrigatórias.',
