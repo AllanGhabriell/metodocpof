@@ -105,7 +105,7 @@ export function verifyDiagram(state,expected){
  const actual=facelets(state);const mismatches=[];
  for(const [face,pattern] of Object.entries(expected)){
   if(!actual[face]||pattern.length!==9)throw new TypeError('Diagrama inválido: '+face);
-  pattern.forEach((color,i)=>{if(color!==null&&color!==undefined&&color!=='?'&&color!=='*'&&actual[face][i]!==color)mismatches.push({face,index:i,expected:color,actual:actual[face][i]})});
+  pattern.forEach((color,i)=>{if(color!==null&&color!==undefined&&color!=='?'&&color!=='*'&&color!=='X'&&actual[face][i]!==color)mismatches.push({face,index:i,expected:color,actual:actual[face][i]})});
  }
  return {valid:mismatches.length===0,mismatches};
 }
