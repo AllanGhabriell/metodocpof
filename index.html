@@ -5,43 +5,33 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
   <title>Academia CPOF</title>
   <link rel="stylesheet" href="assets/css/global.css?v=20260313k">
-  <style>
-    .original-utility-bar{position:fixed;top:0;right:0;z-index:20;display:flex;align-items:center;gap:8px;padding:16px 20px;flex-wrap:wrap;justify-content:flex-end}
-    .original-utility-bar a{font:600 13px/1.2 system-ui,sans-serif;color:#d5e1ff;text-decoration:none;background:rgba(9,16,34,.78);border:1px solid rgba(145,184,255,.28);border-radius:11px;padding:10px 13px;backdrop-filter:blur(12px)}
-    .original-utility-bar a:hover{border-color:#78fff5;color:white}
-    .home-actions{grid-template-columns:repeat(2,minmax(0,1fr))}
-    .home-actions a.card{display:flex;align-items:center;justify-content:center;text-decoration:none}
-    @media(max-width:560px){.original-utility-bar{position:relative;padding:12px;gap:6px}.original-utility-bar a{font-size:11px;padding:8px 10px}.home-actions{grid-template-columns:repeat(2,minmax(0,1fr))}.home-actions a.card{min-height:74px}}
-    .scramble-entry-link{align-self:center;display:inline-flex;gap:10px;align-items:center;margin-top:16px;padding:10px 16px;border:1px solid rgba(145,184,255,.32);border-radius:12px;background:rgba(9,20,42,.54);color:#dceaff;text-decoration:none;font:600 13px system-ui,sans-serif}.scramble-entry-link:hover{border-color:#78fff5}
-  </style>
 <link rel="stylesheet" href="assets/css/cursor-glow.css?v=1">
 <link rel="stylesheet" href="assets/css/academy.css?v=20261030-1">
+<link rel="stylesheet" href="assets/css/home-layout.css?v=20261030-2">
 </head>
 <body class="academy-home">
-  <header class="academy-utility"><details><summary aria-label="Abrir menu de ferramentas">Menu</summary><nav aria-label="Ferramentas adicionais"><a href="studio.html?page=learn">Aprender</a><a href="studio.html?page=dashboard">Evolução</a><a href="studio.html?page=profile">Conta e perfil</a><a href="scramble.html">Embaralhamento</a></nav></details></header>
-  <main class="centered-page home-page">
-    <section class="hero-panel">
-      <h1 id="title-cpof" aria-label="Academia C P O F">Academia
-        <span class="cpof" aria-hidden="true">
-          <span class="cpof-letter">C</span>
-          <span class="cpof-letter">P</span>
-          <span class="cpof-letter">O</span>
-          <span class="cpof-letter">F</span>
-        </span>
-      </h1>
-
-      <p class="hint">Escolha uma etapa e comece a praticar.</p>
-
-      <nav class="home-actions" role="navigation" aria-label="Navegação principal">
-        <a href="cross.html" class="card primary">CROSS<span class="stage-subtitle">Cruz inicial</span></a>
-        <a href="f2l.html" class="card primary">F2L<span class="stage-subtitle">41 casos</span></a>
-        <a href="oll.html" class="card primary">OLL<span class="stage-subtitle">57 casos</span></a>
-        <a href="pll.html" class="card primary">PLL<span class="stage-subtitle">21 casos</span></a>
+  <header class="academy-home-header">
+    <a class="academy-home-brand" href="index.html" aria-label="Academia CPOF — início">
+      <span class="academy-brand-name">Academia <span class="academy-brand-cpof"><span>C</span><span>P</span><span>O</span><span>F</span></span></span>
+    </a>
+    <div class="academy-utility"><details><summary aria-label="Abrir menu de navegação">Menu</summary><nav aria-label="Menu da Academia CPOF">
+      <a href="studio.html?page=learn">Aprender</a>
+      <a href="studio.html?page=dashboard">Evolução</a>
+      <a href="studio.html?page=profile">Conta e perfil</a>
+      <a href="scramble.html">Embaralhamento e cronômetro</a>
+    </nav></details></div>
+  </header>
+  <main class="academy-home-main">
+    <section class="academy-stage-selection" aria-label="Escolha o treinamento">
+      <p class="academy-stage-eyebrow">ESCOLHA SEU TREINO</p>
+      <nav class="home-actions" aria-label="Etapas de treinamento">
+        <a href="f2l.html" class="card primary academy-stage academy-stage-f2l"><span class="academy-stage-name">F2L</span><span class="stage-subtitle">41 casos</span></a>
+        <a href="oll.html" class="card primary academy-stage academy-stage-oll"><span class="academy-stage-name">OLL</span><span class="stage-subtitle">57 casos</span></a>
+        <a href="pll.html" class="card primary academy-stage academy-stage-pll"><span class="academy-stage-name">PLL</span><span class="stage-subtitle">21 casos</span></a>
+        <a href="cross.html" class="card primary academy-stage academy-stage-cross"><span class="academy-stage-name">CROSS</span><span class="stage-subtitle">Treinar a cruz</span></a>
       </nav>
-      <a class="scramble-entry-link" href="scramble.html">◷ Embaralhamento e cronômetro <span aria-hidden="true">↗</span></a>
     </section>
   </main>
-
   <footer class="site-footer">Feito por Allan Ghabriell.</footer>
   <script src="assets/js/main.js?v=20260311b" defer></script>
 <script src="v2/cursor-glow.js?v=20261030-27" defer></script>
