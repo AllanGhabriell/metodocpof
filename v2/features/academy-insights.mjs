@@ -55,7 +55,8 @@ export function saveAcademyGoals(patch){
   stored.settings={...(stored.settings||{}),
    dailyGoal:Math.max(1,Math.min(119,Math.round(Number(patch.dailyGoal)||current.dailyGoal))),
    weeklyGoal:Math.max(1,Math.min(999,Math.round(Number(patch.weeklyGoal)||current.weeklyGoal))),
-   goalPeriod:['daily','weekly','free'].includes(patch.goalPeriod)?patch.goalPeriod:current.goalPeriod};
+   goalPeriod:['daily','weekly','free'].includes(patch.goalPeriod)?patch.goalPeriod:current.goalPeriod,
+   updatedAt:Date.now()};
   stored.stages=stored.stages||{f2l:{cases:{}},oll:{cases:{}},pll:{cases:{}}};
   localStorage.setItem(COACH_KEY,JSON.stringify(stored));
   return true;
