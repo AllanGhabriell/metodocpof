@@ -6,6 +6,7 @@ const load=()=>{try{const r=JSON.parse(localStorage.getItem(KEY)||'{}');return {
 let data=load(),message='';
 const save=()=>{localStorage.setItem(KEY,JSON.stringify(data));if(typeof document!=='undefined'&&typeof document.dispatchEvent==='function')document.dispatchEvent(new Event('cfop:local-change'))};
 export function awardActivity(type,xp=10){data.records=[...data.records.slice(-1499),{type:String(type).slice(0,24),xp:Math.min(100,Math.max(0,xp)),date:today(),time:Date.now()}];save()}
+export function reloadProgress(){data=load();return data}
 export function progressData(){return data}
 export function progressSummary(){
  const xp=data.records.reduce((s,r)=>s+(Number(r.xp)||0),0);
