@@ -276,21 +276,14 @@ document.addEventListener('DOMContentLoaded', () => {
   const trainerHardButton=document.getElementById('trainer-hard-btn');
   const trainerModeCaption=document.getElementById('trainer-mode-caption');
   const trainerCaseLabel=document.getElementById('trainer-case-label');
-  const trainerSessionCounter=document.getElementById('trainer-session-counter');
-  const trainerProgressFill=document.getElementById('trainer-progress-fill');
-  const trainerFeedback=document.querySelector('.trainer-feedback');
-  const trainerFeedbackHint=document.getElementById('trainer-feedback-hint');
-  const trainerCaseHistory=document.getElementById('trainer-case-history');
   const trainerAttemptTime=document.getElementById('trainer-attempt-time');
   const trainerTimingButton=document.getElementById('trainer-timed-practice');
   const trainerRecognizedButton=document.getElementById('trainer-recognized');
-  const trainerMissedButton=document.getElementById('trainer-missed');
   const trainerPrioritize=document.getElementById('trainer-prioritize');
   const trainerReinforce=document.getElementById('trainer-sequence-reinforce');
   const trainerGoalPeriod=document.getElementById('trainer-goal-period');
   const trainerDailyGoal=document.getElementById('trainer-daily-goal');
   const trainerWeeklyGoal=document.getElementById('trainer-weekly-goal');
-  const trainerMenuSummary=document.getElementById('trainer-menu-summary');
   let practiceStarted=0,practiceTimer=0,practiceElapsed=null,recognitionAt=null,recognitionElapsed=null,competitiveLoading=false;
   let recentCoachCases=[],sessionAttempts=0,sequentialReview=false,reviewQueue=[],reviewIndex=0;
   state.uiScale = loadSharedScale();
@@ -1153,7 +1146,10 @@ document.addEventListener('DOMContentLoaded', () => {
     if(nextBtn)nextBtn.hidden=completed||!competitive;
     if(trainerTimingButton)trainerTimingButton.hidden=competitive;
     if(trainerRecognizedButton)trainerRecognizedButton.hidden=!competitive||!caseVisible||completed||!!recognitionAt||!caseStartAt;
-    if(controlsRow)controlsRow.classList.toggle('is-competitive',competitive);
+    if(controlsRow){
+      controlsRow.classList.toggle('is-competitive',competitive);
+      controlsRow.classList.toggle('has-recognition',competitive&&!!trainerRecognizedButton&&!trainerRecognizedButton.hidden);
+    }
     if(trainerPrioritize)trainerPrioritize.checked=!!state.trainingConfig.prioritizeHard;
     if(trainerReinforce)trainerReinforce.checked=!!state.trainingConfig.reinforceSequential;
     if(trainerGoalPeriod)trainerGoalPeriod.value=prefs.goalPeriod;
@@ -2083,14 +2079,6 @@ document.addEventListener('DOMContentLoaded', () => {
   // Mesmos controles e metodologia em F2L, OLL e PLL.
   organizeSettingsMenu();
   trainerModeSelect?.addEventListener('change',e=>changeTrainingMode(e.target.value));
-  document.querySelectorAll('[data-trainer-rating]').forEach(button=>button.addEventListener('click',()=>{
-    if(!currentCase||completed||state.competitive.enabled)return;
-    const rating=button.dataset.trainerRating;
-    coach.rate(pageSet,currentCase,rating);
-    updateCoachInterface();
-    const labels={easy:'fácil',medium:'médio',hard:'difícil'};
-    showToast('Caso '+currentCase+' marcado como '+labels[rating],1400);
-  }));
   trainerTimingButton?.addEventListener('click',togglePracticeTimer);
   trainerRecognizedButton?.addEventListener('click',()=>{
     if(!state.competitive.enabled||!caseVisible||!caseStartAt||recognitionAt)return;
@@ -2098,20 +2086,6 @@ document.addEventListener('DOMContentLoaded', () => {
     recognitionElapsed=Math.max(0,recognitionAt-caseStartAt);
     trainerAttemptTime.textContent='Reconhecido em '+fmt(recognitionElapsed);
     trainerRecognizedButton.hidden=true;
-  });
-  trainerMissedButton?.addEventListener('click',()=>{
-    if(completed||!currentCase||state.competitive.enabled)return;
-    const missedId=currentCase;
-    pushUndo('difficult-attempt');
-    const elapsed=stopPracticeTimer();
-    logCasePractice(missedId,elapsed,'missed');
-    if(isOrderedTrainingMode()){
-      onSkipCase(true);
-      return;
-    }
-    const candidate=pickNextCase();
-    if(candidate){setCurrentCase(candidate,true);save();renderCaseScene();preloadAnother()}
-    else {showToast('Você pode continuar quando quiser')}
   });
   trainerPrioritize?.addEventListener('change',e=>{
     state.trainingConfig.prioritizeHard=!!e.target.checked;save();updateCoachInterface();
