@@ -38,3 +38,16 @@ body.academy-home .academy-brand-cpof span:nth-child(4){animation-delay:-6s}
  80%{color:#fa5c64;text-shadow:0 0 15px #f14550a3}
 }
 @media(prefers-reduced-motion:reduce){body.academy-home .academy-brand-cpof span{animation:none}}
+
+
+/* Atalhos sem deslocar o foco das quatro etapas de treinamento. */
+.academy-home-followup{width:min(700px,100%);display:grid;grid-template-columns:minmax(180px,.8fr) minmax(0,1.5fr);gap:12px;align-items:stretch;margin-top:clamp(5px,1.5vh,12px)}
+.academy-home-streak{min-height:54px;display:flex;align-items:center;gap:10px;padding:10px 14px;text-decoration:none;color:#eaf8ff;border:1px solid rgba(135,193,251,.24);border-radius:14px;background:rgba(8,25,49,.77)}
+.academy-home-streak>span{font-size:22px}.academy-home-streak>strong{font-size:14px;font-variant-numeric:tabular-nums;white-space:nowrap}
+.academy-home-streak>small{font-size:10px;line-height:1.3;color:#9ebad8}
+.academy-home-shortcuts{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:7px}
+.academy-home-shortcuts a{display:flex;align-items:center;justify-content:center;gap:5px;min-width:0;min-height:50px;padding:9px 5px;border-radius:13px;border:1px solid rgba(133,182,236,.22);background:rgba(9,24,47,.55);color:#bcd5ed;text-decoration:none;font:600 12px system-ui,sans-serif;white-space:nowrap}
+.academy-home-shortcuts a span{font-size:10px;color:#8bcfea}
+.academy-home-shortcuts a:hover,.academy-home-streak:hover{border-color:#8cdbec;background:#173859b8;color:#fff}
+@media(max-width:680px){.academy-home-followup{grid-template-columns:1fr;margin-top:3px;gap:7px}.academy-home-streak{justify-content:center;min-height:40px;padding:6px 8px;gap:8px}.academy-home-streak>span{font-size:17px}.academy-home-streak>strong{font-size:12px}.academy-home-streak>small{font-size:10px}.academy-home-shortcuts a{min-height:38px;font-size:11px;padding:7px 3px}.academy-home-shortcuts a span{font-size:10px}}
+@media(max-height:610px){.academy-home-followup{margin-top:0;gap:5px}.academy-home-streak{min-height:33px;padding:5px 7px}.academy-home-shortcuts a{min-height:33px;padding:5px 3px}body.academy-home .home-actions .academy-stage{min-height:72px}body.academy-home .home-actions .academy-stage-cross{min-height:55px}}
