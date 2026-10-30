@@ -93,7 +93,7 @@ test('repeated clicks do not produce unlimited XP',()=>{
 });
 test('coach is connected in classic trainer and analytics, no card-based review is presented',()=>{
  const trainer=read('assets/js/secao.js'),analytics=read('v2/features/academy-insights.mjs'),app=read('v2/app.js');
- for(const needle of ['coach.complete(', 'coach.rate(', 'coach.weightedPick(', 'coach.dueCases(', 'sequentialReview','trainerRecognizedButton','changeTrainingMode'])assert.ok(trainer.includes(needle),needle);
+ for(const needle of ['coach.complete(', 'coach.weightedPick(', 'coach.dueCases(', 'sequentialReview','trainerRecognizedButton','trainerEasyButton','trainerHardButton','onDifficultCase','changeTrainingMode'])assert.ok(trainer.includes(needle),needle);
  for(const needle of ['academyTrainingPanel(s.cases)','academy-training-chart','academy-goal-period','academy-save-goals'])assert.ok(analytics.includes(needle),needle);
  assert.ok(app.includes("if(page==='srs')return '<section"));
  assert.ok(!app.includes("if(page==='srs')return studyPage"));
@@ -143,4 +143,31 @@ test('sequential difficult cases are reinforced without counting skips as succes
  assert.ok(trainer.includes("logCasePractice(caseId,elapsed,'hard')"));
  assert.ok(trainer.includes("logCasePractice(currentCase,elapsedMs,state.competitive.enabled?'completed':'easy')"));
  assert.ok(trainer.includes("['random','adaptive','review','focus'].includes(currentTrainingMode())"));
+});
+
+test('large case preview has the same dimensions in every mode and respects user sizing',()=>{
+ const css=read('assets/css/trainer-unified.css');
+ assert.match(css,/body\[data-set\] \.img-wrap,[\s\S]*?body\[data-set\] \.img-wrap\.show-mask\s*\{[^}]*height:clamp\(260px,42vh,400px\)/);
+ assert.match(css,/body\[data-set\] \.img-wrap #case-image\s*\{[^}]*var\(--case-scale,1\)/);
+ assert.match(css,/body\[data-set\] \.controls-row\s*\{[^}]*grid-template-columns:1\.15fr 1fr 1fr \.75fr/s);
+ assert.match(css,/\.controls-row\.is-competitive\.has-recognition/);
+ const trainer=read('assets/js/secao.js');
+ assert.ok(trainer.includes('caseMovesToggle.hidden = false;'));
+ assert.ok(!trainer.includes('if (orderedMode) movesOpen = true;'));
+ assert.ok(trainer.includes("onDifficultCase(){"));
+});
+
+test('the mode explanations stay collapsible and the drawer has tidy grouped controls',()=>{
+ for(const stage of ['f2l','oll','pll']){
+  const html=read(stage+'.html');
+  assert.match(html,/<details class="trainer-mode-help"/);
+  assert.match(html,/<details class="trainer-guide">/);
+  for(const word of ['Aleatório','Sequencial','Competitivo','Adaptativo','Revisão espaçada','Foco'])
+   assert.ok(html.includes(word));
+  assert.ok(!html.includes('0 práticas'));
+  assert.ok(!html.includes('Como está este caso?'));
+  assert.ok(!html.includes('Não consegui resolver'));
+  assert.match(html,/id="trainer-timed-practice"/);
+  assert.ok(html.indexOf('id="trainer-timed-practice"')>html.indexOf('id="menu-panel"'));
+ }
 });
