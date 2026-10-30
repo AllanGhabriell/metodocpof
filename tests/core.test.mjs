@@ -42,5 +42,5 @@ test('estatísticas do cronômetro',()=>{
  const result=stats([{ms:30000},{ms:20000},{ms:25000},{ms:19000},{ms:28000}]);
  assert.equal(result.total,5);
  assert.equal(result.best,19000);
- assert.equal(result.ao5,25000);
+ assert.equal(result.ao5,73000/3);
 });
