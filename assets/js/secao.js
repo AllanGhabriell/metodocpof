@@ -1161,10 +1161,6 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   async function renderCaseScene() {
-    if (completed && (!sessionActive || sessionTargetCount <= 0 || sessionResolved.size < sessionTargetCount)) {
-      completed = false;
-    }
-
     renderLastCaseInfo();
     renderCompetitiveSetup();
     updateTimerDisplays();
@@ -1398,6 +1394,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     resetSessionTimer();
     resetRun();
+    sequentialReview=false;reviewQueue=[];reviewIndex=0;sessionAttempts=0;recentCoachCases=[];
     clampOrderedIndex();
     sessionTargetCount = isOrderedTrainingMode() ? orderedTotal() : unexcludedCases().length;
     sessionResolved = new Set();
@@ -1465,6 +1462,9 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   function shouldCompleteSession() {
+    if (isOrderedTrainingMode()) return false;
+    if (state.competitive.enabled) return unexcludedCases().length>0&&availableCompetitiveCases().length===0;
+    if (['adaptive','review','focus'].includes(currentTrainingMode())) return false;
     if (!sessionActive) return false;
     if (sessionTargetCount <= 0) return false;
     return sessionResolved.size >= sessionTargetCount;
@@ -1484,21 +1484,19 @@ document.addEventListener('DOMContentLoaded', () => {
     renderCaseScene();
   }
 
-  // Registra uma tentativa indicada como resolvida pelo usuário; não presume verificação física.
-  // Os registros alimentam o calendário local. As métricas de velocidade usam tempos reais do cronômetro.
-  function logCasePractice(caseId,elapsedMs){
+  // Registra apenas ações explicitamente informadas pelo cubista.
+  function logCasePractice(caseId,elapsedMs,result='completed'){
     if(!caseId||!CASE_ID_SET.has(String(caseId)))return;
-    try{
-      const key='cpof-academy-activity-v1';
-      const stored=JSON.parse(localStorage.getItem(key)||'[]');
-      const events=Array.isArray(stored)?stored:[];
-      events.push({
-        stage:pageSet,caseId:String(caseId),at:Date.now(),
-        mode:state.competitive.enabled?'competitivo':isOrderedTrainingMode()?'sequencial':'aleatorio',
-        ms:state.competitive.enabled&&Number.isFinite(elapsedMs)&&elapsedMs>0?Math.round(elapsedMs):null
-      });
-      localStorage.setItem(key,JSON.stringify(events.slice(-3000)));
-    }catch(e){/* Preferências podem bloquear armazenamento; treino continua normalmente. */}
+    const timed=Number.isFinite(elapsedMs)&&elapsedMs>=100?elapsedMs:null;
+    const recognition=recognitionAt&&caseStartAt?recognitionAt-caseStartAt:null;
+    const info=coach.complete(pageSet,String(caseId),{
+      mode:currentTrainingMode(),ms:timed,recognitionMs:recognition,
+      goalMs:Number(state.competitive.limitSec||6)*1000,
+      result:result==='missed'?'missed':'completed'
+    });
+    sessionAttempts++;
+    if(info)showToast(result==='missed'?'Dificuldade registrada · tente novamente depois':'+'+info.record.xp+' XP · prática registrada',1500);
+    recognitionAt=null;
   }
 
   function moveToNextCaseAfterSolve(elapsedMs, grade, markResult) {
