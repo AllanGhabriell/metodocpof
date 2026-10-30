@@ -1432,6 +1432,23 @@ document.addEventListener('DOMContentLoaded', () => {
     renderCaseScene();
   }
 
+  // Registra uma tentativa indicada como resolvida pelo usuário; não presume verificação física.
+  // Os registros alimentam o calendário local. As métricas de velocidade usam tempos reais do cronômetro.
+  function logCasePractice(caseId,elapsedMs){
+    if(!caseId||!CASE_ID_SET.has(String(caseId)))return;
+    try{
+      const key='cpof-academy-activity-v1';
+      const stored=JSON.parse(localStorage.getItem(key)||'[]');
+      const events=Array.isArray(stored)?stored:[];
+      events.push({
+        stage:pageSet,caseId:String(caseId),at:Date.now(),
+        mode:state.competitive.enabled?'competitivo':isOrderedTrainingMode()?'sequencial':'aleatorio',
+        ms:state.competitive.enabled&&Number.isFinite(elapsedMs)&&elapsedMs>0?Math.round(elapsedMs):null
+      });
+      localStorage.setItem(key,JSON.stringify(events.slice(-3000)));
+    }catch(e){/* Preferências podem bloquear armazenamento; treino continua normalmente. */}
+  }
+
   function moveToNextCaseAfterSolve(elapsedMs, grade, markResult) {
     if (markResult) {
       if (state.competitive.enabled) {
@@ -1439,6 +1456,7 @@ document.addEventListener('DOMContentLoaded', () => {
       } else {
         handleNormalResult(currentCase);
       }
+      logCasePractice(currentCase,elapsedMs);
     } else {
       setBodyPerformanceClass(grade);
     }
