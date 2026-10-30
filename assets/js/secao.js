@@ -841,7 +841,8 @@ document.addEventListener('DOMContentLoaded', () => {
       need: Math.max(1, Number(existing.need) || 1),
       boost: Math.max(0, Number(existing.boost) || 0),
       lastGrade: existing.lastGrade || 'none',
-      lastMs: Number(existing.lastMs) || 0
+      lastMs: Number(existing.lastMs) || 0,
+      lastRecognitionMs: Number(existing.lastRecognitionMs) || 0
     };
     state.competitive.caseStats[key] = stat;
     return stat;
@@ -907,6 +908,7 @@ document.addEventListener('DOMContentLoaded', () => {
     if (stat.lastGrade === 'bad') w += 2;
     if (stat.lastGrade === 'medium') w += 1;
     if (stat.solves === 0) w += 1;
+    if (stat.lastRecognitionMs > Number(state.competitive.limitSec||6)*450) w += 3;
     return Math.max(1, Math.floor(w));
   }
 
@@ -1142,7 +1144,8 @@ document.addEventListener('DOMContentLoaded', () => {
     });
     if(trainerCaseHistory){
       const average=stored.avgMs?' · média '+(stored.avgMs/1000).toFixed(2)+'s':'';
-      trainerCaseHistory.textContent=(Number(stored.attempts)||0)+' práticas'+average;
+      const recognition=stored.avgRecognitionMs?' · reconhecimento '+(stored.avgRecognitionMs/1000).toFixed(2)+'s':'';
+      trainerCaseHistory.textContent=(Number(stored.attempts)||0)+' práticas'+average+recognition;
     }
     if(trainerTimingButton)trainerTimingButton.hidden=mode==='competitive';
     if(trainerRecognizedButton){
@@ -1227,6 +1230,7 @@ document.addEventListener('DOMContentLoaded', () => {
     lastCaseInfo.textContent = [
       `Último caso: ${report.caseId}`,
       `Tempo: ${fmt(report.timeMs)}`,
+      ...(report.recognitionMs?[`Reconhecimento: ${fmt(report.recognitionMs)}`]:[]),
       `Desempenho: ${labels[report.grade] || '-'}`,
       `Resolvido ${report.solveCount} vez(es)`
     ].join(' | ');
@@ -1551,6 +1555,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const grade = classifyPerformance(elapsedMs);
     stat.solves += 1;
     stat.lastMs = elapsedMs;
+    stat.lastRecognitionMs=Number.isFinite(recognitionElapsed)?recognitionElapsed:0;
     stat.lastGrade = grade;
 
     const repeatBase = Math.max(1, Number(state.competitive.repeatBase) || 1);
@@ -1569,6 +1574,7 @@ document.addEventListener('DOMContentLoaded', () => {
       caseId,
       grade,
       timeMs: elapsedMs,
+      recognitionMs:stat.lastRecognitionMs||null,
       solveCount: stat.solves
     };
     state.solvedHistory.push({ caseId, ts: Date.now(), grade, timeMs: elapsedMs });
