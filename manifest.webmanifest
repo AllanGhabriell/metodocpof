@@ -1,0 +1,11 @@
+{
+  "name": "CFOP Studio — Treino de Cubo Mágico",
+  "short_name": "CFOP Studio",
+  "description": "Treine Cross, pratique CFOP e acompanhe sua evolução local.",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#090713",
+  "theme_color": "#171028",
+  "lang": "pt-BR"
+}
