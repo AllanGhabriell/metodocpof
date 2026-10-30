@@ -3,6 +3,7 @@ import {cloudStatus,loadAccountExtras,startActivityTracking,recordActivity,isCon
 import {onlinePage,onlineInit,onlineLoad,onlineClick,onlineSubmit} from './cloud/online.mjs';
 import {crossPage,crossClick,crossChange} from './features/cross.mjs';
 import {awardActivity,progressDashboard,progressData,reloadProgress,saveFeatureData,planPage,profilePage,progressClick,progressSubmit,progressImport,checkReminder} from './features/progress.mjs';
+import {saveAcademyGoals} from './features/academy-insights.mjs';
 import {studyPage,drillsPage,challengesPage,practiceClick,practiceSubmit} from './features/practice.mjs';
 import {imageEditorPanel,mountEditor,imageChosen,imageChanged,imageEditorClick} from './features/editor.mjs';
 import {stickerPanel,stickerClick} from './features/sticker-editor.mjs';
@@ -150,6 +151,15 @@ function render(){
  if(page==='review'&&caseDrafts[draftSelection])mountEditor(caseDrafts[draftSelection]);
 }
 function tick(){cancelAnimationFrame(raf);let clock=document.getElementById('clock'),help=document.getElementById('timer-help'),button=document.getElementById('timer-button');if(!clock)return;if(timerState==='inspection'){let remaining=inspection-(performance.now()-inspectionStarted)/1000;clock.textContent=Math.max(0,remaining).toFixed(1);help.textContent='Inspeção — clique em Iniciar agora ou pressione espaço';button.textContent='Iniciar agora';if(remaining<=0){timerState='running';started=performance.now()}}else if(timerState==='running'){clock.textContent=fmt(performance.now()-started);help.textContent='Clique em Parar ou pressione espaço';button.textContent='Parar'}if(timerState!=='idle')raf=requestAnimationFrame(tick)}function timerAction(){if(timerState==='idle'){timerState='running';started=performance.now();tick()}else if(timerState==='inspection'){timerState='running';started=performance.now();tick()}else{let ms=performance.now()-started;times.push({ms,scramble,date:new Date().toISOString()});saveTimes();recordActivity(0,false,1);awardActivity('Cronômetro',20);timerState='idle';scramble=makeScramble();render()}}root.addEventListener('click',e=>{let b=e.target.closest('button');if(!b)return;if(b.dataset.page){stopDemo();f2lMode='';nav(b.dataset.page);if(b.dataset.page==='challenges'&&isAuthenticated())onlineLoad().catch(()=>{});if(b.dataset.page==='admin-users'&&isAdmin())adminLoad().then(()=>render());if(b.dataset.page==='profile'&&isAuthenticated())loadAccountExtras().then(()=>render());return}
+if(b.dataset.action==='academy-save-goals'){
+  const result=saveAcademyGoals({
+    goalPeriod:root.querySelector('#academy-goal-period')?.value,
+    dailyGoal:Number(root.querySelector('#academy-daily-goal')?.value),
+    weeklyGoal:Number(root.querySelector('#academy-weekly-goal')?.value)
+  });
+  if(!result){alert('Não foi possível guardar as metas neste navegador.');return}
+  render();return;
+}
 if(b.dataset.action==='open-scramble-history'){location.assign('scramble.html?view=stats');return}if(b.dataset.cloud){handleCloudClick(b.dataset.cloud);return}if(b.dataset.admin||b.dataset.adminUser){adminClick(b).then(changed=>{if(changed)render()}).catch(err=>{cloudMessage=err.message;alert(err.message)});return}
 if(b.dataset.stickerColor||b.dataset.stickerFace||b.dataset.stickerTool){if(isAdmin())stickerClick(b);return}
 if(b.dataset.online||b.dataset.onlineId){onlineClick(b).then(()=>render());return}
