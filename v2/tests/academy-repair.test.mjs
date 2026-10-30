@@ -23,7 +23,8 @@ test('ferramentas compartilham estilo, dados reais e identidade visual',()=>{
  assert.match(html,/academy-tools\.css/);
  for(const phrase of ['studio-brand-mark','academy-learning-hero','academy-learning-layout','original-studio-content'])assert.ok(app.includes(phrase),phrase);
  assert.ok(progress.includes('academyDashboard(data.records'));
- assert.ok(read('assets/js/secao.js').includes("cpof-academy-activity-v1"));
+ assert.ok(read('assets/js/secao.js').includes('coach.complete('));
+ assert.ok(read('assets/js/trainer-coach.js').includes("cpof-academy-activity-v1"));
 });
 test('painel de atividades não simula tempos quando falta histórico',async()=>{
  const store=new Map();
