@@ -1,5 +1,5 @@
 export function effectiveMs(solve){return solve.ms===null||solve.penalty==='DNF'?null:solve.ms+(solve.penalty==='+2'?2000:0)}
-export function formatMs(ms){return ms===null||ms===undefined?'DNF':(ms/1000).toFixed(2)}
+export function formatMs(ms){return ms===null||ms===undefined||ms==='DNF'||!Number.isFinite(ms)?'DNF':(ms/1000).toFixed(2)}
 export function averageOf(solves,count){if(solves.length<count)return null;const values=solves.slice(-count).map(effectiveMs).map(x=>x===null?Infinity:x).sort((a,b)=>a-b);const middle=values.slice(1,-1);if(middle.some(x=>!Number.isFinite(x)))return 'DNF';return middle.reduce((a,b)=>a+b,0)/middle.length}
 export function stats(solves){const valid=solves.map(effectiveMs).filter(x=>x!==null);return {total:solves.length,dnf:solves.length-valid.length,best:valid.length?Math.min(...valid):null,mean:valid.length?valid.reduce((a,b)=>a+b,0)/valid.length:null,ao5:averageOf(solves,5),ao12:averageOf(solves,12)}}
 export function removeSolve(solves,index){if(!Number.isInteger(index)||index<0||index>=solves.length)return solves.slice();return solves.filter((_,i)=>i!==index)}
