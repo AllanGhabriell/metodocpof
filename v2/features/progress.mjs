@@ -2,7 +2,7 @@ const KEY='cfop-studio-progress-v1',DAY=86400000;
 const esc=x=>String(x??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
 const dateOf=d=>[d.getFullYear(),String(d.getMonth()+1).padStart(2,'0'),String(d.getDate()).padStart(2,'0')].join('-');
 const today=()=>dateOf(new Date());
-const load=()=>{try{const r=JSON.parse(localStorage.getItem(KEY)||'{}');return {name:typeof r.name==='string'?r.name:'Cubista',records:Array.isArray(r.records)?r.records:[],goal:Number(r.goal)||20,plan:Array.isArray(r.plan)?r.plan:[],reminder:r.reminder||'',notified:r.notified||'',cards:Array.isArray(r.cards)?r.cards:[],challenges:Array.isArray(r.challenges)?r.challenges:[]}}catch{return {name:'Cubista',records:[],goal:20,plan:[],reminder:'',notified:'',cards:[],challenges:[]}}};
+const load=()=>{try{const r=JSON.parse(localStorage.getItem(KEY)||'{}');return {...r,name:typeof r.name==='string'?r.name:'Cubista',records:Array.isArray(r.records)?r.records:[],goal:Number(r.goal)||20,plan:Array.isArray(r.plan)?r.plan:[],reminder:r.reminder||'',notified:r.notified||'',cards:Array.isArray(r.cards)?r.cards:[],challenges:Array.isArray(r.challenges)?r.challenges:[],completedLessons:Array.isArray(r.completedLessons)?r.completedLessons:[]}}catch{return {name:'Cubista',records:[],goal:20,plan:[],reminder:'',notified:'',cards:[],challenges:[]}}};
 let data=load(),message='';
 const save=()=>{localStorage.setItem(KEY,JSON.stringify(data));if(typeof document!=='undefined'&&typeof document.dispatchEvent==='function')document.dispatchEvent(new Event('cfop:local-change'))};
 export function awardActivity(type,xp=10){data.records=[...data.records.slice(-1499),{type:String(type).slice(0,24),xp:Math.min(100,Math.max(0,xp)),date:today(),time:Date.now()}];save()}
