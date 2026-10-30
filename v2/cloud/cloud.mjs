@@ -64,6 +64,14 @@ async function refreshSession(){
  return refreshing;
 }
 async function token(){if(!isAuthenticated())throw Error('Entre na sua conta para usar este recurso.');if(Date.now()>session.expires_at-60000)await refreshSession();return session.access_token}
+export function signInWithGoogle(){
+ if(!isConfigured())throw Error('Configure a URL e a chave pública do Supabase antes de entrar com Google.');
+ const redirectTo=location.origin+location.pathname;
+ const url=new URL(endpoint('/auth/v1/authorize'));
+ url.searchParams.set('provider','google');
+ url.searchParams.set('redirect_to',redirectTo);
+ location.assign(url.toString());
+}
 export async function signIn(email,password){
  const r=await authFetch('token?grant_type=password','POST',{email:String(email).trim(),password:String(password)});
  acceptSession(r);await postLogin();return true;
@@ -254,7 +262,7 @@ export function cloudPanel(){
  '<form id="cloud-configuration" class="studio-form"><label>URL do projeto<input name="url" type="url" class="field" placeholder="https://seu-projeto.supabase.co" required></label><label>Chave publishable / anon<input name="key" class="field" autocomplete="off" required placeholder="sb_publishable_..."></label><button type="submit">Conectar projeto</button></form>':
  '<p class="muted">Projeto: '+esc(conf.url)+'</p>'+
  (!status.authenticated?
- '<form id="cloud-auth" class="studio-form"><label>E-mail<input class="field" name="email" type="email" autocomplete="email" required></label><label>Senha<input class="field" name="password" type="password" minlength="8" autocomplete="current-password" required></label><div class="row"><button name="mode" value="login" type="submit">Entrar</button><button name="mode" value="signup" type="submit" class="secondary">Criar conta</button><button name="mode" value="recover" type="submit" class="secondary" formnovalidate>Recuperar senha</button></div></form>':
+ '<button type="button" class="google-signin" data-cloud="google"><span class="google-mark" aria-hidden="true">G</span> Continuar com Google</button><p class="muted">Ou entre usando e-mail e senha:</p><form id="cloud-auth" class="studio-form"><label>E-mail<input class="field" name="email" type="email" autocomplete="email" required></label><label>Senha<input class="field" name="password" type="password" minlength="8" autocomplete="current-password" required></label><div class="row"><button name="mode" value="login" type="submit">Entrar</button><button name="mode" value="signup" type="submit" class="secondary">Criar conta</button><button name="mode" value="recover" type="submit" class="secondary" formnovalidate>Recuperar senha</button></div></form>':
  '<p class="notice">Conectado como '+esc(status.user?.email||'usuário')+(status.admin?' · Administrador autorizado':'')+'</p><p class="muted cloud-user-id">ID da sua conta: <code>'+esc(status.user?.id||'')+'</code> <button type="button" class="secondary" data-cloud="copyid">Copiar ID</button></p>'+
  '<div class="row"><button data-cloud="sync" type="button">Sincronizar agora</button><button data-cloud="logout" type="button" class="secondary">Sair da conta</button></div>'+
  '<details><summary>Alterar senha</summary><form id="cloud-password" class="studio-form"><label>Nova senha<input class="field" name="password" type="password" required minlength="8"></label><button>Atualizar senha</button></form></details>')+
