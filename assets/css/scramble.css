@@ -23,3 +23,18 @@ body.scramble-body{overflow-y:auto;overflow-x:hidden;min-height:100vh;padding-bo
 body.is-timing .scramble-cube-section{opacity:.35}
 @media(max-width:560px){.scramble-header{margin-top:8px}.scramble-alg{margin-top:20px}.scramble-clock{min-height:160px}.solve-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.scramble-cube-section .cube3d-scene{--cube-size:145px!important}.scramble-cube-section .cube3d-stage{min-height:205px}}
 @media(prefers-reduced-motion:reduce){.scramble-cube-section .cube3d-scene{transition:none}}
+
+/* Stage 3: make the 3D preview clearly visible and usable on mobile. */
+.scramble-options{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;margin:12px auto 0;width:100%;font:500 12px system-ui,sans-serif;color:#a9bedc}
+.scramble-options label{display:flex;align-items:center;gap:8px;cursor:pointer;min-height:40px}
+.scramble-options input{accent-color:#5ea5e9;width:18px;height:18px}
+.scramble-cube-section{width:100%;border:1px solid rgba(145,184,255,.24);border-radius:18px;background:radial-gradient(circle at 50% 45%,rgba(39,75,124,.22),rgba(8,17,35,.65) 70%);padding:14px 10px 18px;margin:12px 0 24px}
+.scramble-cube-heading{margin:0 0 4px;font:700 15px system-ui,sans-serif;color:#e5f1ff;text-align:center}
+.scramble-cube-heading small{display:block;margin-top:4px;font-size:11px;font-weight:500;color:#a7bcda}
+.scramble-cube-section #scramble-cube{display:block;width:100%;min-height:245px}
+.scramble-cube-section .cube3d-stage{min-height:245px}
+.scramble-cube-controls button{min-width:44px;min-height:44px}
+.scramble-clock button{max-width:100%;font-size:clamp(65px,15vw,148px)}
+.scramble-stat-grid div{min-width:0;align-items:center}
+.scramble-stat-grid strong{font-variant-numeric:tabular-nums}
+@media(max-width:560px){.scramble-timer-panel{min-height:0}.scramble-alg{margin-top:16px}.scramble-options{justify-content:center;text-align:center}.scramble-options>span{display:none}.scramble-clock{min-height:170px;flex:0 0 auto}.scramble-cube-section{margin-top:8px;margin-bottom:18px}.scramble-cube-section #scramble-cube,.scramble-cube-section .cube3d-stage{min-height:205px}.scramble-cube-controls{gap:10px}.scramble-cube-controls button{padding:9px 14px}.scramble-stat-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.scramble-stat-grid div{flex-direction:column;align-items:flex-start}}
