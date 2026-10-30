@@ -287,7 +287,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const trainerDailyGoal=document.getElementById('trainer-daily-goal');
   const trainerWeeklyGoal=document.getElementById('trainer-weekly-goal');
   const trainerMenuSummary=document.getElementById('trainer-menu-summary');
-  let practiceStarted=0,practiceTimer=0,practiceElapsed=null,recognitionAt=null,recognitionElapsed=null;
+  let practiceStarted=0,practiceTimer=0,practiceElapsed=null,recognitionAt=null,recognitionElapsed=null,competitiveLoading=false;
   let recentCoachCases=[],sessionAttempts=0,sequentialReview=false,reviewQueue=[],reviewIndex=0;
   state.uiScale = loadSharedScale();
   let history = [];
@@ -968,7 +968,7 @@ document.addEventListener('DOMContentLoaded', () => {
     recentCoachCases.push(caseId);
     recentCoachCases=recentCoachCases.slice(-8);
     stopPracticeTimer(true);
-    recognitionAt=null;recognitionElapsed=null;
+    recognitionAt=null;recognitionElapsed=null;competitiveLoading=false;
     closeMovesPanel();
   }
 
@@ -1701,13 +1701,18 @@ document.addEventListener('DOMContentLoaded', () => {
     maybeAutoStartTimer();
 
     if (state.competitive.enabled && !caseVisible) {
-      caseVisible = true;
-      updateHistoryVisibility();
-      startCaseTimer();
-      save();
-      renderCaseScene();
+      caseVisible=true;competitiveLoading=true;
+      updateHistoryVisibility();save();
+      const expected=currentCase;
+      nextBtn.disabled=true;
+      Promise.resolve(renderCaseScene()).then(()=>{
+        if(currentCase!==expected||completed||!state.competitive.enabled)return;
+        competitiveLoading=false;
+        startCaseTimer();
+      }).catch(err=>{competitiveLoading=false;showToast('Não foi possível preparar a imagem: '+err.message)}).finally(()=>{nextBtn.disabled=false});
       return;
     }
+    if(competitiveLoading){showToast('Aguarde a imagem do caso carregar');return}
 
     if(state.competitive.enabled&&caseStartAt&&Date.now()-caseStartAt<250){
       showToast('Espere ao menos 0,25s antes de registrar o tempo');
