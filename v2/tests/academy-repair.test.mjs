@@ -8,7 +8,7 @@ const read=p=>readFileSync(resolve(root,p),'utf8');
 test('módulo de embaralhamento carrega arquivos existentes do motor e do cubo 3D',()=>{
  const p=resolve(root,'assets/js/scramble.js'),src=read('assets/js/scramble.js');
  for(const [,rel] of src.matchAll(/from\s+['"]([^'"]+)['"]/g)){
-  assert.ok(existsSync(resolve(dirname(p),rel)),'import quebrado: '+rel);
+  assert.ok(existsSync(resolve(dirname(p),rel.split('?')[0])),'import quebrado: '+rel);
  }
  for(const phrase of ['cube3D(state','cube2D(state','scrambleLength','inspectionTick','start()'])assert.ok(src.includes(phrase),phrase);
 });
