@@ -335,3 +335,23 @@ button:disabled{opacity:.55;cursor:not-allowed}
 .google-signin{max-width:100%;margin:18px 0}
 @media(max-width:700px){.home-hero{border-radius:20px;padding:30px 22px}.home-hero h1{letter-spacing:-1.6px}.stage-section-heading{align-items:start;flex-direction:column}.training-stage{min-height:225px!important}.header-profile{padding:6px;gap:6px;max-width:160px}.header-avatar{width:35px;height:35px;border-radius:10px}.header-profile-text strong{max-width:90px}.top-brand .muted{display:none}.header-profile-chevron{display:none}}
 @media(prefers-reduced-motion:reduce){.training-stage{transition:none}.training-stage:hover{transform:none}}
+
+.admin-kpis{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin:22px 0}
+.admin-kpis .card{padding:18px;display:flex;flex-direction:column;gap:8px}
+.admin-kpis span{color:#bdb0d2;font-size:13px}
+.admin-kpis strong{font-size:30px;line-height:1.1}
+.admin-table-scroll{overflow-x:auto;max-width:100%;margin-top:12px}
+.admin-table{width:100%;border-collapse:collapse;min-width:800px;font-size:13px}
+.admin-table th,.admin-table td{padding:12px 10px;text-align:left;border-bottom:1px solid rgba(176,148,225,.17);vertical-align:middle}
+.admin-table th{color:#d5c5ee;font-weight:650;white-space:nowrap}
+.admin-user-link{display:flex;flex-direction:column;gap:5px;background:transparent;border:0;color:#e3d3ff;text-align:left;padding:4px;cursor:pointer}
+.admin-user-link small{color:#a9a2bd;font-size:11px}
+.admin-user-link:hover{text-decoration:underline}
+.admin-detail{margin-top:18px}
+.admin-actions{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px;margin-top:22px}
+.admin-actions form{display:flex;flex-direction:column;gap:12px;background:rgba(128,91,191,.09);border:1px solid rgba(176,148,225,.16);padding:18px;border-radius:16px}
+.admin-actions form h3{margin:0}
+.admin-actions label{display:flex;flex-direction:column;gap:7px;font-size:13px}
+.admin-actions input,.admin-actions textarea{width:100%;border-radius:10px;border:1px solid #55476d;background:#101321;color:#fff;padding:11px}
+.admin-actions textarea{min-height:100px;resize:vertical}
+@media(max-width:900px){.admin-actions{grid-template-columns:1fr}.admin-kpis{grid-template-columns:repeat(2,minmax(0,1fr))}}
