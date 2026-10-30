@@ -1,9 +1,23 @@
 import {mergeCoachState,mergeCoachActivity,mergeCubeTimes} from './coach-merge.mjs';
+import {PUBLIC_SUPABASE_CONFIG} from './project-config.mjs';
 // Cloud backend: Supabase Auth + PostgREST. Somente chave pública no navegador.
 // TODA autorização administrativa é revalidada por RLS no banco; UI não é uma barreira de segurança.
 const CONF='cfop-cloud-config-v1',AUTH='cfop-cloud-session-v1',TOMBS='cfop-case-tombstones-v1';
 const KEYS={progress:'cfop-studio-progress-v1',times:'cfop-v2-times',drafts:'cfop-case-drafts',tombstones:TOMBS,coach:'cpof-academy-coach-v1',academyActivity:'cpof-academy-activity-v1',scrambleTimes:'cpof-scramble-times-v1'};
-let accountMessages=[],accountXp=0;let conf=read(CONF,null),session=read(AUTH,null),admin=false, published=[],lastError='',phase='local',onUpdate=()=>{},onHydrate=()=>{},busy=false,queue=false,muted=false,refreshing=null,lastSynced=0;
+// Uma única configuração pública para todos os visitantes.
+const publicConfig=validateConfig(PUBLIC_SUPABASE_CONFIG.url,PUBLIC_SUPABASE_CONFIG.publishableKey);
+const previousConfig=read(CONF,null);
+const hasSameProject=previousConfig?.url===publicConfig.url;
+let accountMessages=[],accountXp=0;
+let conf=publicConfig,session=hasSameProject?read(AUTH,null):null,
+  admin=false,published=[],lastError='',phase='configurado',
+  onUpdate=()=>{},onHydrate=()=>{},busy=false,queue=false,
+  muted=false,refreshing=null,lastSynced=0;
+// Preserva treinos locais; descarta apenas sessões de outro projeto Supabase.
+try{
+ save(CONF,publicConfig);
+ if(!hasSameProject)save(AUTH,null);
+}catch(err){console.warn('Não foi possível memorizar a configuração pública.',err)}
 const esc=x=>String(x??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
 function read(k,otherwise){try{const v=JSON.parse(localStorage.getItem(k)||'null');return v??otherwise}catch{return otherwise}}
 function save(k,v){localStorage.setItem(k,JSON.stringify(v))}
@@ -27,10 +41,17 @@ function validateConfig(url,key){
 }
 export function configureCloud(url,key){
  const next=validateConfig(url,key);
- if(conf?.url!==next.url||conf.key!==next.key){session=null;admin=false;save(AUTH,null)}
- conf=next;save(CONF,conf);setStatus('configurado');return true;
+ if(next.url!==publicConfig.url||next.key!==publicConfig.key){
+  throw Error('A Academia CPOF já tem um projeto Supabase público configurado. Para alterá-lo, atualize o arquivo de configuração do site.');
+ }
+ conf=publicConfig;save(CONF,conf);setStatus('configurado');return true;
 }
-export function disconnectCloud(){session=null;admin=false;conf=null;published=[];save(CONF,null);save(AUTH,null);setStatus('local')}
+export function disconnectCloud(){
+ session=null;admin=false;published=[];
+ conf=publicConfig;
+ save(CONF,conf);save(AUTH,null);
+ setStatus('configurado');
+}
 function endpoint(path){if(!isConfigured())throw Error('Conecte um projeto Supabase antes de continuar.');return conf.url+path}
 function headers(auth=true,more={}){
  const h={apikey:conf.key,...more};
@@ -300,11 +321,11 @@ export async function acceptAuthRedirect(){
 }
 export function cloudPanel(){
  const status=cloudStatus();
- const technical=admin?'<details class="account-advanced"><summary>Configurações avançadas</summary><p class="muted">Projeto conectado: '+esc(conf?.url||'Não configurado')+'</p><p class="muted">Identificador da conta: <code>'+esc(status.user?.id||'')+'</code> <button type="button" class="secondary" data-cloud="copyid">Copiar</button></p><p class="muted">Sincronização: '+esc(phase)+(lastError?' · '+esc(lastError):'')+'</p><button type="button" class="secondary" data-cloud="disconnect">Desconectar serviço</button></details>':'';
+ const technical=admin?'<details class="account-advanced"><summary>Configurações avançadas</summary><p class="muted">Projeto conectado: '+esc(conf?.url||'Não configurado')+'</p><p class="muted">Identificador da conta: <code>'+esc(status.user?.id||'')+'</code> <button type="button" class="secondary" data-cloud="copyid">Copiar</button></p><p class="muted">Sincronização: '+esc(phase)+(lastError?' · '+esc(lastError):'')+'</p></details>':'';
  return '<section class="card cloud-panel account-card"><div class="account-heading"><div class="account-heading-icon" aria-hidden="true">◉</div><div><h2>Minha conta</h2><p class="muted">Acesse seus treinos e mantenha seu progresso salvo.</p></div></div>'+
+ (status.error?'<p class="notice" role="alert">Serviço de conta: '+esc(status.error)+'</p>':'')+
  (!status.configured?
- '<p class="muted">O acesso à conta está temporariamente indisponível neste dispositivo.</p>'+
- '<details class="account-advanced"><summary>Conectar minha conta</summary><form id="cloud-configuration" class="studio-form"><label>Endereço do serviço<input name="url" type="url" class="field" placeholder="https://..." required></label><label>Chave pública<input name="key" class="field" autocomplete="off" required></label><button type="submit">Conectar</button></form></details>':
+ '<p class="muted" role="status">O serviço de contas está temporariamente indisponível. Tente atualizar a página.</p>':
  !status.authenticated?
  '<div class="account-signin"><p>Entre para sincronizar seus tempos, progresso e preferências.</p><button type="button" class="google-signin" data-cloud="google"><span class="google-mark" aria-hidden="true">G</span> Continuar com Google</button><details class="account-email"><summary>Entrar com e-mail e senha</summary><form id="cloud-auth" class="studio-form"><label>E-mail<input class="field" name="email" type="email" autocomplete="email" required></label><label>Senha<input class="field" name="password" type="password" minlength="8" autocomplete="current-password" required></label><div class="row"><button name="mode" value="login" type="submit">Entrar</button><button name="mode" value="signup" type="submit" class="secondary">Criar conta</button><button name="mode" value="recover" type="submit" class="secondary" formnovalidate>Recuperar senha</button></div></form></details></div>':
  '<div class="account-signed-in"><div class="account-identity"><span class="account-identity-avatar" aria-hidden="true">'+esc((status.user?.email||'?')[0].toUpperCase())+'</span><div><strong>'+esc(status.user?.email||'Conta conectada')+'</strong><p class="muted">'+(status.admin?'Administrador':'Conta conectada')+'</p></div></div><div class="row"><button type="button" data-cloud="sync">Sincronizar</button></div><details class="account-email profile-fold"><summary>Segurança e acesso</summary><div class="profile-fold-content"><button type="button" class="secondary" data-cloud="logout">Sair da conta</button><p class="muted">Sua atividade é estimada apenas enquanto o aplicativo está em primeiro plano e há interação recente. Não coletamos localização ou conteúdo digitado.</p></div></details><details class="account-email profile-fold"><summary>Alterar senha</summary><form id="cloud-password" class="studio-form"><label>Nova senha<input class="field" name="password" type="password" required minlength="8"></label><button>Atualizar senha</button></form></details></div>')+
