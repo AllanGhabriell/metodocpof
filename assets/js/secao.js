@@ -286,7 +286,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const trainerDailyGoal=document.getElementById('trainer-daily-goal');
   const trainerWeeklyGoal=document.getElementById('trainer-weekly-goal');
   const trainerMenuSummary=document.getElementById('trainer-menu-summary');
-  let practiceStarted=0,practiceTimer=0,practiceElapsed=null,recognitionAt=null;
+  let practiceStarted=0,practiceTimer=0,practiceElapsed=null,recognitionAt=null,recognitionElapsed=null;
   let recentCoachCases=[],sessionAttempts=0,sequentialReview=false,reviewQueue=[],reviewIndex=0;
   state.uiScale = loadSharedScale();
   let history = [];
@@ -965,7 +965,7 @@ document.addEventListener('DOMContentLoaded', () => {
     recentCoachCases.push(caseId);
     recentCoachCases=recentCoachCases.slice(-8);
     stopPracticeTimer(true);
-    recognitionAt=null;
+    recognitionAt=null;recognitionElapsed=null;
     closeMovesPanel();
   }
 
@@ -1052,7 +1052,7 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   function startCaseTimer() {
-    recognitionAt=null;
+    recognitionAt=null;recognitionElapsed=null;
     caseStartAt = Date.now();
     caseElapsed = 0;
     smoothedCaseElapsed = 0;
@@ -1609,7 +1609,7 @@ document.addEventListener('DOMContentLoaded', () => {
   function logCasePractice(caseId,elapsedMs,result='completed'){
     if(!caseId||!CASE_ID_SET.has(String(caseId)))return;
     const timed=Number.isFinite(elapsedMs)&&elapsedMs>=100?elapsedMs:null;
-    const recognition=recognitionAt&&caseStartAt?recognitionAt-caseStartAt:null;
+    const recognition=Number.isFinite(recognitionElapsed)?recognitionElapsed:null;
     const info=coach.complete(pageSet,String(caseId),{
       mode:currentTrainingMode(),ms:timed,recognitionMs:recognition,
       goalMs:Number(state.competitive.limitSec||6)*1000,
@@ -1617,7 +1617,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
     sessionAttempts++;
     if(info)showToast(result==='missed'?'Dificuldade registrada · tente novamente depois':'+'+info.record.xp+' XP · prática registrada',1500);
-    recognitionAt=null;
+    recognitionAt=null;recognitionElapsed=null;
   }
 
   function moveToNextCaseAfterSolve(elapsedMs, grade, markResult) {
@@ -1639,6 +1639,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
     let next = null;
     if (isOrderedTrainingMode()) {
+      if(sequentialReview){
+        reviewIndex++;
+        if(reviewIndex>=reviewQueue.length){completeSession();return}
+        setCurrentCase(reviewQueue[reviewIndex],true);
+        save();renderCaseScene();preloadAnother();return;
+      }
       const list = orderedQueue();
       state.orderedTraining.queue = list;
       clampOrderedIndex();
@@ -1649,8 +1655,14 @@ document.addEventListener('DOMContentLoaded', () => {
       state.orderedTraining.index = nextIdx;
 
       if (nextIdx >= list.length) {
-        completeSession();
-        return;
+        const reinforcement=list.filter(id=>['hard','medium'].includes(coach.getCase(pageSet,id)?.rating));
+        if(state.trainingConfig.reinforceSequential&&reinforcement.length){
+          sequentialReview=true;reviewQueue=reinforcement;reviewIndex=0;
+          setCurrentCase(reviewQueue[0],true);save();renderCaseScene();preloadAnother();
+          showToast('Reforço opcional: '+reinforcement.length+' casos marcados',1900);
+          return;
+        }
+        completeSession();return;
       }
       next = list[nextIdx];
     } else {
@@ -1681,13 +1693,13 @@ document.addEventListener('DOMContentLoaded', () => {
       return;
     }
 
-    pushUndo('next');
-    if (isOrderedTrainingMode()) {
-      moveToNextCaseAfterSolve(0, 'good', true);
+    if(state.competitive.enabled&&caseStartAt&&Date.now()-caseStartAt<250){
+      showToast('Espere ao menos 0,25s antes de registrar o tempo');
       return;
     }
-    const elapsed = state.competitive.enabled ? stopCaseTimer() : 0;
-    moveToNextCaseAfterSolve(elapsed, classifyPerformance(elapsed), true);
+    pushUndo('next');
+    const elapsed=state.competitive.enabled?stopCaseTimer():stopPracticeTimer();
+    moveToNextCaseAfterSolve(elapsed, state.competitive.enabled?classifyPerformance(elapsed):'good',true);
   }
 
   function onSkipCase() {
@@ -1698,20 +1710,20 @@ document.addEventListener('DOMContentLoaded', () => {
     stopCaseTimer();
 
     if (isOrderedTrainingMode()) {
-      const list = orderedQueue();
-      const idx = list.indexOf(currentCase);
-      const curIdx = idx >= 0 ? idx : Math.max(0, Number(state.orderedTraining.index) || 0);
-      const removed = list.splice(curIdx, 1)[0];
-      if (removed) list.push(removed);
-      state.orderedTraining.queue = list;
-      clampOrderedIndex();
-      const next = list[Math.min(curIdx, list.length - 1)] || list[0] || null;
-      if (!next) return;
-      setCurrentCase(next, true);
-      save();
-      renderCaseScene();
-      preloadAnother();
-      showToast('Caso pulado');
+      const list=orderedQueue();
+      if(sequentialReview){
+        reviewIndex++;
+        if(reviewIndex>=reviewQueue.length){completeSession();return}
+        setCurrentCase(reviewQueue[reviewIndex],true);
+      }else{
+        const idx=list.indexOf(currentCase);
+        const nextIdx=Math.max(0,idx>=0?idx:state.orderedTraining.index)+1;
+        if(nextIdx>=list.length){completeSession();return}
+        state.orderedTraining.index=nextIdx;
+        setCurrentCase(list[nextIdx],true);
+      }
+      save();renderCaseScene();preloadAnother();
+      showToast('Caso pulado · não registrado como resolvido');
       return;
     }
 
@@ -1736,6 +1748,11 @@ document.addEventListener('DOMContentLoaded', () => {
     if (state.competitive.enabled) return;
     if (isOrderedTrainingMode()) {
       if (completed) return;
+      if(sequentialReview){
+        if(reviewIndex<=0){showToast('Início do reforço');return}
+        reviewIndex--;setCurrentCase(reviewQueue[reviewIndex],true);
+        save();renderCaseScene();preloadAnother();return;
+      }
       const list = orderedQueue();
       const idx = list.indexOf(currentCase);
       const curIdx = idx >= 0 ? idx : Math.max(0, Number(state.orderedTraining.index) || 0);
