@@ -1310,11 +1310,14 @@ document.addEventListener('DOMContentLoaded', () => {
     caseMask.hidden = true;
     imgEl.hidden = false;
     const src = `${pageSet}/${currentCase}.png`;
+    // Altera a imagem imediatamente para não confundir um caso antigo com o novo.
+    imgEl.alt='Caso '+pageSet.toUpperCase()+' '+currentCase;
+    imgEl.src=src;
     try {
       await C.preloadImage(src);
-      imgEl.src = src;
     } catch (e) {
-      imgEl.src = src;
+      // Não interrompe o treino se um PNG estiver temporariamente indisponível.
+      console.warn('Imagem do caso indisponível:',src);
     }
   }
 
