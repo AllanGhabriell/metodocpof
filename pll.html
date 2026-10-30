@@ -69,20 +69,6 @@
       </div>
 
       <div class="case-stage">
-      <section id="case-moves" class="case-moves" aria-label="Movimentos do caso" hidden>
-        <div class="case-moves-head">
-          <span class="case-moves-title">Movimentos</span>
-          <button id="case-moves-toggle" class="small-icon-btn has-tooltip" data-tooltip="Mostrar ou ocultar movimentos" aria-expanded="false">&#128065;</button>
-        </div>
-        <div id="case-moves-body" class="case-moves-body" hidden>
-          <div class="case-moves-meta">Caso <strong id="case-moves-caseid">-</strong></div>
-          <code id="case-moves-text" class="case-moves-text"></code>
-          <div id="case-moves-setup-wrap" class="case-moves-setup-wrap" hidden>
-            <div class="case-moves-setup-label">Setup</div>
-            <code id="case-moves-setup-text" class="case-moves-setup-text"></code>
-          </div>
-        </div>
-      </section>
       <div class="img-wrap" id="img-wrap">
         <img id="case-image" src="pll/Aa.png" alt="Caso PLL" loading="eager">
 
@@ -101,6 +87,20 @@
           <button id="restart-session-btn" class="big-btn">Limpar resolvidos e reiniciar sessão</button>
         </div>
       </div>
+      <section id="case-moves" class="case-moves" aria-label="Movimentos do caso" hidden>
+        <div class="case-moves-head">
+          <span class="case-moves-title">Movimentos e setup</span>
+          <button id="case-moves-toggle" class="small-icon-btn has-tooltip" data-tooltip="Mostrar ou ocultar movimentos" aria-expanded="false">&#128065;</button>
+        </div>
+        <div id="case-moves-body" class="case-moves-body" hidden>
+          <div class="case-moves-meta">Caso <strong id="case-moves-caseid">-</strong></div>
+          <code id="case-moves-text" class="case-moves-text"></code>
+          <div id="case-moves-setup-wrap" class="case-moves-setup-wrap" hidden>
+            <div class="case-moves-setup-label">Setup</div>
+            <code id="case-moves-setup-text" class="case-moves-setup-text"></code>
+          </div>
+        </div>
+      </section>
 
       <div class="controls-row" aria-label="Navegação e avaliação do caso">
         <button id="prev-case-btn" type="button" class="trainer-case-action action-prev has-tooltip" data-tooltip="Caso anterior · Seta esquerda">← Anterior</button>
@@ -123,9 +123,9 @@
 
       <div class="trainer-menu-intro">Ajustes do treino <span>Personalize apenas o que precisar.</span></div>
       <div class="settings-card trainer-coach-options">
-        <h3>Aprendizagem personalizada</h3>
-        <p>Seu ritmo de treino é livre. As revisões são sugestões e nunca tarefas acumuladas.</p>
-        <label class="line-setting" for="trainer-prioritize">Priorizar dificuldades no aleatório <input id="trainer-prioritize" type="checkbox"></label>
+        <h3>Preferências de aprendizado</h3>
+        
+        <label class="line-setting" for="trainer-prioritize">Foco extra nos casos difíceis <input id="trainer-prioritize" type="checkbox"></label>
         <label class="line-setting" for="trainer-sequence-reinforce">Revisar difíceis ao final da sequência <input id="trainer-sequence-reinforce" type="checkbox"></label>
         <label class="field-group" for="trainer-goal-period"><span>Ritmo de treino</span><select id="trainer-goal-period" class="trainer-goal-select"><option value="daily">Meta diária</option><option value="weekly">Meta semanal</option><option value="free">Livre, sem meta</option></select></label>
         <label class="field-group" for="trainer-daily-goal"><span>Meta diária opcional (casos)</span><input id="trainer-daily-goal" type="number" min="1" max="119" value="12"></label>
@@ -134,7 +134,7 @@
       </div>
       <div class="settings-card">
         <h3>Excluir casos</h3>
-        <p>Clique para abrir a galeria e escolher os casos para excluir.</p>
+        
         <button id="toggle-exclusion-gallery" class="btn">Abrir galeria</button>
         <div id="exclusion-gallery-wrap" class="exclusion-gallery-wrap" hidden>
           <div id="exclusion-gallery" class="exclusion-gallery" aria-label="Galeria de casos"></div>
@@ -163,7 +163,7 @@
           <span id="trainer-attempt-time" aria-live="polite">Tempo não iniciado</span>
         </div>
         <div class="line-setting">
-          <span>Ativar cronômetro</span>
+          <span>Cronômetro da sessão</span>
           <label class="switch">
             <input type="checkbox" id="timer-toggle">
             <span class="switch-slider"></span>
@@ -225,19 +225,19 @@
       <div class="settings-card">
         <h3>Modo Sequencial</h3>
         <div class="line-setting">
-          <span>Ativar modo treino</span>
+          <span>Usar ordem fixa</span>
           <label class="switch">
             <input type="checkbox" id="ordered-toggle">
             <span class="switch-slider"></span>
           </label>
         </div>
-        <p class="kbd-help">Mostra progresso x/x e segue uma ordem fixa de casos (sem aleatório).</p>
+        
       </div>
 
       <div class="settings-card">
         <h3>Modo Competitivo</h3>
         <div class="line-setting">
-          <span>Ativar modo competitivo</span>
+          <span>Usar classificação por tempo</span>
           <label class="switch">
             <input type="checkbox" id="competitive-toggle">
             <span class="switch-slider"></span>
