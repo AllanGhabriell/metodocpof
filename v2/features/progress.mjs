@@ -47,14 +47,19 @@ export function profilePage(){
  return '<div class="eyebrow">Perfil e dados</div><h1>Seu perfil local</h1><p class="muted">Você pode usar o aplicativo sem conta. Login real e sincronização em nuvem requerem servidor e autenticação ainda não configurados.</p>'+
  '<div class="studio-two"><section class="card"><h2>Personalização</h2><form class="studio-form" id="studio-profile-form"><label>Apelido<input name="name" class="field" value="'+esc(data.name)+'" maxlength="36" required></label><button>Salvar</button></form>'+
  '<p class="notice">Perfil local · Não é uma conta online.</p><div class="studio-actions"><button data-progress="backup">Exportar progresso</button><button class="secondary" data-progress="restore">Importar progresso</button></div><input type="file" id="studio-file" accept=".json,application/json" hidden>'+
- '<p class="muted" role="status">'+esc(message)+'</p></section><section class="card"><h2>Seus dados</h2><p class="muted">O backup inclui progresso, cartões de revisão e planejamento. Para mudar de dispositivo, exporte e importe o arquivo. Não compartilhe backups publicamente.</p></section></div>';
+ '<p class="muted" role="status">'+esc(message)+'</p></section><section class="card"><h2>Seus dados</h2><p class="muted">O backup inclui progresso, cartões, planejamento, tempos e rascunhos de revisão, inclusive imagens locais. Para trocar de dispositivo, exporte e importe o arquivo. Não o compartilhe publicamente.</p></section></div>';
 }
 function downloadJSON(name,obj){const blob=new Blob([JSON.stringify(obj,null,2)],{type:'application/json'});const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download=name;a.click();setTimeout(()=>URL.revokeObjectURL(url),1000)}
 export function progressClick(button){
  const cmd=button.dataset.progress;if(!cmd)return false;
  if(cmd==='clearplan'&&confirm('Limpar todos os treinos planejados?')){data.plan=[];save()}
  if(cmd==='notifications'&&'Notification'in window){Notification.requestPermission().then(x=>{message=x==='granted'?'Notificações permitidas.':'Notificações não autorizadas.'})}
- if(cmd==='backup')downloadJSON('cfop-progresso.json',{format:KEY,data});
+ if(cmd==='backup'){
+  let drafts=[],times=[];
+  try{drafts=JSON.parse(localStorage.getItem('cfop-case-drafts')||'[]')}catch{}
+  try{times=JSON.parse(localStorage.getItem('cfop-v2-times')||'[]')}catch{}
+  downloadJSON('cfop-studio-backup-completo.json',{format:KEY,data,extras:{drafts,times}});
+ }
  if(cmd==='restore'){document.getElementById('studio-file')?.click();return false}
  return true;
 }
@@ -70,13 +75,19 @@ export function progressSubmit(form){
  save();return true;
 }
 export async function progressImport(file){
- if(!file||file.size>350000){message='Arquivo muito grande ou inválido.';return}
+ if(!file||file.size>10000000){message='Arquivo muito grande ou inválido.';return false}
  try{
   const incoming=JSON.parse(await file.text());
   if(incoming.format!==KEY||!incoming.data||!Array.isArray(incoming.data.records)||!Array.isArray(incoming.data.cards))throw Error('Formato de backup inválido');
-  if(!confirm('Substituir seus dados locais pelo backup?'))return;
-  localStorage.setItem(KEY,JSON.stringify(incoming.data));data=load();message='Dados restaurados.';
- }catch(e){message='Não foi possível importar: '+e.message}
+  if(!confirm('Substituir seus dados locais pelo backup?'))return false;
+  const extra=incoming.extras||{};
+  const drafts=Array.isArray(extra.drafts)?extra.drafts:null,times=Array.isArray(extra.times)?extra.times:null;
+  if((drafts&&drafts.length>300)||(times&&times.length>30000))throw Error('Backup com registros em excesso');
+  localStorage.setItem(KEY,JSON.stringify(incoming.data));
+  if(drafts)localStorage.setItem('cfop-case-drafts',JSON.stringify(drafts));
+  if(times)localStorage.setItem('cfop-v2-times',JSON.stringify(times));
+  data=load();message='Backup importado. Os dados do cronômetro e editor também foram recuperados.';return true;
+ }catch(e){message='Não foi possível importar: '+e.message;return false}
 }
 export function checkReminder(){
  if(!data.reminder||typeof Notification==='undefined'||Notification.permission!=='granted')return;
