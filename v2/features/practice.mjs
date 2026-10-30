@@ -77,7 +77,7 @@ export function practiceClick(b){
   const old=Number(c.interval)||1;
   c.interval=grade==='again'?0:grade==='hard'?Math.max(1,old):grade==='good'?Math.max(2,old*2):Math.max(4,old*4);
   const date=new Date();date.setDate(date.getDate()+c.interval);
-  c.due=c.interval===0?today():[date.getFullYear(),String(date.getMonth()+1).padStart(2,'0'),String(date.getDate()).padStart(2,'0')].join('-');
+  c.due=c.interval===0?today():[date.getFullYear(),String(date.getMonth()+1).padStart(2,'0'),String(date.getDate()).padStart(2,'0')].join('-');c.updatedAt=Date.now();
   if(grade==='again'){const list=progressData().cards;list.splice(list.indexOf(c),1);list.push(c)}
   else awardActivity('Revisão',grade==='easy'?15:10);
   currentId='';revealed=false;saveFeatureData();return true;
@@ -96,7 +96,7 @@ export function practiceSubmit(form){
  const f=new FormData(form);
  if(form.id==='study-new'){
   const question=String(f.get('question')||'').trim().slice(0,180),answer=String(f.get('answer')||'').trim().slice(0,700);
-  if(question&&answer){progressData().cards.push({id:'own-'+Date.now(),question,answer,interval:0,due:today()});message='Cartão incluído.'}
+  if(question&&answer){progressData().cards.push({id:'own-'+Date.now(),question,answer,interval:0,due:today(),updatedAt:Date.now()});message='Cartão incluído.'}
  }
  if(form.id==='challenge-new'){
   const target=Number(f.get('target'));
