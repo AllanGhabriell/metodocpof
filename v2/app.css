@@ -383,3 +383,20 @@ body::before{z-index:0}.cfop-cursor-glow{z-index:0}.app{z-index:1}
 .section-navigation-links button[data-page^="admin-"],.section-navigation-links button[data-page="review"]{border-color:rgba(182,135,233,.3)}
 @media(max-width:760px){.section-navigation{margin-bottom:17px;padding:12px}.section-navigation-links{flex-wrap:nowrap;overflow-x:auto;scrollbar-width:thin;padding-bottom:3px}.section-navigation-links button{white-space:nowrap;flex-shrink:0}.bottomnav{grid-template-columns:repeat(4,minmax(0,1fr))}}
 @media(prefers-reduced-motion:reduce){.section-navigation-links button{transition:none}}
+
+.training-preferences{display:grid;grid-template-columns:minmax(200px,.8fr) minmax(0,1.5fr);gap:20px;align-items:center;padding:24px;margin:20px 0 30px;border:1px solid rgba(174,143,235,.22);border-radius:22px;background:linear-gradient(115deg,rgba(103,64,170,.17),rgba(27,30,50,.56))}
+.training-preferences h2{margin:7px 0;font-size:22px}
+.training-preferences p{margin:0}
+.training-difficulty{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+.training-difficulty button{display:flex;flex-direction:column;align-items:flex-start;gap:8px;padding:16px 14px;border-radius:16px;background:rgba(24,27,45,.65);border:1px solid rgba(168,141,211,.19);color:#e6ddf4;text-align:left;transition:background .2s,border-color .2s,transform .2s}
+.training-difficulty button:hover{border-color:rgba(190,160,245,.55);transform:translateY(-2px)}
+.training-difficulty button.active{background:linear-gradient(145deg,rgba(119,77,206,.45),rgba(63,42,117,.48));border-color:#ac87ef;box-shadow:0 0 0 1px rgba(177,133,245,.15),0 12px 24px rgba(37,18,79,.16)}
+.training-difficulty strong{font-size:15px}
+.training-difficulty small{font-size:12px;line-height:1.4;color:#bfb2d1}
+.training-session-bar{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;margin:16px 0;padding:13px 17px;background:rgba(118,82,185,.11);border:1px solid rgba(177,144,224,.2);border-radius:15px}
+.training-session-bar span{color:#ada1bf;font-size:13px}
+.training-hidden-alg{padding:20px;border:1px dashed rgba(182,153,224,.4);border-radius:14px;background:rgba(109,73,169,.07);display:flex;align-items:center;justify-content:space-between;gap:15px}
+.training-hidden-alg p{margin:0;color:#c7bbd8;font-size:14px}
+@media(max-width:800px){.training-preferences{grid-template-columns:1fr}.training-hidden-alg{flex-direction:column;align-items:stretch}}
+@media(max-width:480px){.training-difficulty{gap:6px}.training-difficulty button{padding:12px 9px}.training-difficulty small{font-size:10px}}
+@media(prefers-reduced-motion:reduce){.training-difficulty button{transition:none}}
