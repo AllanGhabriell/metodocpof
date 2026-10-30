@@ -1,28 +1,44 @@
 <!doctype html>
 <html lang="pt-BR">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<meta name="theme-color" content="#171028">
-<link rel="manifest" href="./manifest.webmanifest">
-<title>CFOP Studio — Aprenda e treine cubo mágico</title>
-<meta name="description" content="CFOP Studio: fundamentos, F2L intuitivo, treinos e cronômetro.">
-<link rel="stylesheet" href="./v2/app.css?v=20261030-31">
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <title>Método CPOF</title>
+  <link rel="stylesheet" href="assets/css/global.css?v=20260313k">
+  <style>
+    .original-utility-bar{position:fixed;top:0;right:0;z-index:20;display:flex;align-items:center;gap:8px;padding:16px 20px;flex-wrap:wrap;justify-content:flex-end}
+    .original-utility-bar a{font:600 13px/1.2 system-ui,sans-serif;color:#d5e1ff;text-decoration:none;background:rgba(9,16,34,.78);border:1px solid rgba(145,184,255,.28);border-radius:11px;padding:10px 13px;backdrop-filter:blur(12px)}
+    .original-utility-bar a:hover{border-color:#78fff5;color:white}
+    .home-actions{grid-template-columns:repeat(2,minmax(0,1fr))}
+    .home-actions a.card{display:flex;align-items:center;justify-content:center;text-decoration:none}
+    @media(max-width:560px){.original-utility-bar{position:relative;padding:12px;gap:6px}.original-utility-bar a{font-size:11px;padding:8px 10px}.home-actions{grid-template-columns:repeat(2,minmax(0,1fr))}.home-actions a.card{min-height:74px}}
+  </style>
 </head>
-<body><div id="root"></div><script>
-(function(){
- var ready=false;
- window.addEventListener('cfop:ready',function(){ready=true;});
- function show(){
-  if(ready||document.querySelector('#root .app'))return;
-  var root=document.getElementById('root');
-  if(!root)return;
-  root.innerHTML='<main style="max-width:540px;margin:12vh auto;padding:30px;border-radius:20px;background:#171e30;color:#f4f0ff;font:16px system-ui"><h1>Não foi possível carregar o CFOP Studio</h1><p>Uma parte do aplicativo não iniciou. Atualize a página para tentar novamente.</p><button id="cfop-retry" style="background:#8e67ef;color:white;border:0;border-radius:12px;padding:12px 20px;cursor:pointer">Atualizar página</button></main>';
-  document.getElementById('cfop-retry').onclick=function(){location.reload()};
- }
- window.addEventListener('error',function(e){if(e.target&&e.target.tagName==='SCRIPT')show()},true);
- window.addEventListener('unhandledrejection',function(){setTimeout(show,300)});
- setTimeout(show,5500);
-})();
-</script><script type="module" src="./v2/app.js?v=20261030-31"></script><script defer src="./v2/cursor-glow.js?v=20261030-31"></script></body>
+<body>
+  <header class="original-utility-bar" aria-label="Ferramentas adicionais"><a href="studio.html?page=learn">Aprender</a><a href="studio.html?page=dashboard">Evolução</a><a href="studio.html?page=profile">Conta e perfil</a></header>
+  <main class="centered-page home-page">
+    <section class="hero-panel">
+      <h1 id="title-cpof" aria-label="Método C P O F">Método
+        <span class="cpof" aria-hidden="true">
+          <span class="cpof-letter">C</span>
+          <span class="cpof-letter">P</span>
+          <span class="cpof-letter">O</span>
+          <span class="cpof-letter">F</span>
+        </span>
+      </h1>
+
+      <p class="hint">Clique em alguma seção pra começar.</p>
+
+      <nav class="home-actions" role="navigation" aria-label="Navegação principal">
+        <a href="studio.html?page=cross" class="card primary">CROSS</a>
+        <a href="f2l.html" class="card primary">F2L</a>
+        <a href="oll.html" class="card primary">OLL</a>
+        <a href="pll.html" class="card primary">PLL</a>
+      </nav>
+    </section>
+  </main>
+
+  <footer class="site-footer">Feito por Allan Ghabriell.</footer>
+  <script src="assets/js/main.js?v=20260311b" defer></script>
+</body>
 </html>
