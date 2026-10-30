@@ -26,9 +26,9 @@ const OPTIONAL=[
  './v2/cloud/cloud.mjs','./v2/cloud/coach-merge.mjs',
  './v2/cloud/admin.mjs','./v2/cloud/online.mjs',
  './v2/data/pdf-import.mjs','./v2/data/pdf-cases.json',
- './assets/js/trainer-coach.js?v=20261030-41',
- './assets/js/secao.js?v=20261030-41',
- './assets/css/trainer-unified.css?v=20261030-41',
+ './assets/js/trainer-coach.js?v=20261030-43',
+ './assets/js/secao.js?v=20261030-43',
+ './assets/css/trainer-unified.css?v=20261030-43',
  './assets/js/scramble.js?v=20261030-22',
  './assets/css/scramble.css?v=20261030-8'
 ];
