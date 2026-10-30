@@ -1603,12 +1603,15 @@ document.addEventListener('DOMContentLoaded', () => {
     if (state.competitive.enabled) return unexcludedCases().length>0&&availableCompetitiveCases().length===0;
     if (['adaptive','review','focus'].includes(currentTrainingMode())) return false;
     if (!sessionActive) return false;
-    if (sessionTargetCount <= 0) return false;
+    if (sessionTargetCount <= 0 || !state.removeWhenSolved) return false;
     return sessionResolved.size >= sessionTargetCount;
   }
 
   function completeSession() {
     completed = true;
+    const title=finalScreen?.querySelector('h2');
+    if(title)title.textContent=(state.competitive.enabled?'Treino competitivo finalizado':
+      isOrderedTrainingMode()&&sessionResolved.size<unexcludedCases().length?'Sessão encerrada · alguns casos foram pulados':'Sessão concluída. Bom trabalho!');
     const elapsed = state.timerState.running
       ? (Date.now() - (state.timerState.startedAt || Date.now()))
       : (state.timerState.elapsed || 0);
