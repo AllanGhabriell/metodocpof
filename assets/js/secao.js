@@ -732,7 +732,7 @@ document.addEventListener('DOMContentLoaded', () => {
     syncUiFromState();
     renderCaseScene();
     refreshGalleryIfOpen();
-    showToast('Última ação desfeita');
+    showToast(['next','difficult-attempt'].includes(snapshot.action)?'Navegação desfeita · prática registrada continua no histórico':'Última navegação desfeita');
   }
 
   function fmt(ms) {
@@ -1728,11 +1728,11 @@ document.addEventListener('DOMContentLoaded', () => {
     moveToNextCaseAfterSolve(elapsed, state.competitive.enabled?classifyPerformance(elapsed):'good',true);
   }
 
-  function onSkipCase() {
+  function onSkipCase(skipUndo=false) {
     if (completed || !currentCase) return;
     if (state.competitive.enabled && !caseVisible) return;
 
-    pushUndo('skip');
+    if(skipUndo!==true)pushUndo('skip');
     stopCaseTimer();
 
     if (isOrderedTrainingMode()) {
@@ -2102,7 +2102,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const elapsed=stopPracticeTimer();
     logCasePractice(missedId,elapsed,'missed');
     if(isOrderedTrainingMode()){
-      onSkipCase();
+      onSkipCase(true);
       return;
     }
     const candidate=pickNextCase();
