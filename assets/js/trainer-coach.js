@@ -8,7 +8,7 @@ const STAGES=['f2l','oll','pll'],MODES=['random','sequential','competitive','ada
 const LIMITS={f2l:41,oll:57,pll:21};
 function storage(){try{return global.localStorage}catch{return null}}
 function readJson(key,fallback){try{const value=JSON.parse(storage()?.getItem(key)||'null');return value&&typeof value==='object'?value:fallback}catch{return fallback}}
-function defaults(){return {version:1,settings:{dailyGoal:12,weeklyGoal:80,reviewEnabled:true},stages:{f2l:{cases:{}},oll:{cases:{}},pll:{cases:{}}}}}
+function defaults(){return {version:1,settings:{dailyGoal:12,weeklyGoal:80,goalPeriod:'daily',reviewEnabled:true},stages:{f2l:{cases:{}},oll:{cases:{}},pll:{cases:{}}}}}
 function read(){const input=readJson(KEY,{}),base=defaults();base.settings={...base.settings,...(input.settings||{})};for(const s of STAGES)base.stages[s]={cases:{...(input.stages?.[s]?.cases||{})}};return base}
 function write(value){try{storage()?.setItem(KEY,JSON.stringify(value));return true}catch{return false}}
 function validStage(stage){return STAGES.includes(stage)}
@@ -47,7 +47,9 @@ function complete(stage,id,options={}){
  const count=(Number(old.attempts)||0)+1;
  const priorDue=Number(old.dueAt)||0;
  const reviewed=priorDue>0&&now>=priorDue;
- const xp=8+(reviewed?4:0)+(mode==='competitive'&&grade==='good'?4:0)+(mode==='adaptive'?2:0);
+ // Recompense treinos declarados, não classificação manual. Erros rendem XP reduzido.
+ const priorToday=activity().filter(e=>e.stage===stage&&e.caseId===id&&localDay(e.at)===localDay(now)).length;
+ const xp=priorToday>=8?0:grade==='bad'?2:8+(reviewed?4:0)+(mode==='competitive'&&grade==='good'?4:0)+(mode==='adaptive'?2:0);
  const next={...old,...update,attempts:count,lastAt:now,lastMs:ms??(old.lastMs??null),grade,
   successes:(Number(old.successes)||0)+(grade==='good'?1:0),times,
   avgMs:times.length?Math.round(times.reduce((a,b)=>a+b,0)/times.length):null};
@@ -115,6 +117,7 @@ function preferences(patch){
   if(Number.isInteger(Number(patch.dailyGoal)))s.settings.dailyGoal=Math.max(1,Math.min(119,Number(patch.dailyGoal)));
   if(Number.isInteger(Number(patch.weeklyGoal)))s.settings.weeklyGoal=Math.max(1,Math.min(999,Number(patch.weeklyGoal)));
   if(typeof patch.reviewEnabled==='boolean')s.settings.reviewEnabled=patch.reviewEnabled;
+  if(['daily','weekly','free'].includes(patch.goalPeriod))s.settings.goalPeriod=patch.goalPeriod;
   write(s);
  }return s.settings;
 }
