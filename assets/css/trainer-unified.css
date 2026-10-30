@@ -315,7 +315,8 @@ body[data-set] .trainer-case-action.action-recognized{
 body[data-set] .trainer-case-action:hover:not(:disabled){filter:brightness(1.13);transform:translateY(-1px)}
 body[data-set] .trainer-case-action:disabled{opacity:.38;cursor:default;filter:none}
 body[data-set] .trainer-case-action[hidden]{display:none!important}
-body[data-set] .controls-row.is-competitive{grid-template-columns:1.6fr 1fr 1fr}
+body[data-set] .controls-row.is-competitive{grid-template-columns:1.6fr 1fr}
+body[data-set] .controls-row.is-competitive.has-recognition{grid-template-columns:1.6fr 1fr 1fr}
 body[data-set] .controls-row.is-competitive #prev-case-btn{display:none!important}
 body[data-set] .controls-row.is-competitive #next-case-btn{grid-column:auto}
 body[data-set] .controls-row.is-competitive #skip-case-btn{grid-column:auto}
@@ -457,7 +458,8 @@ body[data-set] .settings-card p:empty{display:none}
  }
  body[data-set] .controls-row{gap:6px;grid-template-columns:1fr 1fr 1fr .8fr}
  body[data-set] .trainer-case-action{min-height:46px;padding:9px 5px;font-size:calc(11px * var(--btn-scale,1))}
- body[data-set] .controls-row.is-competitive{grid-template-columns:1.3fr 1fr .8fr}
+ body[data-set] .controls-row.is-competitive{grid-template-columns:1.3fr .85fr}
+ body[data-set] .controls-row.is-competitive.has-recognition{grid-template-columns:1.3fr 1fr .8fr}
  body[data-set] .case-moves{padding:6px 10px}
  body[data-set] .menu-panel{padding:13px}
 }
