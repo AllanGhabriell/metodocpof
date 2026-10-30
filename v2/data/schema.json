@@ -1,0 +1,70 @@
+{
+  "schemaVersion": 1,
+  "description": "Contrato de dados do CFOP Studio. Modelos de casos não são algoritmos validados.",
+  "collections": {
+    "cases": {
+      "required": [
+        "id",
+        "stage",
+        "name",
+        "algorithms",
+        "setup",
+        "orientation",
+        "auf",
+        "tags"
+      ],
+      "fields": {
+        "id": "string",
+        "stage": "cross|f2l|oll|pll",
+        "name": "string",
+        "algorithms": "array<{id:string,moves:string,description?:string,verified:boolean}>",
+        "setup": "string|null",
+        "orientation": "{up:string,front:string}",
+        "auf": "string[]",
+        "tags": "string[]",
+        "verified": "boolean"
+      }
+    },
+    "solves": {
+      "required": [
+        "id",
+        "createdAt",
+        "scramble",
+        "durationMs",
+        "penalty",
+        "sessionId"
+      ],
+      "fields": {
+        "id": "string",
+        "createdAt": "ISO 8601",
+        "scramble": "string",
+        "durationMs": "number|null",
+        "penalty": "none|plus2|dnf",
+        "sessionId": "string"
+      }
+    },
+    "progress": {
+      "required": [
+        "caseId",
+        "attempts",
+        "successes",
+        "lastReviewedAt"
+      ],
+      "fields": {
+        "caseId": "string",
+        "attempts": "integer",
+        "successes": "integer",
+        "lastReviewedAt": "ISO 8601|null",
+        "nextReviewAt": "ISO 8601|null"
+      }
+    },
+    "settings": {
+      "fields": {
+        "theme": "dark|light|system",
+        "inspectionSeconds": "0|15|30|60",
+        "cubeOrientation": "{up:string,front:string}",
+        "reducedMotion": "boolean"
+      }
+    }
+  }
+}
