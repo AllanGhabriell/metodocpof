@@ -217,9 +217,9 @@ body[data-set] .img-wrap.show-mask{
   overflow:hidden;
 }
 body[data-set] .img-wrap #case-image{
-  width:min(340px,90%);
+  width:min(calc(340px * var(--case-scale,1)),90%);
   max-width:100%;
-  height:min(340px,100%);
+  height:min(calc(340px * var(--case-scale,1)),100%);
   max-height:100%;
   display:block;
   object-fit:contain;
@@ -286,7 +286,7 @@ body[data-set] .trainer-case-action{
   border:1px solid rgba(127,180,231,.36);
   color:#e8f6ff;
   background:#173451;
-  font:750 clamp(12px,1.45vw,14px) system-ui,sans-serif;
+  font:750 calc(clamp(12px,1.45vw,14px) * var(--btn-scale,1)) system-ui,sans-serif;
   white-space:nowrap;
   cursor:pointer;
   box-shadow:inset 0 1px rgba(255,255,255,.035);
@@ -451,11 +451,12 @@ body[data-set] .settings-card p:empty{display:none}
    padding:12px;
  }
  body[data-set] .img-wrap #case-image{
-   width:min(290px,93%);height:min(290px,100%);
+   width:min(calc(290px * var(--case-scale,1)),93%);
+   height:min(calc(290px * var(--case-scale,1)),100%);
    max-height:100%;
  }
  body[data-set] .controls-row{gap:6px;grid-template-columns:1fr 1fr 1fr .8fr}
- body[data-set] .trainer-case-action{min-height:46px;padding:9px 5px;font-size:11px}
+ body[data-set] .trainer-case-action{min-height:46px;padding:9px 5px;font-size:calc(11px * var(--btn-scale,1))}
  body[data-set] .controls-row.is-competitive{grid-template-columns:1.3fr 1fr .8fr}
  body[data-set] .case-moves{padding:6px 10px}
  body[data-set] .menu-panel{padding:13px}
@@ -464,7 +465,7 @@ body[data-set] .settings-card p:empty{display:none}
  body[data-set] .trainer-toolbar-title{flex-direction:column;align-items:flex-start;gap:3px}
  body[data-set] .trainer-mode-picker{flex-basis:120px}
  body[data-set] .trainer-mode-help-content{right:-1px}
- body[data-set] .trainer-case-action{font-size:10px;letter-spacing:-.015em}
+ body[data-set] .trainer-case-action{font-size:calc(10px * var(--btn-scale,1));letter-spacing:-.015em}
  body[data-set] .controls-row{grid-template-columns:1.15fr 1fr 1fr .7fr}
  body[data-set] .img-wrap,body[data-set] .img-wrap.show-mask{min-height:225px;height:clamp(225px,40vh,300px)}
 }
