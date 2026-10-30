@@ -28,3 +28,16 @@ Execute `node --check v2/app.js` e `node --test v2/tests/*.test.mjs` na raiz do 
 
 ## Próxima etapa
 Implementar o motor matemático 3×3 e seus testes de invariantes antes de conectar diagramas, casos ou prévias do cronômetro.
+
+## Área de revisão de casos (incremento de 30/10/2026)
+A navegação **Revisão** permite cadastrar casos individualmente, preencher setup, solução, diagrama de referência (faces com nove adesivos e `?` para posições não especificadas), estado esperado (54 adesivos), executar verificações e registrar uma aprovação local. A aprovação é anulada sempre que o caso é editado ou importado. O arquivo JSON pode ser exportado para preservar e transferir rascunhos.
+
+**Limites:** essa revisão é um espaço de trabalho no navegador, não um painel administrativo autenticado. A marcação de aprovação não identifica juridicamente nem autentica o proprietário; não libera conteúdo global no site e não sincroniza dispositivos. Para publicação real é necessário autenticação segura, backend e regras de autorização. O sistema também ainda não fez a conferência visual independente dos diagramas dos PDFs, nem o cadastro completo dos 119 casos. A interpretação de movimentos simultâneos entre chaves nos casos G exige implementação específica e validação antes da importação.
+
+## Responsabilidades do proprietário
+1. Revisar visualmente os diagramas e algoritmos de cada caso depois da importação e dos testes automáticos.
+2. Aprovar cada caso na interface de revisão quando estiver correto.
+3. Para contas e administração online: escolher e autorizar uma infraestrutura de autenticação e armazenamento, com acesso seguro. Não compartilhar senhas ou tokens no código público.
+4. Avaliar a experiência final no próprio celular e computador.
+
+As demais tarefas técnicas, testes, layout e publicação do código são de desenvolvimento.
