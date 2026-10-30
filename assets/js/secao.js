@@ -945,7 +945,7 @@ document.addEventListener('DOMContentLoaded', () => {
       pick = pickWeighted(effectivePool);
       const stat = getCaseStat(pick);
       stat.boost = Math.max(0, stat.boost - 1);
-    } else if(['adaptive','review','focus'].includes(currentTrainingMode()) || state.trainingConfig.prioritizeHard){
+    } else if(['random','adaptive','review','focus'].includes(currentTrainingMode())){
       pick=coach.weightedPick(pageSet,effectivePool,currentTrainingMode(),{
         recent:recentCoachCases,targetMs:Number(state.competitive.limitSec||6)*1000,
         prioritizeHard:state.trainingConfig.prioritizeHard
@@ -1067,6 +1067,7 @@ document.addEventListener('DOMContentLoaded', () => {
     caseTimerBar.hidden = false;
     applyDynamicBackground(0);
     if (caseTimerInterval) clearInterval(caseTimerInterval);
+    updateCoachInterface();
     caseTimerInterval = setInterval(() => {
       caseElapsed = Date.now() - caseStartAt;
       smoothedCaseElapsed += (caseElapsed - smoothedCaseElapsed) * 0.08;
@@ -1163,11 +1164,12 @@ document.addEventListener('DOMContentLoaded', () => {
     const cards=[...menuPanel.querySelectorAll(':scope > .settings-card')];
     if(!cards.length)return;
     const groups=[
-      {title:'Modos e objetivos',indices:[0,6,7],open:true},
-      {title:'Casos e progresso',indices:[1,2]},
+      {title:'Metas e dificuldades',indices:[0]},
+      {title:'Escolha de casos',indices:[1,2]},
       {title:'Cronômetro e atalhos',indices:[3,4]},
-      {title:'Aparência e acessibilidade',indices:[5]},
-      {title:'Configurações avançadas',indices:[8]}
+      {title:'Aparência',indices:[5]},
+      {title:'Sequência e competição',indices:[6,7]},
+      {title:'Restaurar configurações',indices:[8]}
     ];
     groups.forEach(group=>{
       const details=document.createElement('details');details.className='trainer-settings-group';
@@ -1324,7 +1326,7 @@ document.addEventListener('DOMContentLoaded', () => {
     if (orderedMode) {
       clampOrderedIndex();
       const curIdx = Math.max(0, Number(state.orderedTraining.index) || 0);
-      prevBtn.disabled = completed || state.competitive.enabled || curIdx <= 0;
+      prevBtn.disabled = completed || state.competitive.enabled || (sequentialReview?historyIndex<=0:curIdx<=0);
     } else {
       prevBtn.disabled = historyIndex <= 0 || completed || state.competitive.enabled;
     }
@@ -1768,8 +1770,14 @@ document.addEventListener('DOMContentLoaded', () => {
     if (isOrderedTrainingMode()) {
       if (completed) return;
       if(sequentialReview){
-        if(reviewIndex<=0){showToast('Início do reforço');return}
-        reviewIndex--;setCurrentCase(reviewQueue[reviewIndex],true);
+        const previous=historyIndex>0?history[historyIndex-1]:null;
+        if(!previous||!previous.caseId){showToast('Não há caso anterior');return}
+        // Voltar não desfaz os resultados já registrados.
+        pushUndo('prev-ordered');
+        const index=reviewQueue.indexOf(previous.caseId);
+        if(index>=0)reviewQueue.splice(index,1);
+        reviewQueue.unshift(previous.caseId);
+        setCurrentCase(previous.caseId,true);
         save();renderCaseScene();preloadAnother();return;
       }
       const list = orderedQueue();
