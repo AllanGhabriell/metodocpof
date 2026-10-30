@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="pt-BR">
+<html lang="pt-BR" class="studio-page">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
@@ -12,21 +12,32 @@
 <link rel="stylesheet" href="assets/css/cursor-glow.css?v=1">
 <link rel="stylesheet" href="assets/css/academy.css?v=20261030-1">
 <link rel="stylesheet" href="assets/css/academy-tools.css?v=20261030-22">
+<link rel="stylesheet" href="assets/css/studio-shell-fix.css?v=20261030-31">
 </head>
-<body><div id="root"></div><script>
+<body class="studio-page"><div id="root"><main class="studio-loading-screen" role="status" aria-live="polite"><span class="studio-loading-logo">Academia <strong>CPOF</strong></span><span class="studio-loading-indicator" aria-hidden="true"></span><p>Preparando seu espaço de treino…</p></main></div><script>
 (function(){
- var ready=false;
- window.addEventListener('cfop:ready',function(){ready=true;});
+ var ready=false,shown=false;
+ function hasApp(){
+  return !!document.querySelector('#root > .original-studio, #root > .app');
+ }
  function show(){
-  if(ready||document.querySelector('#root .app'))return;
+  // Não substituir a interface se ela já foi carregada.
+  if(ready||shown||hasApp())return;
+  shown=true;
   var root=document.getElementById('root');
   if(!root)return;
-  root.innerHTML='<main style="max-width:540px;margin:12vh auto;padding:30px;border-radius:20px;background:#171e30;color:#f4f0ff;font:16px system-ui"><h1>Não foi possível carregar esta página</h1><p>Uma parte do aplicativo não iniciou. Atualize a página para tentar novamente.</p><button id="cfop-retry" style="background:#8e67ef;color:white;border:0;border-radius:12px;padding:12px 20px;cursor:pointer">Atualizar página</button></main>';
-  document.getElementById('cfop-retry').onclick=function(){location.reload()};
+  root.innerHTML='<main class="academy-load-error" role="alert"><span class="academy-error-symbol" aria-hidden="true">!</span><h1>Não foi possível iniciar o aplicativo</h1><p>Seu progresso permanece salvo. Talvez algum arquivo ainda esteja sendo atualizado. Tente novamente.</p><div class="academy-load-actions"><button id="cfop-retry" type="button">Tentar novamente</button><a href="index.html">Voltar ao início</a></div></main>';
+  document.getElementById('cfop-retry').addEventListener('click',function(){location.reload()});
  }
- window.addEventListener('error',function(e){if(e.target&&e.target.tagName==='SCRIPT')show()},true);
- window.addEventListener('unhandledrejection',function(){setTimeout(show,300)});
- setTimeout(show,5500);
+ var watchdog=setTimeout(show,9000);
+ window.addEventListener('cfop:ready',function(){ready=true;clearTimeout(watchdog);});
+ window.addEventListener('error',function(e){
+  if(e.target&&e.target.tagName==='SCRIPT'&&!hasApp())setTimeout(show,500);
+ },true);
+ window.addEventListener('unhandledrejection',function(){
+  if(!hasApp())setTimeout(show,900);
+ });
+
 })();
 </script><script type="module" src="./v2/app.js?v=20261030-26"></script><script defer src="./v2/cursor-glow.js?v=20261030-31"></script>
 </body>
