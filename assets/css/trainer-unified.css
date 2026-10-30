@@ -97,3 +97,380 @@ body[data-set] .case-moves{z-index:2}
  #trainer-case-history{display:none}
 }
 @media(prefers-reduced-motion:reduce){.trainer-progress-track span,.trainer-settings-group>summary:after{transition:none}}
+
+
+/* Cleaner trainer V3: image first, decision buttons second.
+   The same layout applies to F2L / OLL / PLL, regardless of the training mode. */
+body[data-set] .f2l-container{
+  box-sizing:border-box;
+  max-width:100%;
+  padding-top:calc(69px + env(safe-area-inset-top));
+  padding-bottom:calc(12px + env(safe-area-inset-bottom));
+  overflow-y:auto;
+  align-items:flex-start;
+  justify-content:center;
+}
+body[data-set] .image-area{
+  max-width:780px;
+  width:100%;
+  height:auto;
+  min-height:0;
+  gap:10px;
+  margin:0 auto;
+  flex:0 1 auto;
+}
+body[data-set] .trainer-toolbar{
+  min-height:65px;
+  border-radius:16px;
+  padding:9px 15px;
+  gap:14px;
+  background:linear-gradient(120deg,rgba(14,38,69,.94),rgba(9,26,50,.93));
+  box-shadow:inset 0 1px rgba(255,255,255,.045);
+}
+body[data-set] .trainer-toolbar-title{flex:1 1 auto;align-items:center;gap:12px;flex-wrap:nowrap}
+body[data-set] .trainer-stage-name{font:850 clamp(24px,3vw,34px)/1 system-ui,sans-serif;margin:0}
+body[data-set] .trainer-current-case{
+  font:600 12px/1.3 system-ui,sans-serif;
+  color:#a7c2df;
+  overflow:hidden;
+  text-overflow:ellipsis;
+  white-space:nowrap;
+}
+body[data-set] .trainer-mode-tools{
+  display:flex;
+  align-items:flex-end;
+  gap:8px;
+  min-width:0;
+  flex:0 0 auto;
+}
+body[data-set] .trainer-mode-picker{
+  flex:0 0 clamp(170px,22vw,226px);
+  min-width:0;
+  display:flex;
+  flex-direction:column;
+  gap:5px;
+  font:650 11px/1 system-ui,sans-serif;
+}
+body[data-set] .trainer-mode-picker span{color:#a8c1dc}
+body[data-set] .trainer-mode-picker select{
+  min-height:40px;
+  width:100%;
+  padding:8px 10px;
+  border-radius:10px;
+  border:1px solid rgba(123,179,233,.47);
+  color:#eefaff;
+  background:#102d4f;
+  font:750 13px system-ui,sans-serif;
+  outline-offset:3px;
+}
+body[data-set] .trainer-mode-help{position:relative;flex:0 0 35px;align-self:flex-end;z-index:200}
+body[data-set] .trainer-mode-help>summary{
+  display:grid;place-items:center;cursor:pointer;list-style:none;
+  width:35px;height:40px;
+  border-radius:10px;border:1px solid rgba(135,188,234,.42);
+  background:rgba(24,55,89,.85);color:#b9e9fd;
+  font:800 16px system-ui,sans-serif;
+}
+body[data-set] .trainer-mode-help>summary::-webkit-details-marker{display:none}
+body[data-set] .trainer-mode-help[open]>summary,
+body[data-set] .trainer-mode-help>summary:hover{border-color:#83d6f0;color:#fff;background:#234e75}
+body[data-set] .trainer-mode-help-content{
+  position:absolute;
+  top:calc(100% + 10px);right:0;
+  width:min(320px,calc(100vw - 36px));
+  display:grid;gap:8px;
+  padding:17px;
+  color:#f1faff;
+  border:1px solid rgba(117,201,242,.44);
+  background:#102b4b;
+  box-shadow:0 22px 44px rgba(0,8,24,.58);
+  border-radius:14px;
+}
+body[data-set] .trainer-mode-help-content strong{font:800 15px system-ui,sans-serif}
+body[data-set] .trainer-mode-help-content p{font:500 13px/1.6 system-ui,sans-serif;margin:0;color:#c0d7eb}
+body[data-set] .trainer-mode-footnote{font:600 11px system-ui,sans-serif;color:#85cee8}
+body[data-set] .case-stage{
+  width:100%;
+  flex:0 0 auto;
+  min-height:0;
+  gap:9px;
+  justify-content:flex-start;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+}
+body[data-set] .img-wrap,
+body[data-set] .img-wrap.show-mask{
+  flex:0 0 auto;
+  box-sizing:border-box;
+  width:100%;
+  height:clamp(260px,42vh,400px);
+  min-height:260px;
+  max-height:400px;
+  padding:18px;
+  background:radial-gradient(ellipse at center,rgba(26,59,98,.26),rgba(8,21,43,.75));
+  border:1px solid rgba(125,175,229,.25);
+  border-radius:17px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  overflow:hidden;
+}
+body[data-set] .img-wrap #case-image{
+  width:min(340px,90%);
+  max-width:100%;
+  height:min(340px,100%);
+  max-height:100%;
+  display:block;
+  object-fit:contain;
+  border-radius:7px;
+  flex:0 0 auto;
+  margin:auto;
+  transform:none;
+}
+body[data-set] .img-wrap #case-image[hidden]{display:none!important}
+body[data-set] .case-mask,
+body[data-set] .final-screen{max-height:calc(100% - 18px)}
+/* Movement algorithms are optional and never auto-expanded in sequential mode. */
+body[data-set] .case-moves{
+  box-sizing:border-box;
+  flex:0 0 auto;
+  width:100%;
+  max-width:none;
+  min-height:42px;
+  padding:7px 12px;
+  background:rgba(8,22,42,.76);
+  border:1px solid rgba(116,168,220,.25);
+  border-radius:12px;
+  box-shadow:none;
+  z-index:2;
+}
+body[data-set] .case-moves[hidden],
+body[data-set] .case-moves-body[hidden]{display:none!important}
+body[data-set] .case-moves-head{min-height:26px}
+body[data-set] .case-moves-title{color:#bad3e9;font:650 12px system-ui,sans-serif}
+body[data-set] #case-moves-toggle{
+  min-width:32px;min-height:30px;
+  border:1px solid rgba(121,181,228,.3);
+  border-radius:9px;
+  background:#183d61;
+  color:#c3e5fa;
+  padding:5px 9px;
+}
+body[data-set] .case-moves-body{
+  max-height:190px;
+  overflow-y:auto;
+  margin-top:9px;
+  padding-top:8px;
+  border-top:1px solid rgba(111,164,220,.2)
+}
+body[data-set] .case-moves-text,
+body[data-set] .case-moves-setup-text{
+  overflow-wrap:anywhere;
+  font-size:12px;
+}
+body[data-set] .controls-row{
+  box-sizing:border-box;
+  display:grid!important;
+  grid-template-columns:1.15fr 1fr 1fr .75fr;
+  align-items:stretch;
+  gap:9px;
+  margin-top:0;
+  width:100%;
+}
+body[data-set] .trainer-case-action{
+  min-width:0;
+  min-height:49px;
+  padding:10px 12px;
+  border-radius:12px;
+  border:1px solid rgba(127,180,231,.36);
+  color:#e8f6ff;
+  background:#173451;
+  font:750 clamp(12px,1.45vw,14px) system-ui,sans-serif;
+  white-space:nowrap;
+  cursor:pointer;
+  box-shadow:inset 0 1px rgba(255,255,255,.035);
+  transition:background .16s linear,border-color .16s linear,transform .16s linear;
+}
+body[data-set] .trainer-case-action.action-prev{background:rgba(13,37,66,.84);color:#c7ddee}
+body[data-set] .trainer-case-action.action-easy{
+  background:linear-gradient(120deg,#1c745b,#23654e);
+  border-color:#69bb94a6;
+  color:#f0fff6;
+}
+body[data-set] .trainer-case-action.action-hard{
+  background:linear-gradient(120deg,#86532b,#70482c);
+  border-color:#d7a56e9e;
+  color:#fff3e7;
+}
+body[data-set] .trainer-case-action.action-skip{background:rgba(17,40,68,.86);color:#b8d3e5}
+body[data-set] .trainer-case-action.action-competitive{
+  background:linear-gradient(120deg,#276bad,#1e538a);
+  border-color:#85c9f38a;
+}
+body[data-set] .trainer-case-action.action-recognized{
+  background:#174f62;
+  border-color:#69c9d6aa;
+}
+body[data-set] .trainer-case-action:hover:not(:disabled){filter:brightness(1.13);transform:translateY(-1px)}
+body[data-set] .trainer-case-action:disabled{opacity:.38;cursor:default;filter:none}
+body[data-set] .trainer-case-action[hidden]{display:none!important}
+body[data-set] .controls-row.is-competitive{grid-template-columns:1.6fr 1fr 1fr}
+body[data-set] .controls-row.is-competitive #prev-case-btn{display:none!important}
+body[data-set] .controls-row.is-competitive #next-case-btn{grid-column:auto}
+body[data-set] .controls-row.is-competitive #skip-case-btn{grid-column:auto}
+body[data-set] #cases-remaining{display:none!important} /* same data still shown in progress dashboard */
+body[data-set] .menu-panel{
+  width:min(420px,calc(100vw - 18px));
+  background:linear-gradient(160deg,#0d2749,#081a32);
+  padding:18px;
+  border:1px solid rgba(116,175,230,.37);
+  border-radius:20px;
+}
+body[data-set] .settings-head{border-bottom:0;margin-bottom:4px;padding-bottom:4px}
+body[data-set] .settings-head h2{font:850 20px system-ui,sans-serif;letter-spacing:-.025em}
+body[data-set] #panel-close{
+  border-radius:10px;min-width:35px;min-height:35px;
+  background:#1a3656;border:1px solid #648eb04a;color:#e6f6ff;
+}
+body[data-set] .trainer-menu-intro{
+  display:flex;flex-direction:column;gap:4px;
+  font:700 12px system-ui,sans-serif;color:#dcebf7;
+  margin:0 0 15px;
+}
+body[data-set] .trainer-menu-intro span{font:500 11px/1.35 system-ui,sans-serif;color:#92abc7}
+body[data-set] .trainer-settings-group{
+  background:rgba(8,24,48,.6);
+  border:1px solid rgba(120,173,227,.24);
+  border-radius:13px;
+  overflow:hidden;
+  margin:0 0 9px;
+}
+body[data-set] .trainer-settings-group>summary{
+  padding:14px 15px;
+  min-height:49px;
+  background:transparent;
+  color:#dfedfa;
+  font:750 13px system-ui,sans-serif;
+}
+body[data-set] .trainer-settings-group[open]>summary{
+  border-bottom:1px solid rgba(119,172,224,.25);
+  background:#163658b8;
+}
+body[data-set] .trainer-settings-group>summary:hover{background:#1a3e64a8}
+body[data-set] .trainer-settings-group .settings-card{
+  border:0;
+  box-shadow:none;
+  background:transparent;
+  border-radius:0;
+  margin:0;
+  padding:13px 14px;
+}
+body[data-set] .trainer-settings-group .settings-card + .settings-card{
+  border-top:1px solid rgba(116,167,215,.16);
+}
+body[data-set] .trainer-settings-group .settings-card h3{
+  font:750 12px system-ui,sans-serif;
+  color:#b7d3e9;
+  margin-bottom:10px;
+}
+body[data-set] .menu-panel .settings-card .btn,
+body[data-set] .menu-panel .settings-card button:not(.switch *){
+  min-height:40px;
+  padding:10px 12px;
+  border-radius:10px;
+  border:1px solid rgba(124,185,238,.38);
+  background:#163f68;
+  box-shadow:none;
+  color:#e9f7ff;
+  font:700 12px system-ui,sans-serif;
+  cursor:pointer;
+}
+body[data-set] .menu-panel .settings-card .btn:hover,
+body[data-set] .menu-panel .settings-card button:hover:not(:disabled){background:#235682;border-color:#8cd2f5}
+body[data-set] .menu-panel .settings-card .btn.ghost{
+  background:rgba(16,42,70,.6);color:#c7e0f3;
+}
+body[data-set] .menu-panel .settings-card .btn.danger{
+  background:rgba(116,37,43,.38);border-color:rgba(214,109,106,.45);color:#ffcccc
+}
+body[data-set] .menu-panel .settings-card .btn.danger:hover{background:#77353f}
+body[data-set] .menu-panel input[type="number"],
+body[data-set] .menu-panel select{
+  min-height:40px;
+  padding:8px 12px;
+  border-radius:9px;
+  border:1px solid rgba(131,184,230,.33);
+  background:#092340;
+  color:#edf9ff;
+  font:650 13px system-ui,sans-serif;
+}
+body[data-set] .menu-panel .field-group{margin:12px 0}
+body[data-set] .menu-panel .line-setting{
+  display:flex;align-items:center;justify-content:space-between;
+  gap:12px;
+  margin:9px 0;
+  padding:9px 0;
+  border-bottom:1px solid rgba(129,168,209,.11);
+  font:600 12px/1.4 system-ui,sans-serif;
+  color:#c0d6ea;
+}
+body[data-set] .menu-panel .line-setting:last-child{border:0}
+body[data-set] .menu-panel .trainer-open-progress{
+  margin-top:12px;
+  padding:12px;
+  text-align:center;
+  background:#123452;
+  border:1px solid rgba(112,185,231,.37);
+  border-radius:10px;
+  color:#a7e7ff;
+}
+body[data-set] .menu-panel input[type="range"]{accent-color:#6fceee}
+body[data-set] .trainer-manual-timer{
+  display:grid;grid-template-columns:minmax(0,1fr);gap:7px;margin-bottom:12px
+}
+body[data-set] .trainer-manual-timer #trainer-attempt-time{
+  font:500 11px system-ui,sans-serif;color:#a7c3da
+}
+body[data-set] .trainer-settings-group .kbd-help{color:#97b1ce;font-size:11px;line-height:1.55}
+body[data-set] .settings-card p:empty{display:none}
+@media(max-width:760px){
+ body[data-set] .f2l-container{padding-top:calc(65px + env(safe-area-inset-top));padding-left:10px;padding-right:10px}
+ body[data-set] .image-area{gap:8px}
+ body[data-set] .trainer-toolbar{min-height:57px;padding:9px 11px;gap:7px}
+ body[data-set] .trainer-stage-name{font-size:23px}
+ body[data-set] .trainer-current-case{font-size:11px}
+ body[data-set] .trainer-mode-picker{flex:0 1 clamp(116px,35vw,170px);font-size:10px}
+ body[data-set] .trainer-mode-picker select{min-height:37px;padding:6px 5px;font-size:12px}
+ body[data-set] .trainer-mode-help{flex-basis:32px}
+ body[data-set] .trainer-mode-help>summary{width:32px;height:37px}
+ body[data-set] .img-wrap,body[data-set] .img-wrap.show-mask{
+   height:clamp(240px,39vh,330px);
+   min-height:240px;
+   max-height:330px;
+   padding:12px;
+ }
+ body[data-set] .img-wrap #case-image{
+   width:min(290px,93%);height:min(290px,100%);
+   max-height:100%;
+ }
+ body[data-set] .controls-row{gap:6px;grid-template-columns:1fr 1fr 1fr .8fr}
+ body[data-set] .trainer-case-action{min-height:46px;padding:9px 5px;font-size:11px}
+ body[data-set] .controls-row.is-competitive{grid-template-columns:1.3fr 1fr .8fr}
+ body[data-set] .case-moves{padding:6px 10px}
+ body[data-set] .menu-panel{padding:13px}
+}
+@media(max-width:450px){
+ body[data-set] .trainer-toolbar-title{flex-direction:column;align-items:flex-start;gap:3px}
+ body[data-set] .trainer-mode-picker{flex-basis:120px}
+ body[data-set] .trainer-mode-help-content{right:-1px}
+ body[data-set] .trainer-case-action{font-size:10px;letter-spacing:-.015em}
+ body[data-set] .controls-row{grid-template-columns:1.15fr 1fr 1fr .7fr}
+ body[data-set] .img-wrap,body[data-set] .img-wrap.show-mask{min-height:225px;height:clamp(225px,40vh,300px)}
+}
+@media(max-height:610px) and (min-width:761px){
+ body[data-set] .img-wrap,body[data-set] .img-wrap.show-mask{height:clamp(240px,40vh,300px);min-height:240px}
+}
+@media(prefers-reduced-motion:reduce){
+ body[data-set] .trainer-case-action{transition:none}
+}
