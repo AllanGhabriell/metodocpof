@@ -2,7 +2,7 @@
 // TODA autorização administrativa é revalidada por RLS no banco; UI não é uma barreira de segurança.
 const CONF='cfop-cloud-config-v1',AUTH='cfop-cloud-session-v1',TOMBS='cfop-case-tombstones-v1';
 const KEYS={progress:'cfop-studio-progress-v1',times:'cfop-v2-times',drafts:'cfop-case-drafts',tombstones:TOMBS};
-let conf=read(CONF,null),session=read(AUTH,null),admin=false, published=[],lastError='',phase='local',onUpdate=()=>{},onHydrate=()=>{},busy=false,queue=false,muted=false,refreshing=null,lastSynced=0;
+let accountMessages=[],accountXp=0;let conf=read(CONF,null),session=read(AUTH,null),admin=false, published=[],lastError='',phase='local',onUpdate=()=>{},onHydrate=()=>{},busy=false,queue=false,muted=false,refreshing=null,lastSynced=0;
 const esc=x=>String(x??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
 function read(k,otherwise){try{const v=JSON.parse(localStorage.getItem(k)||'null');return v??otherwise}catch{return otherwise}}
 function save(k,v){localStorage.setItem(k,JSON.stringify(v))}
@@ -120,6 +120,17 @@ export function startActivityTracking(){
   if(id!==activityUser){activityUser=id;recordActivity(0,true,0);return}
   if(Date.now()-lastInteraction<=60000)recordActivity(30,false,0);
  },30000);
+}
+export async function loadAccountExtras(){
+ if(!isAuthenticated())return;
+ try{
+  const [notes,state]=await Promise.all([
+   rest('cfop_user_notifications',{query:'select=id,body,created_at&order=created_at.desc&limit=20'}),
+   rest('cfop_user_admin_state',{query:'select=xp_adjustment,suspended_until,suspension_reason&user_id=eq.'+encodeURIComponent(session.user.id)})
+  ]);
+  accountMessages=Array.isArray(notes)?notes:[];
+  accountXp=Array.isArray(state)&&state.length?Number(state[0].xp_adjustment)||0:0;
+ }catch{}
 }
 export async function cloudProfileRefresh(){return updateProfile()}
 export async function checkAdmin(){
@@ -281,5 +292,5 @@ export function cloudPanel(){
  !status.authenticated?
  '<div class="account-signin"><p>Entre para sincronizar seus tempos, progresso e preferências.</p><button type="button" class="google-signin" data-cloud="google"><span class="google-mark" aria-hidden="true">G</span> Continuar com Google</button><details class="account-email"><summary>Entrar com e-mail e senha</summary><form id="cloud-auth" class="studio-form"><label>E-mail<input class="field" name="email" type="email" autocomplete="email" required></label><label>Senha<input class="field" name="password" type="password" minlength="8" autocomplete="current-password" required></label><div class="row"><button name="mode" value="login" type="submit">Entrar</button><button name="mode" value="signup" type="submit" class="secondary">Criar conta</button><button name="mode" value="recover" type="submit" class="secondary" formnovalidate>Recuperar senha</button></div></form></details></div>':
  '<div class="account-signed-in"><p class="muted">Para acompanhar o uso, registramos tempo aproximado de atividade em primeiro plano, sessões e resoluções. Não coletamos teclas digitadas nem localização.</p><div class="account-identity"><span class="account-identity-avatar" aria-hidden="true">'+esc((status.user?.email||'?')[0].toUpperCase())+'</span><div><strong>'+esc(status.user?.email||'Conta conectada')+'</strong><p class="muted">'+(status.admin?'Administrador':'Conta conectada')+'</p></div></div><div class="row"><button type="button" data-cloud="sync">Sincronizar progresso</button><button type="button" class="secondary" data-cloud="logout">Sair da conta</button></div><details class="account-email"><summary>Alterar senha</summary><form id="cloud-password" class="studio-form"><label>Nova senha<input class="field" name="password" type="password" required minlength="8"></label><button>Atualizar senha</button></form></details></div>')+
- (status.configured?technical:'')+'</section>';
+ (status.authenticated?'<section class="account-notices"><h3>Mensagens da equipe</h3><p class="muted">Ajuste administrativo de XP: '+accountXp+'</p>'+(accountMessages.length?accountMessages.map(n=>'<article class="account-notice"><p>'+esc(n.body)+'</p><small>'+new Date(n.created_at).toLocaleString('pt-BR')+'</small></article>').join(''):'<p class="muted">Nenhuma mensagem recebida.</p>')+'</section>':'')+(status.configured?technical:'')+'</section>';
 }
