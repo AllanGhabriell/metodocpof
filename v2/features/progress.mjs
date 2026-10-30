@@ -1,3 +1,4 @@
+import {academyActivityData,academyDashboard} from './academy-insights.mjs';
 const KEY='cfop-studio-progress-v1',DAY=86400000;
 const esc=x=>String(x??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
 const dateOf=d=>[d.getFullYear(),String(d.getMonth()+1).padStart(2,'0'),String(d.getDate()).padStart(2,'0')].join('-');
@@ -14,34 +15,21 @@ export function progressSummary(){
  let streak=0,d=new Date();d.setHours(12,0,0,0);if(!activity.has(dateOf(d)))d.setDate(d.getDate()-1);
  while(activity.has(dateOf(d))){streak++;d.setDate(d.getDate()-1)}
  const kinds={};data.records.forEach(r=>{kinds[r.type]=(kinds[r.type]||0)+1});
+ streak=academyActivityData(data.records).streak;
  return {xp,level:Math.floor(xp/200)+1,streak,today:data.records.filter(r=>r.date===today()).length,kinds};
 }
 export function progressDashboard(){
- const s=progressSummary(),achievements=[
- ['Primeiro treino',s.xp>=10,'10 XP'],
- ['Consistência',s.streak>=3,'3 dias consecutivos'],
- ['Uma semana',s.streak>=7,'7 dias consecutivos'],
- ['100 XP',s.xp>=100,'Alcance 100 XP'],
- ['500 XP',s.xp>=500,'Alcance 500 XP'],
- ['Cruz', (s.kinds.Cross||0)>=5,'5 exercícios de Cross'],
- ['Memorização',(s.kinds.Revisão||0)>=10,'10 revisões concluídas'],
- ['Velocidade',(s.kinds.Cronômetro||0)>=10,'10 tempos registrados']
- ];
- const recent=Array.from({length:7},(_,i)=>{const day=new Date();day.setHours(12,0,0,0);day.setDate(day.getDate()-6+i);return {date:dateOf(day),label:['D','S','T','Q','Q','S','S'][day.getDay()]}}).map(x=>({...x,value:data.records.filter(r=>r.date===x.date).reduce((s,r)=>s+(r.xp||0),0)}));
- const max=Math.max(30,...recent.map(x=>x.value));
- const due=data.cards.filter(c=>!c.due||c.due<=today()).length;
- const todayPlan=data.plan.filter(x=>x.day===new Date().getDay());
- const recommended=due>0?{title:'Revisar '+due+' cartões',text:'Há cartões de memorização esperando por você.',page:'srs',action:'Começar revisão'}:
- todayPlan.length?{title:todayPlan[0].stage+' por '+todayPlan[0].minutes+' minutos',text:'Esta atividade está no seu planejamento para hoje.',page:todayPlan[0].stage==='Cross'?'cross':'train',action:'Abrir treino'}:
- {title:'Faça uma atividade curta',text:'Um exercício de Cross ou observação já ajuda a manter a constância.',page:'cross',action:'Treinar agora'};
- const tile=(t,n)=>'<div class="studio-metric"><span>'+t+'</span><strong>'+n+'</strong></div>';
- return '<div class="eyebrow">Meu progresso</div><h1>Seu painel CFOP</h1><p class="muted">Evolução registrada neste navegador, sem sincronização entre dispositivos.</p>'+
- '<div class="studio-metrics">'+tile('Nível',s.level)+tile('XP acumulado',s.xp)+tile('Sequência',s.streak+' dias')+tile('Atividades hoje',s.today)+'</div>'+
- '<section class="card studio-recommendation"><div><span class="panel-overline">Próxima atividade sugerida</span><h2>'+esc(recommended.title)+'</h2><p class="muted">'+esc(recommended.text)+'</p></div><button data-page="'+recommended.page+'">'+recommended.action+'</button></section>'+
- '<div class="studio-two"><section class="card"><h2>Últimos 7 dias</h2><div class="studio-bars">'+recent.map(x=>'<div class="studio-bar-col"><span>'+x.value+'</span><div class="studio-bar-track"><div class="studio-bar" style="height:'+Math.round(x.value/max*100)+'%"></div></div><small>'+x.label+'</small></div>').join('')+'</div></section>'+
- '<section class="card"><h2>Conquistas</h2><div class="studio-achievements">'+achievements.map(([title,yes,desc])=>'<div class="studio-achievement '+(yes?'achieved':'')+'"><b>'+ (yes?'★':'☆')+'</b><div><strong>'+title+'</strong><small>'+desc+'</small></div></div>').join('')+'</div></section></div>'+
- '<div class="studio-actions"><button data-page="cross">Treinar Cross</button><button class="secondary" data-page="srs">Revisão espaçada</button><button class="secondary" data-page="plan">Planejar treinos</button></div>';
+ const summary=progressSummary();
+ return academyDashboard(data.records,summary.xp,summary.level)+
+ '<section class="academy-insight-card academy-achievements"><div><span class="academy-overline">CONQUISTAS</span><h2>Seu desenvolvimento</h2><p>XP '+summary.xp+' · Nível '+summary.level+'. Continue praticando no seu ritmo.</p></div><div class="academy-achievement-chips">'+[
+ ['Primeiros passos',summary.xp>=10],
+ ['3 dias seguidos',summary.streak>=3],
+ ['Uma semana de treino',summary.streak>=7],
+ ['100 XP',summary.xp>=100],
+ ['10 tempos', (academyActivityData().times.length)>=10]
+ ].map(([title,earned])=>'<span class="'+(earned?'earned':'')+'">'+(earned?'★ ':'☆ ')+title+'</span>').join('')+'</div></section>';
 }
+
 const week=['Domingo','Segunda','Terça','Quarta','Quinta','Sexta','Sábado'],stage=['Cross','F2L','OLL','PLL','Livre'];
 export function planPage(){
  return '<div class="eyebrow">Rotina de estudos</div><h1>Planejador semanal</h1><p class="muted">Monte um plano e configure um lembrete local quando o aplicativo estiver aberto.</p>'+
@@ -52,7 +40,7 @@ export function planPage(){
 }
 export function profilePage(){
  return '<div class="eyebrow">Minha área</div><h1>Meu perfil</h1><p class="muted">Personalize sua experiência e consulte suas informações quando precisar.</p>'+
- '<section class="card profile-primary"><div class="profile-avatar" aria-hidden="true">'+esc((data.name||'C')[0].toUpperCase())+'</div><div><h2>'+esc(data.name)+'</h2><p class="muted">Seu espaço no CFOP Studio</p></div><button type="button" class="secondary" data-page="dashboard">Ver evolução</button></section>'+
+ '<section class="card profile-primary"><div class="profile-avatar" aria-hidden="true">'+esc((data.name||'C')[0].toUpperCase())+'</div><div><h2>'+esc(data.name)+'</h2><p class="muted">Seu espaço na Academia CPOF</p></div><button type="button" class="secondary" data-page="dashboard">Ver evolução</button></section>'+
  '<section class="card"><details class="profile-fold"><summary><span><strong>Editar perfil</strong><small>Nome e preferências pessoais</small></span><span aria-hidden="true">⌄</span></summary><div class="profile-fold-content"><form class="studio-form" id="studio-profile-form"><label>Apelido<input name="name" class="field" value="'+esc(data.name)+'" maxlength="36" required></label><button>Salvar alterações</button></form><p class="muted" role="status">'+esc(message)+'</p></div></details>'+
  '<details class="profile-fold"><summary><span><strong>Backup e dados</strong><small>Exportar ou restaurar seu progresso</small></span><span aria-hidden="true">⌄</span></summary><div class="profile-fold-content"><p class="muted">O backup inclui progresso, tempos e preferências. Guarde-o em local seguro.</p><div class="studio-actions"><button data-progress="backup">Exportar dados</button><button class="secondary" data-progress="restore">Importar dados</button></div><input type="file" id="studio-file" accept=".json,application/json" hidden></div></details></section>';
 }
@@ -101,8 +89,7 @@ export function checkReminder(){
  const now=new Date(),clock=[String(now.getHours()).padStart(2,'0'),String(now.getMinutes()).padStart(2,'0')].join(':');
  if(clock===data.reminder&&data.notified!==today()&&progressSummary().today===0){
   const planned=data.plan.filter(x=>x.day===now.getDay());
-  const due=data.cards.filter(c=>!c.due||c.due<=today()).length;
-  const body=due?'Você tem '+due+' cartões para revisar.':planned.length?'Hoje: '+planned[0].stage+' por '+planned[0].minutes+' minutos.':'Sua meta de hoje é '+data.goal+' minutos.';
+  const body=planned.length?'Hoje: '+planned[0].stage+' por '+planned[0].minutes+' minutos.':'Sua meta de hoje é '+data.goal+' minutos. Treine no seu ritmo.';
   data.notified=today();save();new Notification('Treino CFOP',{body});
  }
 }
