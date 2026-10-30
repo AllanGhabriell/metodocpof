@@ -25,3 +25,10 @@ test('PLL mostra somente a camada superior',()=>{
  const masked=maskCaseState(state,'pll');
  assert.equal(masked.filter(c=>c!=='X').length,21);
 });
+
+test('F2L conserva os adesivos não amarelos da camada superior',()=>{
+ const state=apply(solved(),resolutionOrientation);
+ const masked=maskCaseState(state,'f2l');
+ for(let i=0;i<state.length;i++)if(state[i]!=='D')assert.equal(masked[i],state[i]);
+ assert.equal(masked.filter(c=>c==='D').length,1);
+});
