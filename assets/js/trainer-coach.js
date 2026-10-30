@@ -39,8 +39,9 @@ function complete(stage,id,options={}){
  const data=read(),old=data.stages[stage].cases[id]||{};
  let grade;
  if(mode==='competitive'&&ms!==null)grade=ms<=goalMs?'good':ms<=goalMs*1.35?'medium':'bad';
- else if(options.result==='missed')grade='bad';
- else if(old.rating==='hard')grade='medium';
+ else if(options.result==='hard'||options.result==='missed')grade='bad';
+ else if(options.result==='easy')grade='good';
+ else if(old.rating==='hard')grade='medium'; // compatibility with previous recorded attempts
  else grade='good';
  const update=schedule(old,grade,now);
  const times=[...(Array.isArray(old.times)?old.times:[]),...(ms===null?[]:[ms])].slice(-25);
@@ -48,12 +49,23 @@ function complete(stage,id,options={}){
  const recognitionTimes=[...(Array.isArray(old.recognitionTimes)?old.recognitionTimes:[]),...(recognitionValid?[recognitionMs]:[])].slice(-25);
  const executionTimes=[...(Array.isArray(old.executionTimes)?old.executionTimes:[]),...(recognitionValid?[ms-recognitionMs]:[])].slice(-25);
  const count=(Number(old.attempts)||0)+1;
+ const wasHard=options.result==='hard'||options.result==='missed';
+ const wasEasy=options.result==='easy';
+ const hardClicks=Math.max(0,Number(old.hardClicks)||0)+(wasHard?1:0);
+ const easyClicks=Math.max(0,Number(old.easyClicks)||0)+(wasEasy?1:0);
+ // Two consecutive easy executions after a hard one remove its reinforcement priority.
+ const consecutiveEasy=wasHard?0:wasEasy?(Math.max(0,Number(old.consecutiveEasy)||0)+1):Math.max(0,Number(old.consecutiveEasy)||0);
+ const needsPractice=wasHard?true:wasEasy&&hardClicks>0?consecutiveEasy<2:!!old.needsPractice;
+ const difficultyScore=Math.max(0,Math.min(30,
+    (Number(old.difficultyScore)||0)+(wasHard?3:wasEasy?-2:grade==='bad'?2:grade==='medium'?1:-1)));
+ const rating=wasHard?'hard':wasEasy?(needsPractice?'hard':'easy'):(old.rating||null);
  const priorDue=Number(old.dueAt)||0;
  const reviewed=priorDue>0&&now>=priorDue;
  // Recompense treinos declarados, não classificação manual. Erros rendem XP reduzido.
  const priorToday=activity().filter(e=>e.stage===stage&&e.caseId===id&&localDay(e.at)===localDay(now)).length;
  const xp=priorToday>=8?0:grade==='bad'?2:8+(reviewed?4:0)+(mode==='competitive'&&grade==='good'?4:0)+(mode==='adaptive'?2:0);
- const next={...old,...update,attempts:count,lastAt:now,lastMs:ms??(old.lastMs??null),grade,
+ const next={...old,...update,attempts:count,lastAt:now,lastMs:ms??(old.lastMs??null),grade,rating,
+  hardClicks,easyClicks,consecutiveEasy,needsPractice,difficultyScore,
   successes:(Number(old.successes)||0)+(grade==='good'?1:0),times,recognitionTimes,executionTimes,
   avgMs:times.length?Math.round(times.reduce((a,b)=>a+b,0)/times.length):null,
   avgRecognitionMs:recognitionTimes.length?Math.round(recognitionTimes.reduce((a,b)=>a+b,0)/recognitionTimes.length):null,
@@ -63,7 +75,7 @@ function complete(stage,id,options={}){
  const records=readJson(ACTIVITY,[]);
  const history=Array.isArray(records)?records:[];
  const event={uid:stage+'-'+id+'-'+now+'-'+Math.random().toString(36).slice(2,10),stage,caseId:id,at:now,mode,ms,recognitionMs:recognitionValid?recognitionMs:null,
-  grade,reviewed,xp,verified:false}; // indicação do usuário, não detecção automática do cubo físico
+  grade,result:options.result||'completed',reviewed,xp,verified:false}; // indicação do usuário, não detecção automática do cubo físico
  history.push(event);
  try{storage()?.setItem(ACTIVITY,JSON.stringify(history.slice(-12000)))}catch{}
  return {record:event,stats:next};
@@ -89,16 +101,19 @@ function weightedPick(stage,ids,mode,options={}){
   let w=1;
   if(mode==='review'){
    w=manual==='hard'?5:manual==='medium'?3:1;
-   if(c.attempts>0&&c.dueAt<=now)w+=6;
+   if(c.attempts>0&&Number(c.dueAt)>0&&c.dueAt<=now)w+=6;
   }else if(mode==='focus'){
    w=manual==='hard'?9:manual==='medium'?4:1;
-  }else if(mode==='adaptive'||options.prioritizeHard){
-   w=manual==='hard'?7:manual==='medium'?3:manual==='easy'?1:3;
-   if(c.attempts>0&&Number(c.dueAt)<=now)w+=5;
-   if(c.avgMs&&c.avgMs>targetMs)w+=Math.min(6,Math.ceil(c.avgMs/targetMs));
+  }else if(mode==='adaptive'||mode==='random'||options.prioritizeHard){
+   // Aleatório é variado, mas não uniforme: dificuldades identificadas voltam mais vezes.
+   w=manual==='hard'?7:manual==='medium'?3:manual==='easy'?1:2;
+   if(c.attempts>0&&Number(c.dueAt)>0&&c.dueAt<=now)w+=3;
+   if(c.avgMs&&c.avgMs>targetMs)w+=Math.min(5,Math.ceil(c.avgMs/targetMs));
    if(c.avgRecognitionMs&&c.avgRecognitionMs>targetMs*.45)w+=3;
    if(c.grade==='bad')w+=3;
   }
+  if(c.needsPractice)w+=Math.min(18,6+(Number(c.hardClicks)||0)*2);
+  if(Number(c.difficultyScore)>0)w+=Math.min(7,Number(c.difficultyScore));
   return {id,w};
  });
  const total=items.reduce((sum,item)=>sum+item.w,0);
