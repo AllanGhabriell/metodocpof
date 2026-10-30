@@ -62,10 +62,10 @@ function complete(stage,id,options={}){
  write(data);
  const records=readJson(ACTIVITY,[]);
  const history=Array.isArray(records)?records:[];
- const event={stage,caseId:id,at:now,mode,ms,recognitionMs:recognitionValid?recognitionMs:null,
+ const event={uid:stage+'-'+id+'-'+now+'-'+Math.random().toString(36).slice(2,10),stage,caseId:id,at:now,mode,ms,recognitionMs:recognitionValid?recognitionMs:null,
   grade,reviewed,xp,verified:false}; // indicação do usuário, não detecção automática do cubo físico
  history.push(event);
- try{storage()?.setItem(ACTIVITY,JSON.stringify(history.slice(-4500)))}catch{}
+ try{storage()?.setItem(ACTIVITY,JSON.stringify(history.slice(-12000)))}catch{}
  return {record:event,stats:next};
 }
 function dueCases(stage,ids,now=Date.now()){
@@ -124,6 +124,7 @@ function preferences(patch){
   if(Number.isInteger(Number(patch.weeklyGoal)))s.settings.weeklyGoal=Math.max(1,Math.min(999,Number(patch.weeklyGoal)));
   if(typeof patch.reviewEnabled==='boolean')s.settings.reviewEnabled=patch.reviewEnabled;
   if(['daily','weekly','free'].includes(patch.goalPeriod))s.settings.goalPeriod=patch.goalPeriod;
+  s.settings.updatedAt=Date.now();
   write(s);
  }return s.settings;
 }
