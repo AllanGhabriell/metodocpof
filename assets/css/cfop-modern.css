@@ -1,0 +1,9 @@
+/* Modern CFOP Studio visual skin. Original trainer structure and behavior remain unchanged. */
+body[data-set]{--bg-main:#090b16;--bg-alt:#1b1632;--panel-glass:rgba(16,17,34,.86);--text-main:#f2eaff;--text-muted:#bcb0d3;--line-soft:rgba(169,136,221,.25);--line-strong:rgba(168,117,246,.65);--neon-blue:#a882ed;--neon-cyan:#c1a4ff;--neon-pink:#ad7de7;--bg-radial-a:#211c49;--bg-radial-b:#311444}
+body[data-set] .case-moves,body[data-set] .img-wrap,body[data-set] .menu-panel,body[data-set] .cases-remaining{border-color:rgba(173,140,225,.3);box-shadow:0 10px 34px rgba(0,0,0,.13)}
+body[data-set] .case-moves,body[data-set] .img-wrap{background:rgba(11,14,29,.7);border-radius:18px}
+body[data-set] .icon-btn,body[data-set] .big-btn,body[data-set] .btn,body[data-set] .small-btn{border-radius:12px;transition:background .18s,border-color .18s,transform .18s}
+body[data-set] .icon-btn:hover,body[data-set] .big-btn:hover,body[data-set] .btn:hover{border-color:#a882ed;background:rgba(118,77,186,.22)}
+body[data-set] .case-moves-title{color:#c6a6f7}
+body[data-set] .menu-panel{backdrop-filter:blur(24px)}
+@media(prefers-reduced-motion:reduce){body[data-set] .icon-btn,body[data-set] .big-btn,body[data-set] .btn{transition:none}}
