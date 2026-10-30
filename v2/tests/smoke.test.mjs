@@ -4,8 +4,10 @@ import {readFileSync, existsSync} from 'node:fs';
 import {resolve} from 'node:path';
 const root=resolve(import.meta.dirname,'../..');
 const read=p=>readFileSync(resolve(root,p),'utf8');
-test('página principal carrega os arquivos do CFOP Studio',()=>{
- const html=read('index.html');
+test('página original mantém quatro etapas e CFOP Studio secundário',()=>{
+ const home=read('index.html');
+ for(const page of ['cross.html','f2l.html','oll.html','pll.html','scramble.html'])assert.ok(home.includes(page),page);
+ const html=read('studio.html');
  assert.match(html,/v2\/app\.css/);
  assert.match(html,/v2\/app\.js/);
  assert.match(html,/id="root"/);
