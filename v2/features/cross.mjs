@@ -1,8 +1,8 @@
 import {solved,apply,facelets} from '../cube/engine.mjs';
-import {cube3D} from '../cube/visual.mjs?v=20261030-8';
+import {cube3D} from '../cube/visual.mjs?v=20261030-20';
 const KEY='academy-cross-settings-v1';
 const targets=[{face:'F',d:7,name:'Frente'},{face:'R',d:5,name:'Direita'},{face:'B',d:1,name:'Trás'},{face:'L',d:3,name:'Esquerda'}];
-const colors={U:'#fafafa',D:'#f8d649',F:'#20ad75',B:'#4377e8',R:'#db5354',L:'#e89637'};
+const colors={U:'#f8d649',D:'#fafafa',F:'#20ad75',B:'#4377e8',R:'#db5354',L:'#e89637'};
 const read=()=>{try{return JSON.parse(localStorage.getItem(KEY)||'{}')}catch{return {}}};
 const saved=read();
 let count=Math.max(1,Math.min(4,Number(saved.count)||4)),mode=saved.mode==='free'?'free':'guided',view=saved.view==='net'?'net':'cube';
@@ -13,7 +13,7 @@ const complete=t=>{const f=facelets(state);return f.D[t.d]==='D'&&f[t.face][7]==
 function shuffled(items){const a=items.slice();for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a}
 export function newCross(){
  selected=shuffled(targets).slice(0,count);
- // Half-turns move only the requested bottom edges out of position;
+ // Half-turns disturb selected edge positions;
  // optional U turns randomize the top without disturbing other bottom edges.
  const seq=[];for(const t of shuffled(selected)){seq.push(t.face+'2');if(Math.random()<.55)seq.push(['U',"U'",'U2'][Math.floor(Math.random()*3)])}
  if(!seq.some(x=>x.startsWith('U')))seq.push(['U',"U'",'U2'][Math.floor(Math.random()*3)]);
@@ -39,7 +39,7 @@ export function crossPage(){
  return '<div class="cross-intro"><span class="eyebrow">ACADEMIA CPOF · TREINAMENTO</span><h1>Treino de cruz</h1><p class="muted">Monte a cruz branca na face inferior, alinhando cada aresta com a cor do centro lateral.</p></div>'+
  '<div class="cross-workspace"><section class="cross-training-panel"><div class="cross-panel-heading"><div><span class="cross-kicker">DESAFIO ATUAL</span><h2>'+(count===4?'Cruz completa':count+' '+(count===1?'aresta':'arestas'))+'</h2></div><span class="cross-progress '+(done?'is-complete':'')+'">'+correct+' de '+count+' corretas</span></div>'+
  '<div class="cross-view-tabs" role="group" aria-label="Visualização do cubo"><button data-cross="view-cube" aria-pressed="'+(view==='cube')+'" class="'+(view==='cube'?'selected':'')+'">Cubo 3D</button><button data-cross="view-net" aria-pressed="'+(view==='net')+'" class="'+(view==='net'?'selected':'')+'">Cubo aberto</button></div>'+
- '<div class="cross-cube-area">'+(view==='cube'?cube3D(state,{yaw,pitch,size:168}):net())+'</div>'+
+ '<div class="cross-cube-area">'+(view==='cube'?cube3D(state,{yaw,pitch,size:168,colors}):net())+'</div>'+
  (view==='cube'?'<div class="cross-camera"><button data-cross="left" aria-label="Girar visualização para esquerda">←</button><button data-cross="up" aria-label="Inclinar visualização para cima">↑</button><button data-cross="down" aria-label="Inclinar visualização para baixo">↓</button><button data-cross="right" aria-label="Girar visualização para direita">→</button></div>':'')+
  '<div class="cross-scramble"><span>EMBARALHAMENTO</span><strong>'+esc(scramble)+'</strong></div>'+
  '<div class="cross-main-actions"><button class="cross-primary" data-cross="new">Novo desafio</button><button data-cross="undo" '+(history.length?'':'disabled')+'>Desfazer</button><button data-cross="check">Conferir</button></div><p class="cross-feedback" role="status" aria-live="polite">'+esc(message)+'</p></section>'+
