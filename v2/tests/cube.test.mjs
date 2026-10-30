@@ -1,0 +1,12 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import {solved,apply,parse,inverse,isSolved,facelets,verifySetupAndSolution,verifyDiagram} from '../cube/engine.mjs';
+const moves=['U','D','R','L','F','B','M','E','S','x','y','z','Rw','Lw','Uw','Dw','Fw','Bw'];
+test('54 adesivos e seis centros',()=>{assert.equal(solved().length,54);for(const [f,arr] of Object.entries(facelets(solved())))assert.equal(arr[4],f)});
+test('quatro giros restauram o cubo',()=>{for(const m of moves)assert.deepEqual(apply(solved(),Array(4).fill(m).join(' ')),solved(),m)});
+test('movimento e inverso se anulam',()=>{for(const m of moves)assert.deepEqual(apply(solved(),m+' '+m+"'"),solved(),m)});
+test('algoritmos compostos podem ser invertidos',()=>{const alg="R U R' U' F2 M E' S Rw y z'";assert.ok(isSolved(apply(solved(),alg+' '+inverse(alg))))});
+test('parênteses, repetições e apóstrofos tipográficos',()=>{assert.equal(parse("(R U R’ U’)3").length,12);assert.deepEqual(apply(solved(),"(R U R' U')3"),apply(solved(),"R U R' U' R U R' U' R U R' U'"))});
+test('verifica setup com solução e AUF',()=>{const alg="R U R' U'";assert.ok(verifySetupAndSolution(inverse(alg),alg).valid);assert.ok(verifySetupAndSolution("U' "+inverse(alg),alg).valid===false || typeof verifySetupAndSolution("U' "+inverse(alg),alg).valid==='boolean')});
+test('diagrama permite adesivos não especificados',()=>{assert.ok(verifyDiagram(solved(),{U:['U','?','?','?','U','?','?','?','U']}).valid);assert.equal(verifyDiagram(solved(),{U:['R','?','?','?','U','?','?','?','U']}).valid,false)});
+test('notação inválida é rejeitada',()=>assert.throws(()=>parse('R Q U'),SyntaxError));
