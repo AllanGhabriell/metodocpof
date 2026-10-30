@@ -105,6 +105,22 @@ async function rest(table,{method='GET',query='',body=null,anon=false,prefer=''}
  return response(await fetch(endpoint('/rest/v1/'+table+(query?'?'+query:'')),opts));
 }
 export async function cloudTable(table,options={}){return rest(table,options)}
+// Telemetria mínima: só tempo de atividade em primeiro plano, sessões e resoluções.
+let activityStarted=false,lastInteraction=Date.now(),activityUser=null;
+export async function recordActivity(seconds=0,newSession=false,solves=0){
+ if(!isAuthenticated())return;
+ try{await rest('rpc/cfop_record_activity',{method:'POST',body:{p_seconds:seconds,p_session:newSession,p_solves:solves}})}catch{}
+}
+export function startActivityTracking(){
+ if(activityStarted)return;activityStarted=true;
+ for(const name of ['pointerdown','keydown','touchstart'])document.addEventListener(name,()=>{lastInteraction=Date.now()},{passive:true});
+ setInterval(()=>{
+  if(!isAuthenticated()||document.visibilityState!=='visible')return;
+  const id=cloudUser()?.id;
+  if(id!==activityUser){activityUser=id;recordActivity(0,true,0);return}
+  if(Date.now()-lastInteraction<=60000)recordActivity(30,false,0);
+ },30000);
+}
 export async function cloudProfileRefresh(){return updateProfile()}
 export async function checkAdmin(){
  if(!isAuthenticated()){admin=false;emit();return false}
@@ -264,6 +280,6 @@ export function cloudPanel(){
  '<details class="account-advanced"><summary>Conectar minha conta</summary><form id="cloud-configuration" class="studio-form"><label>Endereço do serviço<input name="url" type="url" class="field" placeholder="https://..." required></label><label>Chave pública<input name="key" class="field" autocomplete="off" required></label><button type="submit">Conectar</button></form></details>':
  !status.authenticated?
  '<div class="account-signin"><p>Entre para sincronizar seus tempos, progresso e preferências.</p><button type="button" class="google-signin" data-cloud="google"><span class="google-mark" aria-hidden="true">G</span> Continuar com Google</button><details class="account-email"><summary>Entrar com e-mail e senha</summary><form id="cloud-auth" class="studio-form"><label>E-mail<input class="field" name="email" type="email" autocomplete="email" required></label><label>Senha<input class="field" name="password" type="password" minlength="8" autocomplete="current-password" required></label><div class="row"><button name="mode" value="login" type="submit">Entrar</button><button name="mode" value="signup" type="submit" class="secondary">Criar conta</button><button name="mode" value="recover" type="submit" class="secondary" formnovalidate>Recuperar senha</button></div></form></details></div>':
- '<div class="account-signed-in"><div class="account-identity"><span class="account-identity-avatar" aria-hidden="true">'+esc((status.user?.email||'?')[0].toUpperCase())+'</span><div><strong>'+esc(status.user?.email||'Conta conectada')+'</strong><p class="muted">'+(status.admin?'Administrador':'Conta conectada')+'</p></div></div><div class="row"><button type="button" data-cloud="sync">Sincronizar progresso</button><button type="button" class="secondary" data-cloud="logout">Sair da conta</button></div><details class="account-email"><summary>Alterar senha</summary><form id="cloud-password" class="studio-form"><label>Nova senha<input class="field" name="password" type="password" required minlength="8"></label><button>Atualizar senha</button></form></details></div>')+
+ '<div class="account-signed-in"><p class="muted">Para acompanhar o uso, registramos tempo aproximado de atividade em primeiro plano, sessões e resoluções. Não coletamos teclas digitadas nem localização.</p><div class="account-identity"><span class="account-identity-avatar" aria-hidden="true">'+esc((status.user?.email||'?')[0].toUpperCase())+'</span><div><strong>'+esc(status.user?.email||'Conta conectada')+'</strong><p class="muted">'+(status.admin?'Administrador':'Conta conectada')+'</p></div></div><div class="row"><button type="button" data-cloud="sync">Sincronizar progresso</button><button type="button" class="secondary" data-cloud="logout">Sair da conta</button></div><details class="account-email"><summary>Alterar senha</summary><form id="cloud-password" class="studio-form"><label>Nova senha<input class="field" name="password" type="password" required minlength="8"></label><button>Atualizar senha</button></form></details></div>')+
  (status.configured?technical:'')+'</section>';
 }
