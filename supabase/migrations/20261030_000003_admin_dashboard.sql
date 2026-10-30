@@ -116,6 +116,20 @@ begin
    on conflict(user_id) do update set suspended_until=excluded.suspended_until,suspension_reason=excluded.suspension_reason,updated_at=now();
  elsif p_action='unsuspend' then
    update public.cfop_user_admin_state set suspended_until=null,suspension_reason='',updated_at=now() where user_id=p_target;
+ elsif p_action in ('adjust_solves','adjust_sessions','adjust_minutes') then
+   if abs(p_value)>1000 then raise exception 'Ajuste máximo de 1000 unidades';end if;
+   insert into public.cfop_usage_daily(user_id,day) values(p_target,(now() at time zone 'utc')::date)
+   on conflict(user_id,day) do nothing;
+   if p_action='adjust_solves' then
+     update public.cfop_usage_daily set solves=greatest(0,least(100000,solves+p_value))
+     where user_id=p_target and day=(now() at time zone 'utc')::date;
+   elsif p_action='adjust_sessions' then
+     update public.cfop_usage_daily set sessions=greatest(0,least(1000,sessions+p_value))
+     where user_id=p_target and day=(now() at time zone 'utc')::date;
+   else
+     update public.cfop_usage_daily set active_seconds=greatest(0,least(86400,active_seconds+p_value*60))
+     where user_id=p_target and day=(now() at time zone 'utc')::date;
+   end if;
  elsif p_action='message' then
    if char_length(trim(p_message))<1 or char_length(p_message)>500 then raise exception 'Mensagem inválida';end if;
    insert into public.cfop_user_notifications(user_id,sent_by,body) values(p_target,v_actor,p_message);
