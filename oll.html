@@ -7,7 +7,7 @@
   <link rel="stylesheet" href="assets/css/global.css?v=20260313k">
 <link rel="stylesheet" href="assets/css/cursor-glow.css?v=1">
 <link rel="stylesheet" href="assets/css/academy.css?v=20261030-1">
-<link rel="stylesheet" href="assets/css/trainer-unified.css?v=20261030-22">
+<link rel="stylesheet" href="assets/css/trainer-unified.css?v=20261030-41">
 </head>
 <body data-set="oll" data-total="57">
   <header class="topbar">
@@ -20,22 +20,27 @@
   <main class="f2l-container">
     <section class="image-area" aria-label="Área de treino">
       <div class="trainer-toolbar">
-        <div class="trainer-toolbar-title"><span class="trainer-overline">TREINAMENTO CPOF</span><h1 class="trainer-stage-name">OLL</h1><span id="trainer-mode-caption">Treino aleatório · seu ritmo</span></div>
-        <label class="trainer-mode-picker">Modo de treino
-          <select id="trainer-mode-select" aria-label="Selecionar modo">
-            <option value="random">Aleatório</option>
-            <option value="sequential">Sequencial</option>
-            <option value="competitive">Competitivo</option>
-            <option value="adaptive">Adaptativo</option>
-            <option value="review">Revisão espaçada</option>
-            <option value="focus">Foco em dificuldades</option>
-          </select>
-        </label>
-      </div>
-      <div class="trainer-progress-strip" aria-label="Progresso da sessão">
-        <span id="trainer-case-label">Preparando caso…</span>
-        <span id="trainer-session-counter">0 / 0</span>
-        <div class="trainer-progress-track"><span id="trainer-progress-fill"></span></div>
+        <div class="trainer-toolbar-title"><h1 class="trainer-stage-name">OLL</h1><span id="trainer-case-label" class="trainer-current-case">Preparando caso…</span></div>
+        <div class="trainer-mode-tools">
+          <label class="trainer-mode-picker" for="trainer-mode-select"><span>Modo</span>
+            <select id="trainer-mode-select" aria-label="Selecionar modo de treino">
+              <option value="random">Aleatório</option>
+              <option value="sequential">Sequencial</option>
+              <option value="competitive">Competitivo</option>
+              <option value="adaptive">Adaptativo</option>
+              <option value="review">Revisão espaçada</option>
+              <option value="focus">Foco em dificuldades</option>
+            </select>
+          </label>
+          <details class="trainer-mode-help" id="trainer-mode-help">
+            <summary aria-label="Como funciona este modo de treino?" title="Como funciona este modo?">?</summary>
+            <div class="trainer-mode-help-content">
+              <strong id="trainer-mode-help-title">Aleatório</strong>
+              <p id="trainer-mode-description">Os casos aparecem em ordem variada. Os mais difíceis voltam com mais frequência.</p>
+              <span id="trainer-mode-caption" class="trainer-mode-footnote">Treino livre</span>
+            </div>
+          </details>
+        </div>
       </div>
       <div id="session-timer-bar" class="session-timer-bar" hidden>
         <div class="session-timer-main">
@@ -97,25 +102,14 @@
         </div>
       </div>
 
-      <div class="controls-row">
-        <button id="prev-case-btn" class="big-btn secondary has-tooltip" data-tooltip="Atalho: Seta esquerda">Caso anterior</button>
-        <button id="next-case-btn" class="big-btn has-tooltip" data-tooltip="Atalhos: Espaço / Seta direita">Próximo caso</button>
-        <button id="skip-case-btn" class="small-btn ghost has-tooltip" data-tooltip="Pular sem contar como resolvido" type="button">Pular</button>
+      <div class="controls-row" aria-label="Navegação e avaliação do caso">
+        <button id="prev-case-btn" type="button" class="trainer-case-action action-prev has-tooltip" data-tooltip="Caso anterior · Seta esquerda">← Anterior</button>
+        <button id="trainer-easy-btn" type="button" class="trainer-case-action action-easy" aria-label="Consegui resolver: caso fácil">✓ Fácil</button>
+        <button id="trainer-hard-btn" type="button" class="trainer-case-action action-hard" aria-label="Tive dificuldade: repetir este caso depois">↺ Difícil</button>
+        <button id="next-case-btn" type="button" class="trainer-case-action action-competitive has-tooltip" data-tooltip="Espaço / Seta direita" hidden>Iniciar tentativa</button>
+        <button id="trainer-recognized" type="button" class="trainer-case-action action-recognized" hidden>Reconheci</button>
+        <button id="skip-case-btn" type="button" class="trainer-case-action action-skip has-tooltip" data-tooltip="Pular sem registrar resolução">Pular →</button>
       </div>
-      <section class="trainer-feedback" aria-label="Avaliação da dificuldade do caso">
-        <div class="trainer-feedback-heading"><div><strong>Como está este caso?</strong><span id="trainer-feedback-hint">Sua avaliação define a prioridade nos treinos adaptativos.</span></div><span id="trainer-case-history" aria-live="polite"></span></div>
-        <div class="trainer-rating-group" role="group" aria-label="Avaliar dificuldade">
-          <button type="button" class="trainer-rating" data-trainer-rating="easy">Fácil</button>
-          <button type="button" class="trainer-rating" data-trainer-rating="medium">Médio</button>
-          <button type="button" class="trainer-rating" data-trainer-rating="hard">Difícil</button>
-        </div>
-        <div class="trainer-optional-controls">
-          <button type="button" id="trainer-timed-practice">◷ Cronometrar este caso</button>
-          <button type="button" id="trainer-recognized" hidden>Reconheci o caso</button>
-          <button type="button" id="trainer-missed">Não consegui resolver</button>
-          <span id="trainer-attempt-time" aria-live="polite">Tempo opcional</span>
-        </div>
-      </section>
       </div>
     </section>
 
@@ -127,7 +121,7 @@
         <button class="panel-close" id="panel-close" aria-label="Fechar painel">X</button>
       </div>
 
-      <div class="trainer-menu-summary" id="trainer-menu-summary" role="status">Selecione um modo e personalize seu treino.</div>
+      <div class="trainer-menu-intro">Ajustes do treino <span>Personalize apenas o que precisar.</span></div>
       <div class="settings-card trainer-coach-options">
         <h3>Aprendizagem personalizada</h3>
         <p>Seu ritmo de treino é livre. As revisões são sugestões e nunca tarefas acumuladas.</p>
@@ -164,6 +158,10 @@
 
       <div class="settings-card">
         <h3>Cronômetro</h3>
+        <div class="trainer-manual-timer">
+          <button type="button" id="trainer-timed-practice">◷ Medir tempo deste caso</button>
+          <span id="trainer-attempt-time" aria-live="polite">Tempo não iniciado</span>
+        </div>
         <div class="line-setting">
           <span>Ativar cronômetro</span>
           <label class="switch">
@@ -273,8 +271,8 @@
 
   <script src="assets/js/utils.js?v=20260303o" defer></script>
   <script src="assets/js/main.js?v=20260311a" defer></script>
-  <script src="assets/js/trainer-coach.js?v=20261030-26" defer></script>
-  <script src="assets/js/secao.js?v=20261030-26" defer></script>
+  <script src="assets/js/trainer-coach.js?v=20261030-41" defer></script>
+  <script src="assets/js/secao.js?v=20261030-41" defer></script>
 <script src="v2/cursor-glow.js?v=20261030-27" defer></script>
 </body>
 </html>
