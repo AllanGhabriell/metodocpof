@@ -56,3 +56,15 @@ aside{background:rgba(15,11,29,.86);border-right-color:rgba(169,130,231,.16);bac
 .cube3d-D{transform:rotateX(-90deg) translateZ(calc(var(--cube-size)/2))}
 @media(max-width:680px){.cube3d-stage{min-height:210px}.cube3d-scene{--cube-size:145px!important}}
 @media(prefers-reduced-motion:reduce){.cube3d-scene{transition:none}}
+
+/* Conferência de casos */
+.draft-item{display:block;width:100%;text-align:left;margin:8px 0;background:rgba(123,82,197,.12);color:#eae0ff;border:1px solid rgba(175,145,229,.2);border-radius:10px;padding:12px}
+.draft-item.selected{background:rgba(143,96,218,.3);border-color:#9d79db}
+#draftform{display:grid;gap:12px;margin:12px 0 22px}
+#draftform label{display:grid;gap:6px;color:#cfc3e3;font-size:13px}
+#draftform .field{width:100%;max-width:100%;font-size:14px}
+#draftform textarea{resize:vertical;font-family:ui-monospace,monospace}
+.review-check{display:flex;gap:10px;align-items:start;line-height:1.5}
+.check-result{padding:7px 11px;border-radius:8px;margin:5px 0!important}
+.check-result.ok{background:rgba(54,150,107,.13);color:#8fe0b7!important}
+.check-result.fail{background:rgba(205,93,105,.13);color:#f5abb4!important}
