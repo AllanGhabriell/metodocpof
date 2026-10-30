@@ -1,5 +1,5 @@
 import {solved,apply,facelets} from '../cube/engine.mjs';
-import {cube3D} from '../cube/visual.mjs';
+import {cube3D} from '../cube/visual.mjs?v=20261030-8';
 const KEY='academy-cross-settings-v1';
 const targets=[{face:'F',d:7,name:'Frente'},{face:'R',d:5,name:'Direita'},{face:'B',d:1,name:'Trás'},{face:'L',d:3,name:'Esquerda'}];
 const colors={U:'#fafafa',D:'#f8d649',F:'#20ad75',B:'#4377e8',R:'#db5354',L:'#e89637'};
