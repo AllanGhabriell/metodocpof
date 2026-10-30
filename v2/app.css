@@ -370,3 +370,16 @@ body::before{content:"";position:fixed;inset:0;z-index:-2;pointer-events:none;ba
 
 /* Keep the decorative glow above the body backdrop but below the interface. */
 body::before{z-index:0}.cfop-cursor-glow{z-index:0}.app{z-index:1}
+
+/* Four primary destinations, with compact contextual tools. */
+.nav{gap:10px}
+.nav button{padding:15px 16px;font-size:15px;font-weight:650;border-radius:14px}
+.section-navigation{margin:0 0 24px;padding:13px 16px;border:1px solid rgba(167,137,222,.18);border-radius:17px;background:rgba(22,25,43,.65)}
+.section-navigation-label{display:block;font-size:11px;font-weight:750;text-transform:uppercase;letter-spacing:.11em;color:#a995c9;margin:0 0 10px}
+.section-navigation-links{display:flex;flex-wrap:wrap;gap:7px}
+.section-navigation-links button{font-size:12px;font-weight:600;padding:9px 13px;border:1px solid rgba(157,131,197,.18);border-radius:999px;background:rgba(135,101,187,.08);color:#cbbfe0;transition:background .2s ease,transform .2s ease}
+.section-navigation-links button:hover{background:rgba(142,104,215,.2);color:#fff}
+.section-navigation-links button.active{background:linear-gradient(135deg,#6741ad,#8056c7);border-color:#a681e7;color:#fff;box-shadow:0 3px 14px rgba(104,64,184,.19)}
+.section-navigation-links button[data-page^="admin-"],.section-navigation-links button[data-page="review"]{border-color:rgba(182,135,233,.3)}
+@media(max-width:760px){.section-navigation{margin-bottom:17px;padding:12px}.section-navigation-links{flex-wrap:nowrap;overflow-x:auto;scrollbar-width:thin;padding-bottom:3px}.section-navigation-links button{white-space:nowrap;flex-shrink:0}.bottomnav{grid-template-columns:repeat(4,minmax(0,1fr))}}
+@media(prefers-reduced-motion:reduce){.section-navigation-links button{transition:none}}
