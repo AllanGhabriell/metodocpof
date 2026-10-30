@@ -24,3 +24,17 @@ body.academy-home .site-footer{position:relative;flex:0 0 auto;background:none;p
 @media(max-width:620px){.academy-home-header{width:calc(100% - 28px);min-height:70px}.academy-brand-name{font-size:clamp(1.08rem,4.3vw,1.45rem)}body.academy-home .academy-utility summary{min-width:78px;padding:10px 11px}.academy-home-main{padding:0 13px 12px}.academy-stage-selection{gap:17px;transform:translateY(-1vh)}body.academy-home .home-actions{gap:9px}body.academy-home .home-actions .academy-stage{min-height:clamp(100px,17vh,140px);padding:12px 5px;border-radius:15px;gap:7px}.academy-stage-name{font-size:clamp(1.45rem,6vw,2.15rem)}body.academy-home .home-actions .academy-stage-cross{min-height:clamp(72px,12vh,92px);width:100%}body.academy-home .home-actions .academy-stage .stage-subtitle{font-size:11px}}
 @media(max-width:360px){.academy-brand-name{font-size:1rem}body.academy-home .academy-utility summary{min-width:72px}.academy-stage-name{font-size:1.45rem}body.academy-home .home-actions .academy-stage .stage-subtitle{font-size:10px}}
 @media(max-height:540px){.academy-home-header{min-height:54px}.academy-stage-selection{gap:8px;transform:none}body.academy-home .home-actions .academy-stage{min-height:72px;padding:7px}body.academy-home .home-actions .academy-stage-cross{min-height:58px}.academy-stage-name{font-size:1.4rem}body.academy-home .site-footer{padding:4px 10px 6px}.academy-home-main{padding-bottom:4px}}
+
+/* Rubik's Cube colors: alternate illumination of each title letter, with a quiet static fallback. */
+body.academy-home .academy-brand-cpof span{animation:academy-home-cube-glow 8s steps(1,end) infinite}
+body.academy-home .academy-brand-cpof span:nth-child(2){animation-delay:-2s}
+body.academy-home .academy-brand-cpof span:nth-child(3){animation-delay:-4s}
+body.academy-home .academy-brand-cpof span:nth-child(4){animation-delay:-6s}
+@keyframes academy-home-cube-glow{
+ 0%,100%{color:#ffffff;text-shadow:0 0 12px #ffffff80}
+ 20%{color:#f3d942;text-shadow:0 0 15px #f4cf36a3}
+ 40%{color:#3ed480;text-shadow:0 0 15px #25da6ba3}
+ 60%{color:#529af9;text-shadow:0 0 15px #3a87f7a3}
+ 80%{color:#fa5c64;text-shadow:0 0 15px #f14550a3}
+}
+@media(prefers-reduced-motion:reduce){body.academy-home .academy-brand-cpof span{animation:none}}
