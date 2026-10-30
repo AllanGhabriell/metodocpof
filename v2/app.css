@@ -24,3 +24,10 @@ aside{background:rgba(15,11,29,.86);border-right-color:rgba(169,130,231,.16);bac
 .bottomnav button.active{color:#c2a2ff}
 @media(hover:hover){.card:hover{transform:translateY(-2px)}}
 @media(prefers-reduced-motion:reduce){body::before,body::after{animation:none}.card{transition:none}.card:hover{transform:none}}
+
+.move-grid{display:grid;gap:10px;margin:16px 0 24px}
+.move-set{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+.move-button{background:rgba(116,78,180,.19);color:#eae0ff;border:1px solid rgba(183,149,244,.22);border-radius:10px;padding:10px;font-weight:650}
+.move-button:hover{background:rgba(135,93,208,.35)}
+#cube-algorithm{flex:1;min-width:130px}
+.cube-wrap .cube-net{filter:drop-shadow(0 12px 25px rgba(0,0,0,.22))}
