@@ -1,5 +1,5 @@
-import {solved,apply} from '../v2/cube/engine.mjs';
-import {cube3D} from '../v2/cube/visual.mjs';
+import {solved,apply} from '../../v2/cube/engine.mjs';
+import {cube3D} from '../../v2/cube/visual.mjs';
 const key='cpof-scramble-times-v1';
 let times=[];try{const t=JSON.parse(localStorage.getItem(key)||'[]');if(Array.isArray(t))times=t.filter(x=>Number.isFinite(x.ms)&&x.ms>=0&&typeof x.scramble==='string').slice(-2000)}catch{}
 let sequence='',state=solved(),running=false,started=0,raf=0,elapsed=0,view='timer',yaw=-35,pitch=-27,inspection=false,inspectionStarted=0,inspectionRaf=0,inspectionEnabled=localStorage.getItem('academy-inspection')==='true';
