@@ -1,5 +1,5 @@
 import {facelets} from './engine.mjs';
-const palette={U:'#f1f4f7',D:'#f4d448',F:'#239e63',B:'#3779d6',L:'#ef8e37',R:'#d44b47'};
+const palette={U:'#f1f4f7',D:'#f4d448',F:'#239e63',B:'#3779d6',L:'#ef8e37',R:'#d44b47',X:'#15131c'};
 const order=['F','R','U','B','L','D'];
 export function cube3D(state,{yaw=-35,pitch=-27,size=174}={}){
  const sides=facelets(state);
