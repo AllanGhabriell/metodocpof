@@ -137,3 +137,34 @@ begin
 end;$$;
 revoke all on function public.cfop_admin_audit_recent() from public,anon;
 grant execute on function public.cfop_admin_audit_recent() to authenticated;
+
+-- Suspensão impede alterações nas áreas online do aplicativo.
+-- Login Google e dados locais permanecem fora desta restrição.
+create or replace function public.cfop_user_allowed(p_uid uuid)
+returns boolean language sql stable security definer set search_path=''
+as $$select not exists(select 1 from public.cfop_user_admin_state where user_id=p_uid and suspended_until>now())$$;
+revoke all on function public.cfop_user_allowed(uuid) from public,anon;
+grant execute on function public.cfop_user_allowed(uuid) to authenticated;
+drop policy if exists cfop_state_insert on public.cfop_user_state;
+create policy cfop_state_insert on public.cfop_user_state for insert to authenticated
+with check(user_id=(select auth.uid()) and public.cfop_user_allowed((select auth.uid())));
+drop policy if exists cfop_state_update on public.cfop_user_state;
+create policy cfop_state_update on public.cfop_user_state for update to authenticated
+using(user_id=(select auth.uid()) and public.cfop_user_allowed((select auth.uid())))
+with check(user_id=(select auth.uid()) and public.cfop_user_allowed((select auth.uid())));
+drop policy if exists cfop_challenges_create on public.cfop_challenges;
+create policy cfop_challenges_create on public.cfop_challenges for insert to authenticated
+with check(owner_id=(select auth.uid()) and public.cfop_user_allowed((select auth.uid())));
+drop policy if exists cfop_challenges_edit on public.cfop_challenges;
+create policy cfop_challenges_edit on public.cfop_challenges for update to authenticated
+using(owner_id=(select auth.uid()) and public.cfop_user_allowed((select auth.uid())))
+with check(owner_id=(select auth.uid()) and public.cfop_user_allowed((select auth.uid())));
+drop policy if exists cfop_results_create on public.cfop_challenge_results;
+create policy cfop_results_create on public.cfop_challenge_results for insert to authenticated
+with check(user_id=(select auth.uid()) and public.cfop_user_allowed((select auth.uid()))
+and exists(select 1 from public.cfop_challenges c where c.id=challenge_id and c.expires_at>now()));
+drop policy if exists cfop_results_edit on public.cfop_challenge_results;
+create policy cfop_results_edit on public.cfop_challenge_results for update to authenticated
+using(user_id=(select auth.uid()) and public.cfop_user_allowed((select auth.uid())))
+with check(user_id=(select auth.uid()) and public.cfop_user_allowed((select auth.uid()))
+and exists(select 1 from public.cfop_challenges c where c.id=challenge_id and c.expires_at>now()));
