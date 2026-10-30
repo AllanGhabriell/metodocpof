@@ -122,3 +122,53 @@ body:has(.original-studio){background:radial-gradient(ellipse at 13% 3%,rgba(29,
 .academy-profile-settings .profile-fold{border-radius:12px;margin-bottom:10px;background:#0b2040a3}
 .original-studio-content .profile-destinations{margin-top:18px}
 @media(max-width:690px){.academy-profile-main{flex-wrap:wrap}.academy-profile-person{flex:1 1 calc(100% - 100px)}.academy-profile-main button{flex:1 1 100%}.academy-profile-numbers{gap:7px}.academy-profile-numbers span{flex:1 1 110px;flex-direction:column;align-items:flex-start;gap:2px}.academy-profile-big-avatar{height:64px;width:64px;flex-basis:64px;border-radius:18px}}
+
+
+/* Evolução — metas livres, aprendizagem e gráficos por etapa. */
+.academy-goal-config{margin-bottom:16px}
+.academy-goal-settings{display:grid;grid-template-columns:1.1fr 1fr 1fr auto;align-items:end;gap:10px;margin:16px 0 10px}
+.academy-goal-settings label{display:grid;gap:7px;font:700 12px system-ui,sans-serif;color:#abcbe5;min-width:0}
+.academy-goal-settings input,.academy-goal-settings select{min-height:44px;max-width:100%;width:100%;min-width:0;padding:10px 12px;border:1px solid #719cce6a;border-radius:10px;background:#0d2441;color:#f6fcff;font:650 14px system-ui,sans-serif}
+.academy-goal-settings button{min-height:44px;border:1px solid #7dd0ee82;border-radius:11px;padding:10px 15px;background:#245c91;color:#f5fbff;font-weight:750;white-space:nowrap}
+.academy-goal-visual{display:flex;gap:12px;align-items:center;margin-top:17px}
+.academy-goal-progress,.academy-skill-progress{height:8px;flex:1;min-width:0;border-radius:20px;background:#203b60a6;overflow:hidden}
+.academy-goal-progress span,.academy-skill-progress span{display:block;background:linear-gradient(90deg,#277cb7,#77d5e7);height:100%;border-radius:20px}
+.academy-goal-visual strong{font:800 14px system-ui,sans-serif;font-variant-numeric:tabular-nums;color:#e3f8ff;white-space:nowrap}
+.academy-goal-visual small{color:#a8c6e3;font-size:11px;white-space:nowrap}
+.academy-no-goal{border:1px dashed #698fc264;border-radius:11px;padding:12px;color:#a8c6e3}
+.academy-training-stage-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin-bottom:16px}
+.academy-training-stage{min-width:0;border:1px solid var(--academy-line);border-radius:18px;background:linear-gradient(145deg,#102b50df,#0a1f3cce);padding:18px}
+.academy-training-stage header{display:flex;justify-content:space-between;align-items:flex-start;gap:8px}
+.academy-training-stage h3{font:850 22px system-ui,sans-serif;letter-spacing:.04em;margin:0 0 5px}
+.academy-training-stage p{font:500 11px/1.45 system-ui,sans-serif;color:#a8c5e3;margin:0}
+.academy-training-stage header a{font:700 11px system-ui,sans-serif;color:#9ae0fb;text-decoration:none;white-space:nowrap;padding:7px 0}
+.academy-training-stage .academy-skill-progress{margin:18px 0 15px;flex:auto}
+.academy-stage-metrics{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.academy-stage-metrics span{display:flex;flex-direction:column;gap:5px;font-size:10px;color:#aec8e1}
+.academy-stage-metrics strong{font-size:16px;color:#edfaff;font-variant-numeric:tabular-nums}
+.academy-training-calendar{height:190px;display:grid;grid-template-columns:repeat(14,minmax(0,1fr));align-items:end;gap:4px;margin-top:10px}
+.academy-training-day{min-width:0;height:180px;display:flex;flex-direction:column;align-items:center;gap:5px}
+.academy-training-day-value{font-size:9px;color:#a5bfdc}
+.academy-training-day-track{width:100%;flex:1;min-height:0;background:#152c4b;border-radius:5px;overflow:hidden;display:flex;align-items:flex-end;gap:0}
+.academy-training-day-track .academy-training-slice{width:33.3333%;align-self:flex-end;min-height:0}
+.academy-training-day small{font:500 10px system-ui,sans-serif;color:#9cb8d5}
+.stage-f2l{background:#6ec4ee!important}.stage-oll{background:#edcd78!important}.stage-pll{background:#b4a0f0!important}
+.academy-training-legend{display:flex;align-items:center;justify-content:center;flex-wrap:wrap;gap:16px;margin:10px 0 2px;color:#b8d3e8;font:600 11px system-ui,sans-serif}
+.academy-training-legend span{display:inline-flex;align-items:center;gap:6px}
+.academy-training-legend i{width:12px;height:12px;border-radius:3px;display:inline-block}
+.academy-mode-stats{display:grid;gap:10px;margin-top:16px}
+.academy-mode-stats>div{display:grid;grid-template-columns:minmax(85px,1fr) 2fr 30px;gap:8px;align-items:center;font:650 11px system-ui,sans-serif;color:#b5d4e6}
+.academy-mode-stats>div>div{height:10px;border-radius:999px;background:#193555;overflow:hidden}
+.academy-mode-stats>div>div>i{display:block;height:100%;border-radius:999px;background:linear-gradient(90deg,#357eb9,#87d9ed)}
+.academy-mode-stats strong{text-align:right;color:#eefaff;font-variant-numeric:tabular-nums}
+.academy-stage-speed{margin-bottom:16px}
+.academy-training-chart{display:block;width:100%;height:auto;max-height:290px;overflow:visible;margin-top:12px}
+.academy-training-chart line{stroke:#6596c541;stroke-width:1}
+.academy-training-chart text{fill:#a6bfdc;font:11px system-ui}
+.academy-training-line{fill:none;stroke-width:3;stroke-linecap:round;stroke-linejoin:round}
+.academy-training-line.f2l{stroke:#6ec4ee}
+.academy-training-line.oll{stroke:#edcd78}
+.academy-training-line.pll{stroke:#b4a0f0}
+@media(max-width:800px){.academy-training-stage-grid{grid-template-columns:1fr 1fr}.academy-training-stage:last-child{grid-column:1/-1}}
+@media(max-width:690px){.academy-goal-settings{grid-template-columns:1fr 1fr}.academy-goal-settings label:first-child{grid-column:1/-1}.academy-goal-settings button{grid-column:1/-1}.academy-goal-visual{flex-wrap:wrap}.academy-goal-progress{flex-basis:100%}.academy-training-stage-grid{grid-template-columns:1fr}.academy-training-stage:last-child{grid-column:auto}.academy-stage-metrics{grid-template-columns:repeat(4,minmax(0,1fr))}.academy-stage-metrics strong{font-size:13px}.academy-training-calendar{gap:2px}.academy-goal-visual small{white-space:normal}}
+@media(max-width:400px){.academy-stage-metrics{grid-template-columns:1fr 1fr}.academy-mode-stats>div{grid-template-columns:75px 1fr 26px}}
