@@ -1,0 +1,26 @@
+/* Original CPOF visual language for the existing 2D Cross trainer. */
+.cross-top-label{font-weight:800;letter-spacing:.14em;color:#d8e6ff}
+.cross-account{text-decoration:none;display:grid;place-items:center}
+.cross-original-main{width:min(980px,calc(100% - 32px));margin:25px auto 70px;position:relative;z-index:1}
+.cross-original-main h1{margin:5px 0 12px;font-size:clamp(25px,4vw,38px)}
+.cross-original-main .eyebrow{color:#83d9ff;font-size:12px;font-weight:700;letter-spacing:.12em;text-transform:uppercase}
+.cross-original-main .muted{color:#adbbd8;line-height:1.5}
+.cross-original-main .cross-layout{display:grid;grid-template-columns:minmax(0,1.5fr) minmax(250px,1fr);gap:16px;margin-top:24px}
+.cross-original-main .card{padding:23px;background:rgba(7,13,28,.68);border:1px solid rgba(145,184,255,.3);border-radius:17px;min-width:0}
+.cross-original-main .row{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.cross-original-main .between{justify-content:space-between}
+.cross-original-main h2{margin:0 0 12px;font-size:19px}
+.cross-original-main .tag{padding:7px 10px;border:1px solid rgba(145,184,255,.25);border-radius:12px;font-size:12px}
+.cross-original-main .cross-visual{display:flex;align-items:center;justify-content:center;padding:24px 8px;background:rgba(4,8,20,.48);border:1px solid rgba(145,184,255,.2);border-radius:14px;margin:14px 0}
+.cross-original-main .cross-net{width:min(100%,430px);height:auto}
+.cross-original-main .alg{font:600 14px/1.6 monospace;word-break:break-word;padding:13px;background:#080f20;border:1px solid rgba(145,184,255,.22);border-radius:10px}
+.cross-original-main .panel-overline{font-size:12px;font-weight:700;letter-spacing:.08em;text-transform:uppercase}
+.cross-original-main button,.cross-original-main select{font:600 13px system-ui,sans-serif;color:#f3f7ff;background:rgba(16,27,54,.92);border:1px solid rgba(145,184,255,.35);border-radius:11px;padding:11px 13px;cursor:pointer}
+.cross-original-main button:hover{background:rgba(31,65,112,.8);border-color:#78fff5}
+.cross-original-main button:disabled{opacity:.4;cursor:not-allowed}
+.cross-original-main .cross-select{display:block;margin:10px 0;width:100%}
+.cross-original-main .cross-label{display:block;color:#c8d7f4}
+.cross-original-main .cross-edge{display:inline-block;padding:4px 7px;margin:3px;border-radius:7px;background:rgba(74,115,190,.25)}
+.cross-original-main .cross-moves{display:grid;gap:9px;margin-top:16px}
+.cross-original-main .cross-move-row{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+@media(max-width:750px){.cross-original-main .cross-layout{grid-template-columns:1fr}.cross-original-main .card{padding:17px}}
