@@ -109,3 +109,5 @@ export function verifyDiagram(state,expected){
  }
  return {valid:mismatches.length===0,mismatches};
 }
+
+export function stickerPositions(){return stickers.map(({face,p})=>({face,position:p.slice()}))}
