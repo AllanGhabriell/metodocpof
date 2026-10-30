@@ -271,3 +271,25 @@ button:disabled{opacity:.55;cursor:not-allowed}
 .admin-publish-actions{margin:15px 0}
 .admin-publish-actions button:disabled{opacity:.42;cursor:not-allowed}
 @media(max-width:680px){.cloud-panel{padding:18px}.online-result-form{grid-template-columns:1fr}.leaderboard-entry{grid-template-columns:33px minmax(0,1fr) auto;padding:9px}.online-list-item{padding:12px}}
+
+/* Diagrama interativo na revisão administrativa */
+.sticker-editor{margin:22px 0;padding:18px;border-radius:14px;border:1px solid rgba(171,132,233,.24);background:rgba(14,10,27,.48)}
+.sticker-editor h3{font-size:19px;margin:0 0 8px}
+.sticker-editor .muted{font-size:12px}
+.sticker-toolbar{display:flex;align-items:center;justify-content:flex-start;gap:8px;flex-wrap:wrap;margin:18px 0}
+.sticker-palette{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;padding:8px;background:rgba(47,35,74,.6);border:1px solid rgba(175,144,228,.23);border-radius:10px;color:#e8daff;min-width:40px}
+.sticker-palette span{display:block;width:24px;height:24px;border-radius:5px;background:var(--sticker-color);border:1px solid rgba(0,0,0,.3)}
+.sticker-palette small{font-size:11px}
+.sticker-palette.active{border-color:#d1b4ff;box-shadow:0 0 0 2px rgba(173,130,242,.38)}
+.sticker-faces{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;max-width:560px;margin:18px auto}
+.sticker-face-panel{padding:12px;background:rgba(19,16,32,.73);border:1px solid rgba(158,132,209,.16);border-radius:13px;text-align:center}
+.sticker-face-panel>strong{display:block;font-size:12px;color:#bfaee0;margin-bottom:9px}
+.sticker-face-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:3px;max-width:114px;margin:auto}
+.sticker-tile{width:100%;aspect-ratio:1;border:1px solid rgba(0,0,0,.32);border-radius:4px;min-width:0;padding:0!important}
+.sticker-tile:hover,.sticker-tile:focus-visible{outline:2px solid #e9d5ff;outline-offset:1px;transform:none}
+.sticker-actions{margin:16px 0 9px}
+.sticker-help{margin:7px 0 0}
+.cloud-user-id{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.cloud-user-id code{font-size:11px;word-break:break-all}
+.cloud-user-id button{font-size:11px;padding:7px 9px}
+@media(max-width:570px){.sticker-editor{padding:13px}.sticker-faces{grid-template-columns:repeat(2,minmax(0,1fr));gap:7px}.sticker-face-panel{padding:8px}}
