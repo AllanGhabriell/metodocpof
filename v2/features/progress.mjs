@@ -92,7 +92,7 @@ export async function progressImport(file){
   const academyActivity=Array.isArray(extra.academyActivity)?extra.academyActivity:null;
   const scrambleTimes=Array.isArray(extra.scrambleTimes)?extra.scrambleTimes:null;
   if((drafts&&drafts.length>300)||(times&&times.length>30000)||
-     (academyActivity&&academyActivity.length>4500)||(scrambleTimes&&scrambleTimes.length>2500))throw Error('Backup com registros em excesso');
+     (academyActivity&&academyActivity.length>12000)||(scrambleTimes&&scrambleTimes.length>3500))throw Error('Backup com registros em excesso');
   if(coach&&(!coach.settings||!coach.stages||!['f2l','oll','pll'].every(k=>typeof coach.stages[k]?.cases==='object')))throw Error('Dados de treino inválidos');
   localStorage.setItem(KEY,JSON.stringify(incoming.data));
   if(drafts)localStorage.setItem('cfop-case-drafts',JSON.stringify(drafts));
