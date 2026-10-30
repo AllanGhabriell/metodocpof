@@ -1,7 +1,7 @@
 import {cloudStatus,isConfigured,isAuthenticated,isAdmin,cloudUser,cloudPanel,configureCloud,disconnectCloud,signIn,signUp,recoverPassword,updatePassword,signOut,syncCloud,initializeCloud,acceptAuthRedirect,markLocalChange,markDraftDeleted,cloudProfileRefresh,publishedCases,publishCase,unpublishCase,loadPublishedCases} from './cloud/cloud.mjs';
 import {onlinePage,onlineInit,onlineLoad,onlineClick,onlineSubmit} from './cloud/online.mjs';
 import {crossPage,crossClick,crossChange} from './features/cross.mjs';
-import {awardActivity,progressDashboard,progressData,saveFeatureData,planPage,profilePage,progressClick,progressSubmit,progressImport,checkReminder} from './features/progress.mjs';
+import {awardActivity,progressDashboard,progressData,reloadProgress,saveFeatureData,planPage,profilePage,progressClick,progressSubmit,progressImport,checkReminder} from './features/progress.mjs';
 import {studyPage,drillsPage,challengesPage,practiceClick,practiceSubmit} from './features/practice.mjs';
 import {imageEditorPanel,mountEditor,imageChosen,imageChanged,imageEditorClick} from './features/editor.mjs';
 import {recognitionDiagram} from './cube/recognition.mjs';
@@ -181,7 +181,7 @@ scramble=makeScramble();render();
 onlineInit({updated:()=>{if(page==='challenges')render()}});
 initializeCloud({
  changed:()=>render(),
- hydrated:()=>{try{times=JSON.parse(localStorage.getItem('cfop-v2-times')||'[]')}catch{times=[]}
+ hydrated:()=>{reloadProgress();try{times=JSON.parse(localStorage.getItem('cfop-v2-times')||'[]')}catch{times=[]}
   try{caseDrafts=JSON.parse(localStorage.getItem('cfop-case-drafts')||'[]')}catch{caseDrafts=[]}
   render()}
 }).then(()=>acceptAuthRedirect().catch(()=>{}));
