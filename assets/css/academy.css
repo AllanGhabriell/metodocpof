@@ -1,0 +1,72 @@
+/* Academia CPOF — unified original-inspired responsive design system.
+   Presentation only: preserve the original PNG trainers and their controls. */
+:root{--academy-panel:rgba(10,20,40,.86);--academy-stroke:rgba(143,190,249,.27);--academy-focus:#83e8ff}
+html{scroll-padding-top:24px}
+body{min-width:0}
+button,a,input,select,summary{touch-action:manipulation}
+a:focus-visible,button:focus-visible,summary:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid var(--academy-focus);outline-offset:3px}
+button,select,input{max-width:100%}
+.academy-utility{position:fixed;top:12px;right:clamp(12px,3vw,28px);z-index:5500}
+.academy-utility details{position:relative}
+.academy-utility summary{display:flex;align-items:center;gap:9px;min-height:44px;padding:10px 16px;background:rgba(8,18,37,.92);border:1px solid var(--academy-stroke);border-radius:13px;list-style:none;cursor:pointer;font:650 13px system-ui,sans-serif;color:#e9f5ff;backdrop-filter:blur(16px)}
+.academy-utility summary::-webkit-details-marker{display:none}
+.academy-utility summary::after{content:'⌄';font-size:17px;line-height:1;color:#8ddff8}
+.academy-utility details[open] summary{border-color:#7fcbf0}
+.academy-utility nav{position:absolute;top:calc(100% + 8px);right:0;display:grid;gap:5px;min-width:218px;padding:8px;background:rgba(8,18,37,.97);border:1px solid var(--academy-stroke);border-radius:15px;box-shadow:0 16px 40px #0008}
+.academy-utility nav a{display:block;color:#d8e8ff;text-decoration:none;font:600 13px system-ui,sans-serif;padding:13px 14px;border-radius:10px;white-space:nowrap}
+.academy-utility nav a:hover{background:rgba(76,132,196,.24)}
+body.academy-home .home-page{padding-top:88px;padding-bottom:90px;min-height:100svh}
+body.academy-home .hero-panel{max-width:790px;padding:clamp(22px,5vw,42px);gap:18px}
+body.academy-home #title-cpof{font-size:clamp(2rem,6vw,3.65rem);line-height:1.18}
+body.academy-home .home-actions{grid-template-columns:repeat(2,minmax(0,1fr));gap:13px}
+body.academy-home .home-actions .card{min-height:clamp(100px,15vw,145px);display:flex;flex-direction:column;justify-content:center;align-items:center;gap:8px;text-decoration:none;font-size:clamp(1.35rem,3vw,2rem);letter-spacing:.045em}
+body.academy-home .home-actions .card .stage-subtitle{font:500 12px system-ui,sans-serif;color:#a9bfdf;letter-spacing:0}
+body.academy-home .scramble-entry-link{min-height:44px;text-align:center}
+body[data-set] .topbar{gap:12px;align-items:center}
+body[data-set] .topbar .icon-btn{min-width:44px;min-height:44px;display:inline-flex;align-items:center;justify-content:center}
+body[data-set] .menu-panel{max-height:min(82svh,780px);overscroll-behavior:contain}
+body[data-set] .img-wrap img{max-width:100%;object-fit:contain}
+body[data-set] .f2l-container{max-width:100%}
+body[data-set] .case-stage{max-width:100%}
+body[data-set] .case-moves{max-width:100%;overflow-wrap:anywhere}
+body[data-set] .topbar a{color:#f2f8ff;text-decoration:none}
+body[data-set="cross"] .cross-original-main .card{max-width:100%}
+body[data-set="cross"] .cross-original-main .cross-layout{min-width:0}
+body[data-set="cross"] .cross-original-main .cross-net{max-width:100%}
+body.scramble-body .scramble-header{min-height:62px}
+body.scramble-body .scramble-header a{min-width:44px;min-height:44px;display:grid;place-items:center}
+body.scramble-body .scramble-bottom-nav button{min-height:50px}
+.original-studio-header{min-height:62px}
+.original-studio-header .original-back{min-width:44px;min-height:44px;display:grid;place-items:center}
+.original-studio-nav{position:relative}
+.original-studio-nav button{min-height:44px}
+.original-studio-content{overflow-wrap:anywhere}
+.original-studio-content .card{min-width:0}
+.original-studio-content img{max-width:100%;height:auto}
+.original-studio-content table{display:block;max-width:100%;overflow-x:auto}
+.original-studio-content .profile-destination-grid button{min-height:68px}
+@media(max-width:700px){
+ .academy-utility{top:10px;right:12px}
+ body.academy-home .hero-panel{width:100%;border-radius:20px}
+ body.academy-home .home-page{padding:82px 14px 75px}
+ body.academy-home .home-actions{gap:10px}
+ body.academy-home .home-actions .card{min-height:108px;padding:13px 8px}
+ body[data-set] .topbar{top:8px;left:8px;right:8px}
+ body[data-set] .menu-panel{top:62px;left:10px;right:10px;width:auto;max-width:none;max-height:calc(100svh - 82px);border-radius:18px;padding:16px}
+ body[data-set] .f2l-container{padding-left:12px;padding-right:12px}
+ body[data-set] .image-area{width:100%}
+ body[data-set="cross"] .cross-original-main{width:calc(100% - 24px);margin-top:76px}
+ body[data-set="cross"] .cross-original-main .cross-layout{grid-template-columns:minmax(0,1fr)}
+ .original-studio-header{width:calc(100% - 20px);margin-top:10px}
+ .original-studio-content{width:calc(100% - 24px)}
+ .original-studio-nav{width:calc(100% - 20px)}
+ .original-studio-nav button{flex:1 1 28%;padding:12px 6px}
+}
+@media(max-width:390px){
+ body.academy-home .home-actions .card{min-height:94px;font-size:1.35rem}
+ body.academy-home .home-actions .card .stage-subtitle{font-size:11px}
+ body.academy-home #title-cpof{font-size:1.95rem}
+ .original-studio-header>strong{font-size:15px}
+ .original-studio-nav button{font-size:11px}
+}
+@media(prefers-reduced-motion:reduce){.academy-utility *,body.academy-home .home-actions .card{animation:none!important;transition:none!important}}
