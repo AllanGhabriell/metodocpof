@@ -270,6 +270,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
   let state = normalizeState(C.getCookie(STATE_KEY) || {});
   const trainerModeSelect=document.getElementById('trainer-mode-select');
+  const trainerModeHelpTitle=document.getElementById('trainer-mode-help-title');
+  const trainerModeDescription=document.getElementById('trainer-mode-description');
+  const trainerEasyButton=document.getElementById('trainer-easy-btn');
+  const trainerHardButton=document.getElementById('trainer-hard-btn');
   const trainerModeCaption=document.getElementById('trainer-mode-caption');
   const trainerCaseLabel=document.getElementById('trainer-case-label');
   const trainerSessionCounter=document.getElementById('trainer-session-counter');
@@ -1123,68 +1127,35 @@ document.addEventListener('DOMContentLoaded', () => {
     const tick=()=>{if(practiceStarted&&trainerAttemptTime)trainerAttemptTime.textContent='Medindo: '+fmt(Date.now()-practiceStarted)};
     tick();practiceTimer=setInterval(tick,70);
   }
+  const COACH_EXPLANATIONS={
+    random:'Casos em ordem variada. Ao marcar Difícil, o caso ganha mais chances de voltar, evitando repetição imediata.',
+    sequential:'Percorre os casos em ordem. Se o reforço estiver ligado, os difíceis voltam ao final até você indicar Fácil duas vezes seguidas.',
+    competitive:'O tempo mede seu desempenho. Casos lentos voltam mais vezes. Use Reconheci para separar reconhecimento e execução.',
+    adaptive:'Combina seus cliques em Fácil e Difícil, tempos medidos, reconhecimento e histórico para escolher o próximo caso.',
+    review:'Prioriza casos recomendados pelos intervalos de prática. Você resolve no cubo, sem tarefas atrasadas obrigatórias.',
+    focus:'Treino livre com prioridade aos casos difíceis. Quando você melhorar, a frequência deles diminui.'
+  };
   function updateCoachInterface(){
-    const mode=currentTrainingMode(),stats=coach.summaries(pageSet),stored=coach.getCase(pageSet,currentCase)||{};
-    const prefs=coach.preferences();
+    const mode=currentTrainingMode(),prefs=coach.preferences();
     if(trainerModeSelect)trainerModeSelect.value=mode;
-    if(trainerModeCaption)trainerModeCaption.textContent=COACH_CAPTIONS[mode];
-    if(trainerCaseLabel)trainerCaseLabel.textContent=completed?'Sessão encerrada':currentCase?'Caso '+currentCase+' · '+pageSet.toUpperCase():'Escolha um caso';
-    if(trainerFeedback){
-      trainerFeedback.hidden=completed||(mode==='competitive'&&!caseVisible);
-      const group=trainerFeedback.querySelector('.trainer-rating-group');
-      if(group)group.hidden=mode==='competitive';
-    }
-    if(trainerFeedbackHint)trainerFeedbackHint.textContent=mode==='competitive'?
-      'O tempo define a dificuldade. Você pode marcar o reconhecimento durante a tentativa.':
-      mode==='sequential'?'Marque a dificuldade; os casos difíceis poderão ser repetidos ao final.':
-      mode==='review'?'Revisão com execução real, sem contagem de atrasos.':
-      'Sua avaliação influencia os treinos adaptativos e as revisões.';
-    document.querySelectorAll('[data-trainer-rating]').forEach(button=>{
-      button.setAttribute('aria-pressed',String(stored.rating===button.dataset.trainerRating));
-    });
-    if(trainerCaseHistory){
-      const average=stored.avgMs?' · média '+(stored.avgMs/1000).toFixed(2)+'s':'';
-      const recognition=stored.avgRecognitionMs?' · reconhecimento '+(stored.avgRecognitionMs/1000).toFixed(2)+'s':'';
-      trainerCaseHistory.textContent=(Number(stored.attempts)||0)+' práticas'+average+recognition;
-    }
-    if(trainerTimingButton)trainerTimingButton.hidden=mode==='competitive';
-    if(trainerRecognizedButton){
-      trainerRecognizedButton.hidden=mode!=='competitive'||!caseVisible||completed||!!recognitionAt;
-      trainerRecognizedButton.disabled=!!recognitionAt;
-    }
-    if(trainerMissedButton)trainerMissedButton.hidden=mode==='competitive';
-    const total=Math.max(1,unexcludedCases().length);
-    let progress=0,counter='';
-    if(mode==='sequential'){
-      const current=Math.max(0,Number(state.orderedTraining.index)||0);
-      const done=sequentialReview?total+reviewIndex:current;
-      const max=total+(sequentialReview?reviewQueue.length:0);
-      progress=Math.min(1,done/Math.max(1,max));
-      counter=sequentialReview?'Reforço '+(reviewIndex+1)+'/'+reviewQueue.length:(current+1)+' / '+total;
-    }else if(mode==='competitive'){
-      const mastered=total-availableCompetitiveCases().length;
-      progress=Math.max(0,Math.min(1,mastered/total));
-      counter=mastered+' / '+total+' dominados';
-    }else if(mode==='random'){
-      progress=sessionResolved.size/total;counter=sessionResolved.size+' / '+total+' casos vistos';
-    }else{
-      const week=coach.activity().filter(e=>e.stage===pageSet&&e.at>=Date.now()-7*86400000).length;
-      if(prefs.goalPeriod==='weekly'){
-        progress=Math.min(1,week/Math.max(1,prefs.weeklyGoal));
-        counter=week+' / '+prefs.weeklyGoal+' na semana';
-      }else if(prefs.goalPeriod==='free'){
-        progress=0;counter=sessionAttempts+' práticas nesta sessão';
-      }else{
-        progress=Math.min(1,stats.today/Math.max(1,prefs.dailyGoal));
-        counter=stats.today+' / '+prefs.dailyGoal+' hoje';
-      }
-    }
-    if(trainerSessionCounter)trainerSessionCounter.textContent=counter;
-    if(trainerProgressFill)trainerProgressFill.style.width=(progress*100).toFixed(0)+'%';
-    if(trainerMenuSummary)trainerMenuSummary.textContent=COACH_MODE_TITLES[mode]+' · '+stats.today+' práticas hoje · '+stats.hard+' marcados difíceis · '+stats.due+' sugeridos para revisão.';
-    if(trainerGoalPeriod)trainerGoalPeriod.value=prefs.goalPeriod;
+    if(trainerModeCaption)trainerModeCaption.textContent=COACH_CAPTIONS[mode]||'';
+    if(trainerModeHelpTitle)trainerModeHelpTitle.textContent=COACH_MODE_TITLES[mode];
+    if(trainerModeDescription)trainerModeDescription.textContent=COACH_EXPLANATIONS[mode];
+    const total=unexcludedCases().length;
+    const position=isOrderedTrainingMode()
+      ?sequentialReview?' · reforço':(' · '+Math.min(total,(Number(state.orderedTraining.index)||0)+1)+'/'+total)
+      :'';
+    if(trainerCaseLabel)trainerCaseLabel.textContent=completed?'Treino concluído':currentCase?'Caso '+currentCase+position:'Sem casos disponíveis';
+    const competitive=state.competitive.enabled;
+    if(trainerEasyButton)trainerEasyButton.hidden=completed||competitive;
+    if(trainerHardButton)trainerHardButton.hidden=completed||competitive;
+    if(nextBtn)nextBtn.hidden=completed||!competitive;
+    if(trainerTimingButton)trainerTimingButton.hidden=competitive;
+    if(trainerRecognizedButton)trainerRecognizedButton.hidden=!competitive||!caseVisible||completed||!!recognitionAt||!caseStartAt;
+    if(controlsRow)controlsRow.classList.toggle('is-competitive',competitive);
     if(trainerPrioritize)trainerPrioritize.checked=!!state.trainingConfig.prioritizeHard;
     if(trainerReinforce)trainerReinforce.checked=!!state.trainingConfig.reinforceSequential;
+    if(trainerGoalPeriod)trainerGoalPeriod.value=prefs.goalPeriod;
     if(trainerDailyGoal&&document.activeElement!==trainerDailyGoal)trainerDailyGoal.value=prefs.dailyGoal;
     if(trainerWeeklyGoal&&document.activeElement!==trainerWeeklyGoal)trainerWeeklyGoal.value=prefs.weeklyGoal;
   }
@@ -1276,18 +1247,17 @@ document.addEventListener('DOMContentLoaded', () => {
     caseMovesToggle.disabled = false;
     caseMovesText.textContent = alg || `Movimentos ainda não cadastrados para ${String(pageSet || '').toUpperCase()}.`;
     const orderedMode = isOrderedTrainingMode();
-    if (orderedMode) movesOpen = true;
     caseMovesBody.hidden = !movesOpen;
-    caseMovesToggle.hidden = orderedMode;
+    caseMovesToggle.hidden = false;
     caseMovesToggle.setAttribute('aria-expanded', String(movesOpen));
     caseMovesToggle.classList.toggle('case-moves-toggle-on', movesOpen);
 
     if (caseMovesSetupWrap && caseMovesSetupText) {
-      if (orderedMode && movesOpen) {
-        const setSetups = SETUPS_BY_SET[pageSet] || {};
-        const setup = setSetups[currentCase] || '';
+      const setSetups = SETUPS_BY_SET[pageSet] || {};
+      const setup = setSetups[currentCase] || '';
+      if (movesOpen && setup) {
         caseMovesSetupWrap.hidden = false;
-        caseMovesSetupText.textContent = setup || `Setup ainda não cadastrado para ${String(pageSet || '').toUpperCase()}.`;
+        caseMovesSetupText.textContent = setup;
       } else {
         caseMovesSetupWrap.hidden = true;
         caseMovesSetupText.textContent = '';
@@ -1310,8 +1280,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
     finalScreen.hidden = !completed;
     prevBtn.hidden = completed || state.competitive.enabled;
-    nextBtn.hidden = completed;
-    if (skipBtn) skipBtn.hidden = completed || state.competitive.enabled;
+    nextBtn.hidden = completed || !state.competitive.enabled;
+    if (skipBtn) skipBtn.hidden = completed;
 
     if (completed) {
       imgEl.hidden = true;
@@ -1334,7 +1304,7 @@ document.addEventListener('DOMContentLoaded', () => {
       return;
     }
 
-    nextBtn.textContent = state.competitive.enabled?'Registrar tempo':'Concluí · próximo caso';
+    nextBtn.textContent = state.competitive.enabled?'Registrar tempo':'Fácil';
     caseMask.hidden = true;
     imgEl.hidden = false;
     const src = `${pageSet}/${currentCase}.png`;
@@ -1350,7 +1320,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const orderedMode = isOrderedTrainingMode();
     if (controlsRow) controlsRow.classList.toggle('single-next', state.competitive.enabled && !completed);
     prevBtn.hidden = completed || state.competitive.enabled;
-    if (skipBtn) skipBtn.hidden = completed || state.competitive.enabled;
+    if (skipBtn) skipBtn.hidden = completed;
     if (orderedMode) {
       clampOrderedIndex();
       const curIdx = Math.max(0, Number(state.orderedTraining.index) || 0);
