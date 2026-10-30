@@ -1832,6 +1832,7 @@ document.addEventListener('DOMContentLoaded', () => {
   function toggleCompetitiveMode(nextValue) {
     const enable = typeof nextValue === 'boolean' ? nextValue : !state.competitive.enabled;
     state.competitive.enabled = enable;
+    state.trainingMode=enable?'competitive':'random';
     competitiveToggle.checked = enable;
     if (enable && state.orderedTraining.enabled) {
       state.orderedTraining.enabled = false;
@@ -1851,6 +1852,7 @@ document.addEventListener('DOMContentLoaded', () => {
   function toggleOrderedTrainingMode(nextValue) {
     const enable = typeof nextValue === 'boolean' ? nextValue : !state.orderedTraining.enabled;
     state.orderedTraining.enabled = enable;
+    state.trainingMode=enable?'sequential':'random';
     if (orderedToggle) orderedToggle.checked = enable;
 
     if (enable && state.competitive.enabled) {
@@ -1875,6 +1877,7 @@ document.addEventListener('DOMContentLoaded', () => {
     timerAutoToggle.checked = !!state.timerState.autoStart;
     if (orderedToggle) orderedToggle.checked = !!state.orderedTraining.enabled;
     competitiveToggle.checked = !!state.competitive.enabled;
+    if(trainerModeSelect)trainerModeSelect.value=currentTrainingMode();
     dynamicBgToggle.checked = !!state.competitive.dynamicBg;
     competitiveLimitInput.value = String(state.competitive.limitSec || 6);
     competitiveRepeatInput.value = String(state.competitive.repeatBase || 2);
@@ -2037,6 +2040,54 @@ document.addEventListener('DOMContentLoaded', () => {
       onPreviousCase();
     }
   }
+
+  // Mesmos controles e metodologia em F2L, OLL e PLL.
+  organizeSettingsMenu();
+  trainerModeSelect?.addEventListener('change',e=>changeTrainingMode(e.target.value));
+  document.querySelectorAll('[data-trainer-rating]').forEach(button=>button.addEventListener('click',()=>{
+    if(!currentCase||completed||state.competitive.enabled)return;
+    const rating=button.dataset.trainerRating;
+    coach.rate(pageSet,currentCase,rating);
+    updateCoachInterface();
+    const labels={easy:'fácil',medium:'médio',hard:'difícil'};
+    showToast('Caso '+currentCase+' marcado como '+labels[rating],1400);
+  }));
+  trainerTimingButton?.addEventListener('click',togglePracticeTimer);
+  trainerRecognizedButton?.addEventListener('click',()=>{
+    if(!state.competitive.enabled||!caseVisible||!caseStartAt||recognitionAt)return;
+    recognitionAt=Date.now();
+    recognitionElapsed=Math.max(0,recognitionAt-caseStartAt);
+    trainerAttemptTime.textContent='Reconhecido em '+fmt(recognitionElapsed);
+    trainerRecognizedButton.hidden=true;
+  });
+  trainerMissedButton?.addEventListener('click',()=>{
+    if(completed||!currentCase||state.competitive.enabled)return;
+    const missedId=currentCase;
+    pushUndo('difficult-attempt');
+    const elapsed=stopPracticeTimer();
+    logCasePractice(missedId,elapsed,'missed');
+    if(isOrderedTrainingMode()){
+      onSkipCase();
+      return;
+    }
+    const candidate=pickNextCase();
+    if(candidate){setCurrentCase(candidate,true);save();renderCaseScene();preloadAnother()}
+    else {showToast('Você pode continuar quando quiser')}
+  });
+  trainerPrioritize?.addEventListener('change',e=>{
+    state.trainingConfig.prioritizeHard=!!e.target.checked;save();updateCoachInterface();
+  });
+  trainerReinforce?.addEventListener('change',e=>{
+    state.trainingConfig.reinforceSequential=!!e.target.checked;save();updateCoachInterface();
+  });
+  trainerDailyGoal?.addEventListener('change',e=>{
+    const prefs=coach.preferences({dailyGoal:Number(e.target.value)});
+    e.target.value=prefs.dailyGoal;updateCoachInterface();
+  });
+  trainerWeeklyGoal?.addEventListener('change',e=>{
+    const prefs=coach.preferences({weeklyGoal:Number(e.target.value)});
+    e.target.value=prefs.weeklyGoal;updateCoachInterface();
+  });
 
   nextBtn.addEventListener('click', onResolveAdvance);
   prevBtn.addEventListener('click', onPreviousCase);
