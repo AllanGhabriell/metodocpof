@@ -16,6 +16,11 @@ jobs:
         with:
           node-version: '22'
       - name: Verificar sintaxe JavaScript
-        run: node --check v2/app.js
+        run: |
+          node --check v2/app.js
+          node --check assets/js/secao.js
+          node --check assets/js/trainer-coach.js
+          node --check v2/features/academy-insights.mjs
+          node --check v2/features/progress.mjs
       - name: Executar testes de integração inicial
         run: node --test v2/tests/*.test.mjs
