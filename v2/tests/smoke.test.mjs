@@ -30,3 +30,18 @@ test('contrato de dados contém as coleções necessárias',()=>{
  const schema=JSON.parse(read('v2/data/schema.json'));
  for(const key of ['cases','solves','progress','settings'])assert.ok(schema.collections[key],key);
 });
+
+test('Academia CPOF aplica identidade responsiva a todas as telas',()=>{
+ const pages=['index.html','cross.html','f2l.html','oll.html','pll.html','scramble.html','studio.html'];
+ for(const p of pages){
+  const html=read(p);
+  assert.match(html,/assets\/css\/academy\.css/,'CSS compartilhado: '+p);
+  assert.match(html,/viewport/,'Viewport responsivo: '+p);
+  assert.match(html,/Academia CPOF/,'Nome atualizado: '+p);
+ }
+ const home=read('index.html');
+ for(const stage of ['CROSS','F2L','OLL','PLL'])assert.ok(home.includes(stage));
+ assert.match(home,/academy-utility/);
+ const manifest=JSON.parse(read('manifest.webmanifest'));
+ assert.equal(manifest.short_name,'Academia CPOF');
+});
