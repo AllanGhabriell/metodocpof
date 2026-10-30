@@ -236,3 +236,10 @@ button:disabled{opacity:.55;cursor:not-allowed}
 .studio-recommendation h2{margin:7px 0 3px}.studio-recommendation p{margin:0;font-size:13px}
 .studio-recommendation button{white-space:nowrap}
 @media(max-width:680px){.studio-recommendation{align-items:flex-start;flex-direction:column;gap:12px}.studio-recommendation button{width:100%}}
+
+.case-unverified{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:220px;gap:10px;text-align:center;color:#d8c8ed;padding:20px}
+.case-unverified>span{display:grid;place-items:center;width:60px;height:60px;border:1px solid rgba(176,141,222,.32);border-radius:16px;font-size:33px;color:#a990d5;background:rgba(101,71,150,.14)}
+.case-unverified strong{font-size:15px}.case-unverified p{margin:0;max-width:280px;font-size:12px;line-height:1.6;color:#aa9abc}
+.academy-progress{display:flex;align-items:center;gap:7px;margin:20px 0 10px}
+.academy-progress span{height:8px;flex:1;background:rgba(166,141,197,.23);border-radius:5px}
+.academy-progress span.current{background:rgba(183,149,246,.55)}.academy-progress span.completed{background:#9970e4}
