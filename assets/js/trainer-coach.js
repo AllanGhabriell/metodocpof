@@ -51,7 +51,8 @@ function complete(stage,id,options={}){
  const count=(Number(old.attempts)||0)+1;
  const wasHard=options.result==='hard'||options.result==='missed';
  const wasEasy=options.result==='easy';
- const hardClicks=Math.max(0,Number(old.hardClicks)||0)+(wasHard?1:0);
+ const hardClicks=Math.max(0,Number(old.hardClicks)||
+   (old.rating==='hard'&&old.hardClicks==null?1:0))+(wasHard?1:0);
  const easyClicks=Math.max(0,Number(old.easyClicks)||0)+(wasEasy?1:0);
  // Two consecutive easy executions after a hard one remove its reinforcement priority.
  const consecutiveEasy=wasHard?0:wasEasy?(Math.max(0,Number(old.consecutiveEasy)||0)+1):Math.max(0,Number(old.consecutiveEasy)||0);
@@ -113,6 +114,7 @@ function weightedPick(stage,ids,mode,options={}){
    if(c.grade==='bad')w+=3;
   }
   if(c.needsPractice)w+=Math.min(18,6+(Number(c.hardClicks)||0)*2);
+  if(options.prioritizeHard&&manual==='hard')w+=6;
   if(Number(c.difficultyScore)>0)w+=Math.min(7,Number(c.difficultyScore));
   return {id,w};
  });
