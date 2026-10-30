@@ -1,5 +1,5 @@
-const CACHE='cfop-studio-offline-20261030-v2';
-const SHELL=['./','./index.html','./v2/app.css','./v2/app.js','./v2/cube/engine.mjs','./v2/cube/visual.mjs','./v2/cube/case-visual.mjs','./v2/cube/recognition.mjs','./v2/cube/f2l-recognition.mjs','./v2/cube/validation.mjs','./v2/timer/stats.mjs','./v2/features/cross.mjs','./v2/features/progress.mjs','./v2/features/practice.mjs','./v2/features/editor.mjs','./v2/cloud/cloud.mjs','./v2/cloud/online.mjs','./v2/data/pdf-import.mjs','./v2/data/pdf-cases.json'];
+const CACHE='cfop-studio-offline-20261030-v3';
+const SHELL=['./','./index.html','./v2/app.css','./v2/app.js','./v2/cube/engine.mjs','./v2/cube/visual.mjs','./v2/cube/case-visual.mjs','./v2/cube/recognition.mjs','./v2/cube/f2l-recognition.mjs','./v2/cube/validation.mjs','./v2/timer/stats.mjs','./v2/features/cross.mjs','./v2/features/progress.mjs','./v2/features/practice.mjs','./v2/features/editor.mjs','./v2/features/sticker-editor.mjs','./v2/cloud/cloud.mjs','./v2/cloud/online.mjs','./v2/data/pdf-import.mjs','./v2/data/pdf-cases.json'];
 self.addEventListener('install',event=>{
  event.waitUntil(caches.open(CACHE).then(async cache=>{
   await cache.addAll(['./index.html','./v2/app.js','./v2/app.css']);
