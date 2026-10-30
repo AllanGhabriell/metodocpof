@@ -41,3 +41,18 @@ aside{background:rgba(15,11,29,.86);border-right-color:rgba(169,130,231,.16);bac
 .lesson-cube .sticker:not(.blank){animation:sticker-appear .25s ease-out}
 @keyframes sticker-appear{from{opacity:.6;transform:scale(.9)}to{opacity:1;transform:scale(1)}}
 @media(prefers-reduced-motion:reduce){.lesson-cube .sticker:not(.blank){animation:none}}
+
+/* Cubo 3D leve: cada face utiliza o mesmo estado do motor matemático. */
+.cube3d-stage{display:grid;place-items:center;min-height:240px;width:100%;perspective:750px;overflow:hidden;touch-action:pan-y}
+.cube3d-scene{width:var(--cube-size);height:var(--cube-size);transform-style:preserve-3d;transform:rotateX(var(--pitch)) rotateY(var(--yaw));transition:transform .4s cubic-bezier(.2,.8,.2,1)}
+.cube3d-object{position:relative;width:100%;height:100%;transform-style:preserve-3d}
+.cube3d-face{position:absolute;inset:0;display:grid;grid-template-columns:repeat(3,1fr);grid-template-rows:repeat(3,1fr);gap:3px;padding:4px;background:#15121d;border:2px solid #0a0810;border-radius:8px;backface-visibility:visible}
+.cube3d-tile{border-radius:5px;border:1px solid rgba(0,0,0,.22);box-shadow:inset 0 1px 3px rgba(255,255,255,.13)}
+.cube3d-F{transform:translateZ(calc(var(--cube-size)/2))}
+.cube3d-B{transform:rotateY(180deg) translateZ(calc(var(--cube-size)/2))}
+.cube3d-R{transform:rotateY(90deg) translateZ(calc(var(--cube-size)/2))}
+.cube3d-L{transform:rotateY(-90deg) translateZ(calc(var(--cube-size)/2))}
+.cube3d-U{transform:rotateX(90deg) translateZ(calc(var(--cube-size)/2))}
+.cube3d-D{transform:rotateX(-90deg) translateZ(calc(var(--cube-size)/2))}
+@media(max-width:680px){.cube3d-stage{min-height:210px}.cube3d-scene{--cube-size:145px!important}}
+@media(prefers-reduced-motion:reduce){.cube3d-scene{transition:none}}
