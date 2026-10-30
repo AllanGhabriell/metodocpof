@@ -1,5 +1,4 @@
 /* Dados locais verificáveis: resoluções do cronômetro e casos registrados no treinador. */
-const escapeHTML=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;':'&quot;'}[c]));
 const DAY=86400000;
 function safeArray(name){try{const x=JSON.parse(localStorage.getItem(name)||'[]');return Array.isArray(x)?x:[]}catch{return []}}
 const localDate=value=>{const d=new Date(value);if(!Number.isFinite(d.getTime()))return '';return [d.getFullYear(),String(d.getMonth()+1).padStart(2,'0'),String(d.getDate()).padStart(2,'0')].join('-')};
