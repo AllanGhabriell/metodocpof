@@ -1,0 +1,1078 @@
+{
+  "format": "cfop-studio-library-v1",
+  "source": "PDFs fornecidos pelo usuário; extração textual preliminar para testes; não reproduz imagens",
+  "reviewed": false,
+  "cases": [
+    {
+      "id": "F2L-01",
+      "stage": "f2l",
+      "algorithm": "U (R U' R')",
+      "setup": "R U R' U'",
+      "sourcePage": 1,
+      "reviewStatus": "unreviewed",
+      "source": "O CUBO 2024"
+    },
+    {
+      "id": "F2L-02",
+      "stage": "f2l",
+      "algorithm": "y U' (L' U L)",
+      "setup": "F' U' F U",
+      "sourcePage": 1,
+      "reviewStatus": "unreviewed",
+      "source": "O CUBO 2024"
+    },
+    {
+      "id": "F2L-03",
+      "stage": "f2l",
+      "algorithm": "R U R'",
+      "setup": "R U' R'",
+      "sourcePage": 1,
+      "reviewStatus": "unreviewed",
+      "source": "O CUBO 2024"
+    },
+    {
+      "id": "F2L-04",
+      "stage": "f2l",
+      "algorithm": "y L' U' L",
+      "setup": "F' U F",
+      "sourcePage": 1,
+      "reviewStatus": "unreviewed",
+      "source": "O CUBO 2024"
+    },
+    {
+      "id": "F2L-05",
+      "stage": "f2l",
+      "algorithm": "U' (R U R' U) (R U R')",
+      "setup": "R U' R' U' R U' R' U",
+      "sourcePage": 2,
+      "reviewStatus": "unreviewed",
+      "source": "O CUBO 2024"
+    },
+    {
+      "id": "F2L-06",
+      "stage": "f2l",
+      "algorithm": "U' (R U' R' U) y' (R' U' R)",
+      "setup": "F' U F U' R U R' U",
+      "sourcePage": 2,
+      "reviewStatus": "unreviewed",
+      "source": "O CUBO 2024"
+    },
+    {
+      "id": "F2L-07",
+      "stage": "f2l",
+      "algorithm": "U' (R U2' R' U) y' (R' U' R)",
+      "setup": "F' U F U' R U2' R' U",
+      "sourcePage": 2,
+      "reviewStatus": "unreviewed",
+      "source": "O CUBO 2024"
+    },
+    {
+      "id": "F2L-08",
+      "stage": "f2l",
+      "algorithm": "(R U' R') U (R U' R') U2 (R U' R')",
+      "setup": "R' U' R2' U' R2 U2' R",
+      "sourcePage": 2,
+      "reviewStatus": "unreviewed",
+      "source": "O CUBO 2024"
+    },
+    {
+      "id": "F2L-09",
+      "stage": "f2l",
+      "algorithm": "y' U (R' U R U') (R' U' R)",
+      "setup": "R' U R U R' U' R U' y",
+      "sourcePage": 2,
+      "reviewStatus": "unreviewed",
+      "source": "O CUBO 2024"
+    },
+    {
+      "id": "F2L-10",
+      "stage": "f2l",
+      "algorithm": "U' (R U' R' U) (R U R')",
+      "setup": "R U' R' U' R U R' U",
+      "sourcePage": 2,
+      "reviewStatus": "unreviewed",
+      "source": "O CUBO 2024"
+    },
+    {
+      "id": "F2L-11",
+      "stage": "f2l",
+      "algorithm": "(U' R U R') U2 (R U' R')",
+      "setup": "R U R' U2 R U' R' U",
+      "sourcePage": 2,
+      "reviewStatus": "unreviewed",
+      "source": "O CUBO 2024"
+    },
+    {
+      "id": "F2L-12",
+      "stage": "f2l",
+      "algorithm": "U' Rw U' R' U R U Rw'",
+      "setup": "R' U' R U2 R' U R U' y",
+      "sourcePage": 2,
+      "reviewStatus": "unreviewed",
+      "source": "O CUBO 2024"
+    },
+    {
+      "id": "F2L-13",
+      "stage": "f2l",
+      "algorithm": "y' U (R' U2' R) U2 (R' U R)",
+      "setup": "R' U' R U2 R' U2 R U' y",
+      "sourcePage": 2,
+      "reviewStatus": "unreviewed",
+      "source": "O CUBO 2024"
+    },
+    {
+      "id": "F2L-14",
+      "stage": "f2l",
+      "algorithm": "U' (R U2' R') U2 (R U' R')",
+      "setup": "R U R' U2 R U2 R' U",
+      "sourcePage": 2,
+      "reviewStatus": "unreviewed",
+      "source": "O CUBO 2024"
+    },
+    {
+      "id": "F2L-15",
+      "stage": "f2l",
+      "algorithm": "U (R U2' R') U (R U' R')",
+      "setup": "R U R' U' R U2' R' U'",
+      "sourcePage": 3,
+      "reviewStatus": "unreviewed",
+      "source": "O CUBO 2024"
+    },
+    {
+      "id": "F2L-16",
+      "stage": "f2l",
+      "algorithm": "U2 (R U R' U) (R U' R')",
+      "setup": "R U R' U' R U' R' U2",
+      "sourcePage": 3,
+      "reviewStatus": "unreviewed",
+      "source": "O CUBO 2024"
+    },
+    {
+      "id": "F2L-17",
+      "stage": "f2l",
+      "algorithm": "Rw U' Rw' U2 Rw U Rw'",
+      "setup": "R' U' R U R' U R U2 y",
+      "sourcePage": 3,
+      "reviewStatus": "unreviewed",
+      "source": "O CUBO 2024"
+    },
+    {
+      "id": "F2L-18",
+      "stage": "f2l",
+      "algorithm": "y' U' (R' U2 R) U' (R' U R)",
+      "setup": "R' U' R U R' U2 R U y",
+      "sourcePage": 3,
+      "reviewStatus": "unreviewed",
+      "source": "O CUBO 2024"
+    },
+    {
+      "id": "F2L-19",
+      "stage": "f2l",
+      "algorithm": "M U (L F' L') U' M'",
+      "setup": "M U L F L' U' M'",
+      "sourcePage": 3,
+      "reviewStatus": "unreviewed",
+      "source": "O CUBO 2024"
+    },
+    {
+      "id": "F2L-20",
+      "stage": "f2l",
+      "algorithm": "(R U' R' U2) y' (R' U' R)",
+      "setup": "F' U F U2' R U R'",
+      "sourcePage": 3,
+      "reviewStatus": "unreviewed",
+      "source": "O CUBO 2024"
+    },
+    {
+      "id": "F2L-21",
+      "stage": "f2l",
+      "algorithm": "(R U2 R') U' (R U R')",
+      "setup": "R U' R' U R U2 R'",
+      "sourcePage": 3,
+      "reviewStatus": "unreviewed",
+      "source": "O CUBO 2024"
+    },
+    {
+      "id": "F2L-22",
+      "stage": "f2l",
+      "algorithm": "y' (R' U2' R) U (R' U' R)",
+      "setup": "R' U R U' R' U2 R y",
+      "sourcePage": 3,
+      "reviewStatus": "unreviewed",
+      "source": "O CUBO 2024"
+    },
+    {
+      "id": "F2L-23",
+      "stage": "f2l",
+      "algorithm": "U (R U' R') U' (R U' R' U R U' R')",
+      "setup": "R U R' U' R U R' U R U R' U'",
+      "sourcePage": 3,
+      "reviewStatus": "unreviewed",
+      "source": "O CUBO 2024"
+    },
+    {
+      "id": "F2L-24",
+      "stage": "f2l",
+      "algorithm": "F (U R U' R') F' (R U' R')",
+      "setup": "R U R' F R U R' U' F'",
+      "sourcePage": 3,
+      "reviewStatus": "unreviewed",
+      "source": "O CUBO 2024"
+    },
+    {
+      "id": "F2L-25",
+      "stage": "f2l",
+      "algorithm": "U' F' (R U R' U') R' F R",
+      "setup": "U' F' R U R' U' R' F R",
+      "sourcePage": 4,
+      "reviewStatus": "unreviewed",
+      "source": "O CUBO 2024"
+    },
+    {
+      "id": "F2L-26",
+      "stage": "f2l",
+      "algorithm": "U (R U' R' U') y (L' U L)",
+      "setup": "F' U' F U R U R' U'",
+      "sourcePage": 4,
+      "reviewStatus": "unreviewed",
+      "source": "O CUBO 2024"
+    },
+    {
+      "id": "F2L-27",
+      "stage": "f2l",
+      "algorithm": "(R U' R' U) (R U' R')",
+      "setup": "R U R' U' R U R'",
+      "sourcePage": 4,
+      "reviewStatus": "unreviewed",
+      "source": "O CUBO 2024"
+    },
+    {
+      "id": "F2L-28",
+      "stage": "f2l",
+      "algorithm": "y' (R' U R U') (R' U R)",
+      "setup": "R' U' R U R' U' R y",
+      "sourcePage": 4,
+      "reviewStatus": "unreviewed",
+      "source": "O CUBO 2024"
+    },
+    {
+      "id": "F2L-29",
+      "stage": "f2l",
+      "algorithm": "y' (R' U' R U) (R' U' R)",
+      "setup": "R' U R U' R' U R y",
+      "sourcePage": 4,
+      "reviewStatus": "unreviewed",
+      "source": "O CUBO 2024"
+    },
+    {
+      "id": "F2L-30",
+      "stage": "f2l",
+      "algorithm": "(R U R' U') (R U R')",
+      "setup": "R U' R' U R U' R'",
+      "sourcePage": 4,
+      "reviewStatus": "unreviewed",
+      "source": "O CUBO 2024"
+    },
+    {
+      "id": "F2L-31",
+      "stage": "f2l",
+      "algorithm": "U' (R' F R F') (R U' R')",
+      "setup": "R U R' F R' F' R U",
+      "sourcePage": 4,
+      "reviewStatus": "unreviewed",
+      "source": "O CUBO 2024"
+    },
+    {
+      "id": "F2L-32",
+      "stage": "f2l",
+      "algorithm": "(U R U' R')3",
+      "setup": "(R U R' U')3",
+      "sourcePage": 4,
+      "reviewStatus": "unreviewed",
+      "source": "O CUBO 2024"
+    },
+    {
+      "id": "F2L-33",
+      "stage": "f2l",
+      "algorithm": "(U' R U' R') U2 (R U' R')",
+      "setup": "R U R' U2 R U R' U",
+      "sourcePage": 4,
+      "reviewStatus": "unreviewed",
+      "source": "O CUBO 2024"
+    },
+    {
+      "id": "F2L-34",
+      "stage": "f2l",
+      "algorithm": "U (R U R') U2' (R U R')",
+      "setup": "R U' R' U2 R U' R' U'",
+      "sourcePage": 4,
+      "reviewStatus": "unreviewed",
+      "source": "O CUBO 2024"
+    },
+    {
+      "id": "F2L-35",
+      "stage": "f2l",
+      "algorithm": "(U' R U R') U y' (R' U' R)",
+      "setup": "F' U F U' R U' R' U",
+      "sourcePage": 5,
+      "reviewStatus": "unreviewed",
+      "source": "O CUBO 2024"
+    },
+    {
+      "id": "F2L-36",
+      "stage": "f2l",
+      "algorithm": "U (F' U' F) U' (R U R')",
+      "setup": "R U' R' U F' U F U'",
+      "sourcePage": 5,
+      "reviewStatus": "unreviewed",
+      "source": "O CUBO 2024"
+    },
+    {
+      "id": "F2L-37",
+      "stage": "f2l",
+      "algorithm": "R' F R F' R U' R' U R U' R' U2 R U' R'",
+      "setup": "(R U2 R' U)2 F' U' F",
+      "sourcePage": 5,
+      "reviewStatus": "unreviewed",
+      "source": "O CUBO 2024"
+    },
+    {
+      "id": "F2L-38",
+      "stage": "f2l",
+      "algorithm": "(R U' R') U' (R U R') U2 (R U' R')",
+      "setup": "R U R' U2 R U' R' U R U R'",
+      "sourcePage": 5,
+      "reviewStatus": "unreviewed",
+      "source": "O CUBO 2024"
+    },
+    {
+      "id": "F2L-39",
+      "stage": "f2l",
+      "algorithm": "(R U' R') U (R U2' R') U (R U' R')",
+      "setup": "R U R' U' R U2 R' U' R U R'",
+      "sourcePage": 5,
+      "reviewStatus": "unreviewed",
+      "source": "O CUBO 2024"
+    },
+    {
+      "id": "F2L-40",
+      "stage": "f2l",
+      "algorithm": "(Rw U' Rw') U2 (Rw U Rw') (R U R')",
+      "setup": "R U' R' Rw U' Rw' U2 Rw U Rw'",
+      "sourcePage": 5,
+      "reviewStatus": "unreviewed",
+      "source": "O CUBO 2024"
+    },
+    {
+      "id": "F2L-41",
+      "stage": "f2l",
+      "algorithm": "R U' R' (Rw U' Rw') U2 (Rw U Rw')",
+      "setup": "Rw U' Rw' U2 Rw U Rw' R U R'",
+      "sourcePage": 5,
+      "reviewStatus": "unreviewed",
+      "source": "O CUBO 2024"
+    },
+    {
+      "id": "OLL-01",
+      "stage": "oll",
+      "algorithm": "R U R' U R U2' R'",
+      "setup": "R U2 R' U' R U' R'",
+      "sourcePage": 1,
+      "reviewStatus": "unreviewed",
+      "source": "O CUBO 2024"
+    },
+    {
+      "id": "OLL-02",
+      "stage": "oll",
+      "algorithm": "R U2 R' U' R U' R'",
+      "setup": "R U R' U R U2' R'",
+      "sourcePage": 1,
+      "reviewStatus": "unreviewed",
+      "source": "O CUBO 2024"
+    },
+    {
+      "id": "OLL-03",
+      "stage": "oll",
+      "algorithm": "y (R U R' U) (R U' R' U) (R U2' R')",
+      "setup": "F (R U R' U')3 F'",
+      "sourcePage": 1,
+      "reviewStatus": "unreviewed",
+      "source": "O CUBO 2024"
+    },
+    {
+      "id": "OLL-04",
+      "stage": "oll",
+      "algorithm": "R U2' R2' U' R2 U' R2' U2' R",
+      "setup": "R U2' R2' U' R2 U' R2' U2' R",
+      "sourcePage": 1,
+      "reviewStatus": "unreviewed",
+      "source": "O CUBO 2024"
+    },
+    {
+      "id": "OLL-05",
+      "stage": "oll",
+      "algorithm": "(Rw U R' U') (Rw' F R F')",
+      "setup": "F' (Rw U R' U') Rw' F R U2",
+      "sourcePage": 1,
+      "reviewStatus": "unreviewed",
+      "source": "O CUBO 2024"
+    },
+    {
+      "id": "OLL-06",
+      "stage": "oll",
+      "algorithm": "F' (Rw U R' U') Rw' F R",
+      "setup": "(Rw U R' U') (Rw' F R F') U",
+      "sourcePage": 1,
+      "reviewStatus": "unreviewed",
+      "source": "O CUBO 2024"
+    },
+    {
+      "id": "OLL-07",
+      "stage": "oll",
+      "algorithm": "R2 D (R' U2 R) D' (R' U2 R')",
+      "setup": "R U2 R D R' U2 R D' R2'",
+      "sourcePage": 2,
+      "reviewStatus": "unreviewed",
+      "source": "O CUBO 2024"
+    },
+    {
+      "id": "OLL-08",
+      "stage": "oll",
+      "algorithm": "F R U R' U' F'",
+      "setup": "F (U R U' R') F'",
+      "sourcePage": 2,
+      "reviewStatus": "unreviewed",
+      "source": "O CUBO 2024"
+    },
+    {
+      "id": "OLL-09",
+      "stage": "oll",
+      "algorithm": "(R U R' U') (R' F R F')",
+      "setup": "(F R' F' R) (U R U' R')",
+      "sourcePage": 2,
+      "reviewStatus": "unreviewed",
+      "source": "O CUBO 2024"
+    },
+    {
+      "id": "OLL-10",
+      "stage": "oll",
+      "algorithm": "(Rw U2 R' U' R U' Rw')",
+      "setup": "(Rw U R' U R U2' Rw')",
+      "sourcePage": 2,
+      "reviewStatus": "unreviewed",
+      "source": "O CUBO 2024"
+    },
+    {
+      "id": "OLL-11",
+      "stage": "oll",
+      "algorithm": "(Rw' U2' R U R' U Rw)",
+      "setup": "(Rw' U' R U' R' U2 Rw)",
+      "sourcePage": 2,
+      "reviewStatus": "unreviewed",
+      "source": "O CUBO 2024"
+    },
+    {
+      "id": "OLL-12",
+      "stage": "oll",
+      "algorithm": "(R U R2' U') (R' F R U) R U' F'",
+      "setup": "F U R' U' R' F' R U R2 U' R'",
+      "sourcePage": 2,
+      "reviewStatus": "unreviewed",
+      "source": "O CUBO 2024"
+    },
+    {
+      "id": "OLL-13",
+      "stage": "oll",
+      "algorithm": "R' U' (R' F R F') U R",
+      "setup": "R' U' F R' F' R U R",
+      "sourcePage": 2,
+      "reviewStatus": "unreviewed",
+      "source": "O CUBO 2024"
+    },
+    {
+      "id": "OLL-14",
+      "stage": "oll",
+      "algorithm": "y2 L' U' L U' L' U L U L F' L' F",
+      "setup": "F' L F L' U' L' U' L U L' U L U2",
+      "sourcePage": 2,
+      "reviewStatus": "unreviewed",
+      "source": "O CUBO 2024"
+    },
+    {
+      "id": "OLL-15",
+      "stage": "oll",
+      "algorithm": "(R U R' U) (R U' R' U') (R' F R F')",
+      "setup": "F R' F' R U R U R' U' R U' R'",
+      "sourcePage": 2,
+      "reviewStatus": "unreviewed",
+      "source": "O CUBO 2024"
+    },
+    {
+      "id": "OLL-16",
+      "stage": "oll",
+      "algorithm": "(Rw U R' U') (Rw' R) (U R U' R')",
+      "setup": "(R U R' U') M' (U R U' Rw')",
+      "sourcePage": 3,
+      "reviewStatus": "unreviewed",
+      "source": "O CUBO 2024"
+    },
+    {
+      "id": "OLL-17",
+      "stage": "oll",
+      "algorithm": "(R U R' U') M' (U R U' Rw')",
+      "setup": "(Rw U R' U') (Rw' R) (U R U' R')",
+      "sourcePage": 3,
+      "reviewStatus": "unreviewed",
+      "source": "O CUBO 2024"
+    },
+    {
+      "id": "OLL-18",
+      "stage": "oll",
+      "algorithm": "(R' U' F) (U R U' R') F' R",
+      "setup": "R' F R U R' U' F' U R",
+      "sourcePage": 3,
+      "reviewStatus": "unreviewed",
+      "source": "O CUBO 2024"
+    },
+    {
+      "id": "OLL-19",
+      "stage": "oll",
+      "algorithm": "R U B' (U' R' U) (R B R')",
+      "setup": "R B' R' U' R U B U' R'",
+      "sourcePage": 3,
+      "reviewStatus": "unreviewed",
+      "source": "O CUBO 2024"
+    },
+    {
+      "id": "OLL-20",
+      "stage": "oll",
+      "algorithm": "R' U' F' U F R",
+      "setup": "R' F' U' F U R",
+      "sourcePage": 3,
+      "reviewStatus": "unreviewed",
+      "source": "O CUBO 2024"
+    },
+    {
+      "id": "OLL-21",
+      "stage": "oll",
+      "algorithm": "F (U R U' R') F'",
+      "setup": "F (U R U' R') F'",
+      "sourcePage": 3,
+      "reviewStatus": "unreviewed",
+      "source": "O CUBO 2024"
+    },
+    {
+      "id": "OLL-22",
+      "stage": "oll",
+      "algorithm": "Fw (R U R' U')2 Fw'",
+      "setup": "F (R U R' U')2 F' U2",
+      "sourcePage": 3,
+      "reviewStatus": "unreviewed",
+      "source": "O CUBO 2024"
+    },
+    {
+      "id": "OLL-23",
+      "stage": "oll",
+      "algorithm": "(Rw U Rw') (U R U' R')2 (Rw U' Rw')",
+      "setup": "Rw U Rw' (R U R' U')2 ( Rw U' Rw')",
+      "sourcePage": 3,
+      "reviewStatus": "unreviewed",
+      "source": "O CUBO 2024"
+    },
+    {
+      "id": "OLL-24",
+      "stage": "oll",
+      "algorithm": "R' (F' U' F U') (R U R' U) R",
+      "setup": "R' U' R U' R' U F' U F R",
+      "sourcePage": 3,
+      "reviewStatus": "unreviewed",
+      "source": "O CUBO 2024"
+    },
+    {
+      "id": "OLL-25",
+      "stage": "oll",
+      "algorithm": "(R' F R U) (R U' R2' F') R2 U' R' (U R U R')",
+      "setup": "R U' R' U' R U R2' F R2 U R' U' R' F' R",
+      "sourcePage": 3,
+      "reviewStatus": "unreviewed",
+      "source": "O CUBO 2024"
+    },
+    {
+      "id": "OLL-26",
+      "stage": "oll",
+      "algorithm": "(R U R' U') R' F (R2 U R' U') F'",
+      "setup": "F U R U' R2' F' R U R U' R'",
+      "sourcePage": 4,
+      "reviewStatus": "unreviewed",
+      "source": "O CUBO 2024"
+    },
+    {
+      "id": "OLL-27",
+      "stage": "oll",
+      "algorithm": "(R U R' U) (R' F R F') (R U2' R')",
+      "setup": "R U2 R' F R' F' R U' R U' R'",
+      "sourcePage": 4,
+      "reviewStatus": "unreviewed",
+      "source": "O CUBO 2024"
+    },
+    {
+      "id": "OLL-28",
+      "stage": "oll",
+      "algorithm": "(R U2') (R2' F R F') (R U2' R')",
+      "setup": "R U2' R' F R' F' R2 U2' R'",
+      "sourcePage": 4,
+      "reviewStatus": "unreviewed",
+      "source": "O CUBO 2024"
+    },
+    {
+      "id": "OLL-29",
+      "stage": "oll",
+      "algorithm": "(F R' F' R) (U R U' R')",
+      "setup": "(R U R' U') (R' F R F')",
+      "sourcePage": 4,
+      "reviewStatus": "unreviewed",
+      "source": "O CUBO 2024"
+    },
+    {
+      "id": "OLL-30",
+      "stage": "oll",
+      "algorithm": "(Rw U' Rw') (U' Rw U Rw') (F' U F)",
+      "setup": "R U R' U' R' F R2 U R' U' F'",
+      "sourcePage": 4,
+      "reviewStatus": "unreviewed",
+      "source": "O CUBO 2024"
+    },
+    {
+      "id": "OLL-31",
+      "stage": "oll",
+      "algorithm": "(R' F R) (U R' F' R) (F U' F')",
+      "setup": "F U F' R' F R U' R' F' R",
+      "sourcePage": 4,
+      "reviewStatus": "unreviewed",
+      "source": "O CUBO 2024"
+    },
+    {
+      "id": "OLL-32",
+      "stage": "oll",
+      "algorithm": "(Rw U Rw') (R U R' U') (Rw U' Rw')",
+      "setup": "Rw U Rw' U R U' R' Rw U' Rw'",
+      "sourcePage": 4,
+      "reviewStatus": "unreviewed",
+      "source": "O CUBO 2024"
+    },
+    {
+      "id": "OLL-33",
+      "stage": "oll",
+      "algorithm": "(Rw' U' Rw) (R' U' R U) (Rw' U Rw)",
+      "setup": "Rw' U' Rw U' R' U R Rw' U Rw",
+      "sourcePage": 4,
+      "reviewStatus": "unreviewed",
+      "source": "O CUBO 2024"
+    },
+    {
+      "id": "OLL-34",
+      "stage": "oll",
+      "algorithm": "(R U R' U') (R U' R') (F' U' F) (R U R')",
+      "setup": "R U' R' F' U F R U R' U R U' R'",
+      "sourcePage": 4,
+      "reviewStatus": "unreviewed",
+      "source": "O CUBO 2024"
+    },
+    {
+      "id": "OLL-35",
+      "stage": "oll",
+      "algorithm": "F U (R U2 R' U') (R U2 R' U') F'",
+      "setup": "F U R U2' R' U R U2' R' U' F'",
+      "sourcePage": 4,
+      "reviewStatus": "unreviewed",
+      "source": "O CUBO 2024"
+    },
+    {
+      "id": "OLL-36",
+      "stage": "oll",
+      "algorithm": "(R U R' U R U2' R') F (R U R' U') F'",
+      "setup": "F U R U' R' F' R U2 R' U' R U' R'",
+      "sourcePage": 5,
+      "reviewStatus": "unreviewed",
+      "source": "O CUBO 2024"
+    },
+    {
+      "id": "OLL-37",
+      "stage": "oll",
+      "algorithm": "(R' U' R U' R' U2 R) F (R U R' U') F'",
+      "setup": "F U R U' R' F' R' U2 R U R' U R",
+      "sourcePage": 5,
+      "reviewStatus": "unreviewed",
+      "source": "O CUBO 2024"
+    },
+    {
+      "id": "OLL-38",
+      "stage": "oll",
+      "algorithm": "F (R U R' U')2 F'",
+      "setup": "F (U R U' R')2 F'",
+      "sourcePage": 5,
+      "reviewStatus": "unreviewed",
+      "source": "O CUBO 2024"
+    },
+    {
+      "id": "OLL-39",
+      "stage": "oll",
+      "algorithm": "F' (L' U' L U)2 F",
+      "setup": "F' (U' L' U L)2 F",
+      "sourcePage": 5,
+      "reviewStatus": "unreviewed",
+      "source": "O CUBO 2024"
+    },
+    {
+      "id": "OLL-40",
+      "stage": "oll",
+      "algorithm": "Rw U' Rw2' U Rw2 U Rw2' U' Rw",
+      "setup": "Rw' U Rw2 U' Rw2' U' Rw2 U Rw'",
+      "sourcePage": 5,
+      "reviewStatus": "unreviewed",
+      "source": "O CUBO 2024"
+    },
+    {
+      "id": "OLL-41",
+      "stage": "oll",
+      "algorithm": "Rw' U Rw2 U' Rw2' U' Rw2 U Rw'",
+      "setup": "Rw U' Rw2' U Rw2 U Rw2' U' Rw",
+      "sourcePage": 5,
+      "reviewStatus": "unreviewed",
+      "source": "O CUBO 2024"
+    },
+    {
+      "id": "OLL-42",
+      "stage": "oll",
+      "algorithm": "(Rw U R' U) (R U' R' U) R U2' Rw'",
+      "setup": "(Rw U R' U) (R U' R' U) R U2' Rw' U",
+      "sourcePage": 5,
+      "reviewStatus": "unreviewed",
+      "source": "O CUBO 2024"
+    },
+    {
+      "id": "OLL-43",
+      "stage": "oll",
+      "algorithm": "(Rw' U' R U') (R' U R U') R' U2 Rw",
+      "setup": "(Rw' U' R U') (R' U R U') R' U2 Rw U'",
+      "sourcePage": 5,
+      "reviewStatus": "unreviewed",
+      "source": "O CUBO 2024"
+    },
+    {
+      "id": "OLL-44",
+      "stage": "oll",
+      "algorithm": "(Rw U R' U R U2' Rw')",
+      "setup": "(Rw U2 R' U' R U' Rw')",
+      "sourcePage": 5,
+      "reviewStatus": "unreviewed",
+      "source": "O CUBO 2024"
+    },
+    {
+      "id": "OLL-45",
+      "stage": "oll",
+      "algorithm": "(Rw' U' R U' R' U2 Rw)",
+      "setup": "(Rw' U2' R U R' U Rw)",
+      "sourcePage": 5,
+      "reviewStatus": "unreviewed",
+      "source": "O CUBO 2024"
+    },
+    {
+      "id": "OLL-46",
+      "stage": "oll",
+      "algorithm": "Rw' (R2 U R' U R U2' R') U M'",
+      "setup": "M U' R U2' R' U' R U' R2' Rw",
+      "sourcePage": 6,
+      "reviewStatus": "unreviewed",
+      "source": "O CUBO 2024"
+    },
+    {
+      "id": "OLL-47",
+      "stage": "oll",
+      "algorithm": "Rw R2' (U' R U' R' U2 R) U' R Rw'",
+      "setup": "Rw R' U R' U2 R U R' U R2 Rw'",
+      "sourcePage": 6,
+      "reviewStatus": "unreviewed",
+      "source": "O CUBO 2024"
+    },
+    {
+      "id": "OLL-48",
+      "stage": "oll",
+      "algorithm": "(L F') (L' U' L U) F U' L'",
+      "setup": "L U F' U' L' U L F L'",
+      "sourcePage": 6,
+      "reviewStatus": "unreviewed",
+      "source": "O CUBO 2024"
+    },
+    {
+      "id": "OLL-49",
+      "stage": "oll",
+      "algorithm": "(R' F) (R U R' U') F' U R",
+      "setup": "R' U' F U R U' R' F' R",
+      "sourcePage": 6,
+      "reviewStatus": "unreviewed",
+      "source": "O CUBO 2024"
+    },
+    {
+      "id": "OLL-50",
+      "stage": "oll",
+      "algorithm": "(R U2') (R2' F R F') U2' (R' F R F')",
+      "setup": "F R' F' R U2 F R' F' R2 U2' R'",
+      "sourcePage": 6,
+      "reviewStatus": "unreviewed",
+      "source": "O CUBO 2024"
+    },
+    {
+      "id": "OLL-51",
+      "stage": "oll",
+      "algorithm": "F (R U R' U') F' Fw (R U R' U') Fw'",
+      "setup": "F (R U R' U') F' Fw (R U R' U') Fw' U2'",
+      "sourcePage": 6,
+      "reviewStatus": "unreviewed",
+      "source": "O CUBO 2024"
+    },
+    {
+      "id": "OLL-52",
+      "stage": "oll",
+      "algorithm": "Fw (R U R' U') Fw' U' F (R U R' U') F'",
+      "setup": "F U R U' R' F' U Fw U R U' R' Fw",
+      "sourcePage": 6,
+      "reviewStatus": "unreviewed",
+      "source": "O CUBO 2024"
+    },
+    {
+      "id": "OLL-53",
+      "stage": "oll",
+      "algorithm": "Fw (R U R' U') Fw' U F (R U R' U') F'",
+      "setup": "F U R U' R' F' U' Fw U R U' R' Fw'",
+      "sourcePage": 6,
+      "reviewStatus": "unreviewed",
+      "source": "O CUBO 2024"
+    },
+    {
+      "id": "OLL-54",
+      "stage": "oll",
+      "algorithm": "R U2' (R2' F R F') U2' Rw (R' U R U' Rw')",
+      "setup": "Rw U R' U' R Rw' U2 F R' F' R2 U2' R'",
+      "sourcePage": 6,
+      "reviewStatus": "unreviewed",
+      "source": "O CUBO 2024"
+    },
+    {
+      "id": "OLL-55",
+      "stage": "oll",
+      "algorithm": "Rw' R U (R U R' U') Rw (R2' F R F')",
+      "setup": "F R' F' R2 Rw' U R U' R' U' R' Rw",
+      "sourcePage": 6,
+      "reviewStatus": "unreviewed",
+      "source": "O CUBO 2024"
+    },
+    {
+      "id": "OLL-56",
+      "stage": "oll",
+      "algorithm": "(R U R' U) (R' F R F') U2' (R' F R F')",
+      "setup": "F R' F' R U2 F R' F' R U' R U' R'",
+      "sourcePage": 7,
+      "reviewStatus": "unreviewed",
+      "source": "O CUBO 2024"
+    },
+    {
+      "id": "OLL-57",
+      "stage": "oll",
+      "algorithm": "Rw' R U (R U R' U') Rw2 R2' (U R U' Rw')",
+      "setup": "Rw' R U (R U R' U') Rw2 R2' (U R U' Rw')",
+      "sourcePage": 7,
+      "reviewStatus": "unreviewed",
+      "source": "O CUBO 2024"
+    },
+    {
+      "id": "PLL-01",
+      "stage": "pll",
+      "algorithm": "(M2' U M) U2 (M' U M2')",
+      "setup": "(R U' R U) R U (R U' R' U') R2",
+      "sourcePage": 1,
+      "reviewStatus": "unreviewed",
+      "source": "O CUBO 2024"
+    },
+    {
+      "id": "PLL-02",
+      "stage": "pll",
+      "algorithm": "(M2' U' M) U2 (M' U' M2')",
+      "setup": "R2 U (R U R' U') R' U' (R' U R')",
+      "sourcePage": 1,
+      "reviewStatus": "unreviewed",
+      "source": "O CUBO 2024"
+    },
+    {
+      "id": "PLL-03",
+      "stage": "pll",
+      "algorithm": "(M2' U M2') U2 (M2' U M2')",
+      "setup": "(M2' U M2') U2 (M2' U M2')",
+      "sourcePage": 1,
+      "reviewStatus": "unreviewed",
+      "source": "O CUBO 2024"
+    },
+    {
+      "id": "PLL-04",
+      "stage": "pll",
+      "algorithm": "(M2' U M2' U) (M' U2) (M2' U2 M')",
+      "setup": "(M2' U M2' U) (M' U2) (M2' U2 M')",
+      "sourcePage": 1,
+      "reviewStatus": "unreviewed",
+      "source": "O CUBO 2024"
+    },
+    {
+      "id": "PLL-05",
+      "stage": "pll",
+      "algorithm": "x (R' U R') D2 (R U' R') D2 R2 x'",
+      "setup": "x R2' D2 (R U R') D2 (R U' R) x'",
+      "sourcePage": 2,
+      "reviewStatus": "unreviewed",
+      "source": "O CUBO 2024"
+    },
+    {
+      "id": "PLL-06",
+      "stage": "pll",
+      "algorithm": "x R2' D2 (R U R') D2 (R U' R) x'",
+      "setup": "x (R' U R') D2 (R U' R') D2 R2 x'",
+      "sourcePage": 2,
+      "reviewStatus": "unreviewed",
+      "source": "O CUBO 2024"
+    },
+    {
+      "id": "PLL-07",
+      "stage": "pll",
+      "algorithm": "x' (R U' R' D) (R U R' D') (R U R' D) (R U' R' D') x",
+      "setup": "x' (R U' R' D) (R U R' D') (R U R' D) (R U' R' D') x",
+      "sourcePage": 2,
+      "reviewStatus": "unreviewed",
+      "source": "O CUBO 2024"
+    },
+    {
+      "id": "PLL-08",
+      "stage": "pll",
+      "algorithm": "(R U R' F') (R U2' R' U2') (R' F R U) (R U2' R')",
+      "setup": "(R U R' F') (R U2' R' U2') (R' F R U) (R U2' R') U'",
+      "sourcePage": 2,
+      "reviewStatus": "unreviewed",
+      "source": "O CUBO 2024"
+    },
+    {
+      "id": "PLL-09",
+      "stage": "pll",
+      "algorithm": "(R' U2 R U2') R' F (R U R' U') R' F' R2",
+      "setup": "(R' U2 R U2') R' F (R U R' U') R' F' R2 U'",
+      "sourcePage": 2,
+      "reviewStatus": "unreviewed",
+      "source": "O CUBO 2024"
+    },
+    {
+      "id": "PLL-10",
+      "stage": "pll",
+      "algorithm": "x R2' (F R F' R) U2' (Rw' U Rw U2')",
+      "setup": "x R2' (F R F' R) U2' (Rw' U Rw U2')",
+      "sourcePage": 2,
+      "reviewStatus": "unreviewed",
+      "source": "O CUBO 2024"
+    },
+    {
+      "id": "PLL-11",
+      "stage": "pll",
+      "algorithm": "(R U R' F') (R U R' U') R' (F R2 U' R')",
+      "setup": "(R U R' F') (R U R' U') R' (F R2 U' R') U'",
+      "sourcePage": 2,
+      "reviewStatus": "unreviewed",
+      "source": "O CUBO 2024"
+    },
+    {
+      "id": "PLL-12",
+      "stage": "pll",
+      "algorithm": "(R U R' U') (R' F R2 U') R' U' (R U R' F')",
+      "setup": "(R U R' U') (R' F R2 U') R' U' (R U R' F')",
+      "sourcePage": 2,
+      "reviewStatus": "unreviewed",
+      "source": "O CUBO 2024"
+    },
+    {
+      "id": "PLL-13",
+      "stage": "pll",
+      "algorithm": "(R' U' F') (R U R' U') (R' F R2 U') (R' U' R) (U R' U R)",
+      "setup": "(R' U' F') (R U R' U') (R' F R2 U') (R' U' R) (U R' U R)",
+      "sourcePage": 2,
+      "reviewStatus": "unreviewed",
+      "source": "O CUBO 2024"
+    },
+    {
+      "id": "PLL-14",
+      "stage": "pll",
+      "algorithm": "(R' U R' U') y (R' F' R2 U') (R' U R' F) R F",
+      "setup": "(R' U R' U') y (R' F' R2 U') (R' U R' F) R F",
+      "sourcePage": 3,
+      "reviewStatus": "unreviewed",
+      "source": "O CUBO 2024"
+    },
+    {
+      "id": "PLL-15",
+      "stage": "pll",
+      "algorithm": "F (R U' R' U') (R U R' F') (R U R' U') (R' F R F')",
+      "setup": "F (R U' R' U') (R U R' F') (R U R' U') (R' F R F')",
+      "sourcePage": 3,
+      "reviewStatus": "unreviewed",
+      "source": "O CUBO 2024"
+    },
+    {
+      "id": "PLL-16",
+      "stage": "pll",
+      "algorithm": "(R U R' U) (R U R' F') (R U R' U') (R' F R2 U') R' U2 (R U' R')",
+      "setup": "(R U R' U) (R U R' F') (R U R' U') (R' F R2 U') R' U2 (R U' R')",
+      "sourcePage": 3,
+      "reviewStatus": "unreviewed",
+      "source": "O CUBO 2024"
+    },
+    {
+      "id": "PLL-17",
+      "stage": "pll",
+      "algorithm": "Rw' D' F Rw U' Rw' F' D Rw2 U Rw' U' Rw' F Rw F'",
+      "setup": "Rw' D' F Rw U' Rw' F' D Rw2 U Rw' U' Rw' F Rw F'",
+      "sourcePage": 3,
+      "reviewStatus": "unreviewed",
+      "source": "O CUBO 2024"
+    },
+    {
+      "id": "PLL-18",
+      "stage": "pll",
+      "algorithm": "R2 U (R' U R' U') (R U' R2) {D U'} (R' U R D')",
+      "setup": "(R' U' R) {U D'} (R2 U R' U) (R U' R U') R2' D",
+      "sourcePage": 3,
+      "reviewStatus": "unreviewed",
+      "source": "O CUBO 2024"
+    },
+    {
+      "id": "PLL-19",
+      "stage": "pll",
+      "algorithm": "(R' U' R) {U D'} (R2 U R' U) (R U' R U') R2' D",
+      "setup": "R2 U (R' U R' U') (R U' R2) {D U'} (R' U R D')",
+      "sourcePage": 3,
+      "reviewStatus": "unreviewed",
+      "source": "O CUBO 2024"
+    },
+    {
+      "id": "PLL-20",
+      "stage": "pll",
+      "algorithm": "R2' U' (R U' R U) (R' U R2) {D' U} (R U' R' D)",
+      "setup": "(R U R') {U' D} (R2 U' R U') (R' U R' U) R2 D'",
+      "sourcePage": 3,
+      "reviewStatus": "unreviewed",
+      "source": "O CUBO 2024"
+    },
+    {
+      "id": "PLL-21",
+      "stage": "pll",
+      "algorithm": "(R U R') {U' D} (R2 U' R U') (R' U R' U) R2 D'",
+      "setup": "R2' U' (R U' R U) (R' U R2) {D' U} (R U' R' D)",
+      "sourcePage": 3,
+      "reviewStatus": "unreviewed",
+      "source": "O CUBO 2024"
+    }
+  ]
+}
