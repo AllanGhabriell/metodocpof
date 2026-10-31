@@ -1,0 +1,178 @@
+/* Academia CFOP: separação de ações administrativas para telas pequenas.
+   No desktop, as ações continuam no cabeçalho existente. */
+.studio-mobile-admin-menu{display:none}
+
+@media (max-width:860px){
+  body.studio-page .original-studio-header{
+    display:grid!important;
+    grid-template-columns:46px minmax(0,1fr) 46px;
+    align-items:center;
+    gap:10px;
+    width:calc(100% - 20px);
+    max-width:calc(100% - 20px);
+    padding:10px 12px;
+    min-height:66px;
+    overflow:hidden;
+  }
+  body.studio-page .original-studio-header .original-back{
+    grid-column:1;
+    width:44px;
+    min-width:44px;
+    height:44px;
+    margin:0;
+    justify-self:center;
+  }
+  body.studio-page .original-studio-header .studio-brand-mark{
+    grid-column:2;
+    justify-self:start;
+    display:inline-flex;
+    flex:0 1 auto;
+    gap:5px;
+    width:auto;
+    max-width:100%;
+    min-width:0;
+    margin:0;
+    font-size:clamp(15px,4.1vw,20px);
+    line-height:1.2;
+    white-space:nowrap;
+    overflow:hidden;
+    text-overflow:ellipsis;
+  }
+  body.studio-page .original-studio-header .studio-brand-letters{
+    flex:none;
+  }
+  body.studio-page .original-studio-header .studio-page-identity{
+    display:none!important;
+  }
+  body.studio-page .original-studio-header .studio-header-actions{
+    grid-column:3;
+    display:flex;
+    width:46px;
+    min-width:0;
+    margin:0;
+    padding:0;
+    align-items:center;
+    justify-content:center;
+  }
+  body.studio-page .original-studio-header .studio-header-actions > .studio-admin-publish,
+  body.studio-page .original-studio-header .studio-header-actions > .original-admin-button{
+    display:none!important;
+  }
+  body.studio-page .original-studio-header .header-profile{
+    flex:none;
+    width:44px;
+    min-width:44px;
+    height:44px;
+    min-height:44px;
+    max-width:44px;
+    padding:5px;
+    margin:0;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    border-radius:13px;
+  }
+  body.studio-page .original-studio-header .header-profile .header-avatar{
+    width:32px;
+    min-width:32px;
+    height:32px;
+    margin:0;
+  }
+  body.studio-page .original-studio-header .header-profile .header-profile-text,
+  body.studio-page .original-studio-header .header-profile .header-profile-chevron{
+    display:none!important;
+  }
+  body.studio-page .studio-mobile-admin-menu{
+    display:block;
+    box-sizing:border-box;
+    width:calc(100% - 20px);
+    max-width:1120px;
+    margin:11px auto 0;
+    background:rgba(9,26,50,.88);
+    border:1px solid rgba(116,174,227,.35);
+    border-radius:15px;
+    color:#d9eeff;
+    overflow:hidden;
+    box-shadow:0 8px 24px rgba(0,8,24,.16);
+  }
+  body.studio-page .studio-mobile-admin-menu summary{
+    display:flex;
+    align-items:center;
+    gap:10px;
+    width:100%;
+    min-height:49px;
+    padding:10px 15px;
+    cursor:pointer;
+    list-style:none;
+    font-weight:700;
+    font-size:13px;
+    -webkit-tap-highlight-color:transparent;
+    touch-action:manipulation;
+  }
+  body.studio-page .studio-mobile-admin-menu summary::-webkit-details-marker{display:none}
+  body.studio-page .studio-mobile-admin-menu summary:focus-visible{
+    outline:2px solid #84caff;
+    outline-offset:-3px;
+  }
+  body.studio-page .studio-mobile-admin-menu-icon{
+    flex:none;
+    display:grid;
+    place-items:center;
+    width:29px;
+    height:29px;
+    border:1px solid #579ac8;
+    border-radius:8px;
+    background:#164568;
+    font-size:17px;
+  }
+  body.studio-page .studio-mobile-admin-menu-caret{
+    margin-left:auto;
+    color:#9ac4e7;
+    font-size:20px;
+    transition:transform .2s ease;
+  }
+  body.studio-page .studio-mobile-admin-menu[open] .studio-mobile-admin-menu-caret{
+    transform:rotate(180deg);
+  }
+  body.studio-page .studio-mobile-admin-menu-actions{
+    display:grid;
+    grid-template-columns:repeat(2,minmax(0,1fr));
+    gap:9px;
+    padding:0 12px 12px;
+  }
+  body.studio-page .studio-mobile-admin-menu-actions > a,
+  body.studio-page .studio-mobile-admin-menu-actions > button{
+    box-sizing:border-box;
+    width:100%;
+    min-width:0;
+    min-height:49px;
+    margin:0;
+    padding:10px 8px;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    border:1px solid rgba(112,195,235,.6);
+    border-radius:11px;
+    text-decoration:none;
+    text-align:center;
+    color:#edfaff;
+    font:700 12px/1.35 system-ui,sans-serif;
+    white-space:normal;
+    overflow-wrap:break-word;
+    background:linear-gradient(120deg,#175a83,#1c617e);
+    cursor:pointer;
+    -webkit-tap-highlight-color:transparent;
+  }
+  body.studio-page .studio-mobile-admin-menu-actions > .studio-mobile-admin-manage{
+    border-color:rgba(143,185,240,.5);
+    background:#183c67;
+  }
+}
+@media(max-width:350px){
+  body.studio-page .original-studio-header{grid-template-columns:43px minmax(0,1fr) 43px;gap:7px;padding:8px}
+  body.studio-page .original-studio-header .studio-brand-mark{font-size:14px}
+  body.studio-page .studio-mobile-admin-menu-actions{grid-template-columns:1fr}
+}
+@media(prefers-reduced-motion:reduce){
+  .studio-mobile-admin-menu-caret{transition:none!important}
+}
