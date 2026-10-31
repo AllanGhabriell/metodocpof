@@ -56,3 +56,9 @@ body.cfop-record-glow .scramble-record-share>strong{color:#ffe7a0}
  .timer-edit-fields label:last-child{grid-column:auto}
 }
 @media(prefers-reduced-motion:reduce){body.cfop-record-glow::after{animation:none!important;display:none!important}}
+
+.cross-lab-clock-section{min-height:clamp(310px,48dvh,580px);display:flex!important;flex-direction:column;justify-content:center;align-items:center;cursor:pointer;touch-action:manipulation}
+.cross-lab-clock-section:active{background:radial-gradient(ellipse at 50% 40%,rgba(62,139,216,.16),rgba(8,27,49,.92) 80%)}
+.cross-lab-pb-notice{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:13px 17px;border:1px solid #e0ba60;background:linear-gradient(125deg,rgba(123,87,27,.65),rgba(41,62,94,.7));border-radius:12px;color:#ffe9b1;flex-wrap:wrap}
+.cross-lab-pb-notice button{background:#845e29;border:1px solid #ddc17d;color:#fff7dc;min-height:42px;border-radius:9px;padding:9px 13px}
+@media(max-width:600px){.cross-lab-clock-section{min-height:clamp(320px,53dvh,620px)}}
