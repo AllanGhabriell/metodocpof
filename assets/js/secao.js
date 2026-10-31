@@ -1560,8 +1560,14 @@ document.addEventListener('DOMContentLoaded', () => {
     } else {
       first = pickNextCase();
     }
-    if (!first) first = unexcludedCases()[0] || CASE_IDS[0];
-    setCurrentCase(first, !state.competitive.enabled);
+    if(!first)first=unexcludedCases()[0]||null;
+    if(!first){
+      currentCase=null;
+      save();
+      renderCaseScene();
+      return;
+    }
+    setCurrentCase(first,!state.competitive.enabled);
     save();
     renderCaseScene();
     preloadAnother();
