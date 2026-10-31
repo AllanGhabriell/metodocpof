@@ -7,6 +7,19 @@ export function isAlgorithm(text){const t=clean(text);if(t.length<5||t.length>35
  return (t.match(MOVE)||[]).length>=3&&stripped.length===0
 }
 const NAMES={pll:/^(?:Ua|Ub|H|Z|Aa|Ab|E|Ra|Rb|Ja|Jb|T|F|V|Y|Na|Nb|Ga|Gb|Gc|Gd)$/i,oll:/^(?:Sune|Anti-Sune|Pi|H|T|L|U)$/i};
+// F2L usa diagramas tridimensionais mais altos, seguidos imediatamente pelo
+// desenho seguinte. O recorte amplo usado por OLL invadia a linha de baixo.
+export function diagramRect(stage,algorithmX,algorithmY,scale){
+ const baseX=algorithmX-111*scale,baseY=algorithmY-30*scale;
+ if(stage==='f2l')return {
+  x:Math.max(0,Math.round(baseX)),y:Math.max(0,Math.round(baseY-6*scale)),
+  w:Math.round(91*scale),h:Math.round(91*scale)
+ };
+ return {
+  x:Math.max(0,Math.round(baseX)),y:Math.max(0,Math.round(baseY)),
+  w:Math.round(113*scale),h:Math.round(113*scale)
+ };
+}
 export function detectColumns(page,stage){
  const w=page.width||page.canvas?.width||980,h=page.height||page.canvas?.height||1380;
  const scale=w/595.276, rows=[];
@@ -44,11 +57,7 @@ export function detectColumns(page,stage){
    }).sort((a,b)=>Math.abs(a.y-alg.y)-Math.abs(b.y-alg.y));
    candidates.push({page:page.page,side,y:alg.y,x:alg.x,algorithm:alg.text,
     setup:group.length>1?setup.text:'',alternatives:group.slice(1,-1).map(v=>v.text),
-    detectedName:clean(nearby[0]?.text),rect:{
-      x:Math.max(0,Math.round(alg.x-111*scale)),
-      y:Math.max(0,Math.round(alg.y-30*scale)),
-      w:Math.round(113*scale),h:Math.round(113*scale)
-    }});
+    detectedName:clean(nearby[0]?.text),rect:diagramRect(stage,alg.x,alg.y,scale)});
   }
  }
  return candidates.sort((a,b)=>a.y-b.y||a.x-b.x);
