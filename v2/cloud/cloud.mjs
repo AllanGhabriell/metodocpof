@@ -287,15 +287,11 @@ export function markDraftDeleted(draft){
  const key=draft.stage+':'+draft.id,existing=read(TOMBS,[]);
  save(TOMBS,mergeList(existing,[{key,at:Date.now()}],500,(a,b)=>a.at>b.at?a:b));markLocalChange();
 }
-async function updateProfile(){
- if(!isAuthenticated())return;
- const p=read(KEYS.progress,{}),name=String(p?.name||'Cubista').slice(0,40);
- try{
-  await rest('cfop_profiles',{method:'POST',query:'on_conflict=user_id',body:{user_id:session.user.id,nickname:name,updated_at:new Date().toISOString()},prefer:'resolution=merge-duplicates'});
- }catch{}
-}
+// A identidade é alterada exclusivamente pela RPC cfop_set_identity.
+// Não publicar o apelido genérico local no banco ao fazer login.
+async function updateProfile(){return true}
 export async function postLogin(){
- await checkAdmin();await syncCloud();await updateProfile();await loadPublishedCases();
+ await checkAdmin();await syncCloud();await loadPublishedCases();
 }
 export async function initializeCloud({changed=()=>{},hydrated=()=>{}}={}){
  onUpdate=changed;onHydrate=hydrated;
