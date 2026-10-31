@@ -27,6 +27,8 @@ export const isConfigured=()=>Boolean(conf?.url&&conf?.key);
 export const isAuthenticated=()=>Boolean(session?.access_token&&session?.user?.id);
 export const isAdmin=()=>isAuthenticated()&&admin;
 export const cloudUser=()=>session?.user||null;
+// Ajuste autorizado no servidor; não é parte dos dados locais editáveis.
+export const adminXpAdjustment=()=>isAuthenticated()?accountXp:0;
 export const cloudStatus=()=>({configured:isConfigured(),authenticated:isAuthenticated(),admin,user:cloudUser(),phase,error:lastError,lastSynced});
 export const publishedCases=()=>published.slice();
 function validateConfig(url,key){
@@ -117,7 +119,7 @@ export async function updatePassword(password){
 export async function signOut(){
  const old=session?.access_token;
  try{if(old)await authFetch('logout','POST',{},old)}catch{}
- session=null;admin=false;save(AUTH,null);setStatus('desconectado');return true;
+ session=null;admin=false;accountXp=0;accountMessages=[];save(AUTH,null);setStatus('desconectado');return true;
 }
 async function rest(table,{method='GET',query='',body=null,anon=false,prefer=''}={}){
  if(!anon)await token();
@@ -152,6 +154,7 @@ export async function loadAccountExtras(){
   ]);
   accountMessages=Array.isArray(notes)?notes:[];
   accountXp=Array.isArray(state)&&state.length?Number(state[0].xp_adjustment)||0:0;
+  emit();
  }catch{}
 }
 export async function cloudProfileRefresh(){return updateProfile()}
