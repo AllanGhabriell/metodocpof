@@ -525,3 +525,9 @@ body[data-set] .trainer-guide-content p{
 }
 body[data-set] .trainer-guide-content p:last-child{border:0}
 body[data-set] .trainer-guide-content strong{color:#e5f6ff;font-weight:750;font-size:12px}
+
+/* Escolha da biblioteca sem interferir nas ferramentas de treino. */
+.trainer-library-choice{display:flex;gap:5px;align-items:center;flex-direction:column;min-width:135px;max-width:min(33vw,225px);color:#cce8fd;font-size:11px}
+.trainer-library-choice select{max-width:100%;min-height:32px;border:1px solid #79aec49c;border-radius:9px;background:#0c2845;color:#edf9ff;padding:4px 8px;font:600 12px system-ui}
+.trainer-library-note{font-size:10px;color:#cba4a4;max-width:200px}
+@media(max-width:540px){.trainer-library-choice{max-width:35vw;min-width:90px}.trainer-library-choice select{font-size:10px}}
