@@ -233,3 +233,59 @@ body.scramble-body.scramble-timer-active{
  .scramble-body.scramble-timer-active .scramble-clock #timer-display{font-size:clamp(55px,13vw,112px)}
  .scramble-body.scramble-timer-active .scramble-clock #timer-status{font-size:11px}
 }
+
+
+/* Cubo 3D visível abaixo do relógio, sem reintroduzir rolagem vertical. */
+.scramble-body.scramble-timer-active .scramble-cube-section:not([hidden]){
+ display:flex!important;
+ flex:0 0 auto;
+ height:clamp(152px,27dvh,215px);
+ min-height:0!important;
+ max-height:30dvh;
+ box-sizing:border-box;
+ align-items:center;
+ justify-content:center;
+ padding:4px 5px 8px;
+ margin:0 auto 5px;
+ width:min(360px,100%);
+ border-radius:15px;
+ overflow:hidden;
+ gap:2px;
+}
+.scramble-body.scramble-timer-active .scramble-cube-section .scramble-cube-heading{
+ margin:0;font-size:11px;line-height:1.2;
+}
+.scramble-body.scramble-timer-active .scramble-cube-section .scramble-cube-heading small{display:none}
+.scramble-body.scramble-timer-active .scramble-cube-section #scramble-cube,
+.scramble-body.scramble-timer-active .scramble-cube-section .cube3d-stage{
+ min-height:0!important;height:clamp(102px,18dvh,149px);
+ width:100%;
+ display:grid;place-items:center;
+}
+.scramble-body.scramble-timer-active .scramble-cube-section .cube3d-scene{
+ --cube-size:clamp(92px,16dvh,136px)!important;
+ --cube-half:calc(var(--cube-size) / 2)!important;
+}
+.scramble-body.scramble-timer-active .scramble-cube-controls{gap:5px}
+.scramble-body.scramble-timer-active .scramble-cube-controls button{
+ min-width:30px;min-height:28px;padding:4px 9px;
+ font-size:12px;line-height:1;
+}
+.scramble-body.scramble-timer-active .scramble-cube-net{
+ width:min(220px,90%);height:100%;margin:auto;max-height:145px;
+}
+@media(max-height:665px){
+ .scramble-body.scramble-timer-active .scramble-cube-section:not([hidden]){
+ height:clamp(125px,24dvh,153px);max-height:27dvh;
+ }
+ .scramble-body.scramble-timer-active .scramble-cube-section #scramble-cube,
+ .scramble-body.scramble-timer-active .scramble-cube-section .cube3d-stage{
+ height:clamp(86px,17dvh,116px);
+ }
+ .scramble-body.scramble-timer-active .scramble-cube-section .cube3d-scene{
+ --cube-size:clamp(78px,14dvh,105px)!important;
+ }
+ .scramble-body.scramble-timer-active .scramble-clock #timer-display{
+ font-size:clamp(57px,14vw,125px)!important;
+ }
+}
