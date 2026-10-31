@@ -1,6 +1,6 @@
 /* GitHub Pages app shell — network-first, version-aware resource fallback.
    Never reuse an old JS module under a different ?v= version. */
-const CACHE='cfop-studio-offline-20261031-v40';
+const CACHE='cfop-studio-offline-20261031-v41';
 const CORE=[
  './index.html','./studio.html','./f2l.html','./oll.html','./pll.html','./importer.html',
  './cross.html','./scramble.html',
@@ -11,11 +11,11 @@ const CORE=[
  './v2/features/cross-timer.mjs?v=20261031-4',
  './v2/features/cross-ideas.mjs?v=20261031-1',
  './v2/features/cross.mjs?v=20261031-guided-2',
- './v2/app.js?v=20261031-rpg-3',
+ './v2/app.js?v=20261031-rpg-4',
  './assets/css/journey.css?v=20261031-1',
  './v2/features/progression.mjs?v=20261031-rpg-2',
  './v2/features/journey.mjs?v=20261031-rpg-3',
- './v2/features/progress.mjs?v=20261031-rpg-2',
+ './v2/features/progress.mjs?v=20261031-rpg-3',
  './v2/features/achievements.mjs?v=20261031-rpg-2',
  './v2/features/share-cards.mjs?v=20261031-rpg-2',
  './v2/cloud/admin.mjs?v=20261031-rpg-1',
