@@ -22,6 +22,7 @@ document.addEventListener('DOMContentLoaded', () => {
     })(),
     pll: ['Ua', 'Ub', 'H', 'Z', 'Aa', 'Ab', 'E', 'Ra', 'Rb', 'Ja', 'Jb', 'T', 'F', 'V', 'Y', 'Na', 'Nb', 'Ga', 'Gb', 'Gc', 'Gd']
   };
+  const currentLibraryVariant=()=>window.CPOFLibrary?.get(pageSet,currentCase)||null;
   const MOVES_BY_SET = {
     f2l: {
       1: "U' (R U R' U) (R U R')",
@@ -1215,7 +1216,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     caseSetupCaseId.textContent = String(currentCase);
     const setSetups = SETUPS_BY_SET[pageSet] || {};
-    const setup = setSetups[currentCase] || '';
+    const setup = currentLibraryVariant()?.setup || setSetups[currentCase] || '';
     caseSetupText.textContent = setup || `Setup ainda não cadastrado para ${String(pageSet || '').toUpperCase()}.`;
   }
 
@@ -1242,7 +1243,7 @@ document.addEventListener('DOMContentLoaded', () => {
     caseMovesCaseId.textContent = String(currentCase);
 
     const setMoves = MOVES_BY_SET[pageSet] || {};
-    const alg = setMoves[currentCase] || '';
+    const alg = currentLibraryVariant()?.algorithm || setMoves[currentCase] || '';
 
     caseMovesToggle.disabled = false;
     caseMovesText.textContent = alg || `Movimentos ainda não cadastrados para ${String(pageSet || '').toUpperCase()}.`;
@@ -1265,6 +1266,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   }
 
+  document.addEventListener('cpof:libraries-changed',()=>{if(currentCase)renderCaseScene().catch(console.warn)});
   async function renderCaseScene() {
     renderLastCaseInfo();
     renderCompetitiveSetup();
@@ -1307,11 +1309,12 @@ document.addEventListener('DOMContentLoaded', () => {
     nextBtn.textContent = state.competitive.enabled?'Registrar tempo':'Fácil';
     caseMask.hidden = true;
     imgEl.hidden = false;
-    const src = `${pageSet}/${currentCase}.png`;
+    const src = currentLibraryVariant()?.imageData || `${pageSet}/${currentCase}.png`;
     // Altera a imagem imediatamente para não confundir um caso antigo com o novo.
     imgEl.alt='Caso '+pageSet.toUpperCase()+' '+currentCase;
     imgEl.src=src;
     try {
+      if(src.startsWith('data:image/'))return;
       await C.preloadImage(src);
     } catch (e) {
       // Não interrompe o treino se um PNG estiver temporariamente indisponível.
