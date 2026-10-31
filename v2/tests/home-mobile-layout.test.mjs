@@ -6,7 +6,7 @@ const css=read('../../assets/css/home-layout.css');
 const home=read('../../index.html');
 
 test('mobile navigation is a full-width row, never a fixed sidebar',()=>{
- const start=css.lastIndexOf('@media (max-width:760px)');
+ const start=css.indexOf('@media (max-width:760px)');
  assert.ok(start>=0);
  const mobile=css.slice(start);
  assert.match(mobile,/\.academy-home-sidebar\s*\{[\s\S]*?position:relative;/);
@@ -15,7 +15,7 @@ test('mobile navigation is a full-width row, never a fixed sidebar',()=>{
  assert.match(mobile,/overflow-y:auto/);
 });
 test('training cards are 2x2 with a normal-width CROSS card on mobile',()=>{
- const mobile=css.slice(css.lastIndexOf('@media (max-width:760px)'));
+ const mobile=css.slice(css.indexOf('@media (max-width:760px)'));
  assert.match(mobile,/body\.academy-home \.home-actions\s*\{[\s\S]*?grid-template-columns:repeat\(2,minmax\(0,1fr\)\)/);
  assert.match(mobile,/body\.academy-home \.home-actions \.academy-stage-cross\s*\{[\s\S]*?grid-column:auto;/);
  assert.match(mobile,/min-height:137px/);
