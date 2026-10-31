@@ -1,4 +1,4 @@
-import {loadLibraries,libraryList,selectedLibrary,selectedLibraryName,libraryCases,chooseLibrary,libraryError,originalBaseInfo,originalCases,loadOriginalBase,deleteOriginalBase,isOriginalOwner,defaultForStage,stageDefaultInfo,setDefaultLibrary} from './cloud/libraries.mjs';
+import {loadLibraries,libraryList,selectedLibrary,selectedLibraryName,libraryCases,chooseLibrary,libraryError,originalBaseInfo,originalCases,loadOriginalBase,deleteOriginalBase,isOriginalOwner,defaultForStage,stageDefaultInfo,setDefaultLibrary,deleteLibrary} from './cloud/libraries.mjs';
 import {adminPanel,adminLoad,adminClick,adminSubmit} from './cloud/admin.mjs?v=20261030-55';
 import {cloudStatus,loadAccountExtras,startActivityTracking,recordActivity,isConfigured,isAuthenticated,isAdmin,cloudUser,cloudPanel,signInWithGoogle,signIn,signUp,recoverPassword,updatePassword,signOut,syncCloud,initializeCloud,acceptAuthRedirect,markLocalChange,markDraftDeleted,cloudProfileRefresh,publishedCases,publishCase,unpublishCase,loadPublishedCases} from './cloud/cloud.mjs?v=20261030-55';
 import {onlinePage,onlineInit,onlineLoad,onlineClick,onlineSubmit} from './cloud/online.mjs?v=20261030-55';
@@ -153,15 +153,18 @@ function stageDefaultsPage(){
  '<p>É esta biblioteca que todos verão automaticamente ao abrir um treino. Os alunos ainda podem selecionar outras bibliotecas publicadas. F2L e PLL também permitem escolher a Original. OLL não possui base original.</p>'+
  '<div class="admin-default-cards">'+['f2l','oll','pll'].map(stage=>{
    const entry=current[stage],target=entry?.source==='library'?entry.library_id:entry?.source||'none';
-   const opts=[{id:'none',name:'Nenhuma biblioteca (ainda não publicada)'}]
+   const opts=[{id:'none',name:'Nenhuma biblioteca selecionada'}]
     .concat(stage!=='oll'&&originalBaseInfo().state!=='deleted'?[{id:'original',name:'Original · '+stage.toUpperCase()}]:[])
-    .concat(libraryList().filter(l=>l.is_public).map(l=>({id:l.id,name:l.title})));
+    .concat(libraryList().map(l=>({id:l.id,name:l.title+(l.is_public?' · pública':' · rascunho')})));
    return '<article><div><strong>'+stage.toUpperCase()+'</strong><small>'+({f2l:'41 casos · duas primeiras camadas',oll:'57 casos · última camada',pll:'21 casos · permutações'}[stage])+'</small></div>'+
      '<label for="admin-default-'+stage+'">Principal para todos</label>'+
      '<select id="admin-default-'+stage+'" data-default-stage="'+stage+'">'+
        opts.map(o=>'<option value="'+escapeHtml(o.id)+'" '+(target===o.id?'selected':'')+'>'+escapeHtml(o.name)+'</option>').join('')+
      '</select><button data-action="admin-save-default" data-stage="'+stage+'">Salvar padrão de '+stage.toUpperCase()+'</button></article>';
   }).join('')+'</div>'+
+ '<h2>Gerenciar bibliotecas</h2><div class="admin-default-cards">'+
+ (libraryList().length?libraryList().map(l=>'<article><strong>'+escapeHtml(l.title)+'</strong><small>'+ (l.is_public?'Pública':'Rascunho')+'</small><button class="secondary" data-action="admin-delete-library" data-library-id="'+escapeHtml(l.id)+'">Excluir biblioteca</button></article>').join(''):'<p>Nenhuma biblioteca cadastrada.</p>')+
+ '</div>'+
  '<p class="muted">A escolha é armazenada no Supabase e vale para visitantes novos ou ao iniciar uma nova sessão. Para selecionar uma biblioteca personalizada, publique antes os casos aprovados desta etapa.</p>'+
  (cloudMessage?'<p role="status" class="notice">'+escapeHtml(cloudMessage)+'</p>':'')+'</section>';
 }
@@ -225,6 +228,15 @@ if(b.dataset.cross||b.dataset.crossmove){if(crossClick(b,awardActivity))render()
 if(b.dataset.grade||b.dataset.practice){if(practiceClick(b))render();return}
 if(b.dataset.progress){if(progressClick(b))render();return}
 if(b.dataset.editor){const draft=caseDrafts[draftSelection];if(isAdmin()&&draft&&imageEditorClick(b,draft,()=>{draft.updatedAt=Date.now();persistDrafts()})&&['save','clear'].includes(b.dataset.editor))render();return}if(b.dataset.casefilter){caseFilter=b.dataset.casefilter;activeCase=0;trainingReveal=false;showSetups=false;render();return}if(b.dataset.caseindex!==undefined){activeCase=Number(b.dataset.caseindex);showSetups=false;trainingReveal=false;render();return}if(b.dataset.difficulty){trainingSettingsOpen=true;trainingDifficulty=['easy','normal','hard'].includes(b.dataset.difficulty)?b.dataset.difficulty:'normal';trainingReveal=false;render();return}if(b.dataset.deletesolve!==undefined){const index=Number(b.dataset.deletesolve);if(confirm('Excluir esta resolução do histórico?')){times=removeSolve(times,index);saveTimes();render()}return}if(b.dataset.draft!==undefined){draftSelection=Number(b.dataset.draft);reviewMessage='';render();return}if(b.dataset.move){cubeHistory.push(cubeState.slice());cubeState=apply(cubeState,b.dataset.move);render();return}switch(b.dataset.action){
+case'admin-delete-library':{
+ if(!isOriginalOwner())break;
+ const id=b.dataset.libraryId,lib=libraryList().find(l=>l.id===id);
+ if(!lib)break;
+ if(!confirm('Excluir permanentemente a biblioteca "'+lib.title+'" e seus casos? Essa ação não pode ser desfeita.'))break;
+ b.disabled=true;
+ deleteLibrary(id).then(()=>{cloudMessage='Biblioteca excluída.';render()}).catch(e=>{cloudMessage='Erro ao excluir: '+e.message;render()});
+ break;
+}
 case'admin-save-default':{
  if(!isOriginalOwner())break;
  const stage=b.dataset.stage,value=root.querySelector('select[data-default-stage="'+stage+'"]')?.value;
