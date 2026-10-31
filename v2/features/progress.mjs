@@ -2,6 +2,8 @@ import {academyActivityData,academyDashboard} from './academy-insights.mjs';
 import {adminXpAdjustment,serverXpBalance} from '../cloud/cloud.mjs?v=20261031-58';
 import {identityState,identityPanel} from '../cloud/identity.mjs';
 import {achievementBonus,earnedAchievements} from './achievements.mjs?v=20261031-1';
+import {levelFromXp} from './progression.mjs';
+import {journeyPanel,journeyIdentity} from './journey.mjs?v=20261031-1';
 const KEY='cfop-studio-progress-v1',DAY=86400000;
 const esc=x=>String(x??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
 const dateOf=d=>[d.getFullYear(),String(d.getMonth()+1).padStart(2,'0'),String(d.getDate()).padStart(2,'0')].join('-');
@@ -30,11 +32,12 @@ export function progressSummary(){
  while(activity.has(dateOf(d))){streak++;d.setDate(d.getDate()-1)}
  const kinds={};data.records.forEach(r=>{kinds[r.type]=(kinds[r.type]||0)+1});
  streak=academyActivityData(data.records).streak;
- return {xp,level:Math.floor(xp/200)+1,streak,today:data.records.filter(r=>r.date===today()).length+coachEvents.filter(e=>dateOf(new Date(e.at))===today()).length,kinds};
+ return {xp,level:levelFromXp(xp).level,streak,today:data.records.filter(r=>r.date===today()).length+coachEvents.filter(e=>dateOf(new Date(e.at))===today()).length,kinds};
 }
 export function progressDashboard(){
- const summary=progressSummary(),badges=earnedAchievements(data.records);
+ const summary=progressSummary(),badges=earnedAchievements(data.records),rank=journeyIdentity(summary.xp);
  return academyDashboard(data.records,summary.xp,summary.level)+
+ '<section class="academy-insight-card journey-dashboard"><span class="academy-overline">SUA JORNADA</span><h2>'+esc(rank.title)+' · Nível '+summary.level+'</h2><div class="journey-meter"><span style="width:'+rank.percent+'%"></span></div><p>'+summary.xp.toLocaleString('pt-BR')+' XP acumulados · '+(rank.needed?rank.earned+' / '+rank.needed+' XP até o próximo nível':'Nível máximo')+'</p><p>Seus treinos são acompanhados automaticamente. Personalize sua jornada e seu foco na área Meu perfil.</p></section>'+
  '<section class="academy-insight-card academy-achievements"><div><span class="academy-overline">CONQUISTAS</span>'+
  '<h2>'+badges.filter(b=>b.earned).length+' de '+badges.length+' desbloqueadas</h2>'+
  '<p>XP '+summary.xp+' · Nível '+summary.level+'. Conquistas são calculadas a partir de treinos e tempos realmente registrados.</p></div>'+
@@ -50,19 +53,19 @@ export function planPage(){
  '<p class="muted">Sem push em segundo plano: as notificações só são verificadas enquanto o site estiver aberto e autorizado.</p></section></div>';
 }
 export function profilePage(){
- const activity=academyActivityData(data.records),id=identityState();
+ const activity=academyActivityData(data.records),id=identityState(),rank=journeyIdentity(progressSummary().xp);
  const n=id.nickname||'Cubista',initial=(n[0]||'C').toUpperCase();
  const photo=id.avatar?'<img src="'+id.avatar+'" alt="Foto de perfil" class="academy-profile-photo">':esc(initial);
  return '<section class="academy-profile-hero"><span class="academy-overline">SEU ESPAÇO · ACADEMIA CFOP</span>'+
- '<div class="academy-profile-main"><div class="academy-profile-big-avatar" aria-hidden="true">'+photo+'</div>'+
- '<div class="academy-profile-person"><h1>'+esc(n)+'</h1><p>'+
+ '<div class="academy-profile-main"><div class="academy-profile-big-avatar journey-frame-'+esc(rank.frame)+'" aria-hidden="true">'+photo+'</div>'+
+ '<div class="academy-profile-person"><h1 class="journey-name-'+esc(rank.name)+'">'+esc(n)+'</h1><div class="journey-profile-title">'+esc(rank.title)+' · Nível '+rank.level+'</div><p>'+
  (id.userId?'Seu cubo, seus resultados e seu ritmo de aprendizagem.':
  'Visitante: seus treinos ficam neste aparelho e não estão protegidos por uma conta.')+
  '</p></div><button type="button" data-page="dashboard">Ver minha evolução →</button></div>'+
  '<div class="academy-profile-numbers"><span><strong>'+activity.streak+'</strong> dias de sequência</span>'+
  '<span><strong>'+activity.cases.length+'</strong> casos registrados</span>'+
  '<span><strong>'+activity.times.length+'</strong> tempos salvos</span></div></section>'+
- identityPanel()+
+ journeyPanel(progressSummary().xp,data.records)+identityPanel()+
  '<section class="card academy-profile-settings"><div class="academy-settings-head"><span class="academy-overline">DADOS E BACKUP</span>'+
  '<h2>Seu progresso</h2><p>Exporte seus treinos para manter uma cópia independente.</p></div>'+
  '<details class="profile-fold"><summary><span><strong>Backup e dados</strong><small>Exportar ou recuperar seu progresso local</small></span>'+
