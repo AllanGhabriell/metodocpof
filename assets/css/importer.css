@@ -69,3 +69,8 @@ body.importer-body{overflow-y:auto;min-height:100vh;background:radial-gradient(e
  .importer-steps>span{font-size:10px}
  .importer-hero h1{font-size:28px}
 }
+
+.importer-card-actions [data-approve]{background:#155c54;border-color:#60bdaa8c;color:#ecfff7;font-weight:750}
+.importer-card-actions [data-approve]:hover:not(:disabled){background:#1b766b}
+.importer-card-actions [data-approve]:disabled{background:#173a39;opacity:.82;color:#8fdfb7;cursor:default}
+#import-action-status:not(:empty){color:#a5e5ce;max-width:360px}
