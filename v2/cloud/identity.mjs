@@ -3,6 +3,10 @@ import {cloudTable,isAuthenticated,cloudUser} from './cloud.mjs?v=20261031-56';
 const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 let profile={userId:null,nickname:'Cubista Anônimo',avatar:null,ready:false,nameLocked:false,avatarBlocked:false,error:''};
 let lastMessage='';
+const cachedIdentity=id=>{try{return JSON.parse(localStorage.getItem('cpof-identity-'+id)||'null')}catch{return null}};
+const cacheIdentity=id=>{try{localStorage.setItem('cpof-identity-'+id,JSON.stringify({
+ nickname:profile.nickname,avatar:profile.avatar,nameLocked:profile.nameLocked,avatarBlocked:profile.avatarBlocked
+}))}catch{}};
 export const identityState=()=>isAuthenticated()?{...profile}:{userId:null,nickname:'Cubista Anônimo',avatar:null,ready:true,nameLocked:true,avatarBlocked:true,error:''};
 export const identityMessage=()=>lastMessage;
 function announce(){if(typeof document!=='undefined')document.dispatchEvent(new Event('cpof:identity-changed'))}
@@ -22,9 +26,12 @@ export async function loadIdentity(){
    avatar:typeof item.avatar_data==='string'&&item.avatar_data.startsWith('data:image/webp;base64,')?item.avatar_data:null,
    ready:true,nameLocked:!!flags.name_locked,avatarBlocked:!!flags.avatar_blocked,error:''
   };
-  lastMessage='';
+  lastMessage='';cacheIdentity(id);
  }catch(e){
-  profile={userId:id,nickname:'',avatar:null,ready:false,nameLocked:false,avatarBlocked:false,error:e.message};
+  const old=cachedIdentity(id);
+  profile={userId:id,nickname:old?.nickname||'',avatar:old?.avatar||null,ready:false,
+   nameLocked:!!old?.nameLocked,avatarBlocked:!!old?.avatarBlocked,
+   error:'Perfil offline: '+e.message};
   lastMessage='Não consegui verificar seu perfil: '+e.message;
  }
  announce();return profile;
