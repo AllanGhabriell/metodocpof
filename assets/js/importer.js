@@ -166,13 +166,18 @@ $('import-library').addEventListener('change',()=>{
 });
 $('import-rename-library').addEventListener('click',async()=>{try{guard();const id=$('import-library').value;if(!id)throw Error('Selecione uma biblioteca.');await renameLibrary(id,$('import-new-library').value.trim(),'');libraryOptions();$('import-library').value=id;status('Nome da biblioteca atualizado para os usuários online.')}catch(e){status(e.message)}});
 $('import-stage').addEventListener('change',()=>{stage=$('import-stage').value;showExistingStage();status('Etapa alterada. Escolha um caso ou importe um PDF.')});
-$('import-new-library').addEventListener('input',update);
+$('import-new-library').addEventListener('input',()=>{
+ const count=records.filter(r=>r.status==='approved').length;
+ $('import-publish').disabled=busy||count===0||(!$('import-library').value&&$('import-new-library').value.trim().length<2);
+});
 $('import-approve-all').addEventListener('click',()=>{
  records.forEach(r=>{if(r.algorithm.trim())r.status='approved'});update();
  status('Casos com algoritmo marcados como aprovados. Confira individualmente a identidade e o recorte antes de salvar.');
 });
 async function saveAll(){
- guard();let libraryId=$('import-library').value;
+ guard();if(!records.length)throw Error('Nenhum caso para salvar.');
+ if(new Set(records.map(r=>r.case_id)).size!==records.length)throw Error('Corrija os casos duplicados.');
+ let libraryId=$('import-library').value;
  if(!libraryId){
   const title=$('import-new-library').value.trim();
   if(title.length<2)throw Error('Escolha uma biblioteca ou informe um nome para criar uma nova.');
@@ -182,8 +187,6 @@ async function saveAll(){
   status('Biblioteca '+title+' criada. Salvando revisão…');
  }
 
- if(!records.length)throw Error('Nenhum caso para salvar.');
- if(new Set(records.map(r=>r.case_id)).size!==records.length)throw Error('Corrija os casos duplicados.');
  busy=true;$('import-save').disabled=true;$('import-publish').disabled=true;
  try{await saveLibraryCasesBatch(libraryId,records,(done,total)=>status('Salvando '+done+'/'+total+' casos…'))}
  finally{busy=false;$('import-save').disabled=false;update()}
