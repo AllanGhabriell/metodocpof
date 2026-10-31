@@ -4,7 +4,7 @@ import {cloudStatus,loadAccountExtras,startActivityTracking,recordActivity,isCon
 import {onlinePage,onlineInit,onlineLoad,onlineClick,onlineSubmit} from './cloud/online.mjs?v=20261030-55';
 import {crossPage,crossClick,crossChange} from './features/cross.mjs';
 import {awardActivity,progressDashboard,progressData,reloadProgress,saveFeatureData,planPage,profilePage,progressClick,progressSubmit,progressImport,checkReminder,progressSummary} from './features/progress.mjs?v=20261031-rpg-2';
-import {loadJourney,journeyEquip,journeyAnswers} from './features/journey.mjs?v=20261031-rpg-2';
+import {loadJourney,journeyEquip,journeyAnswers} from './features/journey.mjs?v=20261031-rpg-3';
 import {saveAcademyGoals} from './features/academy-insights.mjs';
 import {identityState,loadIdentity,saveIdentity} from './cloud/identity.mjs';
 import {openAvatarCrop,exportAvatarCrop,cancelAvatarCrop} from './features/avatar-crop.mjs';
