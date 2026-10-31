@@ -195,3 +195,113 @@ body.academy-home .site-footer{
  body.academy-home .home-actions .academy-stage,
  .academy-rail-link{animation:none!important;transition:none!important}
 }
+
+/* Layout mobile v2: navegação horizontal, alvos de toque confortáveis e cards 2 × 2.
+   Substitui a coluna lateral fixa que espremia F2L/OLL/PLL em telefones. */
+@media (max-width:760px){
+ html:has(body.academy-home){height:auto;min-height:100%;overflow-x:hidden;overflow-y:auto}
+ body.academy-home{
+  width:100%;height:auto;min-height:100dvh;overflow-x:hidden;overflow-y:auto;
+  display:flex;flex-direction:column;align-items:stretch
+ }
+ .academy-home-header{
+  min-height:0;flex:0 0 auto;padding:calc(18px + env(safe-area-inset-top,0px)) 16px 14px;
+  align-items:center
+ }
+ .academy-brand-name{font-size:clamp(1.45rem,5.5vw,1.85rem);letter-spacing:-.045em}
+ .academy-home-sidebar{
+  position:relative;inset:auto;top:auto;left:auto;right:auto;bottom:auto;
+  transform:none;z-index:20;width:100%;max-width:640px;
+  margin:0 auto;padding:0 16px;display:flex;flex-direction:column;gap:10px
+ }
+ .academy-home-rail{
+  width:100%;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));
+  gap:9px;align-items:stretch
+ }
+ .academy-home-rail>a.academy-rail-link,
+ .academy-home-sidebar .academy-utility summary.academy-rail-link{
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  width:100%;height:100%;min-height:78px;padding:10px 3px 9px;
+  gap:7px;border-radius:14px;text-align:center;white-space:normal;
+  font:650 clamp(10px,2.8vw,12px)/1.18 system-ui,sans-serif;
+  overflow-wrap:normal
+ }
+ .academy-rail-link:hover,.academy-rail-link:focus-visible{transform:none}
+ .academy-rail-icon{width:27px;height:27px;font-size:23px}
+ .academy-home-sidebar .academy-utility{
+  position:relative!important;inset:auto!important;top:auto!important;
+  right:auto!important;left:auto!important;width:100%;min-width:0
+ }
+ .academy-home-sidebar .academy-utility details{position:relative;height:100%}
+ .academy-home-sidebar .academy-utility summary.academy-rail-link::after{display:none}
+ .academy-home-sidebar .academy-utility nav.academy-side-menu{
+  position:absolute;top:calc(100% + 10px);right:0;left:auto;
+  width:min(300px,calc(100vw - 32px));min-width:0;
+  max-width:calc(100vw - 32px);max-height:min(65dvh,430px);overflow-y:auto;
+  z-index:100;padding:10px;border-radius:15px
+ }
+ .academy-home-sidebar .academy-utility nav.academy-side-menu a{
+  min-height:44px;display:flex;align-items:center;font-size:13px;padding:12px 13px
+ }
+ .academy-home-streak{
+  align-self:center;flex-direction:row;justify-content:center;gap:8px;
+  width:auto;max-width:100%;min-height:35px;padding:6px 14px;border-radius:999px;
+  background:rgba(12,29,58,.68)
+ }
+ .academy-streak-flame{font-size:17px}
+ .academy-streak-content{flex-direction:row;align-items:center;flex-wrap:wrap;gap:8px}
+ .academy-streak-content strong{font-size:12px}
+ .academy-streak-content small{display:inline;font-size:10px}
+ .academy-home-main{
+  width:100%;max-width:700px;min-height:0;flex:1 0 auto;
+  align-items:flex-start;justify-content:flex-start;
+  margin:0 auto;padding:26px 16px 24px
+ }
+ .academy-stage-selection{
+  width:100%;max-width:560px;margin:0 auto;gap:16px;
+  align-items:stretch;transform:none
+ }
+ .academy-stage-eyebrow{font-size:12px;letter-spacing:.16em}
+ body.academy-home .home-actions{
+  display:grid;grid-template-columns:repeat(2,minmax(0,1fr));
+  gap:12px;width:100%;align-items:stretch;justify-items:stretch
+ }
+ body.academy-home .home-actions .academy-stage,
+ body.academy-home .home-actions .academy-stage-cross{
+  grid-column:auto;width:100%;min-width:0;min-height:137px;
+  padding:17px 9px;gap:10px;border-radius:17px;justify-self:stretch;
+  touch-action:manipulation
+ }
+ .academy-stage-name{font-size:clamp(1.75rem,7vw,2.2rem);line-height:1.12}
+ body.academy-home .academy-stage-cross .academy-stage-name{font-size:clamp(1.5rem,6.1vw,1.9rem)}
+ body.academy-home .home-actions .academy-stage .stage-subtitle{
+  font-size:12px;line-height:1.3;text-align:center
+ }
+ body.academy-home .site-footer{
+  position:static;flex:0 0 auto;margin-top:auto;
+  padding:16px 14px calc(20px + env(safe-area-inset-bottom,0px));
+  text-align:center;font-size:11px
+ }
+}
+@media (max-width:359px){
+ .academy-home-header{padding-left:12px;padding-right:12px}
+ .academy-home-sidebar{padding:0 12px}
+ .academy-home-rail{gap:6px}
+ .academy-home-rail>a.academy-rail-link,
+ .academy-home-sidebar .academy-utility summary.academy-rail-link{
+  min-height:74px;font-size:10px;padding-left:2px;padding-right:2px
+ }
+ .academy-home-main{padding:22px 12px 20px}
+ body.academy-home .home-actions{gap:9px}
+ body.academy-home .home-actions .academy-stage,
+ body.academy-home .home-actions .academy-stage-cross{min-height:120px}
+ .academy-streak-content small{font-size:9px}
+}
+@media (max-width:760px) and (max-height:520px){
+ .academy-home-header{padding-top:9px;padding-bottom:8px}
+ .academy-home-rail>a.academy-rail-link,
+ .academy-home-sidebar .academy-utility summary.academy-rail-link{min-height:62px}
+ .academy-home-main{padding-top:14px}
+ body.academy-home .home-actions .academy-stage,
+ body.academy-home .home-actions .academy-stage-cross{min-height:92px}
+}
