@@ -49,12 +49,26 @@ export async function claimCaseXp(stage,caseId,mode,result){
 export const cloudStatus=()=>({configured:isConfigured(),authenticated:isAuthenticated(),admin,user:cloudUser(),phase,error:lastError,lastSynced});
 export const publishedCases=()=>published.slice();
 export const pendingNotices=()=>accountMessages.filter(n=>!n.read_at);
+export function noticeSenderMarkup(n){
+ const name=esc(n.actor_name||'Administração');
+ const source=typeof n.actor_avatar==='string'&&n.actor_avatar.length<=80000&&
+  /^data:image\/webp;base64,[A-Za-z0-9+/=]+$/.test(n.actor_avatar)?n.actor_avatar:'';
+ const photo=source?'<img src="'+source+'" alt="Foto do administrador">':
+  '<span aria-hidden="true">'+esc((n.actor_name||'A').trim().charAt(0).toUpperCase())+'</span>';
+ const cls=n.actor_is_creator?'cfop-notice-sender-creator':'cfop-notice-sender-admin';
+ return '<div class="cfop-notice-sender"><div class="cfop-notice-sender-avatar '+cls+'">'+photo+
+  '</div><div class="cfop-notice-sender-text"><small>ALTERAÇÃO REALIZADA POR</small><strong>'+name+'</strong><em>'+
+  (n.actor_is_creator?'Deus Criador dos Cubos · Administração':'Equipe administrativa')+
+  '</em></div></div>';
+}
+
 export function cloudNoticeOverlay(){
  const pending=pendingNotices();
  if(!isAuthenticated()||!pending.length)return '';
  const n=pending[0],count=pending.length;
  return '<div class="cfop-notice-backdrop" role="presentation"><section class="cfop-notice-dialog" role="dialog" aria-modal="true" aria-labelledby="cfop-notice-title">'+
   '<span class="cfop-notice-eyebrow">RECADO DA ADMINISTRAÇÃO</span>'+
+  noticeSenderMarkup(n)+
   '<h2 id="cfop-notice-title">'+(n.priority==='important'?'Aviso importante':'Você recebeu uma mensagem')+'</h2>'+
   '<p class="cfop-notice-text">'+esc(n.body)+'</p>'+
   '<p class="cfop-notice-meta">Enviada em '+new Date(n.created_at).toLocaleString('pt-BR')+
@@ -188,7 +202,7 @@ export async function loadAccountExtras(){
  if(!isAuthenticated())return;
  try{
   const [notes,state]=await Promise.all([
-   rest('cfop_user_notifications',{query:'select=id,body,created_at,read_at,priority&order=created_at.desc&limit=60'}),
+   rest('cfop_user_notifications',{query:'select=id,body,created_at,read_at,priority,actor_name,actor_avatar,actor_is_creator&order=created_at.desc&limit=60'}),
    rest('cfop_user_admin_state',{query:'select=xp_adjustment,suspended_until,suspension_reason,banned_at,banned_reason&user_id=eq.'+encodeURIComponent(session.user.id)})
   ]);
   const next=Array.isArray(notes)?notes:[];
@@ -378,7 +392,7 @@ export function cloudPanel(){
  '<div class="account-signed-in"><div class="account-identity"><span class="account-identity-avatar" aria-hidden="true">'+esc((status.user?.email||'?')[0].toUpperCase())+'</span><div><strong>'+esc(status.user?.email||'Conta conectada')+'</strong><p class="muted">'+(status.admin?'Administrador':'Conta conectada')+'</p></div></div><div class="row"><button type="button" data-cloud="sync">Sincronizar</button></div><details class="account-email profile-fold"><summary>Segurança e acesso</summary><div class="profile-fold-content"><button type="button" class="secondary" data-cloud="logout">Sair da conta</button><p class="muted">Sua atividade é estimada apenas enquanto o aplicativo está em primeiro plano e há interação recente. Não coletamos localização ou conteúdo digitado.</p></div></details><details class="account-email profile-fold"><summary>Alterar senha</summary><form id="cloud-password" class="studio-form"><label>Nova senha<input class="field" name="password" type="password" required minlength="8"></label><button>Atualizar senha</button></form></details></div>')+
  (status.authenticated?'<details class="account-notices profile-fold"><summary><strong>Mensagens da equipe · '+pendingNotices().length+' pendentes</strong></summary>'+
  '<div class="profile-fold-content"><p class="muted">Ajuste administrativo de XP: '+accountXp+'</p>'+
- (accountMessages.length?accountMessages.map(n=>'<article class="account-notice"><p>'+esc(n.body)+'</p>'+
+ (accountMessages.length?accountMessages.map(n=>'<article class="account-notice">'+noticeSenderMarkup(n)+'<p>'+esc(n.body)+'</p>'+
  '<small>'+new Date(n.created_at).toLocaleString('pt-BR')+' · '+(n.read_at?'Lida':'Pendente')+'</small>'+
  (!n.read_at?'<button type="button" class="secondary" data-cloud="read-notice" data-notice-id="'+esc(n.id)+'">Marcar como lida</button>':'')+'</article>').join(''):
  '<p class="muted">Nenhuma mensagem recebida.</p>')+'</div></details>':'')+(status.configured?technical:'')+'</section>';
