@@ -1,5 +1,5 @@
 import {academyActivityData,academyDashboard} from './academy-insights.mjs';
-import {adminXpAdjustment} from '../cloud/cloud.mjs?v=20261030-55';
+import {adminXpAdjustment} from '../cloud/cloud.mjs?v=20261031-56';
 import {identityState,identityPanel} from '../cloud/identity.mjs';
 import {achievementBonus,earnedAchievements} from './achievements.mjs';
 const KEY='cfop-studio-progress-v1',DAY=86400000;
