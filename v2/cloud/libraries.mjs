@@ -33,7 +33,7 @@ export async function loadOriginalBase(){
    const response=await fetch('./v2/data/pdf-cases.json',{cache:'no-store'});
    if(!response.ok)throw Error('Arquivo de referência original indisponível. Nada foi publicado.');
    const original=await response.json();
-   const cases=(original.cases||[]).filter(c=>CASE_BY_ID.get(c.id)?.stage===c.stage);
+   const cases=(original.cases||[]).filter(c=>c.stage!=='oll'&&CASE_BY_ID.get(c.id)?.stage===c.stage);
    for(let i=0;i<cases.length;i+=20){
     await cloudTable('cfop_original_base_cases',{method:'POST',
      query:'on_conflict=case_id',prefer:'resolution=ignore-duplicates,return=minimal',
@@ -41,7 +41,7 @@ export async function loadOriginalBase(){
    }
    list=await cloudTable('cfop_original_base_cases',{query:'select=case_id,details&order=case_id.asc&limit=150'});
   }
-  originalRows=(list||[]).map(r=>r.details).filter(c=>CASE_BY_ID.get(c.id)?.stage===c.stage);
+  originalRows=(list||[]).map(r=>r.details).filter(c=>c.stage!=='oll'&&CASE_BY_ID.get(c.id)?.stage===c.stage);
   originalState='active';originalError='';notify();return originalRows;
  }catch(e){originalState='error';originalError=e.message;originalRows=[];notify();return []}
  })().finally(()=>{originalLoading=null});
