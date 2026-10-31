@@ -1,4 +1,4 @@
-import {isAdmin,isConfigured,cloudUser,initializeCloud,acceptAuthRedirect,cloudTable} from '../../v2/cloud/cloud.mjs?v=20261030-55';
+import {isAdmin,isConfigured,cloudUser,initializeCloud,acceptAuthRedirect,cloudTable} from '../../v2/cloud/cloud.mjs?v=20261031-56';
 import {FIXED_CASES,CASE_BY_ID,LIMITS} from '../../v2/data/case-catalog.mjs';
 import {assignFixedCases,cropDiagram} from '../../v2/data/pdf-layout.mjs';
 import {algorithmIndex,identifyByAlgorithm} from '../../v2/data/algorithm-match.mjs';
