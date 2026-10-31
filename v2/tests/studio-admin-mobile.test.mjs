@@ -16,8 +16,8 @@ test('mobile admin controls are separate from top header and only shown to admin
  const main=app.indexOf('<main class="original-studio-content"');
  assert.ok(header>=0&&nav>header&&panel>nav&&main>panel);
  assert.match(app,/\(isAdmin\(\)\?'<details class="studio-mobile-admin-menu"/);
- assert.match(app,/<a href=\\"importer\.html\\" class=\\"studio-mobile-admin-publish\\"/);
- assert.match(app,/data-page=\\"admin-users\\" class=\\"studio-mobile-admin-manage\\"/);
+ assert.match(app,/<a href="importer\.html" class="studio-mobile-admin-publish"/);
+ assert.match(app,/data-page="admin-users" class="studio-mobile-admin-manage"/);
 });
 test('header has three responsive columns and ADM buttons are hidden only at mobile sizes',()=>{
  assert.match(style,/@media \(max-width:860px\)/);
