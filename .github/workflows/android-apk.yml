@@ -28,10 +28,7 @@ jobs:
         uses: gradle/actions/setup-gradle@v4
         with:
           gradle-version: '8.10.2'
-      - name: Instalar Android SDK 35
-        run: |
-          echo "ANDROID_HOME=$ANDROID_HOME"
-          sdkmanager --install "platforms;android-35" "build-tools;35.0.0"
+      # O runner já possui as plataformas Android; o Gradle usa ANDROID_HOME.
       - name: Compilar APK
         working-directory: android-app
         run: gradle --no-daemon --stacktrace :app:assembleDebug
