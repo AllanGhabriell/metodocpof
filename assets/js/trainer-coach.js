@@ -70,7 +70,7 @@ function complete(stage,id,options={}){
  try{const s=JSON.parse(storage()?.getItem('cfop-cloud-session-v1')||'null');authenticated=!!(s?.access_token&&s?.user?.id)}catch{}
  let xp=0;
  if(!authenticated&&mode!=='sequential'&&grade==='good'&&rewardedToday<80){
-   if(!previous.length)xp=8;
+   if(!lastReward)xp=8;
    else if(reviewed&&lastReward&&now-Number(lastReward.at)>=DAY&&
     !previous.some(e=>Number(e.xp)>0&&localDay(e.at)===localDay(now)))xp=2;
    xp=Math.min(xp,80-rewardedToday);
