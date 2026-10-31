@@ -1,11 +1,11 @@
 /* GitHub Pages app shell — network-first, version-aware resource fallback.
    Never reuse an old JS module under a different ?v= version. */
-const CACHE='cfop-studio-offline-20261031-v31';
+const CACHE='cfop-studio-offline-20261031-v32';
 const CORE=[
  './index.html','./studio.html','./f2l.html','./oll.html','./pll.html','./importer.html',
  './cross.html','./scramble.html',
- './v2/app.js?v=20261031-10',
- './v2/app.css?v=20261031-5',
+ './v2/app.js?v=20261031-11',
+ './v2/app.css?v=20261031-6',
  './assets/css/studio-original.css?v=1',
  './assets/css/academy.css?v=20261030-1',
  './assets/css/home-layout.css?v=20261031-mobile-1',
@@ -15,8 +15,8 @@ const CORE=[
  './assets/css/cursor-glow.css?v=1',
  './assets/css/trainer-unified.css?v=20261031-4',
  './assets/css/importer.css?v=20261031-4',
- './assets/js/library-trainer.js?v=20261031-7',
- './assets/js/importer.js?v=20261031-7',
+ './assets/js/library-trainer.js?v=20261031-8',
+ './assets/js/importer.js?v=20261031-8',
  './v2/data/case-catalog.mjs','./v2/data/algorithm-match.mjs','./v2/data/image-match.mjs','./v2/data/pdf-layout.mjs','./v2/cloud/libraries.mjs?v=20261031-4',
  './v2/cursor-glow.js?v=20261030-31'
 ];
@@ -30,11 +30,12 @@ const OPTIONAL=[
  './v2/features/progress.mjs','./v2/features/academy-insights.mjs',
  './v2/features/practice.mjs','./v2/features/editor.mjs',
  './v2/features/sticker-editor.mjs',
- './v2/cloud/cloud.mjs?v=20261031-56','./v2/cloud/coach-merge.mjs',
+ './v2/cloud/cloud.mjs?v=20261031-57','./v2/cloud/coach-merge.mjs',
  './v2/cloud/project-config.mjs',
  './v2/cloud/identity.mjs','./v2/features/avatar-crop.mjs',
+ './assets/js/notice-banner.js?v=20261031-2','./assets/css/notice-banner.css?v=20261031-1',
  './v2/features/achievements.mjs','./v2/features/share-cards.mjs',
- './v2/cloud/admin.mjs?v=20261031-2','./v2/cloud/online.mjs?v=20261030-55',
+ './v2/cloud/admin.mjs?v=20261031-3','./v2/cloud/online.mjs?v=20261030-55',
  './v2/data/pdf-import.mjs',
  './assets/js/trainer-coach.js?v=20261030-43',
  './assets/js/secao.js?v=20261031-7',
