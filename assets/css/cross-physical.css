@@ -1,0 +1,63 @@
+/* Cross: treinamento físico de inspeção, memória e tempos. */
+.cross-mode-switch{display:flex;gap:9px;margin-bottom:22px;padding:6px;background:rgba(7,16,33,.8);border:1px solid rgba(145,184,255,.24);border-radius:16px}
+.cross-mode-switch button{flex:1;min-height:49px;font-size:14px;font-weight:750;border-radius:11px;background:transparent;border:1px solid transparent;color:#b7cce8}
+.cross-mode-switch button[aria-pressed="true"]{color:#fff;background:linear-gradient(125deg,rgba(31,86,150,.75),rgba(21,56,109,.75));border-color:#71bbe8;box-shadow:inset 0 1px rgba(255,255,255,.13)}
+.cross-phys-levels{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin:0 0 18px}
+.cross-phys-levels button{display:grid;justify-items:center;gap:3px;min-height:100px;padding:13px 8px;background:rgba(8,19,40,.85);border:1px solid rgba(145,184,255,.25);border-radius:15px;transition:border-color .2s,background .2s,transform .2s}
+.cross-phys-levels button:hover:not(:disabled){transform:translateY(-2px);border-color:#7fd1ff}
+.cross-phys-levels button.is-selected{border-color:#8dcfff;background:linear-gradient(145deg,rgba(36,92,156,.6),rgba(12,44,95,.7));box-shadow:0 0 19px rgba(75,151,255,.12)}
+.cross-phys-levels small{font-size:10px;font-weight:800;letter-spacing:.11em;color:#9ccbf1}
+.cross-phys-levels strong{font-size:30px;line-height:1.15;color:#f6faff}
+.cross-phys-levels span{font-size:12px;color:#c1d9f4}
+.cross-phys-scramble{margin-top:16px}
+.cross-phys-scramble-head{display:flex;align-items:center;justify-content:space-between;gap:9px;margin-bottom:7px}
+.cross-phys-scramble-head span{margin:0}
+.cross-original-main .cross-phys-scramble-head button{padding:8px 11px;font-size:12px;white-space:nowrap}
+.cross-phys-scramble strong{min-height:58px}
+.cross-phys-obscured{color:#b1d5f2;font:600 14px/1.6 system-ui,sans-serif!important}
+.cross-phys-net{width:min(92%,390px);display:grid;grid-template-columns:repeat(4,minmax(0,1fr));grid-template-rows:repeat(3,auto);gap:5px;aspect-ratio:4/3;align-items:center}
+.cross-phys-face{display:grid;grid-template-columns:repeat(3,1fr);grid-template-rows:repeat(3,1fr);gap:2px;aspect-ratio:1;background:#100f16;padding:3px;border:1px solid #0b0b14;border-radius:5px;min-width:0}
+.cross-phys-face span{border-radius:3px;border:1px solid rgba(0,0,0,.25)}
+.cross-phys-hidden-cube{display:grid;justify-items:center;text-align:center;gap:9px;color:#c0e2ff;padding:25px}
+.cross-phys-hidden-cube strong{font-size:19px;color:#fff}
+.cross-phys-hidden-cube span{font-size:13px}
+.cross-phys-timer{margin-top:18px;display:grid;justify-items:center;text-align:center;gap:8px}
+.cross-original-main .cross-phys-timer button{width:min(100%,370px);min-height:122px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:7px;border-radius:22px;border:1px solid #6aa5e0;background:radial-gradient(circle at 50% 0,rgba(49,113,189,.42),rgba(12,28,57,.95));box-shadow:0 12px 35px #0005;touch-action:manipulation}
+.cross-phys-timer button strong{font:800 clamp(35px,7vw,58px)/1.1 ui-monospace,SFMono-Regular,Consolas,monospace;letter-spacing:.035em;color:#fff}
+.cross-phys-timer button span{color:#b6e5ff;font-size:13px;letter-spacing:.04em}
+.cross-phys-timer p{max-width:490px;font-size:13px;line-height:1.55;color:#b4d5ee;margin:0}
+.cross-phys-review{padding:16px;margin-top:16px;border-radius:15px;border:1px solid rgba(129,208,255,.45);background:rgba(29,68,114,.25)}
+.cross-phys-review>strong{font-size:16px}
+.cross-phys-review p{color:#c3d9f0;font-size:13px;line-height:1.5}
+.cross-phys-result-buttons{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:7px}
+.cross-original-main .cross-phys-result-buttons button{padding:12px 5px;white-space:nowrap}
+.cross-original-main .cross-phys-result-buttons .is-success{border-color:#62d9aa;color:#afffda;background:rgba(25,107,81,.35)}
+.cross-phys-settings h2{margin:0;font-size:17px}
+.cross-phys-settings .cross-settings{padding-top:10px}
+.cross-phys-guide small{display:block;color:#95adc9;line-height:1.5;margin-top:12px}
+.cross-phys-stats{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;margin-top:13px}
+.cross-phys-stats div{display:grid;gap:6px;min-width:0;padding:12px;background:rgba(4,15,35,.5);border:1px solid rgba(145,184,255,.13);border-radius:11px}
+.cross-phys-stats span{font-size:11px;color:#aebfdd}
+.cross-phys-stats strong{font-size:20px;color:#f5faff}
+.cross-phys-recommendation{border-left:2px solid #7abce9;padding:7px 10px;margin-top:14px!important}
+.cross-phys-log{margin:20px 0 0;padding:20px;background:rgba(9,20,41,.86);border:1px solid rgba(145,184,255,.27);border-radius:18px}
+.cross-phys-log h2{margin:0;font-size:18px}
+.cross-phys-log .cross-panel-heading span{color:#a1b9d5;font-size:12px}
+.cross-phys-history{display:grid;gap:5px;margin-top:14px}
+.cross-phys-history-row{display:grid;grid-template-columns:minmax(0,1fr) 62px 70px;gap:8px;align-items:center;min-height:42px;padding:8px 10px;border-radius:9px;background:rgba(11,30,60,.65);font-size:12px;color:#c3d7f2}
+.cross-phys-history-row strong{text-align:center;font-size:14px}
+.cross-phys-history-row>span:last-child{text-align:right;font-variant-numeric:tabular-nums}
+.cross-phys-win{color:#95f0c9}.cross-phys-miss{color:#ffc1aa}
+@media(max-width:560px){
+ .cross-mode-switch{gap:6px;padding:5px;margin-bottom:16px}
+ .cross-mode-switch button{font-size:12px;padding:12px 6px;min-height:45px}
+ .cross-phys-levels{gap:6px}
+ .cross-phys-levels button{min-height:85px;padding:10px 4px}
+ .cross-phys-levels strong{font-size:25px}
+ .cross-phys-levels span,.cross-phys-levels small{font-size:10px}
+ .cross-phys-result-buttons{grid-template-columns:repeat(auto-fit,minmax(53px,1fr))}
+ .cross-phys-scramble strong{font-size:14px}
+ .cross-phys-log{padding:15px}
+ .cross-phys-history-row{grid-template-columns:minmax(0,1fr) 47px 62px;font-size:11px}
+}
+@media(prefers-reduced-motion:reduce){.cross-phys-levels button{transition:none!important;transform:none!important}}
