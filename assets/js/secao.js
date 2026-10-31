@@ -23,6 +23,18 @@ document.addEventListener('DOMContentLoaded', () => {
     pll: ['Ua', 'Ub', 'H', 'Z', 'Aa', 'Ab', 'E', 'Ra', 'Rb', 'Ja', 'Jb', 'T', 'F', 'V', 'Y', 'Na', 'Nb', 'Ga', 'Gb', 'Gc', 'Gd']
   };
   const currentLibraryVariant=()=>window.CPOFLibrary?.get(pageSet,currentCase)||null;
+  const unavailableImage=reason=>{
+    // Não utilizar imagem da biblioteca original quando uma versão personalizada não foi publicada.
+    const label=reason==='missing'?'Caso não publicado':'Imagem não cadastrada';
+    const svg='<svg xmlns="http://www.w3.org/2000/svg" width="288" height="288" viewBox="0 0 288 288">'
+      +'<rect width="288" height="288" rx="18" fill="#0d1d35"/>'
+      +'<rect x="17" y="17" width="254" height="254" rx="13" fill="none" stroke="#547a9e" stroke-width="2" stroke-dasharray="7 7"/>'
+      +'<text x="144" y="128" text-anchor="middle" font-family="Arial,sans-serif" font-size="18" font-weight="bold" fill="#edf8ff">'+label+'</text>'
+      +'<text x="144" y="163" text-anchor="middle" font-family="Arial,sans-serif" font-size="12" fill="#9bb5d3">Revise e publique este caso</text>'
+      +'<text x="144" y="181" text-anchor="middle" font-family="Arial,sans-serif" font-size="12" fill="#9bb5d3">no gerenciador de bibliotecas.</text>'
+      +'</svg>';
+    return 'data:image/svg+xml;charset=utf-8,'+encodeURIComponent(svg)
+  };
   const MOVES_BY_SET = {
     f2l: {
       1: "U' (R U R' U) (R U R')",
@@ -1214,9 +1226,10 @@ document.addEventListener('DOMContentLoaded', () => {
     caseSetup.hidden = !shouldShow;
     if (!shouldShow) return;
 
-    caseSetupCaseId.textContent = String(currentCase);
+    caseSetupCaseId.textContent = currentLibraryVariant()?.name || String(currentCase);
     const setSetups = SETUPS_BY_SET[pageSet] || {};
-    const setup = currentLibraryVariant()?.setup || setSetups[currentCase] || '';
+    const variant=currentLibraryVariant();
+    const setup = variant ? variant.setup||'' : setSetups[currentCase] || '';
     caseSetupText.textContent = setup || `Setup ainda não cadastrado para ${String(pageSet || '').toUpperCase()}.`;
   }
 
@@ -1240,13 +1253,14 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     caseMoves.hidden = false;
-    caseMovesCaseId.textContent = String(currentCase);
+    caseMovesCaseId.textContent = currentLibraryVariant()?.name || String(currentCase);
 
     const setMoves = MOVES_BY_SET[pageSet] || {};
-    const alg = currentLibraryVariant()?.algorithm || setMoves[currentCase] || '';
+    const variant=currentLibraryVariant();
+    const alg = variant ? variant.algorithm||'' : setMoves[currentCase] || '';
 
     caseMovesToggle.disabled = false;
-    caseMovesText.textContent = alg || `Movimentos ainda não cadastrados para ${String(pageSet || '').toUpperCase()}.`;
+    caseMovesText.textContent = alg || (variant?'Este caso ainda não tem algoritmo aprovado na biblioteca selecionada.':`Movimentos ainda não cadastrados para ${String(pageSet || '').toUpperCase()}.`);
     const orderedMode = isOrderedTrainingMode();
     caseMovesBody.hidden = !movesOpen;
     caseMovesToggle.hidden = false;
@@ -1255,7 +1269,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     if (caseMovesSetupWrap && caseMovesSetupText) {
       const setSetups = SETUPS_BY_SET[pageSet] || {};
-      const setup = setSetups[currentCase] || '';
+      const setup = variant ? variant.setup||'' : setSetups[currentCase] || '';
       if (movesOpen && setup) {
         caseMovesSetupWrap.hidden = false;
         caseMovesSetupText.textContent = setup;
@@ -1309,9 +1323,12 @@ document.addEventListener('DOMContentLoaded', () => {
     nextBtn.textContent = state.competitive.enabled?'Registrar tempo':'Fácil';
     caseMask.hidden = true;
     imgEl.hidden = false;
-    const src = currentLibraryVariant()?.imageData || `${pageSet}/${currentCase}.png`;
+    const variant=currentLibraryVariant();
+    const src=variant
+      ? (variant.imageData||unavailableImage(variant.missing?'missing':'no-image'))
+      : `${pageSet}/${currentCase}.png`;
     // Altera a imagem imediatamente para não confundir um caso antigo com o novo.
-    imgEl.alt='Caso '+pageSet.toUpperCase()+' '+currentCase;
+    imgEl.alt=variant?(variant.imageData?'Imagem da biblioteca: ':'Imagem indisponível para ')+(variant.name||variant.id):'Caso '+pageSet.toUpperCase()+' '+currentCase;
     imgEl.src=src;
     try {
       if(src.startsWith('data:image/'))return;
