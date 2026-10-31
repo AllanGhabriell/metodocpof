@@ -253,7 +253,7 @@ document.addEventListener('DOMContentLoaded', () => {
     solvedHistory: [],
     keyboardActions: true,
     orderedTraining: {
-      enabled: false,
+      enabled: true,
       index: 0,
       queue: []
     },
@@ -280,11 +280,25 @@ document.addEventListener('DOMContentLoaded', () => {
       caseStats: {}
     },
     lastCaseReport: null,
-    trainingMode: 'random',
+    trainingMode: 'sequential',
+    modeChosen: false,
     trainingConfig: {prioritizeHard:false,reinforceSequential:true}
   };
 
-  let state = normalizeState(C.getCookie(STATE_KEY) || {});
+  const existingPreference=C.getCookie(STATE_KEY)||{};
+  let state=normalizeState(existingPreference);
+  // Primeira visita: sequência. Após escolher qualquer outro modo, salvar
+  // a preferência — mesmo que a pessoa saia e volte em outra sessão.
+  let practicedBefore=false;
+  try{
+   const events=JSON.parse(localStorage.getItem('cpof-academy-activity-v1')||'[]');
+   practicedBefore=Array.isArray(events)&&events.some(e=>e.stage===pageSet);
+  }catch{}
+  if(!existingPreference.modeChosen&&!practicedBefore&&!existingPreference.lastCaseReport){
+   state.trainingMode='sequential';
+   state.orderedTraining.enabled=true;
+   state.competitive.enabled=false;
+  }
   const trainerModeSelect=document.getElementById('trainer-mode-select');
   const trainerModeHelpTitle=document.getElementById('trainer-mode-help-title');
   const trainerModeDescription=document.getElementById('trainer-mode-description');
@@ -399,7 +413,7 @@ document.addEventListener('DOMContentLoaded', () => {
     merged.solvedHistory = Array.isArray(merged.solvedHistory) ? merged.solvedHistory : [];
     merged.competitive.caseStats = merged.competitive.caseStats || {};
     merged.keybinds = normalizeKeybinds(merged.keybinds);
-    merged.trainingMode = raw.competitive?.enabled ? 'competitive' : raw.orderedTraining?.enabled ? 'sequential' : ['random','adaptive','review','focus'].includes(raw.trainingMode) ? raw.trainingMode : 'random';
+    merged.trainingMode = raw.competitive?.enabled ? 'competitive' : raw.orderedTraining?.enabled ? 'sequential' : ['sequential','random','adaptive','review','focus'].includes(raw.trainingMode) ? raw.trainingMode : 'sequential';
     merged.orderedTraining.enabled = !!merged.orderedTraining.enabled;
     merged.orderedTraining.index = Math.max(0, Number(merged.orderedTraining.index) || 0);
     merged.orderedTraining.queue = Array.isArray(merged.orderedTraining.queue) ? merged.orderedTraining.queue.map((v) => String(v).trim()).filter(Boolean) : [];
@@ -1205,6 +1219,7 @@ document.addEventListener('DOMContentLoaded', () => {
     if(!coach.MODES.includes(mode))return;
     stopPracticeTimer(true);stopCaseTimer();
     state.trainingMode=mode;
+    state.modeChosen=true;
     state.competitive.enabled=mode==='competitive';
     state.orderedTraining.enabled=mode==='sequential';
     if(competitiveToggle)competitiveToggle.checked=state.competitive.enabled;
