@@ -71,9 +71,12 @@ function mount(){
    return
   }
   if(!valid){
-   notice.textContent=publicState.error?'Falha ao consultar bibliotecas. '+publicState.error:
-    'Nenhuma biblioteca selecionada nesta etapa';
-   return
+   const err=publicState.error||libraryError()||'';
+   notice.textContent=/permission denied|cfop_is_owner|42501/i.test(err)
+     ?'Acesso público bloqueado no Supabase. O administrador precisa aplicar a correção de permissões.'
+     :err?'Bibliotecas indisponíveis: '+err.replace(/^Falha ao consultar bibliotecas( visíveis a todos)?:?\s*/i,'')
+         :'Nenhuma biblioteca publicada nesta etapa.';
+   return;
   }
   const amount=selectedVariants(stage).filter(r=>r.status==='approved'&&CASE_BY_ID.get(r.case_id)?.stage===stage).length;
   notice.textContent=amount
