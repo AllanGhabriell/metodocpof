@@ -457,3 +457,15 @@ body::before{z-index:0}.cfop-cursor-glow{z-index:0}.app{z-index:1}
 .cfop-library-picker select{min-width:0;min-height:42px}
 .cfop-library-picker p{grid-column:1/-1;margin:0;font-size:12px}
 @media(max-width:650px){.cfop-library-picker{grid-template-columns:1fr}}
+
+/* Atalho principal de publicação do administrador. */
+.studio-header-actions .studio-admin-publish,.admin-publish-primary{display:inline-flex;align-items:center;justify-content:center;gap:8px;text-decoration:none;color:#fff;background:linear-gradient(135deg,#207baa,#268a98);border:1px solid #84d2ea9c;border-radius:12px;padding:11px 16px;min-height:42px;font-weight:800;font-size:13px;box-shadow:0 6px 16px #06152344;white-space:nowrap}
+.studio-header-actions .studio-admin-publish:hover,.admin-publish-primary:hover{background:linear-gradient(135deg,#278dc0,#32a6ac);transform:translateY(-1px)}
+.admin-publish-home{display:flex;align-items:center;justify-content:space-between;gap:18px;margin:15px 0 22px;background:linear-gradient(120deg,#173856,#0c213b);border-color:#5da9dc6b}
+.admin-publish-home>div{flex:1;min-width:0}
+.admin-publish-home .admin-publish-eyebrow{display:block;color:#94dfff;font-size:11px;font-weight:800;letter-spacing:.09em;margin-bottom:8px}
+.admin-publish-home h1,.admin-publish-home h2{margin:0 0 8px;font-size:clamp(20px,2.8vw,27px)}
+.admin-publish-home p{color:#bcd3e8;line-height:1.45;font-size:13px;margin:0;max-width:520px}
+.admin-publish-primary{flex-shrink:0;min-height:50px}
+@media(max-width:800px){.admin-publish-home{flex-direction:column;align-items:stretch}.admin-publish-primary{width:100%}.studio-header-actions .studio-admin-publish{padding:9px 10px;font-size:12px}}
+@media(max-width:540px){.studio-header-actions .studio-admin-publish{white-space:normal;text-align:center;max-width:116px;font-size:11px;min-height:42px}}
