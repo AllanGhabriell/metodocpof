@@ -1,9 +1,10 @@
 import {loadLibraries,libraryList,selectedLibrary,selectedLibraryName,libraryCases,chooseLibrary,libraryError,originalBaseInfo,originalCases,loadOriginalBase,deleteOriginalBase,isOriginalOwner,defaultForStage,stageDefaultInfo,stageDefaultStatus,setDefaultLibrary,deleteLibrary,publicLibraryStatus,publicCasesInStage} from './cloud/libraries.mjs?v=20261031-5';
-import {adminPanel,adminLoad,adminClick,adminSubmit} from './cloud/admin.mjs?v=20261031-timers-5';
+import {adminPanel,adminLoad,adminClick,adminSubmit} from './cloud/admin.mjs?v=20261031-rpg-1';
 import {cloudStatus,loadAccountExtras,startActivityTracking,recordActivity,isConfigured,isAuthenticated,isAdmin,cloudUser,cloudPanel,signInWithGoogle,signIn,signUp,recoverPassword,updatePassword,signOut,syncCloud,initializeCloud,acceptAuthRedirect,markLocalChange,markDraftDeleted,cloudProfileRefresh,cloudNoticeOverlay,markNoticeRead,publishedCases,publishCase,unpublishCase,loadPublishedCases} from './cloud/cloud.mjs?v=20261031-58';
 import {onlinePage,onlineInit,onlineLoad,onlineClick,onlineSubmit} from './cloud/online.mjs?v=20261030-55';
 import {crossPage,crossClick,crossChange} from './features/cross.mjs';
-import {awardActivity,progressDashboard,progressData,reloadProgress,saveFeatureData,planPage,profilePage,progressClick,progressSubmit,progressImport,checkReminder} from './features/progress.mjs?v=20261031-1';
+import {awardActivity,progressDashboard,progressData,reloadProgress,saveFeatureData,planPage,profilePage,progressClick,progressSubmit,progressImport,checkReminder,progressSummary} from './features/progress.mjs?v=20261031-rpg-1';
+import {loadJourney,journeyEquip,journeyAnswers} from './features/journey.mjs?v=20261031-1';
 import {saveAcademyGoals} from './features/academy-insights.mjs';
 import {identityState,loadIdentity,saveIdentity} from './cloud/identity.mjs';
 import {openAvatarCrop,exportAvatarCrop,cancelAvatarCrop} from './features/avatar-crop.mjs';
@@ -388,11 +389,13 @@ case'draftexport':downloadDrafts();break;case'draftimport':document.getElementBy
    saveIdentity({name}).then(()=>render()).catch(err=>{if(node)node.textContent=err.message});
    return;
   }
+  if(id==='journey-answers-form'){e.preventDefault();if(journeyAnswers(e.target))render();return}
   if(id.startsWith('admin-')){e.preventDefault();adminSubmit(e.target).then(changed=>{if(changed)render()}).catch(err=>alert(err.message));return}if(id.startsWith('cloud-')||id.startsWith('online-')){e.preventDefault();if(id.startsWith('cloud-'))handleCloudForm(e.target,e.submitter);else onlineSubmit(e.target).then(()=>render());return}
  if(progressSubmit(e.target)||practiceSubmit(e.target)){e.preventDefault();markLocalChange();if(id==='studio-profile-form')cloudProfileRefresh().catch(()=>{});render();return}
  if(id!=='draftform')return;e.preventDefault();if(!isAdmin())return;const form=new FormData(e.target);const d=caseDrafts[draftSelection];try{const parseField=name=>{const value=String(form.get(name)||'').trim();return value?JSON.parse(value):null};const updated={...d,id:String(form.get('id')).trim(),name:String(form.get('name')||'').trim().slice(0,90),stage:String(form.get('stage')),algorithm:String(form.get('algorithm')).trim(),setup:String(form.get('setup')).trim(),diagram:parseField('diagram'),expectedState:parseField('expectedState'),updatedAt:Date.now(),review:{approved:false}};caseDrafts[draftSelection]=updated;persistDrafts();reviewMessage='Caso salvo. Confira os resultados antes de aprovar.';render()}catch(err){reviewMessage='Confira os campos JSON: '+err.message;document.getElementById('review-message').textContent=reviewMessage}});
 root.addEventListener('input',e=>{imageChanged(e.target)});
 root.addEventListener('change',async e=>{
+ if(e.target.dataset.journeyEquip!==undefined){if(journeyEquip(e.target.dataset.journeyEquip,e.target.value,progressSummary().xp))render();return}
  if(e.target.id==='cfop-avatar-file'){
   const node=document.getElementById('cfop-identity-status');
   try{await openAvatarCrop(e.target.files?.[0]);if(node)node.textContent='Ajuste o enquadramento e confirme a foto.'}
@@ -426,7 +429,7 @@ async function handleCloudForm(form,submitter){
  try{
   if(id==='cloud-auth'){
    const email=String(fields.get('email')||''),password=String(fields.get('password')||'');
-   if(mode==='login'){await signIn(email,password);await loadIdentity();cloudMessage='Conta conectada com sucesso.';const invite=new URLSearchParams(location.search).get('challenge');await onlineLoad(invite?{id:invite}:{}).catch(()=>{})}
+   if(mode==='login'){await signIn(email,password);await Promise.all([loadIdentity(),loadJourney()]);cloudMessage='Conta conectada com sucesso.';const invite=new URLSearchParams(location.search).get('challenge');await onlineLoad(invite?{id:invite}:{}).catch(()=>{})}
    else if(mode==='signup')cloudMessage=await signUp(email,password);
    else if(mode==='recover')cloudMessage=await recoverPassword(email);
   }
@@ -435,6 +438,7 @@ async function handleCloudForm(form,submitter){
  render();
 }
 document.addEventListener('cfop:identity-changed',()=>{if(page==='profile')render()});
+ document.addEventListener('cfop:journey-changed',()=>{if(['profile','dashboard'].includes(page))render()});
  document.addEventListener('cpof:notices-changed',()=>render());
  document.addEventListener('cfop:local-change',markLocalChange);
 scramble=makeScramble();render();startActivityTracking();document.addEventListener('cpof:libraries-changed',()=>{if(['library','train','profile','admin-base','admin-defaults'].includes(page))render()});loadLibraries().catch(()=>{});
@@ -445,7 +449,7 @@ initializeCloud({
  hydrated:()=>{if(isAuthenticated())loadAccountExtras().then(()=>{if(page==='profile')render()});reloadProgress();try{times=JSON.parse(localStorage.getItem('cfop-v2-times')||'[]')}catch{times=[]}
   try{caseDrafts=JSON.parse(localStorage.getItem('cfop-case-drafts')||'[]')}catch{caseDrafts=[]}
   render()}
-}).then(async()=>{await acceptAuthRedirect().catch(()=>{});await loadIdentity().catch(()=>{})});
+}).then(async()=>{await acceptAuthRedirect().catch(()=>{});await Promise.all([loadIdentity().catch(()=>{}),loadJourney().catch(()=>{})])});
 setInterval(checkReminder,60000);
 if('serviceWorker'in navigator&&(location.protocol==='https:'||location.hostname==='localhost'))navigator.serviceWorker.register('./sw.js').catch(()=>{});
 // O material original é carregado exclusivamente pelo fundador via Supabase.
