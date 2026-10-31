@@ -1,4 +1,4 @@
-import {loadLibraries,libraryList,selectedLibrary,chooseLibrary,libraryCase,selectedLibraryName,libraryError,selectedVariants} from '../../v2/cloud/libraries.mjs';
+import {loadLibraries,libraryList,selectedLibrary,chooseLibrary,libraryCase,selectedLibraryName,libraryError,selectedVariants,isOriginalOwner,originalBaseInfo,loadOriginalBase} from '../../v2/cloud/libraries.mjs';
 import {CASE_BY_ID,LIMITS,trainerCaseToCatalog} from '../../v2/data/case-catalog.mjs';
 import {checkAdmin,isAdmin,cloudUser} from '../../v2/cloud/cloud.mjs?v=20261030-55';
 
@@ -6,8 +6,15 @@ import {checkAdmin,isAdmin,cloudUser} from '../../v2/cloud/cloud.mjs?v=20261030-
 // que pode diferir da numeração das imagens legadas do treinador.
 export {trainerCaseToCatalog};
 window.CPOFLibrary={
+ allowed(stage,ids){
+  if(selectedLibrary()==='original'&&isOriginalOwner()&&originalBaseInfo().state==='active')return ids;
+  return ids.filter(id=>{
+   const key=trainerCaseToCatalog(stage,id);
+   return key&&selectedVariants().some(r=>r.case_id===key&&r.status==='approved');
+  });
+ },
  get(stage,legacy){
-  if(selectedLibrary()==='original')return null;
+  if(selectedLibrary()==='original'&&isOriginalOwner()&&originalBaseInfo().state==='active')return null;
   const id=trainerCaseToCatalog(stage,legacy);
   if(!id)return null;
   const variant=libraryCase(stage,id);
@@ -40,15 +47,20 @@ function mount(){
  function update(){
   const id=selectedLibrary();
   select.replaceChildren();
-  const basic=document.createElement('option');
-  basic.value='original';basic.textContent='Original';select.append(basic);
+  if(isOriginalOwner()&&originalBaseInfo().state==='active'){
+   const basic=document.createElement('option');basic.value='original';basic.textContent='Base original (privada)';select.append(basic);
+  }
   for(const library of libraryList().filter(l=>l.is_public)){
    const option=document.createElement('option');
    option.value=library.id;option.textContent=library.title;select.append(option)
   }
-  const valid=libraryList().some(l=>l.id===id&&l.is_public);
-  select.value=valid?id:'original';
-  if(id==='original'||!valid){notice.textContent='';return}
+  const valid=libraryList().some(l=>l.id===id&&l.is_public)||(id==='original'&&isOriginalOwner()&&originalBaseInfo().state==='active');
+  if(!valid){
+   const unavailable=document.createElement('option');unavailable.value='none';unavailable.textContent='Nenhuma biblioteca publicada';select.append(unavailable);
+  }
+  select.value=valid?id:'none';
+  if(id==='original'&&valid){notice.textContent='Somente administrador';return}
+  if(!valid){notice.textContent='Aguarde a publicação de uma biblioteca';return}
   const amount=selectedVariants().filter(r=>r.status==='approved'&&CASE_BY_ID.get(r.case_id)?.stage===stage).length;
   notice.textContent=libraryError()?'Usando versão offline':amount?amount+'/'+LIMITS[stage]+' casos disponíveis':'Nenhum caso '+stage.toUpperCase()+' aprovado nesta biblioteca';
  }
@@ -84,5 +96,5 @@ function mountAdminPublishShortcut(){
 document.addEventListener('DOMContentLoaded',()=>{
  mount();
  loadLibraries().catch(err=>console.warn('Biblioteca indisponível:',err));
- checkAdmin().then(mountAdminPublishShortcut).catch(()=>{});
+ checkAdmin().then(async()=>{if(isOriginalOwner())await loadOriginalBase();mountAdminPublishShortcut()}).catch(()=>{});
 });
