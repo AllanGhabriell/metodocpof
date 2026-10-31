@@ -17,7 +17,7 @@ test('training page shows quick publish only after checking founder permissions'
  assert.match(trainer,/mountAdminPublishShortcut\(\)/);
  assert.match(trainer,/isAdmin\(\)&&?|\!isAdmin\(\)/);
  assert.match(trainer,/cloudUser\(\)\?\.email/);
- assert.match(trainer,/params\.set\('library',selectedLibrary\(\)\)/);
+ assert.match(trainer,/params\.set\('library',selectedLibrary\(stage\)\)/);
  assert.match(trainer,/new URLSearchParams\(\{stage\}\)/);
 });
 test('PDF importer keeps all existing controls with review and publish prominent',()=>{
