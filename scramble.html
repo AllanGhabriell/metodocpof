@@ -9,10 +9,20 @@
 <div class="scramble-alg"><p id="scramble-text" aria-label="Embaralhamento atual"></p><button id="new-scramble" type="button" aria-label="Gerar outro embaralhamento" title="Novo embaralhamento">⟳</button></div>
 <section class="scramble-options" aria-label="Opções de embaralhamento"><div class="scramble-option-head"><strong>Opções de embaralhamento</strong><span>3×3 · treino livre</span></div><div class="scramble-option-fields"><label for="scramble-length">Movimentos<select id="scramble-length"><option value="15">15 · curto</option><option value="20">20 · padrão</option><option value="25">25 · longo</option></select></label><label for="cube-view">Visualização<select id="cube-view"><option value="3d">Cubo 3D</option><option value="2d">Cubo 2D</option></select></label><label class="scramble-inspection"><input type="checkbox" id="inspection-toggle"> Inspeção de 15 segundos</label></div></section>
 <div class="scramble-clock"><button id="timer-display" type="button" aria-label="Iniciar ou parar cronômetro">0.00</button><p id="timer-status">Toque no tempo ou pressione espaço para começar</p></div>
-<section class="scramble-cube-section" aria-label="Visualização tridimensional do embaralhamento"><h2 class="scramble-cube-heading"><span id="scramble-cube-heading">Cubo 3D</span> <small>Estado do embaralhamento</small></h2><div id="scramble-cube" aria-live="off"></div><div class="scramble-cube-controls"><button id="cube-left" aria-label="Girar cubo à esquerda">←</button><button id="cube-up" aria-label="Inclinar cubo para cima">↑</button><button id="cube-down" aria-label="Inclinar cubo para baixo">↓</button><button id="cube-right" aria-label="Girar cubo à direita">→</button></div></section>
+<section class="scramble-record-share" id="scramble-record-share" hidden>
+ <strong>🏆 Novo recorde pessoal!</strong>
+ <p id="scramble-record-label"></p>
+ <div><button type="button" data-share-record="native">Compartilhar meu recorde</button>
+ <button type="button" class="secondary" data-share-record="download">Baixar imagem PNG</button></div>
+ <small id="scramble-share-status" role="status" aria-live="polite"></small>
+ </section>
+ <section class="scramble-cube-section" aria-label="Visualização tridimensional do embaralhamento"><h2 class="scramble-cube-heading"><span id="scramble-cube-heading">Cubo 3D</span> <small>Estado do embaralhamento</small></h2><div id="scramble-cube" aria-live="off"></div><div class="scramble-cube-controls"><button id="cube-left" aria-label="Girar cubo à esquerda">←</button><button id="cube-up" aria-label="Inclinar cubo para cima">↑</button><button id="cube-down" aria-label="Inclinar cubo para baixo">↓</button><button id="cube-right" aria-label="Girar cubo à direita">→</button></div></section>
 </section>
 <section data-panel="history" hidden class="scramble-secondary"><h1>Meus tempos</h1><p>Resultados salvos neste dispositivo.</p><div id="solve-list" class="solve-grid"></div></section>
-<section data-panel="stats" hidden class="scramble-secondary"><h1>Evolução</h1><p>Seu desempenho ao longo das resoluções.</p><canvas id="time-chart" aria-label="Gráfico de tempos"></canvas><div id="stats-summary" class="scramble-stat-grid"></div><button id="clear-times" class="scramble-danger" type="button">Limpar histórico</button></section>
+<section data-panel="stats" hidden class="scramble-secondary"><h1>Evolução</h1><p>Seu desempenho ao longo das resoluções.</p><canvas id="time-chart" aria-label="Gráfico de tempos"></canvas><div id="stats-summary" class="scramble-stat-grid"></div><section class="scramble-share-stat"><h2>Compartilhar evolução</h2><p>Crie uma imagem com seu recorde, seus cinco melhores tempos e seu perfil.</p>
+ <div><button type="button" data-share-record="native">Compartilhar recorde</button>
+ <button type="button" class="secondary" data-share-record="download">Baixar imagem PNG</button></div>
+ </section><button id="clear-times" class="scramble-danger" type="button">Limpar histórico</button></section>
 </main>
 <nav class="scramble-bottom-nav" aria-label="Áreas do cronômetro"><button data-view="timer" aria-label="Cronômetro" aria-pressed="true">◷ <span>Tempo</span></button><button data-view="history" aria-label="Histórico" aria-pressed="false">▦ <span>Histórico</span></button><button data-view="stats" aria-label="Estatísticas" aria-pressed="false">⌁ <span>Evolução</span></button></nav>
 <script type="module" src="assets/js/scramble.js?v=20261030-22"></script><script src="v2/cursor-glow.js?v=20261030-27" defer></script></body></html>
