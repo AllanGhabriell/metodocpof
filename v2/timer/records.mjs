@@ -52,7 +52,21 @@ export function shareImage({title='Meu treino 3×3',subtitle='',record=null,solv
   const moves=(record.scramble||'').split(' ');let y=730;for(let i=0;i<moves.length;i+=9){line(moves.slice(i,i+9).join(' '),74,y,28);y+=49;if(y>920)break;}
  }else{
   const rows=[['Melhor',format(s.best)+'s'],['Ao5',format(s.ao5)+'s'],['Ao12',format(s.ao12)+'s'],['Total',s.total]];
-  rows.forEach(([k,v],i)=>{const y=450+i*172;line(k,74,y,32,'#a7c8e8');line(v,74,y+80,67,'#f6faff',true)});
+  rows.forEach(([k,v],i)=>{const x=74+(i%2)*480,y=415+Math.floor(i/2)*195;
+   line(k,x,y,29,'#a7c8e8');line(v,x,y+80,64,'#f6faff',true);
+  });
+  // O gráfico faz parte do cartão exportado; nunca publica histórico sem ação do usuário.
+  const values=solves.filter(x=>!x.archived).map(effective).filter(Number.isFinite).slice(-35);
+  line('EVOLUÇÃO DOS ÚLTIMOS TEMPOS',74,895,26,'#b7d5ed',true);
+  if(values.length>1){
+   const min=Math.min(...values),max=Math.max(...values),range=Math.max(1000,max-min);
+   ctx.strokeStyle='#8adcf8';ctx.lineWidth=7;ctx.beginPath();
+   values.forEach((value,i)=>{
+    const x=74+i*900/(values.length-1),y=1135-(value-min)/range*180;
+    if(i)ctx.lineTo(x,y);else ctx.moveTo(x,y);
+   });ctx.stroke();
+   ctx.fillStyle='#b7c7dc';ctx.font='23px system-ui';ctx.fillText('Mais recente →',740,1185);
+  }
  }
  line('Compartilhado voluntariamente pelo cubista',74,1265,23,'#b6c6dd');return c;
 }
