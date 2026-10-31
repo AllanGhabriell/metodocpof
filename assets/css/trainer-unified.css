@@ -531,3 +531,9 @@ body[data-set] .trainer-guide-content strong{color:#e5f6ff;font-weight:750;font-
 .trainer-library-choice select{max-width:100%;min-height:32px;border:1px solid #79aec49c;border-radius:9px;background:#0c2845;color:#edf9ff;padding:4px 8px;font:600 12px system-ui}
 .trainer-library-note{font-size:10px;color:#cba4a4;max-width:200px}
 @media(max-width:540px){.trainer-library-choice{max-width:35vw;min-width:90px}.trainer-library-choice select{font-size:10px}}
+
+/* Publicação disponível diretamente no treinador, apenas para o fundador. */
+.trainer-admin-publish{display:inline-flex;align-items:center;justify-content:center;min-height:39px;padding:9px 13px;border:1px solid #83d9ed99;border-radius:11px;background:linear-gradient(135deg,#23648f,#237d87);box-shadow:0 7px 15px #07152b66;color:#fff;font:800 12px system-ui,sans-serif;text-decoration:none;white-space:nowrap}
+.trainer-admin-publish:hover{background:linear-gradient(135deg,#2d81b1,#2b9799);color:white}
+.trainer-admin-publish:focus-visible{outline:2px solid #9df1ff;outline-offset:2px}
+@media(max-width:640px){.trainer-admin-publish{font-size:10px;padding:7px 9px;min-height:36px;white-space:normal;line-height:1.2;text-align:center;max-width:90px}}
