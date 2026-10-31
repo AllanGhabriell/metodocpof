@@ -9,6 +9,7 @@ globalThis.localStorage={
  setItem:(key,value)=>storage.set(key,String(value)),
  removeItem:key=>storage.delete(key)
 };
+globalThis.confirm=()=>true;
 globalThis.cancelAnimationFrame=()=>{};
 globalThis.requestAnimationFrame=()=>0;
 
