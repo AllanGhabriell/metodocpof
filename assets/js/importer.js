@@ -2,6 +2,7 @@ import {isAdmin,isConfigured,cloudUser,initializeCloud,acceptAuthRedirect,cloudT
 import {FIXED_CASES,CASE_BY_ID,LIMITS} from '../../v2/data/case-catalog.mjs';
 import {assignFixedCases,cropDiagram} from '../../v2/data/pdf-layout.mjs';
 import {algorithmIndex,identifyByAlgorithm} from '../../v2/data/algorithm-match.mjs';
+import {matchDiagrams} from '../../v2/data/image-match.mjs';
 import {loadLibraries,libraryList,createLibrary,saveLibraryCase,publishApprovedLibrary,renameLibrary} from '../../v2/cloud/libraries.mjs';
 const PDF='https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.10.38/pdf.min.mjs';
 const $=id=>document.getElementById(id);
@@ -23,12 +24,12 @@ function cropRotated(data,turns){
  };image.onerror=()=>reject(Error('Imagem inválida'));image.src=data})
 }
 function update(){
- const checked=records.filter(r=>r.status==='approved').length,unknown=records.filter(r=>!['nome','algoritmo'].includes(r.confidence)).length;
+ const checked=records.filter(r=>r.status==='approved').length,unknown=records.filter(r=>!['nome','algoritmo','visual'].includes(r.confidence)).length;
  $('import-count').textContent=records.length+' de '+LIMITS[stage]+' casos · '+checked+' aprovados · '+unknown+' exigem conferência da identidade';
  $('import-results').hidden=!records.length;
  const fixed=FIXED_CASES.filter(c=>c.stage===stage);
  $('import-cards').innerHTML=records.map((r,i)=>'<article class="importer-card" data-index="'+i+'">'+
- '<div class="importer-card-title"><h3>'+esc(CASE_BY_ID.get(r.case_id)?.name||r.case_id)+'</h3><span class="'+(['nome','algoritmo'].includes(r.confidence)?'importer-detected':'importer-warning')+'">'+(r.confidence==='nome'?'Nome reconhecido':r.confidence==='algoritmo'?'Algoritmo reconhecido':'Conferir associação')+'</span></div>'+
+ '<div class="importer-card-title"><h3>'+esc(CASE_BY_ID.get(r.case_id)?.name||r.case_id)+'</h3><span class="'+(['nome','algoritmo','visual'].includes(r.confidence)?'importer-detected':'importer-warning')+'">'+(r.confidence==='nome'?'Nome reconhecido':r.confidence==='algoritmo'?'Algoritmo reconhecido':r.confidence==='visual'?'Diagrama reconhecido':'Conferir associação')+'</span></div>'+
  '<img src="'+esc(r.imageData||'')+'" alt="Recorte do '+esc(r.case_id)+'" loading="lazy">'+
  '<label>Caso fixo<select data-field="case_id">'+fixed.map(c=>'<option value="'+esc(c.id)+'" '+(c.id===r.case_id?'selected':'')+'>'+esc(c.name)+' ('+c.id+')</option>').join('')+'</select></label>'+
  '<label>Algoritmo<input data-field="algorithm" value="'+esc(r.algorithm||'')+'" placeholder="Sequência para resolver o caso"></label>'+
@@ -73,8 +74,15 @@ async function analyzePdf(file){
   for(const r of records){const match=identifyByAlgorithm(stage,r.algorithm,index);
    if(match&&!used.has(match)){r.case_id=match;r.name=CASE_BY_ID.get(match)?.name;r.confidence='algoritmo';used.add(match)}
   }
+  try{
+   status('Comparando os diagramas com bibliotecas já aprovadas…');
+   const refs=await cloudTable('cfop_library_cases',{query:'select=case_id,image_data&status=eq.approved&image_data=not.is.null&limit=140'});
+   const unique=new Map((refs||[]).filter(v=>CASE_BY_ID.get(v.case_id)?.stage===stage).map(v=>[v.case_id,v]));
+   const matches=await matchDiagrams(records.filter(r=>r.confidence==='ordem'),[...unique.values()]);
+   for(const [r,id] of matches)if(!used.has(id)){r.case_id=id;r.name=CASE_BY_ID.get(id).name;r.confidence='visual';used.add(id)}
+  }catch{}
   for(const r of records){if(!used.has(r.case_id)){used.add(r.case_id);continue}
-   if(r.confidence==='algoritmo')continue;
+   if(['algoritmo','visual'].includes(r.confidence))continue;
    const available=FIXED_CASES.find(x=>x.stage===stage&&!used.has(x.id));
    if(available){r.case_id=available.id;r.name=available.name;used.add(r.case_id)}
   }
