@@ -1,14 +1,14 @@
 /* GitHub Pages app shell — network-first, version-aware resource fallback.
    Never reuse an old JS module under a different ?v= version. */
-const CACHE='cfop-studio-offline-20261031-v32';
+const CACHE='cfop-studio-offline-20261031-v33';
 const CORE=[
  './index.html','./studio.html','./f2l.html','./oll.html','./pll.html','./importer.html',
  './cross.html','./scramble.html',
- './v2/app.js?v=20261031-11',
+ './v2/app.js?v=20261031-brand-cfop-1',
  './v2/app.css?v=20261031-6',
  './assets/css/studio-original.css?v=1',
  './assets/css/academy.css?v=20261030-1',
- './assets/css/home-layout.css?v=20261031-mobile-1',
+ './assets/css/home-layout.css?v=20261031-mobile-logo-3',
  './assets/js/home-mobile-menu.js?v=20261031-1',
  './assets/css/academy-tools.css?v=20261030-22',
  './assets/css/studio-shell-fix.css?v=20261030-31',
@@ -26,7 +26,7 @@ const OPTIONAL=[
  './v2/cube/visual.mjs?v=20261030-20',
  './v2/cube/case-visual.mjs','./v2/cube/recognition.mjs',
  './v2/cube/f2l-recognition.mjs','./v2/cube/validation.mjs',
- './v2/timer/stats.mjs','./v2/features/cross.mjs',
+ './v2/timer/stats.mjs','./v2/features/cross.mjs?v=20261031-brand-cfop-1','./v2/features/cross-physical.mjs?v=20261031-brand-cfop-1',
  './v2/features/progress.mjs','./v2/features/academy-insights.mjs',
  './v2/features/practice.mjs','./v2/features/editor.mjs',
  './v2/features/sticker-editor.mjs',
@@ -74,7 +74,7 @@ self.addEventListener('fetch',event=>{
     const page=await cache.match('./'+name);
     if(page)return page;
     return new Response(
-     '<!doctype html><html lang="pt-BR"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Academia CPOF — Sem conexão</title><body style="margin:0;background:#071427;color:#e8f7ff;font:16px system-ui;padding:48px 22px"><h1>Sem conexão</h1><p>Não foi possível carregar esta página offline. Seus treinos salvos continuam no dispositivo.</p><button onclick="location.reload()" style="padding:12px 18px;border-radius:10px;background:#1d5c98;color:white;border:0">Tentar novamente</button></body></html>',
+     '<!doctype html><html lang="pt-BR"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Academia CFOP — Sem conexão</title><body style="margin:0;background:#071427;color:#e8f7ff;font:16px system-ui;padding:48px 22px"><h1>Sem conexão</h1><p>Não foi possível carregar esta página offline. Seus treinos salvos continuam no dispositivo.</p><button onclick="location.reload()" style="padding:12px 18px;border-radius:10px;background:#1d5c98;color:white;border:0">Tentar novamente</button></body></html>',
      {status:503,headers:{'Content-Type':'text/html; charset=utf-8'}}
     );
    }
