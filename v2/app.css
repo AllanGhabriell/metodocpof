@@ -500,3 +500,21 @@ body::before{z-index:0}.cfop-cursor-glow{z-index:0}.app{z-index:1}
 .admin-default-cards select{width:100%;min-height:46px;border:1px solid #70a5c880;border-radius:9px;background:#0b203b;color:#f2faff;padding:11px 9px;font:600 13px system-ui}
 .admin-default-cards button{min-height:47px;font-weight:800}
 @media(max-width:950px){.admin-default-cards{grid-template-columns:1fr}.admin-primary-actions{align-items:stretch;flex-direction:column}.admin-primary-actions>*{width:100%}}
+
+/* Salvar biblioteca principal: estado visível e erro real do Supabase. */
+.admin-default-warning{
+ display:block;padding:14px 16px;border:1px solid #e3ab6570;
+ background:#5f391f45;border-radius:12px;color:#ffe0bb;
+ font-size:13px;line-height:1.55;overflow-wrap:anywhere
+}
+.admin-default-warning a{color:#b4ebff;text-decoration:underline;font-weight:700}
+.admin-default-cards article .admin-stage-current{
+ font-size:12px;color:#b7d5e9;line-height:1.4;margin:0
+}
+.admin-default-cards article .admin-stage-current strong{font-size:12px;color:#f1faff;font-weight:750}
+.admin-default-cards article .admin-stage-feedback{
+ min-height:20px;font-size:12px;line-height:1.45;color:#b1e5dd;margin:0;
+ overflow-wrap:anywhere
+}
+.admin-default-cards select option:disabled{color:#9da6b2}
+.admin-default-cards button:disabled{opacity:.65;cursor:wait}
