@@ -416,3 +416,46 @@ body.academy-home .academy-home-brand.is-touch-gliding{
  body.academy-home .academy-home-profile,body.academy-home .academy-home-streak{transition:none!important}
  body.academy-home .is-touch-gliding{transform:none!important;transition:none!important}
 }
+
+/* Ajuste mobile: logo tipográfico, sem cartão/quadrado ao tocar. */
+body.academy-home .academy-home-brand,
+body.academy-home .academy-home-brand:hover,
+body.academy-home .academy-home-brand:focus,
+body.academy-home .academy-home-brand:active{
+ background:transparent!important;
+ background-image:none!important;
+ border:0!important;
+ border-radius:0;
+ box-shadow:none!important;
+ outline:0;
+ -webkit-tap-highlight-color:transparent!important;
+}
+body.academy-home .academy-home-brand::before{
+ border-radius:999px;
+ background:radial-gradient(ellipse at center,rgba(var(--brand-pulse-rgb,74,143,242),.30) 0%,rgba(var(--brand-pulse-rgb,74,143,242),.12) 37%,transparent 75%);
+}
+body.academy-home .academy-home-brand:focus-visible .academy-brand-name{
+ text-decoration:underline;
+ text-decoration-color:rgba(160,233,255,.9);
+ text-decoration-thickness:2px;
+ text-underline-offset:6px;
+}
+@media (max-width:760px){
+ body.academy-home .academy-home-header{gap:8px}
+ body.academy-home .academy-home-brand{flex:0 1 auto;min-width:0}
+ body.academy-home .academy-brand-name{
+  font-size:clamp(1.4rem,6.65vw,1.66rem);
+  letter-spacing:-.052em;
+  gap:4px;
+ }
+}
+@media (max-width:390px){
+ body.academy-home .academy-brand-name{
+  font-size:clamp(1.4rem,6.85vw,1.64rem);
+  letter-spacing:-.055em;
+  gap:3px;
+ }
+}
+@media (max-width:330px){
+ body.academy-home .academy-brand-name{font-size:clamp(1.32rem,7.1vw,1.45rem)}
+}
