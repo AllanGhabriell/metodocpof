@@ -202,7 +202,7 @@ export async function loadAccountExtras(){
  if(!isAuthenticated())return;
  try{
   const [notes,state]=await Promise.all([
-   rest('cfop_user_notifications',{query:'select=id,body,created_at,read_at,priority,actor_name,actor_avatar,actor_is_creator&order=created_at.desc&limit=60'}),
+   rest('cfop_user_notifications',{query:'select=id,body,created_at,read_at,priority,actor_name,actor_avatar,actor_is_creator&order=created_at.desc&limit=60'}).catch(()=>rest('cfop_user_notifications',{query:'select=id,body,created_at,read_at,priority&order=created_at.desc&limit=60'})),
    rest('cfop_user_admin_state',{query:'select=xp_adjustment,suspended_until,suspension_reason,banned_at,banned_reason&user_id=eq.'+encodeURIComponent(session.user.id)})
   ]);
   const next=Array.isArray(notes)?notes:[];
