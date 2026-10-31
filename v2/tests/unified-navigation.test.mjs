@@ -13,6 +13,8 @@ test('original-style landing presents four stages and hides advanced options',()
  assert.match(app,/training-quiet-tools/);
 });
 test('admin section is only displayed for authenticated admins',()=>{
- assert.match(app,/\(isAdmin\(\)\?'<section class="card profile-admin-hub"/);
+ assert.match(app,/\(isAdmin\(\)\?'<section class="card admin-publish-home"/);
+ assert.match(app,/class="studio-admin-publish"/);
+ assert.match(app,/class="card profile-admin-hub"><details open>/);
  assert.match(app,/if\(page==='admin-users'\)return isAdmin\(\)\?adminPanel\(\)/);
 });
