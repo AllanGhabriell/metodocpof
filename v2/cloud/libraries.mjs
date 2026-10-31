@@ -58,9 +58,14 @@ export async function createLibrary(title,description=''){
 export async function saveLibraryCase(libraryId,record){
  requireOwner();const c=CASE_BY_ID.get(record.case_id);if(!c)throw Error('O caso não pertence ao catálogo fixo.');
  const row={library_id:libraryId,case_id:c.id,algorithm:String(record.algorithm||'').trim(),setup:String(record.setup||'').trim(),orientation:String(record.orientation||'').slice(0,160),image_data:record.imageData||record.image_data||null,status:['draft','approved','rejected'].includes(record.status)?record.status:'draft',source_page:record.sourcePage||record.source_page||null};
- await cloudTable('cfop_library_cases',{method:'POST',query:'on_conflict=library_id,case_id',body:row,prefer:'resolution=merge-duplicates,return=representation'});
+ await cloudTable('cfop_library_case_drafts',{method:'POST',query:'on_conflict=library_id,case_id',body:row,prefer:'resolution=merge-duplicates,return=representation'});
  if(choice===libraryId)await loadLibraryCases(libraryId);
  return row
+}
+export async function publishApprovedLibrary(libraryId){
+ requireOwner();const count=await cloudTable('rpc/cfop_publish_library',{method:'POST',body:{p_library:libraryId}});
+ await loadLibraries();if(choice===libraryId)await loadLibraryCases(libraryId);
+ return count
 }
 export async function setLibraryPublished(libraryId,enabled){
  requireOwner();await cloudTable('cfop_libraries',{method:'PATCH',query:'id=eq.'+encodeURIComponent(libraryId),body:{is_public:!!enabled,updated_at:new Date().toISOString()},prefer:'return=representation'});
