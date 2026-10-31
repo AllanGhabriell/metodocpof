@@ -37,7 +37,7 @@ test('avatar editor requires square crop and WebP compression, never uploads raw
  assert.match(crop,/pointerdown/);assert.match(crop,/pointermove/);
  assert.match(crop,/current\\.zoom/);
  assert.match(crop,/output\\.width=size;output\\.height=size/);
- assert.match(crop,/toDataURL\('image\\/webp',quality\)/);
+ assert.ok(crop.includes("toDataURL('image/webp',quality)"));
  assert.match(crop,/final\\.length<79000/);
  assert.match(identity,/id="cfop-avatar-file"/);
  assert.match(app,/openAvatarCrop\(e\\.target\\.files\\?\\.\\[0\\]\\)/);
