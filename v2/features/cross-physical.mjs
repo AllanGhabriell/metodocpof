@@ -23,7 +23,7 @@ function randomSequence(){
  const axis=f=>('UD'.includes(f)?'y':'LR'.includes(f)?'x':'z');
  let prior='',moves=[];
  for(let i=0;i<length;i++){
-  const allowed=faces.filter(f=>f!==prior&&axis(f)!==axis(prior));
+  const allowed=faces.filter(f=>f!==prior&&(!prior||axis(f)!==axis(prior)));
   const pool=allowed.length?allowed:faces.filter(f=>f!==prior);
   const f=pool[Math.floor(Math.random()*pool.length)];
   moves.push(f+suffix[Math.floor(Math.random()*suffix.length)]);prior=f;
