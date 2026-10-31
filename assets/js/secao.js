@@ -282,7 +282,7 @@ document.addEventListener('DOMContentLoaded', () => {
     lastCaseReport: null,
     trainingMode: 'sequential',
     modeChosen: false,
-    trainingConfig: {prioritizeHard:false,reinforceSequential:true}
+    trainingConfig: {prioritizeHard:false}
   };
 
   const existingPreference=C.getCookie(STATE_KEY)||{};
@@ -310,12 +310,11 @@ document.addEventListener('DOMContentLoaded', () => {
   const trainerTimingButton=document.getElementById('trainer-timed-practice');
   const trainerRecognizedButton=document.getElementById('trainer-recognized');
   const trainerPrioritize=document.getElementById('trainer-prioritize');
-  const trainerReinforce=document.getElementById('trainer-sequence-reinforce');
   const trainerGoalPeriod=document.getElementById('trainer-goal-period');
   const trainerDailyGoal=document.getElementById('trainer-daily-goal');
   const trainerWeeklyGoal=document.getElementById('trainer-weekly-goal');
   let practiceStarted=0,practiceTimer=0,practiceElapsed=null,recognitionAt=null,recognitionElapsed=null,competitiveLoading=false;
-  let recentCoachCases=[],sessionAttempts=0,sequentialReview=false,reviewQueue=[],reviewIndex=0;
+  let recentCoachCases=[],sessionAttempts=0;
   state.uiScale = loadSharedScale();
   let history = [];
   let historyIndex = -1;
@@ -325,7 +324,7 @@ document.addEventListener('DOMContentLoaded', () => {
   let completed = false;
   let completionTotalMs = null;
   let undoStack = [];
-  let movesOpen = false;
+  let movesOpen = isOrderedTrainingMode();
   let shortcutsPanelOpen = false;
   let capturingKeybind = null;
   let captureConflictEls = [];
@@ -505,32 +504,9 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   function orderedQueue() {
-    const excluded = new Set(state.excluded);
-    const base = baseOrderedList().filter((id) => CASE_ID_SET.has(id) && !excluded.has(id));
-    const stored = (state.orderedTraining && Array.isArray(state.orderedTraining.queue))
-      ? state.orderedTraining.queue.map((v) => String(v).trim()).filter(Boolean)
-      : [];
-
-    const seen = new Set();
-    const out = [];
-
-    stored.forEach((id) => {
-      if (!CASE_ID_SET.has(id) || !publicAllowedIds().includes(id) || excluded.has(id) || seen.has(id)) return;
-      seen.add(id);
-      out.push(id);
-    });
-    base.forEach((id) => {
-      if (seen.has(id)) return;
-      seen.add(id);
-      out.push(id);
-    });
-    publicAllowedIds().forEach((id) => {
-      if (excluded.has(id) || seen.has(id)) return;
-      seen.add(id);
-      out.push(id);
-    });
-
-    return out.length ? out : publicAllowedIds().filter((id) => !excluded.has(id));
+    // Ordem fixa, sem repetições ou filas baseadas em dificuldade.
+    const excluded=new Set(state.excluded);
+    return baseOrderedList().filter(id=>CASE_ID_SET.has(id)&&!excluded.has(id));
   }
 
   function orderedTotal() {
@@ -1004,6 +980,8 @@ document.addEventListener('DOMContentLoaded', () => {
     stopPracticeTimer(true);
     recognitionAt=null;recognitionElapsed=null;competitiveLoading=false;
     closeMovesPanel();
+    // O modo didático abre os movimentos ao apresentar cada caso.
+    if(isOrderedTrainingMode())movesOpen=true;
   }
 
   function updateHistoryVisibility() {
@@ -1130,7 +1108,7 @@ document.addEventListener('DOMContentLoaded', () => {
   };
   const COACH_CAPTIONS={
     random:'Casos variados · dificuldade marcada por você',
-    sequential:'Ordem fixa · reforço opcional no final',
+    sequential:'Aprendizado na ordem · sem avaliações ou repetições',
     competitive:'Tempo automático · consistência e repetições',
     adaptive:'O treinador prioriza suas dificuldades',
     review:'Pratique os casos recomendados · sem cobranças',
@@ -1160,9 +1138,7 @@ document.addEventListener('DOMContentLoaded', () => {
   }
   const COACH_EXPLANATIONS={
     random:'Casos em ordem variada. Ao marcar Difícil, o caso ganha mais chances de voltar, evitando repetição imediata.',
-    sequential:pageSet==='f2l'
-      ?'Ordem de aprendizado: começa pelos casos 38 a 41, depois segue do 1 ao 37. Os difíceis voltam ao final para reforço, se ativado.'
-      :'Segue uma ordem fixa de casos. Os difíceis voltam ao final até duas marcações de Fácil seguidas, se o reforço estiver ativado.',
+    sequential:'Aprenda os casos em ordem, com nome, algoritmo e setup abertos. Use Caso anterior e Próximo caso sem avaliações ou reforço automático.',
     competitive:'O tempo mede seu desempenho. Casos lentos voltam mais vezes. Use Reconheci para separar reconhecimento e execução.',
     adaptive:'Combina seus cliques em Fácil e Difícil, tempos medidos, reconhecimento e histórico para escolher o próximo caso.',
     review:'Prioriza casos recomendados pelos intervalos de prática. Você resolve no cubo, sem tarefas atrasadas obrigatórias.',
@@ -1174,23 +1150,24 @@ document.addEventListener('DOMContentLoaded', () => {
     if(trainerModeCaption)trainerModeCaption.textContent=COACH_CAPTIONS[mode]||'';
     if(trainerModeHelpTitle)trainerModeHelpTitle.textContent=COACH_MODE_TITLES[mode];
     if(trainerModeDescription)trainerModeDescription.textContent=COACH_EXPLANATIONS[mode];
-    const total=unexcludedCases().length;
+    const total=isOrderedTrainingMode()?orderedTotal():unexcludedCases().length;
     const position=isOrderedTrainingMode()
-      ?sequentialReview?' · reforço':(' · '+Math.min(total,(Number(state.orderedTraining.index)||0)+1)+'/'+total)
+      ?(' · '+Math.min(total,(Number(state.orderedTraining.index)||0)+1)+'/'+total)
       :'';
     if(trainerCaseLabel)trainerCaseLabel.textContent=completed?'Treino concluído':currentCase?'Caso '+currentCase+position:'Sem casos disponíveis';
     const competitive=state.competitive.enabled;
-    if(trainerEasyButton)trainerEasyButton.hidden=completed||competitive;
-    if(trainerHardButton)trainerHardButton.hidden=completed||competitive;
-    if(nextBtn)nextBtn.hidden=completed||!competitive;
+    const sequential=mode==='sequential';
+    if(trainerEasyButton)trainerEasyButton.hidden=completed||competitive||sequential;
+    if(trainerHardButton)trainerHardButton.hidden=completed||competitive||sequential;
+    if(nextBtn)nextBtn.hidden=completed||!(competitive||sequential);
     if(trainerTimingButton)trainerTimingButton.hidden=competitive;
     if(trainerRecognizedButton)trainerRecognizedButton.hidden=!competitive||!caseVisible||completed||!!recognitionAt||!caseStartAt;
     if(controlsRow){
       controlsRow.classList.toggle('is-competitive',competitive);
+      controlsRow.classList.toggle('is-sequential',sequential);
       controlsRow.classList.toggle('has-recognition',competitive&&!!trainerRecognizedButton&&!trainerRecognizedButton.hidden);
     }
     if(trainerPrioritize)trainerPrioritize.checked=!!state.trainingConfig.prioritizeHard;
-    if(trainerReinforce)trainerReinforce.checked=!!state.trainingConfig.reinforceSequential;
     if(trainerGoalPeriod)trainerGoalPeriod.value=prefs.goalPeriod;
     if(trainerDailyGoal&&document.activeElement!==trainerDailyGoal)trainerDailyGoal.value=prefs.dailyGoal;
     if(trainerWeeklyGoal&&document.activeElement!==trainerWeeklyGoal)trainerWeeklyGoal.value=prefs.weeklyGoal;
@@ -1278,10 +1255,10 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     caseMoves.hidden = false;
-    caseMovesCaseId.textContent = currentLibraryVariant()?.name || String(currentCase);
-
-    const setMoves = MOVES_BY_SET[pageSet] || {};
     const variant=currentLibraryVariant();
+    const caseName=String(variant?.name||'').trim();
+    caseMovesCaseId.textContent=String(currentCase)+(caseName&&caseName!==String(currentCase)?' · '+caseName:'');
+    const setMoves = MOVES_BY_SET[pageSet] || {};
     const alg = variant ? variant.algorithm||'' : setMoves[currentCase] || '';
 
     caseMovesToggle.disabled = false;
@@ -1295,9 +1272,9 @@ document.addEventListener('DOMContentLoaded', () => {
     if (caseMovesSetupWrap && caseMovesSetupText) {
       const setSetups = SETUPS_BY_SET[pageSet] || {};
       const setup = variant ? variant.setup||'' : setSetups[currentCase] || '';
-      if (movesOpen && setup) {
+      if (movesOpen && (setup || orderedMode)) {
         caseMovesSetupWrap.hidden = false;
-        caseMovesSetupText.textContent = setup;
+        caseMovesSetupText.textContent = setup || 'Setup ainda não cadastrado na biblioteca selecionada.';
       } else {
         caseMovesSetupWrap.hidden = true;
         caseMovesSetupText.textContent = '';
@@ -1330,8 +1307,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
     finalScreen.hidden = !completed;
     prevBtn.hidden = completed || state.competitive.enabled;
-    nextBtn.hidden = completed || !state.competitive.enabled;
-    if (skipBtn) skipBtn.hidden = completed;
+    nextBtn.hidden = completed || !(state.competitive.enabled || isOrderedTrainingMode());
+    if (skipBtn) skipBtn.hidden = completed || isOrderedTrainingMode();
 
     if (completed) {
       imgEl.hidden = true;
@@ -1358,7 +1335,7 @@ document.addEventListener('DOMContentLoaded', () => {
       return;
     }
 
-    nextBtn.textContent = state.competitive.enabled?'Registrar tempo':'Fácil';
+    nextBtn.textContent = state.competitive.enabled?'Registrar tempo':isOrderedTrainingMode()?'Próximo caso →':'Fácil';
     caseMask.hidden = true;
     imgEl.hidden = false;
     const variant=currentLibraryVariant();
@@ -1381,11 +1358,11 @@ document.addEventListener('DOMContentLoaded', () => {
     const orderedMode = isOrderedTrainingMode();
     if (controlsRow) controlsRow.classList.toggle('single-next', state.competitive.enabled && !completed);
     prevBtn.hidden = completed || state.competitive.enabled;
-    if (skipBtn) skipBtn.hidden = completed;
+    if (skipBtn) skipBtn.hidden = completed || orderedMode;
     if (orderedMode) {
       clampOrderedIndex();
       const curIdx = Math.max(0, Number(state.orderedTraining.index) || 0);
-      prevBtn.disabled = completed || state.competitive.enabled || (sequentialReview?historyIndex<=0:curIdx<=0);
+      prevBtn.disabled = completed || state.competitive.enabled || curIdx<=0;
     } else {
       prevBtn.disabled = historyIndex <= 0 || completed || state.competitive.enabled;
     }
@@ -1563,7 +1540,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     resetSessionTimer();
     resetRun();
-    sequentialReview=false;reviewQueue=[];reviewIndex=0;sessionAttempts=0;recentCoachCases=[];
+    sessionAttempts=0;recentCoachCases=[];
     clampOrderedIndex();
     sessionTargetCount = isOrderedTrainingMode() ? orderedTotal() : unexcludedCases().length;
     sessionResolved = new Set();
@@ -1651,8 +1628,11 @@ document.addEventListener('DOMContentLoaded', () => {
   function completeSession() {
     completed = true;
     const title=finalScreen?.querySelector('h2');
-    if(title)title.textContent=(state.competitive.enabled?'Treino competitivo finalizado':
-      isOrderedTrainingMode()&&sessionResolved.size<unexcludedCases().length?'Sessão encerrada · alguns casos foram pulados':'Sessão concluída. Bom trabalho!');
+    if(title)title.textContent=state.competitive.enabled
+      ?'Treino competitivo finalizado'
+      :isOrderedTrainingMode()
+        ?'Você percorreu todos os '+orderedTotal()+' casos disponíveis.'
+        :'Sessão concluída. Bom trabalho!';
     const elapsed = state.timerState.running
       ? (Date.now() - (state.timerState.startedAt || Date.now()))
       : (state.timerState.elapsed || 0);
@@ -1681,60 +1661,23 @@ document.addEventListener('DOMContentLoaded', () => {
     recognitionAt=null;recognitionElapsed=null;
   }
 
-  function needsMorePractice(caseId){
-    const stats=coach.getCase(pageSet,String(caseId))||{};
-    return !!stats.needsPractice||stats.rating==='hard'||stats.rating==='medium';
-  }
-  function enterSequentialReinforcement(){
-    const difficult=orderedQueue().filter(needsMorePractice);
-    if(!state.trainingConfig.reinforceSequential||!difficult.length){
-      completeSession();
-      return;
-    }
-    sequentialReview=true;
-    reviewQueue=difficult.slice();
-    reviewIndex=0;
-    setCurrentCase(reviewQueue[0],true);
-    save();renderCaseScene();preloadAnother();
-    showToast('Reforço · '+difficult.length+' caso(s) para praticar',1700);
-  }
-  function advanceSequentialPractice(outcome){
-    if(sequentialReview){
-      const last=currentCase;
-      if(reviewQueue[0]===last)reviewQueue.shift();
-      else{
-        const index=reviewQueue.indexOf(last);
-        if(index>=0)reviewQueue.splice(index,1);
-      }
-      // Difícil continua na lista; Fácil exige duas execuções seguidas para
-      // encerrar o reforço. Pular apenas adia para uma sessão futura.
-      if(outcome!=='skip'&&needsMorePractice(last))reviewQueue.push(last);
-      if(!reviewQueue.length){completeSession();return}
-      reviewIndex=0;
-      setCurrentCase(reviewQueue[0],true);
-      save();renderCaseScene();preloadAnother();
-      return;
-    }
+  function advanceSequentialPractice(){
     const list=orderedQueue();
     state.orderedTraining.queue=list;
     const index=list.indexOf(currentCase);
     const position=index>=0?index:Math.max(0,Number(state.orderedTraining.index)||0);
     const next=position+1;
     state.orderedTraining.index=next;
-    if(next>=list.length){enterSequentialReinforcement();return}
+    if(next>=list.length){completeSession();return}
     setCurrentCase(list[next],true);
     save();renderCaseScene();preloadAnother();
   }
   function onDifficultCase(){
-    if(completed||!currentCase||state.competitive.enabled)return;
+    if(completed||!currentCase||state.competitive.enabled||isOrderedTrainingMode())return;
     pushUndo('difficult-attempt');
     const caseId=currentCase,elapsed=stopPracticeTimer();
     logCasePractice(caseId,elapsed,'hard');
     state.lastCaseReport={caseId,grade:'bad',timeMs:Number.isFinite(elapsed)?elapsed:null,solveCount:0};
-    if(isOrderedTrainingMode()){
-      advanceSequentialPractice('hard');
-      return;
-    }
     const next=pickNextCase();
     if(!next){showToast('Sem outro caso disponível');return}
     setCurrentCase(next,true);
@@ -1758,10 +1701,6 @@ document.addEventListener('DOMContentLoaded', () => {
       return;
     }
 
-    if(isOrderedTrainingMode()){
-      advanceSequentialPractice('easy');
-      return;
-    }
     let next=pickNextCase();
     if (!next) {
       showToast('Sem próximo caso no momento');
@@ -1777,6 +1716,13 @@ document.addEventListener('DOMContentLoaded', () => {
 
   function onResolveAdvance() {
     if (completed) return;
+    if (isOrderedTrainingMode()) {
+      // Navegação didática: não registra avaliações ou resoluções.
+      pushUndo('next-sequential');
+      stopPracticeTimer(true);
+      advanceSequentialPractice();
+      return;
+    }
     maybeAutoStartTimer();
 
     if (state.competitive.enabled && !caseVisible) {
@@ -1804,17 +1750,11 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   function onSkipCase(skipUndo=false) {
-    if (completed || !currentCase) return;
+    if (completed || !currentCase || isOrderedTrainingMode()) return;
     // A ação Pular também funciona na inspeção competitiva, sem registrar tempo.
 
     if(skipUndo!==true)pushUndo('skip');
     stopCaseTimer();
-
-    if(isOrderedTrainingMode()){
-      advanceSequentialPractice('skip');
-      showToast('Caso pulado · nenhum progresso marcado',1300);
-      return;
-    }
 
     if (state.competitive.enabled) {
       const stat = getCaseStat(currentCase);
@@ -1837,17 +1777,6 @@ document.addEventListener('DOMContentLoaded', () => {
     if (state.competitive.enabled) return;
     if (isOrderedTrainingMode()) {
       if (completed) return;
-      if(sequentialReview){
-        const previous=historyIndex>0?history[historyIndex-1]:null;
-        if(!previous||!previous.caseId){showToast('Não há caso anterior');return}
-        // Voltar não desfaz os resultados já registrados.
-        pushUndo('prev-ordered');
-        const index=reviewQueue.indexOf(previous.caseId);
-        if(index>=0)reviewQueue.splice(index,1);
-        reviewQueue.unshift(previous.caseId);
-        setCurrentCase(previous.caseId,true);
-        save();renderCaseScene();preloadAnother();return;
-      }
       const list = orderedQueue();
       const idx = list.indexOf(currentCase);
       const curIdx = idx >= 0 ? idx : Math.max(0, Number(state.orderedTraining.index) || 0);
@@ -2158,9 +2087,6 @@ document.addEventListener('DOMContentLoaded', () => {
   });
   trainerPrioritize?.addEventListener('change',e=>{
     state.trainingConfig.prioritizeHard=!!e.target.checked;save();updateCoachInterface();
-  });
-  trainerReinforce?.addEventListener('change',e=>{
-    state.trainingConfig.reinforceSequential=!!e.target.checked;save();updateCoachInterface();
   });
   trainerGoalPeriod?.addEventListener('change',e=>{
     coach.preferences({goalPeriod:e.target.value});
