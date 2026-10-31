@@ -79,7 +79,7 @@ export async function downloadOrShare(canvas,name,share=true){
  const uri=URL.createObjectURL(blob);const a=document.createElement('a');a.href=uri;a.download=name;a.click();setTimeout(()=>URL.revokeObjectURL(uri),1000);
 }
 export function celebrate(container=document.body){
- if(matchMedia('(prefers-reduced-motion: reduce)').matches)return;
+ if(localStorage.getItem('cfop-timer-gold-effect-v1')==='false'||matchMedia('(prefers-reduced-motion: reduce)').matches)return;
  container.classList.remove('cfop-record-glow');void container.offsetWidth;container.classList.add('cfop-record-glow');
  setTimeout(()=>container.classList.remove('cfop-record-glow'),2200);
 }
