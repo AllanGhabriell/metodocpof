@@ -290,6 +290,7 @@ function validatedDraft(libraryId,record){
  return {library_id:libraryId,case_id:c.id,algorithm:String(record.algorithm||'').trim(),
   setup:String(record.setup||'').trim(),orientation:String(record.orientation||'').slice(0,160),
   image_data:record.imageData||record.image_data||null,
+  image_original:record.imageOriginal||record.image_original||record.imageData||record.image_data||null,
   status:['draft','approved','rejected'].includes(record.status)?record.status:'draft',
   source_page:record.sourcePage||record.source_page||null};
 }
@@ -300,10 +301,20 @@ export async function saveLibraryCasesBatch(libraryId,records,onProgress=()=>{})
  if(new Set(rows.map(r=>r.case_id)).size!==rows.length)throw Error('Há casos duplicados na revisão.');
  for(let start=0;start<rows.length;start+=8){
   const chunk=rows.slice(start,start+8);
-  await cloudTable('cfop_library_case_drafts',{
-   method:'POST',query:'on_conflict=library_id,case_id',body:chunk,
-   prefer:'resolution=merge-duplicates,return=minimal'
-  });
+  try{
+   await cloudTable('cfop_library_case_drafts',{
+    method:'POST',query:'on_conflict=library_id,case_id',body:chunk,
+    prefer:'resolution=merge-duplicates,return=minimal'
+   });
+  }catch(err){
+   // Compatibilidade enquanto a migração de originais não for aplicada.
+   if(!/image_original|schema cache|does not exist|PGRST204/i.test(err.message))throw err;
+   await cloudTable('cfop_library_case_drafts',{
+    method:'POST',query:'on_conflict=library_id,case_id',
+    body:chunk.map(({image_original,...row})=>row),
+    prefer:'resolution=merge-duplicates,return=minimal'
+   });
+  }
   onProgress(Math.min(start+8,rows.length),rows.length);
  }
  return rows.length;
