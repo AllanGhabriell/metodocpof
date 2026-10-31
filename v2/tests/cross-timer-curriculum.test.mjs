@@ -53,6 +53,7 @@ test('Inspection, stop, self-reported correct result and independent histories',
  crossTimerAction({dataset:{crossTimer:'tab-history'}});
  assert.match(crossTimerPage(),/Nenhum resultado registrado/);
  crossTimerSetLevel(1);
+ crossTimerAction({dataset:{crossTimer:'tab-history'}});
  assert.match(crossTimerPage(),/1\/1 peças/);
 });
 
