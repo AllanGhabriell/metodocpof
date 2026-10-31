@@ -1,4 +1,4 @@
-import {loadLibraries,libraryList,selectedLibrary,chooseLibrary,libraryCase,selectedLibraryName,libraryError,selectedVariants,isOriginalOwner,originalBaseInfo,loadOriginalBase,defaultForStage,publicCasesInStage,publicLibraryStatus} from '../../v2/cloud/libraries.mjs';
+import {loadLibraries,libraryList,selectedLibrary,chooseLibrary,libraryCase,selectedLibraryName,libraryError,selectedVariants,isOriginalOwner,originalBaseInfo,loadOriginalBase,defaultForStage,publicCasesInStage,publicLibraryStatus} from '../../v2/cloud/libraries.mjs?v=20261031-2';
 import {CASE_BY_ID,LIMITS,trainerCaseToCatalog} from '../../v2/data/case-catalog.mjs';
 import {checkAdmin,isAdmin,cloudUser} from '../../v2/cloud/cloud.mjs?v=20261030-55';
 
