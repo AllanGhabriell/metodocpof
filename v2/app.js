@@ -3,12 +3,12 @@ import {adminPanel,adminLoad,adminClick,adminSubmit} from './cloud/admin.mjs?v=2
 import {cloudStatus,loadAccountExtras,startActivityTracking,recordActivity,isConfigured,isAuthenticated,isAdmin,cloudUser,cloudPanel,signInWithGoogle,signIn,signUp,recoverPassword,updatePassword,signOut,syncCloud,initializeCloud,acceptAuthRedirect,markLocalChange,markDraftDeleted,cloudProfileRefresh,cloudNoticeOverlay,markNoticeRead,publishedCases,publishCase,unpublishCase,loadPublishedCases} from './cloud/cloud.mjs?v=20261031-58';
 import {onlinePage,onlineInit,onlineLoad,onlineClick,onlineSubmit} from './cloud/online.mjs?v=20261030-55';
 import {crossPage,crossClick,crossChange} from './features/cross.mjs';
-import {awardActivity,progressDashboard,progressData,reloadProgress,saveFeatureData,planPage,profilePage,progressClick,progressSubmit,progressImport,checkReminder,progressSummary} from './features/progress.mjs?v=20261031-rpg-1';
-import {loadJourney,journeyEquip,journeyAnswers} from './features/journey.mjs?v=20261031-1';
+import {awardActivity,progressDashboard,progressData,reloadProgress,saveFeatureData,planPage,profilePage,progressClick,progressSubmit,progressImport,checkReminder,progressSummary} from './features/progress.mjs?v=20261031-rpg-2';
+import {loadJourney,journeyEquip,journeyAnswers} from './features/journey.mjs?v=20261031-rpg-2';
 import {saveAcademyGoals} from './features/academy-insights.mjs';
 import {identityState,loadIdentity,saveIdentity} from './cloud/identity.mjs';
 import {openAvatarCrop,exportAvatarCrop,cancelAvatarCrop} from './features/avatar-crop.mjs';
-import {shareSection,deliverShareCard} from './features/share-cards.mjs';
+import {shareSection,deliverShareCard} from './features/share-cards.mjs?v=20261031-rpg-2';
 import {drillsPage,challengesPage,practiceClick,practiceSubmit} from './features/practice.mjs';
 import {imageEditorPanel,mountEditor,imageChosen,imageChanged,imageEditorClick} from './features/editor.mjs';
 import {stickerPanel,stickerClick} from './features/sticker-editor.mjs';
