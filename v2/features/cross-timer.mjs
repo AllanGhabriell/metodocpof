@@ -1,7 +1,7 @@
 import {solved,apply,facelets} from '../cube/engine.mjs';
 import {cube3D} from '../cube/visual.mjs?v=20261030-20';
-import {createTimerHistory} from '../../assets/js/timer-history-ui.mjs?v=20261031-1';
-import {normalizeAll,statistics,celebrate,shareImage,downloadOrShare} from '../timer/records.mjs';
+import {createTimerHistory} from '../../assets/js/timer-history-ui.mjs?v=20261031-2';
+import {normalizeAll,statistics,celebrate,shareImage,downloadOrShare} from '../timer/records.mjs?v=20261031-2';
 import {recordTimerSolve} from '../timer/telemetry.mjs?v=20261031-1';
 const PREF='academy-cross-physical-settings-v1';
 const DB='academy-cross-physical-records-v1';
