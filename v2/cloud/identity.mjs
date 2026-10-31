@@ -1,4 +1,4 @@
-import {cloudTable,isAuthenticated,cloudUser} from './cloud.mjs?v=20261030-55';
+import {cloudTable,isAuthenticated,cloudUser} from './cloud.mjs?v=20261031-56';
 
 const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 let profile={userId:null,nickname:'Cubista Anônimo',avatar:null,ready:false,nameLocked:false,avatarBlocked:false,error:''};
