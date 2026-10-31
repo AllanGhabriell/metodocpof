@@ -55,19 +55,17 @@ async function analyzePdf(file){
  pdfjs.GlobalWorkerOptions.workerSrc=PDF.replace('pdf.min.mjs','pdf.worker.min.mjs');
  doc=await pdfjs.getDocument({data:new Uint8Array(await file.arrayBuffer())}).promise;
  if(doc.numPages>30)throw Error('Use um PDF de até 30 páginas.');
- const all=[];
+ const all=[];let detected=0;
  for(let p=1;p<=doc.numPages;p++){
   status('Reconhecendo página '+p+'/'+doc.numPages+'…');
   const page=await renderPage(p);
-  all.push(page);
+  const part=assignFixedCases([page],stage,detected);
+  detected+=part.detected;
+  for(const c of part.cases)all.push({...c,imageData:cropDiagram(page,c.rect),sourcePage:c.page,rotation:0});
+  page.canvas.width=0;page.canvas.height=0;pageImageCache.clear();
  }
- const result=assignFixedCases(all,stage);
- records=result.cases.map(c=>{
-  const page=all[c.page-1];return {...c,imageData:cropDiagram(page,c.rect),sourcePage:c.page,rotation:0}
- });
- // Liberar os canvases renderizados; o PDF permanece disponível para um novo recorte.
- for(const p of all){p.canvas.width=0;p.canvas.height=0}
- pageImageCache.clear();
+ records=all;
+ const result={incomplete:records.length!==LIMITS[stage]};
  records.sort((a,b)=>CASE_BY_ID.get(a.case_id).ordinal-CASE_BY_ID.get(b.case_id).ordinal);
  update();
  status(result.incomplete?
