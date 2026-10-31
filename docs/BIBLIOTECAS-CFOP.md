@@ -22,7 +22,7 @@ As contas comuns podem selecionar bibliotecas públicas e visualizar somente os 
 1. Entre no Studio com a conta fundadora.
 2. Abra `studio.html?page=admin-libraries`, depois **Gerenciador de bibliotecas**.
 3. Crie uma biblioteca, selecione F2L/OLL/PLL e envie o PDF.
-4. O sistema tenta reconhecer os blocos pela posição das linhas e colunas de texto e por correspondência com algoritmos conhecidos e produz recortes WebP quadrados (288×288). Os casos do PDF O CUBO 2024 foram usados como referência de layout.
+4. O sistema tenta reconhecer os blocos pela posição das linhas e colunas de texto e por correspondência com algoritmos conhecidos e, quando houver referências publicadas, por semelhança visual conservadora e produz recortes WebP quadrados (288×288). Os casos do PDF O CUBO 2024 foram usados como referência de layout.
 5. Confira a associação do caso, o algoritmo, o setup e a imagem. Corrija manualmente qualquer associação incerta. O reconhecimento por ordem é marcado como **Conferir associação**, não como validação matemática.
 6. Marque cada caso como **Aprovado**, **Pendente** ou **Rejeitado**. Ao salvar, grava-se apenas o **rascunho**, sem alterar o que os alunos já estão usando.
 7. Ao clicar em **Publicar biblioteca**, o servidor publica atomicamente os casos aprovados, deixando os outros fora da biblioteca pública.
