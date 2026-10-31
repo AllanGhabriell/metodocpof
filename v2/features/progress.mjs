@@ -53,7 +53,7 @@ export function profilePage(){
  const activity=academyActivityData(data.records),id=identityState();
  const n=id.nickname||'Cubista',initial=(n[0]||'C').toUpperCase();
  const photo=id.avatar?'<img src="'+id.avatar+'" alt="Foto de perfil" class="academy-profile-photo">':esc(initial);
- return '<section class="academy-profile-hero"><span class="academy-overline">SEU ESPAÇO · ACADEMIA CPOF</span>'+
+ return '<section class="academy-profile-hero"><span class="academy-overline">SEU ESPAÇO · ACADEMIA CFOP</span>'+
  '<div class="academy-profile-main"><div class="academy-profile-big-avatar" aria-hidden="true">'+photo+'</div>'+
  '<div class="academy-profile-person"><h1>'+esc(n)+'</h1><p>'+
  (id.userId?'Seu cubo, seus resultados e seu ritmo de aprendizagem.':
@@ -86,7 +86,7 @@ export function progressClick(button){
   try{coach=JSON.parse(localStorage.getItem('cpof-academy-coach-v1')||'null')}catch{}
   try{academyActivity=JSON.parse(localStorage.getItem('cpof-academy-activity-v1')||'[]')}catch{}
   try{scrambleTimes=JSON.parse(localStorage.getItem('cpof-scramble-times-v1')||'[]')}catch{}
-  downloadJSON('academia-cpof-backup-completo.json',{
+  downloadJSON('academia-cfop-backup-completo.json',{
     format:KEY,data,
     extras:{drafts,times,coach,academyActivity,scrambleTimes}
   });
