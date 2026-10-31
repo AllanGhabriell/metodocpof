@@ -1,6 +1,6 @@
 <!doctype html>
 <html lang="pt-BR"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><title>Embaralhamento e cronômetro — Academia CFOP</title>
-<link rel="stylesheet" href="assets/css/global.css?v=20260313k"><link rel="stylesheet" href="assets/css/scramble.css?v=20261031-9"><link rel="stylesheet" href="assets/css/cursor-glow.css?v=1">
+<link rel="stylesheet" href="assets/css/global.css?v=20260313k"><link rel="stylesheet" href="assets/css/scramble.css?v=20261031-timer-upgrade-1"><link rel="stylesheet" href="assets/css/cursor-glow.css?v=1">
 <link rel="stylesheet" href="assets/css/academy.css?v=20261030-1">
 </head><body class="scramble-body">
 <header class="scramble-header"><a href="index.html" aria-label="Voltar">✕</a><strong>Cubo 3×3 <small>Embaralhamento</small></strong><a href="studio.html?page=profile" aria-label="Conta e perfil">☰</a></header>
@@ -18,13 +18,13 @@
  </section>
  <section class="scramble-cube-section" aria-label="Visualização tridimensional do embaralhamento"><h2 class="scramble-cube-heading"><span id="scramble-cube-heading">Cubo 3D</span> <small>Estado do embaralhamento</small></h2><div id="scramble-cube" aria-live="off"></div><div class="scramble-cube-controls"><button id="cube-left" aria-label="Girar cubo à esquerda">←</button><button id="cube-up" aria-label="Inclinar cubo para cima">↑</button><button id="cube-down" aria-label="Inclinar cubo para baixo">↓</button><button id="cube-right" aria-label="Girar cubo à direita">→</button></div></section>
 </section>
-<section data-panel="history" hidden class="scramble-secondary"><h1>Meus tempos</h1><p>Resultados salvos neste dispositivo.</p><div id="solve-list" class="solve-grid"></div></section>
-<section data-panel="stats" hidden class="scramble-secondary"><h1>Evolução</h1><p>Seu desempenho ao longo das resoluções.</p><canvas id="time-chart" aria-label="Gráfico de tempos"></canvas><div id="stats-summary" class="scramble-stat-grid"></div><section class="scramble-share-stat"><h2>Compartilhar evolução</h2><p>Crie uma imagem com seu recorde, seus cinco melhores tempos e seu perfil.</p>
+<section data-panel="history" hidden class="scramble-secondary"><h1>Meus tempos</h1><p>Resultados salvos neste dispositivo.</p><div id="solve-list" class="timer-history-root"></div><p class="timer-privacy">Os tempos e comentários ficam neste dispositivo. Contas conectadas poderão enviar apenas resumos diários ao administrador quando a migração for ativada.</p></section>
+<section data-panel="stats" hidden class="scramble-secondary"><h1>Evolução</h1><p>Seu desempenho ao longo das resoluções.</p><canvas id="time-chart" aria-label="Gráfico de tempos"></canvas><div id="stats-summary" class="scramble-stat-grid"></div><button id="share-evolution" type="button" class="scramble-share-evolution">Compartilhar gráfico e evolução</button><section class="scramble-share-stat"><h2>Compartilhar evolução</h2><p>Crie uma imagem com seu recorde, seus cinco melhores tempos e seu perfil.</p>
  <div><button type="button" data-share-photo-pick>Adicionar foto</button><button type="button" data-share-record="native">Compartilhar recorde</button>
  <button type="button" class="secondary" data-share-record="download">Baixar imagem PNG</button></div>
  </section><button id="clear-times" class="scramble-danger" type="button">Limpar histórico</button></section>
 <input type="file" id="scramble-share-photo" accept="image/*" hidden>
 </main>
 <nav class="scramble-bottom-nav" aria-label="Áreas do cronômetro"><button data-view="timer" aria-label="Cronômetro" aria-pressed="true">◷ <span>Tempo</span></button><button data-view="history" aria-label="Histórico" aria-pressed="false">▦ <span>Histórico</span></button><button data-view="stats" aria-label="Estatísticas" aria-pressed="false">⌁ <span>Evolução</span></button></nav>
-<script type="module" src="assets/js/scramble.js?v=20261031-24"></script><script src="v2/cursor-glow.js?v=20261030-27" defer></script><script type="module" src="assets/js/notice-banner.js?v=20261031-2"></script>
+<script type="module" src="assets/js/scramble.js?v=20261031-timer-upgrade-1"></script><script src="v2/cursor-glow.js?v=20261030-27" defer></script><script type="module" src="assets/js/notice-banner.js?v=20261031-2"></script>
 </body></html>
