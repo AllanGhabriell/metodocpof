@@ -50,7 +50,7 @@ test('only the founder writes libraries, public users read approved entries',()=
  assert.match(sql,/Identidade do caso é imutável/i);
  assert.match(sql,/cfop_library_publication_guard/i);
  const importer=read('../../assets/js/importer.js');
- assert.match(importer,/saveLibraryCase\(libraryId,r\)/);
+ assert.match(importer,/saveLibraryCasesBatch\(libraryId,records/);
  assert.match(importer,/assignFixedCases/);
  assert.match(importer,/cropDiagram/);
 });
