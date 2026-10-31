@@ -1,8 +1,8 @@
 /* Mensagens administrativas fora do Studio: página inicial, treinos e cronômetro. */
-import {isAuthenticated,loadAccountExtras,markNoticeRead,pendingNotices} from '../../v2/cloud/cloud.mjs?v=20261031-57';
+import {isAuthenticated,loadAccountExtras,markNoticeRead,pendingNotices,noticeSenderMarkup} from '../../v2/cloud/cloud.mjs?v=20261031-57';
 if(!document.querySelector('link[data-cpof-notice-css]')){
  const link=document.createElement('link');
- link.rel='stylesheet';link.href='assets/css/notice-banner.css?v=20261031-1';
+ link.rel='stylesheet';link.href='assets/css/notice-banner.css?v=20261031-admin-2';
  link.dataset.cpofNoticeCss='1';document.head.append(link);
 }
 const escapeText=text=>String(text??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
@@ -17,6 +17,7 @@ function update(){
  const count=pendingNotices().length;
  layer.innerHTML='<section class="cfop-notice-dialog" role="dialog" aria-modal="true" aria-labelledby="cpof-global-notice-title">'+
   '<span class="cfop-notice-eyebrow">RECADO DA ADMINISTRAÇÃO</span>'+
+  noticeSenderMarkup(next)+
   '<h2 id="cpof-global-notice-title">'+(next.priority==='important'?'Aviso importante':'Você recebeu uma mensagem')+'</h2>'+
   '<p class="cfop-notice-text">'+escapeText(next.body)+'</p>'+
   '<p class="cfop-notice-meta">Enviada em '+new Date(next.created_at).toLocaleString('pt-BR')+
