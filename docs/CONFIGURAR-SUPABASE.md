@@ -33,7 +33,7 @@ from (
 ) as necessary(name);
 ```
 
-Se todas aparecerem como **OK**, **não execute as migrações novamente**.
+Se todas aparecerem como **OK**, **não reexecute as migrações 000001 a 000004**. A alteração de administrador exige executar a nova migração **000005** (veja abaixo).
 
 Caso faltem tabelas, examine o banco existente antes de executar, nesta ordem, os scripts que correspondem às etapas não aplicadas:
 
@@ -41,8 +41,26 @@ Caso faltem tabelas, examine o banco existente antes de executar, nesta ordem, o
 2. `supabase/migrations/20261030_000002_admin_allowlist.sql` (administradores autorizados).
 3. `supabase/migrations/20261030_000003_admin_dashboard.sql` (estatísticas e RPC administrativas).
 4. `supabase/migrations/20261030_000004_admin_roles_bans.sql` (permissões administrativas).
+5. `supabase/migrations/20261030_000005_single_admin.sql` (remove administradores antigos e mantém somente `coelhodatoca124@gmail.com`).
 
 Uma tabela existir não comprova que todas as políticas/funções estão corretas. Se houver diferenças entre o schema atual e os scripts, revise antes de aplicar qualquer DDL.
+
+### Atualizar as permissões de administrador no projeto já existente
+
+Mesmo com as tabelas instaladas, execute no **Supabase → SQL Editor** o conteúdo de `supabase/migrations/20261030_000005_single_admin.sql`. Publicar alterações no GitHub **não modifica as permissões existentes no banco**.
+
+A migração mantém somente `coelhodatoca124@gmail.com` como administrador e fundador; `allanghabriell8@gmail.com`, `allanghabriell572@gmail.com` e qualquer outro administrador anterior passam a ser usuários comuns, sem perder a conta ou o progresso. A conta autorizada só recebe privilégios após confirmar seu e-mail.
+
+Confira o resultado no SQL Editor:
+
+```sql
+select u.email
+from public.cfop_admins a
+join auth.users u on u.id = a.user_id
+order by u.email;
+```
+
+A consulta deve retornar apenas `coelhodatoca124@gmail.com`. Se não retornar linhas, entre ou cadastre essa conta e confirme o e-mail antes de verificar novamente.
 
 ### Conferir RLS nas tabelas privadas
 
