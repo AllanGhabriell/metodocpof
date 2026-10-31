@@ -3,7 +3,7 @@ import {adminXpAdjustment,serverXpBalance} from '../cloud/cloud.mjs?v=20261031-5
 import {identityState,identityPanel} from '../cloud/identity.mjs';
 import {achievementBonus,earnedAchievements} from './achievements.mjs?v=20261031-rpg-2';
 import {levelFromXp} from './progression.mjs?v=20261031-rpg-2';
-import {journeyPanel,journeyIdentity} from './journey.mjs?v=20261031-rpg-2';
+import {journeyPanel,journeyIdentity} from './journey.mjs?v=20261031-rpg-3';
 const KEY='cfop-studio-progress-v1',DAY=86400000;
 const esc=x=>String(x??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
 const dateOf=d=>[d.getFullYear(),String(d.getMonth()+1).padStart(2,'0'),String(d.getDate()).padStart(2,'0')].join('-');
