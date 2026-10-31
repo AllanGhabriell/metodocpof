@@ -54,20 +54,20 @@ function lesson(){
   (hint?'<p class="cross-lab-hint" role="status">'+esc(hint)+'</p>':'')+
   '<div class="cross-lab-lesson-actions"><button type="button" data-cross="hint">Dica gradual</button><button type="button" data-cross="guide-next">'+(guideStep===3?'Rever do início':'Próxima etapa →')+'</button></div></section>';
 }
-function options(){return '<div class="cross-settings"><label for="cross-count">Dificuldade</label><select id="cross-count" aria-label="Número de peça de meios para resolver">'+[1,2,3,4].map(n=>'<option value="'+n+'" '+(n===count?'selected':'')+'>'+n+' '+(n===1?'peça de meio':'peça de meios')+'</option>').join('')+'</select><label for="cross-mode">Modo de treino</label><select id="cross-mode"><option value="guided" '+(mode==='guided'?'selected':'')+'>Guiado</option><option value="free" '+(mode==='free'?'selected':'')+'>Livre</option></select></div>'}
+function options(){return '<div class="cross-settings"><label for="cross-count">Dificuldade</label><select id="cross-count" aria-label="Número de peças de meio para resolver">'+[1,2,3,4].map(n=>'<option value="'+n+'" '+(n===count?'selected':'')+'>'+n+' '+(n===1?'peça de meio':'peças de meio')+'</option>').join('')+'</select><label for="cross-mode">Modo de treino</label><select id="cross-mode"><option value="guided" '+(mode==='guided'?'selected':'')+'>Guiado</option><option value="free" '+(mode==='free'?'selected':'')+'>Livre</option></select></div>'}
 export function crossPage(){
  if(!scramble)newCross();
  const correct=selected.filter(complete).length;
  const done=correct===selected.length;
  return '<div class="cross-intro"><span class="eyebrow">ACADEMIA CFOP · TREINAMENTO</span><h1>Treino de cruz</h1><p class="muted">Monte a cruz branca na face inferior, alinhando cada peça de meio com a cor do centro lateral.</p></div>'+
- lesson()+'<div class="cross-workspace"><section class="cross-training-panel"><div class="cross-panel-heading"><div><span class="cross-kicker">DESAFIO ATUAL</span><h2>'+(count===4?'Cruz completa':count+' '+(count===1?'peça de meio':'peça de meios'))+'</h2></div><span class="cross-progress '+(done?'is-complete':'')+'">'+correct+' de '+count+' corretas</span></div>'+
+ lesson()+'<div class="cross-workspace"><section class="cross-training-panel"><div class="cross-panel-heading"><div><span class="cross-kicker">DESAFIO ATUAL</span><h2>'+(count===4?'Cruz completa':count+' '+(count===1?'peça de meio':'peças de meio'))+'</h2></div><span class="cross-progress '+(done?'is-complete':'')+'">'+correct+' de '+count+' corretas</span></div>'+
  '<div class="cross-view-tabs" role="group" aria-label="Visualização do cubo"><button data-cross="view-cube" aria-pressed="'+(view==='cube')+'" class="'+(view==='cube'?'selected':'')+'">Cubo 3D</button><button data-cross="view-net" aria-pressed="'+(view==='net')+'" class="'+(view==='net'?'selected':'')+'">Cubo aberto</button></div>'+
  '<div class="cross-cube-area">'+(view==='cube'?cube3D(state,{yaw,pitch,size:168,colors}):net())+'</div>'+
  (view==='cube'?'<div class="cross-camera"><button data-cross="left" aria-label="Girar visualização para esquerda">←</button><button data-cross="up" aria-label="Inclinar visualização para cima">↑</button><button data-cross="down" aria-label="Inclinar visualização para baixo">↓</button><button data-cross="right" aria-label="Girar visualização para direita">→</button></div>':'')+
  '<div class="cross-scramble"><span>EMBARALHAMENTO</span><strong>'+esc(scramble)+'</strong></div>'+
  '<div class="cross-main-actions"><button class="cross-primary" data-cross="new">Novo desafio</button><button data-cross="undo" '+(history.length?'':'disabled')+'>Desfazer</button><button data-cross="check">Conferir</button></div><p class="cross-feedback" role="status" aria-live="polite">'+esc(message)+'</p></section>'+
  '<aside class="cross-side-panel"><details class="cross-options" open><summary>Configurações do treino</summary>'+options()+'</details>'+
- '<div class="cross-instructions"><h2>'+(mode==='guided'?'Como treinar':'Treino livre')+'</h2>'+(mode==='guided'?'<p>1. Observe o embaralhamento e as peça de meios que precisam ser resolvidas.</p><p>2. Use os movimentos abaixo para posicionar as peças.</p><p>3. Confira quando a cruz estiver alinhada.</p>':'<p>Resolva as peça de meios escolhidas sem instruções de sequência. Você pode conferir o resultado quando quiser.</p>')+
+ '<div class="cross-instructions"><h2>'+(mode==='guided'?'Como treinar':'Treino livre')+'</h2>'+(mode==='guided'?'<p>1. Observe o embaralhamento e as peças de meio que precisam ser resolvidas.</p><p>2. Use os movimentos abaixo para posicionar as peças.</p><p>3. Confira quando a cruz estiver alinhada.</p>':'<p>Resolva as peças de meio escolhidas sem instruções de sequência. Você pode conferir o resultado quando quiser.</p>')+
  '<p class="cross-targets">Peças de meio-alvo: '+selected.map(t=>'<span>'+t.name+'</span>').join(' ')+'</p></div>'+
  '<div class="cross-move-panel"><h2>Movimentar o cubo</h2><p>Toque nas notações para executar os movimentos.</p><div class="cross-moves">'+['U','D','R','L','F','B'].map(m=>'<div class="cross-move-row">'+[m,m+"'",m+'2'].map(turn=>'<button type="button" data-crossmove="'+turn+'">'+turn+'</button>').join('')+'</div>').join('')+'</div></div></aside></div>';
 }
@@ -81,8 +81,8 @@ export function crossClick(button,earn=()=>{}){
  else if(cmd==='hint'){hintStep=Math.min(3,hintStep+1)}
  else if(cmd==='check'){guideStep=3;
   const correct=selected.filter(complete).length;
-  if(correct===selected.length){message='Cruz correta! Todas as peça de meios estão alinhadas.';if(!awarded){earn('Cross',30);awarded=true}}
-  else message=correct+' de '+selected.length+' peça de meios corretas. Confira também o alinhamento com os centros laterais.';
+  if(correct===selected.length){message='Cruz correta! Todas as peças de meio estão alinhadas.';if(!awarded){earn('Cross',30);awarded=true}}
+  else message=correct+' de '+selected.length+' peças de meio corretas. Confira também o alinhamento com os centros laterais.';
  }else if(cmd==='view-cube'||cmd==='view-net'){view=cmd==='view-cube'?'cube':'net';save()}
  else if(cmd==='left')yaw-=30;else if(cmd==='right')yaw+=30;
  else if(cmd==='up')pitch=Math.min(75,pitch+15);else if(cmd==='down')pitch=Math.max(-75,pitch-15);
