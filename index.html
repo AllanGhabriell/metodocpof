@@ -7,19 +7,17 @@
   <link rel="stylesheet" href="assets/css/global.css?v=20260313k">
 <link rel="stylesheet" href="assets/css/cursor-glow.css?v=1">
 <link rel="stylesheet" href="assets/css/academy.css?v=20261030-1">
-<link rel="stylesheet" href="assets/css/home-layout.css?v=20261031-mobile-1">
+<link rel="stylesheet" href="assets/css/home-layout.css?v=20261031-interactive-2">
 </head>
 <body class="academy-home">
   <header class="academy-home-header">
-    <a class="academy-home-brand" href="index.html" aria-label="Academia CPOF — início">
+    <button class="academy-home-brand" type="button" aria-label="Academia CPOF — pulsar as cores" title="Clique para mudar as cores">
       <span class="academy-brand-name">Academia <span class="academy-brand-cpof" aria-label="C P O F"><span>C</span><span>P</span><span>O</span><span>F</span></span></span>
-    </a>
+    </button>
+    <a class="academy-home-profile" href="studio.html?page=profile" aria-label="Abrir meu perfil"><span class="academy-profile-orbit" aria-hidden="true">◉</span><span class="academy-profile-label">Meu perfil</span><span class="academy-profile-arrow" aria-hidden="true">↗</span></a>
   </header>
   <aside class="academy-home-sidebar" aria-label="Atalhos da Academia CPOF">
     <nav class="academy-home-rail" aria-label="Navegação secundária">
-      <a class="academy-rail-link" href="studio.html?page=learn"><span class="academy-rail-icon" aria-hidden="true">✦</span><span>Aprender</span></a>
-      <a class="academy-rail-link" href="studio.html?page=dashboard"><span class="academy-rail-icon" aria-hidden="true">↗</span><span>Evolução</span></a>
-      <a class="academy-rail-link" href="studio.html?page=profile"><span class="academy-rail-icon" aria-hidden="true">♙</span><span>Meu perfil</span></a>
       <div class="academy-utility"><details>
         <summary class="academy-rail-link" aria-label="Abrir menu de ferramentas"><span class="academy-rail-icon" aria-hidden="true">☰</span><span>Menu</span></summary>
         <nav class="academy-side-menu" aria-label="Mais ferramentas">
@@ -30,11 +28,13 @@
           <a href="studio.html?page=library">Biblioteca de casos</a>
         </nav>
       </details></div>
+      <a class="academy-rail-link" href="studio.html?page=learn"><span class="academy-rail-icon" aria-hidden="true">✦</span><span>Aprender</span></a>
+      <a class="academy-rail-link" href="studio.html?page=dashboard"><span class="academy-rail-icon" aria-hidden="true">↗</span><span>Evolução</span></a>
+      <a href="studio.html?page=dashboard" class="academy-home-streak" id="academy-home-streak" aria-label="Ver sequência e evolução">
+        <span class="academy-streak-flame" aria-hidden="true">🔥</span>
+        <span class="academy-streak-content"><strong id="academy-home-streak-number">0 dias</strong><small id="academy-home-streak-help">Comece sua sequência</small></span>
+      </a>
     </nav>
-    <a href="studio.html?page=dashboard" class="academy-home-streak" id="academy-home-streak" aria-label="Ver sequência e evolução">
-      <span class="academy-streak-flame" aria-hidden="true">🔥</span>
-      <span class="academy-streak-content"><strong id="academy-home-streak-number">0 dias</strong><small id="academy-home-streak-help">Comece sua sequência</small></span>
-    </a>
   </aside>
   <main class="academy-home-main">
     <section class="academy-stage-selection" aria-label="Escolha o treinamento">
@@ -51,7 +51,8 @@
   <script src="assets/js/main.js?v=20260311b" defer></script>
   <script src="assets/js/home-activity.js?v=20261030-7" defer></script>
   <script src="assets/js/home-mobile-menu.js?v=20261031-1" defer></script>
-  <script src="assets/js/home-identity.js?v=20261030-9" defer></script>
+  <script src="assets/js/home-identity.js?v=20261031-pulse-1" defer></script>
+<script src="assets/js/home-touch-glide.js?v=20261031-1" defer></script>
 <script src="v2/cursor-glow.js?v=20261030-27" defer></script>
 <script type="module" src="assets/js/notice-banner.js?v=20261031-2"></script>
 </body>
