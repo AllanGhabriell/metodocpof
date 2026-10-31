@@ -65,7 +65,7 @@ BEGIN
  INSERT INTO public.cfop_admin_audit(actor_id,target_id,action,detail)
  VALUES(actor,actor,'delete_original_base','{}'::jsonb);
 END;
-$;
+$$;
 REVOKE ALL ON FUNCTION public.cfop_delete_original_base() FROM PUBLIC,anon;
 GRANT EXECUTE ON FUNCTION public.cfop_delete_original_base() TO authenticated;
 
