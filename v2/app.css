@@ -484,3 +484,19 @@ body::before{z-index:0}.cfop-cursor-glow{z-index:0}.app{z-index:1}
 .admin-private-original .admin-original-delete{background:#7e292e;border:1px solid #d96565;color:#fff;min-height:46px;font-weight:750}
 .admin-private-original .admin-original-delete:disabled{opacity:.45}
 @media(max-width:580px){.admin-original-list>div{flex-direction:column}.admin-original-list code{max-width:100%}}
+
+/* Configuração administrativa da biblioteca padrão de cada etapa. */
+.admin-primary-actions{display:flex;align-items:center;justify-content:end;flex-wrap:wrap;gap:9px}
+.admin-primary-actions button{min-height:48px;font-weight:750}
+.admin-stage-defaults{display:grid;gap:17px;max-width:1100px}
+.admin-stage-defaults h1{margin:0;font-size:clamp(22px,3vw,29px)}
+.admin-stage-defaults>p{max-width:760px;color:#b9d0e3;line-height:1.5}
+.admin-default-cards{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px}
+.admin-default-cards article{display:flex;flex-direction:column;gap:13px;border:1px solid #76a8cf62;background:#12294599;padding:17px;border-radius:14px;min-width:0}
+.admin-default-cards article>div{display:grid;gap:4px}
+.admin-default-cards strong{font-size:24px}
+.admin-default-cards small{font-size:12px;color:#a8cbe2}
+.admin-default-cards label{font-size:12px;font-weight:700}
+.admin-default-cards select{width:100%;min-height:46px;border:1px solid #70a5c880;border-radius:9px;background:#0b203b;color:#f2faff;padding:11px 9px;font:600 13px system-ui}
+.admin-default-cards button{min-height:47px;font-weight:800}
+@media(max-width:950px){.admin-default-cards{grid-template-columns:1fr}.admin-primary-actions{align-items:stretch;flex-direction:column}.admin-primary-actions>*{width:100%}}
