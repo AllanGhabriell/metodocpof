@@ -175,5 +175,6 @@ $;
 REVOKE ALL ON FUNCTION public.cfop_publish_library(uuid) FROM public,anon;
 GRANT EXECUTE ON FUNCTION public.cfop_publish_library(uuid) TO authenticated;
 
+NOTIFY pgrst, 'reload schema';
 COMMIT;
 SELECT stage,count(*) AS casos_fixos FROM public.cfop_case_catalog GROUP BY stage ORDER BY stage;
