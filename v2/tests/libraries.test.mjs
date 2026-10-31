@@ -67,8 +67,10 @@ test('trainer library selection has a deliberate fallback for OLL mismatched num
 
 test('SQL das bibliotecas fecha todas as funções PostgreSQL com delimitadores válidos',()=>{
  const migration=read('../../supabase/migrations/20261030_000007_libraries.sql');
- assert.equal((migration.match(/\\bAS \\$\\$/g)||[]).length,3);
- assert.equal((migration.match(/\\$\\$;/g)||[]).length,3);
- assert.doesNotMatch(migration,/\\bAS \\$(?!\\$)/);
- assert.doesNotMatch(migration,/^\\s*\\$;/m);
+ const delim=String.fromCharCode(36,36);
+ const lines=migration.split('\n').map(v=>v.trim());
+ assert.equal(lines.filter(v=>v==='AS '+delim).length,3);
+ assert.equal(lines.filter(v=>v===delim+';').length,3);
+ assert.equal(lines.filter(v=>v==='AS '+delim[0]).length,0);
+ assert.equal(lines.filter(v=>v===delim[0]+';').length,0);
 });
