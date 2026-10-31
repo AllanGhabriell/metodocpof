@@ -64,3 +64,11 @@ test('trainer library selection has a deliberate fallback for OLL mismatched num
  assert.match(coach,/currentLibraryVariant\(\)\?\.algorithm/);
  assert.match(coach,/currentLibraryVariant\(\)\?\.imageData/);
 });
+
+test('SQL das bibliotecas fecha todas as funções PostgreSQL com delimitadores válidos',()=>{
+ const migration=read('../../supabase/migrations/20261030_000007_libraries.sql');
+ assert.equal((migration.match(/\\bAS \\$\\$/g)||[]).length,3);
+ assert.equal((migration.match(/\\$\\$;/g)||[]).length,3);
+ assert.doesNotMatch(migration,/\\bAS \\$(?!\\$)/);
+ assert.doesNotMatch(migration,/^\\s*\\$;/m);
+});
