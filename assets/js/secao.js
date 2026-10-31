@@ -545,12 +545,22 @@ document.addEventListener('DOMContentLoaded', () => {
     return d;
   }
 
-  function showToast(msg, t = 1400) {
-    toast.textContent = msg;
-    toast.hidden = false;
-    setTimeout(() => {
-      toast.hidden = true;
-    }, t);
+  let toastTimer=null,xpToastTotal=0;
+  function showToast(msg,t=1400){
+    if(toastTimer)clearTimeout(toastTimer);
+    const isXp=/^\+\d+ XP$/.test(String(msg));
+    if(isXp){xpToastTotal+=Number(String(msg).match(/\d+/)[0]);msg='+'+xpToastTotal+' XP'}
+    else xpToastTotal=0;
+    toast.textContent=msg;
+    toast.classList.toggle('toast-xp',isXp);
+    toast.hidden=false;
+    toast.classList.remove('toast-leaving');
+    toast.classList.add('toast-entering');
+    toastTimer=setTimeout(()=>{
+      toast.classList.remove('toast-entering');
+      toast.classList.add('toast-leaving');
+      toastTimer=setTimeout(()=>{toast.hidden=true;toast.classList.remove('toast-leaving');xpToastTotal=0},420);
+    },Math.max(800,t));
   }
 
   function codeToLabel(code) {
@@ -1657,7 +1667,17 @@ document.addEventListener('DOMContentLoaded', () => {
     });
     sessionAttempts++;
     if(info&&result==='hard')showToast('Caso difícil registrado · ele voltará mais vezes',1250);
-    else if(info&&info.record.xp)showToast('+'+info.record.xp+' XP',1000);
+    else if(info&&info.record.xp)showToast('+'+info.record.xp+' XP',1450);
+    // Para contas autenticadas a concessão depende da validação no Supabase.
+    try{
+      const currentSession=JSON.parse(localStorage.getItem('cfop-cloud-session-v1')||'null');
+      if(currentSession?.access_token&&currentSession?.user?.id&&currentTrainingMode()!=='sequential'){
+        import('./v2/cloud/cloud.mjs?v=20261031-58')
+          .then(m=>m.claimCaseXp(pageSet,caseId,currentTrainingMode(),result))
+          .then(reward=>{if(reward.xp>0)showToast('+'+reward.xp+' XP',1500)})
+          .catch(error=>console.warn('XP não concedido: servidor não confirmou a recompensa.',error));
+      }
+    }catch(error){console.warn('Recompensa não verificada.',error)}
     recognitionAt=null;recognitionElapsed=null;
   }
 
