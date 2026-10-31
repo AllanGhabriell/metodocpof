@@ -30,7 +30,7 @@ test('adjustments from the server affect XP and level, not only an info label',(
  assert.match(progress,/level:Math\.floor\(xp\/200\)\+1/);
 });
 test('admin and online modules share the same authenticated cloud instance',()=>{
- const version=app.match(/cloud\\.mjs\\?v=([\\d-]+)/)?.[1];
+ const version=app.match(/cloud\.mjs\?v=([\d-]+)/)?.[1];
  assert.ok(version);
  for(const src of [admin,online,app,progress])
   assert.ok(src.includes('cloud.mjs?v='+version));
