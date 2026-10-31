@@ -48,7 +48,7 @@ export function shareImage({title='Meu treino 3×3',subtitle='',record=null,solv
  const line=(t,x,y,size=44,color='#f3faff',bold=false)=>{ctx.fillStyle=color;ctx.font=(bold?'800 ':'500 ')+size+'px system-ui, sans-serif';ctx.fillText(String(t),x,y,950)};
  line('ACADEMIA CFOP',74,120,37,'#9eddf8',true);line(title,74,243,61,'#fff',true);
  line(subtitle,74,312,30,'#b5d3ec');
- if(record){line(solveLabel(record)+'s',74,525,155,'#f6dd9a',true);line(new Date(record.date).toLocaleDateString('pt-BR'),74,586,27);
+ if(record){const label=solveLabel(record);line(label==='DNF'?'DNF':label.includes('(+2)')?label.replace(' (+2)','s (+2)'):label+'s',74,525,155,'#f6dd9a',true);line(new Date(record.date).toLocaleDateString('pt-BR'),74,586,27);
   const moves=(record.scramble||'').split(' ');let y=730;for(let i=0;i<moves.length;i+=9){line(moves.slice(i,i+9).join(' '),74,y,28);y+=49;if(y>920)break;}
  }else{
   const rows=[['Melhor',format(s.best)+'s'],['Ao5',format(s.ao5)+'s'],['Ao12',format(s.ao12)+'s'],['Total',s.total]];
