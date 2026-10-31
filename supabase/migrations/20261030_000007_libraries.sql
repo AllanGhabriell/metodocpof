@@ -117,5 +117,63 @@ DROP TRIGGER IF EXISTS cfop_library_publication_guard ON public.cfop_libraries;
 CREATE TRIGGER cfop_library_publication_guard BEFORE INSERT OR UPDATE ON public.cfop_libraries
 FOR EACH ROW EXECUTE FUNCTION public.cfop_library_publication_guard();
 
+
+-- Rascunhos ficam separados da versão pública até o fundador publicar.
+CREATE TABLE IF NOT EXISTS public.cfop_library_case_drafts (
+ library_id uuid NOT NULL REFERENCES public.cfop_libraries(id) ON DELETE CASCADE,
+ case_id text NOT NULL REFERENCES public.cfop_case_catalog(case_id),
+ algorithm text NOT NULL DEFAULT '' CHECK (char_length(algorithm)<=1800),
+ setup text NOT NULL DEFAULT '' CHECK (char_length(setup)<=1800),
+ orientation text NOT NULL DEFAULT '' CHECK (char_length(orientation)<=160),
+ image_data text CHECK (image_data IS NULL OR (char_length(image_data)<=650000 AND image_data ~ '^data:image/(webp|png|jpeg);base64,')),
+ status text NOT NULL DEFAULT 'draft' CHECK (status IN ('draft','approved','rejected')),
+ source_page integer CHECK (source_page IS NULL OR source_page>0),
+ updated_at timestamptz NOT NULL DEFAULT now(),
+ PRIMARY KEY(library_id,case_id)
+);
+ALTER TABLE public.cfop_library_case_drafts ENABLE ROW LEVEL SECURITY;
+REVOKE ALL ON public.cfop_library_case_drafts FROM anon,authenticated;
+GRANT SELECT,INSERT,UPDATE,DELETE ON public.cfop_library_case_drafts TO authenticated;
+DROP POLICY IF EXISTS cfop_library_drafts_owner ON public.cfop_library_case_drafts;
+CREATE POLICY cfop_library_drafts_owner ON public.cfop_library_case_drafts
+FOR ALL TO authenticated
+USING ((SELECT public.cfop_is_owner(auth.uid())) AND (SELECT public.cfop_user_allowed(auth.uid())))
+WITH CHECK ((SELECT public.cfop_is_owner(auth.uid())) AND (SELECT public.cfop_user_allowed(auth.uid())));
+
+CREATE OR REPLACE FUNCTION public.cfop_publish_library(p_library uuid)
+RETURNS integer LANGUAGE plpgsql SECURITY DEFINER SET search_path=''
+AS $
+DECLARE
+ v_actor uuid:=auth.uid();
+ v_count integer:=0;
+BEGIN
+ IF v_actor IS NULL OR NOT public.cfop_is_owner(v_actor)
+ OR NOT public.cfop_user_allowed(v_actor) THEN
+  RAISE EXCEPTION 'Apenas o administrador fundador pode publicar';
+ END IF;
+ IF NOT EXISTS(SELECT 1 FROM public.cfop_libraries WHERE id=p_library) THEN
+  RAISE EXCEPTION 'Biblioteca não encontrada';
+ END IF;
+ SELECT count(*) INTO v_count FROM public.cfop_library_case_drafts
+ WHERE library_id=p_library AND status='approved' AND char_length(trim(algorithm))>0;
+ IF v_count=0 THEN RAISE EXCEPTION 'Aprove pelo menos um caso antes de publicar'; END IF;
+ INSERT INTO public.cfop_library_cases
+ (library_id,case_id,algorithm,setup,orientation,image_data,status,source_page,updated_at)
+ SELECT library_id,case_id,algorithm,setup,orientation,image_data,'approved',source_page,now()
+ FROM public.cfop_library_case_drafts
+ WHERE library_id=p_library AND status='approved' AND char_length(trim(algorithm))>0
+ ON CONFLICT(library_id,case_id) DO UPDATE SET
+  algorithm=excluded.algorithm,setup=excluded.setup,
+  orientation=excluded.orientation,image_data=excluded.image_data,
+  status='approved',source_page=excluded.source_page,updated_at=now();
+ UPDATE public.cfop_libraries SET is_public=true,updated_at=now() WHERE id=p_library;
+ INSERT INTO public.cfop_admin_audit(actor_id,target_id,action,detail)
+ VALUES(v_actor,v_actor,'publish_library',jsonb_build_object('library',p_library,'cases',v_count));
+ RETURN v_count;
+END;
+$;
+REVOKE ALL ON FUNCTION public.cfop_publish_library(uuid) FROM public,anon;
+GRANT EXECUTE ON FUNCTION public.cfop_publish_library(uuid) TO authenticated;
+
 COMMIT;
 SELECT stage,count(*) AS casos_fixos FROM public.cfop_case_catalog GROUP BY stage ORDER BY stage;
