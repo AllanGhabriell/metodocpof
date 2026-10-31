@@ -1,17 +1,17 @@
 /* GitHub Pages app shell — network-first, version-aware resource fallback.
    Never reuse an old JS module under a different ?v= version. */
-const CACHE='cfop-studio-offline-20261031-v45';
+const CACHE='cfop-studio-offline-20261031-v46';
 const CORE=[
  './index.html','./studio.html','./f2l.html','./oll.html','./pll.html','./importer.html',
  './cross.html','./scramble.html',
  './assets/css/cross-lab.css?v=20261031-1',
- './assets/css/timer-upgrade.css?v=20261031-scroll-lock-1',
+ './assets/css/timer-upgrade.css?v=20261031-cube-return-1',
  './assets/js/timer-history-ui.mjs?v=20261031-2',
  './v2/timer/records.mjs?v=20261031-compact-1','./v2/timer/telemetry.mjs?v=20261031-1',
  './v2/features/cross-timer.mjs?v=20261031-4',
  './v2/features/cross-ideas.mjs?v=20261031-1',
  './v2/features/cross.mjs?v=20261031-guided-2',
- './v2/app.js?v=20261031-admin-mobile-1',
+ './v2/app.js?v=20261031-admin-notify-1',
  './assets/css/journey.css?v=20261031-1',
  './v2/features/progression.mjs?v=20261031-rpg-2',
  './v2/features/journey.mjs?v=20261031-rpg-3',
@@ -28,6 +28,7 @@ const CORE=[
  './assets/css/academy-tools.css?v=20261030-22',
  './assets/css/studio-shell-fix.css?v=20261030-31',
  './assets/css/studio-admin-mobile.css?v=20261031-1',
+ './assets/css/notice-banner.css?v=20261031-admin-2',
  './assets/css/cursor-glow.css?v=1',
  './assets/css/trainer-unified.css?v=20261031-4',
  './assets/css/importer.css?v=20261031-4',
@@ -46,10 +47,10 @@ const OPTIONAL=[
  './v2/features/progress.mjs','./v2/features/academy-insights.mjs',
  './v2/features/practice.mjs','./v2/features/editor.mjs',
  './v2/features/sticker-editor.mjs',
- './v2/cloud/cloud.mjs?v=20261031-57','./v2/cloud/coach-merge.mjs',
+ './v2/cloud/cloud.mjs?v=20261031-58','./v2/cloud/coach-merge.mjs',
  './v2/cloud/project-config.mjs',
  './v2/cloud/identity.mjs','./v2/features/avatar-crop.mjs',
- './assets/js/notice-banner.js?v=20261031-2','./assets/css/notice-banner.css?v=20261031-1',
+ './assets/js/notice-banner.js?v=20261031-admin-notify-1','./assets/css/notice-banner.css?v=20261031-admin-2',
  './v2/features/achievements.mjs','./v2/features/share-cards.mjs',
  './v2/cloud/admin.mjs?v=20261031-timers-5','./v2/cloud/admin-timer.mjs?v=20261031-2',
  './assets/css/admin-timer.css?v=20261031-1','./v2/cloud/online.mjs?v=20261030-55',
@@ -57,7 +58,7 @@ const OPTIONAL=[
  './assets/js/trainer-coach.js?v=20261030-43',
  './assets/js/secao.js?v=20261031-7',
  './assets/css/trainer-unified.css?v=20261030-43',
- './assets/js/scramble.js?v=20261031-scroll-lock-3',
+ './assets/js/scramble.js?v=20261031-cube-return-1',
  './assets/css/scramble.css?v=20261031-9'
 ];
 self.addEventListener('install',event=>{
