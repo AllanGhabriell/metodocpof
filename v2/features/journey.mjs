@@ -87,7 +87,7 @@ function report(records=[]){
 }
 export function journeyPanel(xp,records=[]){
  ensure();const p=journeyIdentity(xp),items=journeyCatalog(),current=journey.equipped;
- const availableTitlesList=availableTitles(p.level,items);
+ const availableTitlesList=availableTitles(500,items);
  const group=kind=>{
   const options=kind==='title'?availableTitlesList:items.filter(r=>r.kind===kind);
   return '<label>'+esc(kind==='title'?'Título exibido':rewardKinds[kind]||kind)+'<select class="field" data-journey-equip="'+kind+'">'+
@@ -117,7 +117,7 @@ export function journeyPanel(xp,records=[]){
 }
 export function journeyEquip(kind,id,level){
  ensure();if(!['title',...kinds].includes(kind))return false;
- const p=levelFromXp(level),list=kind==='title'?availableTitles(p.level,journeyCatalog()):journeyCatalog().filter(r=>r.kind===kind);
+ const p=levelFromXp(level),list=kind==='title'?availableTitles(isCreator()?500:p.level,journeyCatalog()):journeyCatalog().filter(r=>r.kind===kind);
  if(id&&!list.some(x=>x.id===id&&(isCreator()||x.min_level<=p.level)))return false;
  if(id)journey.equipped[kind]=id;else delete journey.equipped[kind];
  persistJourney();return true;
