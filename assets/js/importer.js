@@ -3,7 +3,7 @@ import {FIXED_CASES,CASE_BY_ID,LIMITS} from '../../v2/data/case-catalog.mjs';
 import {assignFixedCases,cropDiagram} from '../../v2/data/pdf-layout.mjs';
 import {algorithmIndex,identifyByAlgorithm} from '../../v2/data/algorithm-match.mjs';
 import {matchDiagrams} from '../../v2/data/image-match.mjs';
-import {loadLibraries,libraryList,createLibrary,saveLibraryCasesBatch,publishApprovedLibrary,renameLibrary,loadOriginalBase,originalCases} from '../../v2/cloud/libraries.mjs?v=20261031-2';
+import {loadLibraries,libraryList,createLibrary,saveLibraryCasesBatch,publishApprovedLibrary,renameLibrary,loadOriginalBase,originalCases} from '../../v2/cloud/libraries.mjs?v=20261031-3';
 const PDF='https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.10.38/pdf.min.mjs';
 const LAST_LIBRARY='cpof-admin-last-library-v1';
 const context=new URLSearchParams(location.search);
