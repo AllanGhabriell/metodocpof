@@ -37,3 +37,24 @@ test('Big timer target is enabled without starting the timer while menu is open'
  assert.match(js,/document\.querySelector\('\.scramble-clock'\)\.addEventListener\('click'/);
  assert.match(js,/document\.querySelector\('dialog\[open\]'\)/);
 });
+
+test('Timer remains within viewport and does not vertically scroll on mobile',()=>{
+ assert.match(js,/classList\.toggle\('scramble-scroll-locked',next==='timer'\)/);
+ assert.match(js,/classList\.toggle\('scramble-timer-active',next==='timer'\)/);
+ assert.match(css,/html\.scramble-scroll-locked\{height:100%;overflow:hidden!important/);
+ assert.match(css,/body\.scramble-body\.scramble-timer-active\{/);
+ assert.match(css,/height:100dvh;min-height:0!important/);
+ assert.match(css,/touch-action:none;overscroll-behavior:none/);
+ assert.match(css,/\.scramble-body\.scramble-timer-active \.scramble-clock\{/);
+ assert.doesNotMatch(js,/scrollIntoView\(/);
+});
+test('Cube preview and PB popup never extend normal timer page height',()=>{
+ const dStart=html.indexOf('<dialog id="scramble-menu"'),dEnd=html.indexOf('</dialog>')+9;
+ assert.ok(dStart>=0&&dEnd>dStart);
+ const menu=html.slice(dStart,dEnd);
+ assert.match(menu,/<section class="scramble-cube-section" hidden/);
+ assert.doesNotMatch(html.slice(dEnd),/scramble-cube-section/);
+ assert.match(html,/id="scramble-record-close"/);
+ assert.match(js,/scramble-record-close/);
+ assert.match(css,/position:fixed;z-index:9/);
+});
