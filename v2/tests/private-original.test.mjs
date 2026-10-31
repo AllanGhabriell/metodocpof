@@ -14,7 +14,7 @@ test('student library no longer combines builtin PDF records with published ones
  assert.match(app,/original-delete/);
 });
 test('private base is owner only, deleted on server and never allowed after removal',()=>{
- assert.match(libraries,/const DEFAULT='none',ORIGINAL='original'/);
+ assert.match(libraries,/DEFAULT='none',ORIGINAL='original'/);
  assert.match(libraries,/isOriginalOwner=/);
  assert.match(libraries,/loadOriginalBase/);
  assert.match(libraries,/deleted_at/);
