@@ -1307,6 +1307,8 @@ document.addEventListener('DOMContentLoaded', () => {
     applyScale();
     renderMovesPanel();
     updateCoachInterface();
+    // Sem casos públicos, não exibir controles de treino impossíveis de usar.
+    if(controlsRow)controlsRow.hidden=!currentCase;
 
     const showMask = !completed && state.competitive.enabled && !caseVisible;
     if (imgWrap) imgWrap.classList.toggle('show-mask', showMask);
