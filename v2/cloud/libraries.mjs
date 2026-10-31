@@ -4,6 +4,8 @@ const META='cpof-library-index-v1',DB_NAME='cpof-library-offline-v1';
 const STAGES=['f2l','oll','pll'],DEFAULT='none',ORIGINAL='original',SETTING='cpof-stage-defaults-v1',PERSONAL='cpof-stage-session-v1';
 let libraries=read(META,[]),rows=[],lastError='',lastSync=null;
 let stageDefaults=read(SETTING,{}),stageChoices=readSession(PERSONAL,{}),rowsByLibrary=new Map(),publicOriginalRows=new Map();
+let stageDefaultsError='',stageDefaultsLoaded=false;
+export const stageDefaultStatus=()=>({loaded:stageDefaultsLoaded,error:stageDefaultsError});
 function readSession(k,f){try{return JSON.parse(sessionStorage.getItem(k)||'null')??f}catch{return f}}
 function updatePersonal(stage,id){stageChoices={...stageChoices,[stage]:id};try{sessionStorage.setItem(PERSONAL,JSON.stringify(stageChoices))}catch{}}
 function baseForStage(stage){const entry=stageDefaults[stage];if(!entry)return DEFAULT;
@@ -78,26 +80,60 @@ export const selectedLibraryName=stage=>{
 export const libraryError=()=>lastError;
 export const librarySyncedAt=()=>lastSync;
 export const selectedVariants=stage=>rowsByLibrary.get(selectedLibrary(stage))?.slice()||[];
+function describeDefaultError(error){
+ const message=String(error?.message||error||'Erro desconhecido');
+ if(/PGRST202|cfop_set_stage_default.*not found|Could not find the function/i.test(message))
+  return 'A função de salvar bibliotecas ainda não está instalada no Supabase. Execute o SQL de correção das bases principais.';
+ if(/PGRST205|cfop_stage_defaults.*not found|Could not find the table|relation.*cfop_stage_defaults.*does not exist/i.test(message))
+  return 'A tabela das bibliotecas principais ainda não existe. Execute o SQL de correção das bases principais.';
+ return message
+}
 export async function setDefaultLibrary(stage,id){
  requireOwner();if(!STAGES.includes(stage))throw Error('Etapa inválida');
  const source=id===ORIGINAL?'original':id===DEFAULT?'none':'library';
  if(source===ORIGINAL&&stage==='oll')throw Error('OLL não possui base original.');
- if(source==='library'&&!libraries.some(l=>l.id===id&&l.is_public))throw Error('Publique a biblioteca antes de torná-la principal.');
- await cloudTable('rpc/cfop_set_stage_default',{method:'POST',body:{
-  p_stage:stage,p_source:source,p_library:source==='library'?id:null
- }});
- await loadStageDefaults();
- notify();return stageDefaults[stage];
+ if(source==='library'){
+  const library=libraries.find(l=>l.id===id);
+  if(!library)throw Error('Biblioteca não encontrada. Atualize a lista.');
+  if(!library.is_public)throw Error('A biblioteca "'+library.title+'" ainda está em rascunho. Aprove os casos e publique-a antes de defini-la como principal.');
+ }
+ try{
+  await cloudTable('rpc/cfop_set_stage_default',{method:'POST',body:{
+   p_stage:stage,p_source:source,p_library:source==='library'?id:null
+  }});
+ }catch(e){throw Error(describeDefaultError(e))}
+ let actual;
+ try{
+  await loadStageDefaults({strict:true});
+  actual=stageDefaults[stage];
+ }catch(e){throw Error('O pedido de salvar foi enviado, mas não consegui confirmar o resultado: '+describeDefaultError(e))}
+ const expected=source==='library'?id:null;
+ if(!actual||actual.source!==source||(actual.library_id||null)!==expected)
+  throw Error('O Supabase não confirmou a alteração. O padrão anterior foi mantido. Atualize a página e verifique a configuração do banco.');
+ delete stageChoices[stage];try{sessionStorage.setItem(PERSONAL,JSON.stringify(stageChoices))}catch{}
+ notify();
+ return actual;
 }
-export async function loadStageDefaults(){
- if(!isConfigured())return stageDefaults;
+export async function loadStageDefaults({strict=false}={}){
+ if(!isConfigured()){
+  const e=new Error('Supabase não está configurado.');
+  stageDefaultsError=e.message;stageDefaultsLoaded=false;
+  if(strict)throw e;return stageDefaults;
+ }
  try{
   const rows=await cloudTable('cfop_stage_defaults',{query:'select=stage,source,library_id,updated_at&order=stage.asc',anon:!isAuthenticated()});
-  if(!Array.isArray(rows))throw Error('Configuração inválida');
+  if(!Array.isArray(rows)||!STAGES.every(stage=>rows.some(row=>row.stage===stage)))
+   throw Error('A configuração das três etapas não foi encontrada no Supabase.');
   stageDefaults=Object.fromEntries(rows.filter(r=>STAGES.includes(r.stage)).map(r=>[r.stage,r]));
   localStorage.setItem(SETTING,JSON.stringify(stageDefaults));
- }catch(e){lastError='Padrões offline: '+e.message}
- return stageDefaults
+  stageDefaultsError='';stageDefaultsLoaded=true;
+ }catch(e){
+  stageDefaultsError=describeDefaultError(e);
+  lastError='Não foi possível consultar os padrões: '+stageDefaultsError;
+  stageDefaultsLoaded=false;
+  if(strict)throw Error(stageDefaultsError);
+ }
+ return stageDefaults;
 }
 async function loadPublicOriginal(stage){
  if(stage==='oll'||baseForStage(stage)!==ORIGINAL)return [];
