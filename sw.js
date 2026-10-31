@@ -1,11 +1,11 @@
 /* GitHub Pages app shell — network-first, version-aware resource fallback.
    Never reuse an old JS module under a different ?v= version. */
-const CACHE='cfop-studio-offline-20261031-v22';
+const CACHE='cfop-studio-offline-20261031-v23';
 const CORE=[
  './index.html','./studio.html','./f2l.html','./oll.html','./pll.html','./importer.html',
  './cross.html','./scramble.html',
- './v2/app.js?v=20261031-5',
- './v2/app.css?v=20261031-3',
+ './v2/app.js?v=20261031-6',
+ './v2/app.css?v=20261031-4',
  './assets/css/studio-original.css?v=1',
  './assets/css/academy.css?v=20261030-1',
  './assets/css/home-layout.css?v=20261031-mobile-1',
