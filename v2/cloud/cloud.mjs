@@ -83,7 +83,7 @@ function validateConfig(url,key){
 export function configureCloud(url,key){
  const next=validateConfig(url,key);
  if(next.url!==publicConfig.url||next.key!==publicConfig.key){
-  throw Error('A Academia CPOF já tem um projeto Supabase público configurado. Para alterá-lo, atualize o arquivo de configuração do site.');
+  throw Error('A Academia CFOP já tem um projeto Supabase público configurado. Para alterá-lo, atualize o arquivo de configuração do site.');
  }
  conf=publicConfig;save(CONF,conf);setStatus('configurado');return true;
 }
