@@ -423,3 +423,15 @@ body::before{z-index:0}.cfop-cursor-glow{z-index:0}.app{z-index:1}
 .profile-admin-hub summary span{font-size:12px;color:#b4a7c8}
 .profile-admin-hub .profile-destination-grid{margin-top:20px;grid-template-columns:repeat(2,minmax(0,1fr))}
 @media(max-width:720px){.profile-destination-grid{grid-template-columns:1fr}.profile-admin-hub .profile-destination-grid{grid-template-columns:1fr}}
+
+/* Administração: leitura e ações rápidas em telas pequenas e grandes. */
+.admin-kpis{grid-template-columns:repeat(5,minmax(0,1fr))}
+.admin-filters{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin:16px 0 12px}
+.admin-filters button{border:1px solid #5486ab85;background:#142d4c;color:#bed8ee;border-radius:999px;padding:9px 13px;font-weight:650;font-size:12px;min-height:38px}
+.admin-filters button[aria-pressed="true"]{background:linear-gradient(135deg,#205a88,#2b7ca4);border-color:#7ed9f5;color:white}
+.admin-table tr[hidden]{display:none}
+.admin-detail .admin-actions{grid-template-columns:repeat(2,minmax(0,1fr))}
+.admin-detail .admin-actions form{background:rgba(30,61,96,.28);border-color:rgba(138,190,236,.22)}
+.admin-user-link:focus-visible,.admin-filters button:focus-visible{outline:2px solid #87e0f9;outline-offset:2px}
+@media(max-width:900px){.admin-kpis{grid-template-columns:repeat(3,minmax(0,1fr))}.admin-detail .admin-actions{grid-template-columns:1fr}}
+@media(max-width:560px){.admin-kpis{grid-template-columns:repeat(2,minmax(0,1fr))}.admin-filters{flex-wrap:nowrap;overflow-x:auto;padding-bottom:7px}.admin-filters button{flex-shrink:0}}
