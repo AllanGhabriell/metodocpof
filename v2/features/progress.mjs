@@ -1,5 +1,5 @@
 import {academyActivityData,academyDashboard} from './academy-insights.mjs';
-import {adminXpAdjustment} from '../cloud/cloud.mjs?v=20261031-57';
+import {adminXpAdjustment,serverXpBalance} from '../cloud/cloud.mjs?v=20261031-58';
 import {identityState,identityPanel} from '../cloud/identity.mjs';
 import {achievementBonus,earnedAchievements} from './achievements.mjs';
 const KEY='cfop-studio-progress-v1',DAY=86400000;
@@ -15,7 +15,7 @@ export function progressData(){return data}
 export function progressSummary(){
  const coachEvents=academyActivityData(data.records).cases;
  const earnedXp=data.records.reduce((s,r)=>s+(Number(r.xp)||0),0)+coachEvents.reduce((sum,e)=>sum+Math.max(0,Math.min(20,Number(e.xp)||0)),0)+achievementBonus(data.records);
- const xp=Math.max(0,earnedXp+adminXpAdjustment());
+ const xp=Math.max(0,earnedXp+serverXpBalance()+adminXpAdjustment());
  const activity=new Set(data.records.map(r=>r.date));
  let streak=0,d=new Date();d.setHours(12,0,0,0);if(!activity.has(dateOf(d)))d.setDate(d.getDate()-1);
  while(activity.has(dateOf(d))){streak++;d.setDate(d.getDate()-1)}
