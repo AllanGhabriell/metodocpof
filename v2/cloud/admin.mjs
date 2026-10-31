@@ -1,5 +1,6 @@
 import {cloudTable,isAdmin,cloudUser} from './cloud.mjs?v=20261031-58';
 import {adminTimerPanel,loadAdminTimerInsights} from './admin-timer.mjs?v=20261031-2';
+import {adminRewardsPanel,loadAdminRewards,adminRewardsSubmit} from './admin-rewards.mjs?v=20261031-1';
 let users=[],audit=[],flags=[],identities=[],identityLimits=[],identityReady=false,message='',selected='',loading=false,adminFilter='all';
 const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const dt=v=>v?new Date(v).toLocaleString('pt-BR'):'Sem registro';
@@ -12,7 +13,7 @@ export async function adminLoad(){if(!isAdmin())return;loading=true;try{[users,a
   rpc('cfop_admin_identity_limits').catch(()=>[])
  ]);identityReady=true;
  }catch(e){identities=[];identityReady=false;message='Perfis com foto indisponíveis. Execute o SQL de perfis e moderação: '+e.message}
- }catch(e){users=[];audit=[];flags=[];message='Não foi possível carregar o painel: '+e.message}finally{loading=false}await loadAdminTimerInsights().catch(()=>{})}
+ }catch(e){users=[];audit=[];flags=[];message='Não foi possível carregar o painel: '+e.message}finally{loading=false}await Promise.all([loadAdminTimerInsights().catch(()=>{}),loadAdminRewards().catch(()=>{})])}
 export function adminPanel(){
  if(!isAdmin())return '<section class="card"><h2>Acesso restrito</h2><p>Esta área está disponível apenas para administradores autorizados.</p></section>';
  const total=users.length,active=users.filter(u=>u.last_seen&&Date.now()-new Date(u.last_seen).getTime()<7*864e5).length,suspended=users.filter(u=>u.suspended_until&&new Date(u.suspended_until)>new Date()).length,banned=flags.filter(f=>f.is_banned).length;
@@ -26,7 +27,7 @@ export function adminPanel(){
  '<p class="notice">Tempo de uso estimado por atividade com a página aberta e em primeiro plano, a partir da ativação do registro. Não inclui uso anterior nem atividade offline.</p>'+
  (message?'<p role="status" class="notice">'+esc(message)+'</p>':'')+
  '<div class="admin-kpis"><div class="card"><span>Contas exibidas</span><strong>'+total+'</strong></div><div class="card"><span>Ativos (7 dias)</span><strong>'+active+'</strong></div><div class="card"><span>Inativos (7 dias)</span><strong>'+Math.max(0,total-active)+'</strong></div><div class="card"><span>Suspensos</span><strong>'+suspended+'</strong></div><div class="card"><span>Banidos</span><strong>'+banned+'</strong></div></div>'+
- adminTimerPanel(users,selected)+
+ adminTimerPanel(users,selected)+adminRewardsPanel()+
  '<section class="card"><h2>Vistoria de usuários</h2><p class="muted">Selecione uma conta para consultar detalhes e realizar ações.</p><div class="admin-filters" role="group" aria-label="Filtrar usuários">'+filters.map(([value,label])=>'<button type="button" data-admin="filter" data-filter="'+value+'" aria-pressed="'+(adminFilter===value)+'">'+label+'</button>').join('')+'</div><label class="admin-search-label">Buscar usuário<input id="admin-search" type="search" placeholder="Nome ou e-mail" autocomplete="off"></label><div class="admin-table-scroll"><table class="admin-table"><thead><tr><th>Usuário</th><th>Cadastro</th><th>Última atividade</th><th>Tempo ativo</th><th>Sessões</th><th>Resoluções</th><th>XP extra</th><th>Estado</th></tr></thead><tbody>'+
  filtered.map(u=>'<tr data-user-search="'+esc((u.nickname||'')+' '+u.email).toLowerCase()+'"><td><button type="button" class="admin-user-link" data-admin-user="'+esc(u.user_id)+'">'+esc(u.nickname||'Cubista')+'<small>'+esc(u.email)+'</small></button></td><td>'+dt(u.joined_at)+'</td><td>'+dt(u.last_seen||u.last_sign_in)+'</td><td>'+duration(u.active_seconds)+'</td><td>'+Number(u.session_count||0)+'</td><td>'+Number(u.solve_count||0)+'</td><td>'+Number(u.xp_adjustment||0)+'</td><td>'+(state(u)==='banned'?'Banido':state(u)==='suspended'?'Suspenso':state(u)==='admins'?'Admin':'Regular')+'</td></tr>').join('')+
  '</tbody></table></div>'+(filtered.length?'':'<p class="muted">'+(loading?'Carregando…':users.length?'Nenhuma conta neste filtro.':'Nenhum usuário carregado. Verifique o banco de dados e clique em Atualizar.')+'</p>')+'</section>'+
@@ -60,7 +61,7 @@ export async function adminClick(button){if(!isAdmin())return false;if(button.da
  await rpc('cfop_admin_manage_identity',{p_target:selected,p_action:action,p_value:''});
  await adminLoad();message='Moderação de perfil atualizada.';return true;
 }if(['grant','revoke','unban'].includes(action)&&selected){if(['grant','revoke'].includes(action)&&!flags.some(f=>f.user_id===cloudUser()?.id&&f.is_owner))throw Error('Somente o administrador fundador pode alterar permissões.');const target=users.find(u=>u.user_id===selected);if(!target)return false;if(!confirm((action==='grant'?'Promover':action==='revoke'?'Retirar permissões de':'Desbanir')+' '+target.email+'?'))return true;if(action==='unban')await rpc('cfop_manage_ban',{p_target:selected,p_ban:false,p_reason:''});else await rpc('cfop_manage_admin',{p_target:selected,p_grant:action==='grant'});await adminLoad();message='Permissões atualizadas.';return true}if(action==='unsuspend'&&selected){if(confirm('Remover a suspensão desta conta?'))await rpc('cfop_admin_action',{p_target:selected,p_action:'unsuspend',p_value:0,p_message:''});await adminLoad();return true}return false}
-export async function adminSubmit(form){if(!isAdmin()||!selected)return false;const data=new FormData(form);let action,value=0,body='';if(form.id==='admin-rename'){
+export async function adminSubmit(form){if(!isAdmin())return false;if(form.id==='admin-reward-form')return adminRewardsSubmit(form);if(!selected)return false;const data=new FormData(form);let action,value=0,body='';if(form.id==='admin-rename'){
  if(!flags.some(f=>f.user_id===cloudUser()?.id&&f.is_owner))throw Error('Apenas o fundador altera apelidos de terceiros.');
  const nickname=String(data.get('nickname')||'').trim();
  const current=users.find(u=>u.user_id===selected);
