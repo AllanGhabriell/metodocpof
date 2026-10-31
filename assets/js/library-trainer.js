@@ -1,6 +1,6 @@
 import {loadLibraries,libraryList,selectedLibrary,chooseLibrary,libraryCase,selectedLibraryName,libraryError,selectedVariants,isOriginalOwner,originalBaseInfo,loadOriginalBase,defaultForStage,publicCasesInStage,publicLibraryStatus} from '../../v2/cloud/libraries.mjs?v=20261031-3';
 import {CASE_BY_ID,LIMITS,trainerCaseToCatalog} from '../../v2/data/case-catalog.mjs';
-import {checkAdmin,isAdmin,cloudUser} from '../../v2/cloud/cloud.mjs?v=20261030-55';
+import {checkAdmin,isAdmin,cloudUser} from '../../v2/cloud/cloud.mjs?v=20261031-56';
 
 // Os IDs dos casos não são editáveis; OLL 01–57 usa a ordem da biblioteca,
 // que pode diferir da numeração das imagens legadas do treinador.
