@@ -2,7 +2,7 @@
 <html lang="pt-BR"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><title>Embaralhamento e cronômetro — Academia CFOP</title>
 <link rel="stylesheet" href="assets/css/global.css?v=20260313k"><link rel="stylesheet" href="assets/css/scramble.css?v=20261031-timer-upgrade-1"><link rel="stylesheet" href="assets/css/cursor-glow.css?v=1">
 <link rel="stylesheet" href="assets/css/academy.css?v=20261030-1">
-<link rel="stylesheet" href="assets/css/timer-upgrade.css?v=20261031-scroll-lock-1">
+<link rel="stylesheet" href="assets/css/timer-upgrade.css?v=20261031-cube-return-1">
 </head><body class="scramble-body">
 <header class="scramble-header"><a href="index.html" aria-label="Voltar à página inicial">✕</a><strong>Cubo 3×3 <small>Embaralhamento</small></strong><button id="scramble-menu-toggle" type="button" aria-label="Abrir menu do cronômetro" aria-controls="scramble-menu" aria-haspopup="dialog">☰</button></header>
 <main class="scramble-main">
@@ -10,6 +10,7 @@
 <div class="scramble-alg"><p id="scramble-text" aria-label="Embaralhamento atual"></p><button id="new-scramble" type="button" aria-label="Gerar outro embaralhamento" title="Novo embaralhamento">⟳</button></div>
 
 <div class="scramble-clock"><button id="timer-display" type="button" aria-label="Iniciar ou parar cronômetro">0.00</button><p id="timer-status">Toque nesta área ou pressione espaço para começar</p></div>
+ <section class="scramble-cube-section" aria-label="Visualização tridimensional do embaralhamento"><h2 class="scramble-cube-heading"><span id="scramble-cube-heading">Cubo 3D</span> <small>Estado do embaralhamento</small></h2><div id="scramble-cube" aria-live="off"></div><div class="scramble-cube-controls"><button id="cube-left" aria-label="Girar cubo à esquerda">←</button><button id="cube-up" aria-label="Inclinar cubo para cima">↑</button><button id="cube-down" aria-label="Inclinar cubo para baixo">↓</button><button id="cube-right" aria-label="Girar cubo à direita">→</button></div></section>
 <section class="scramble-record-share" id="scramble-record-share" hidden>
  <div class="scramble-record-share-heading"><strong>🏆 Novo recorde pessoal!</strong><button type="button" id="scramble-record-close" aria-label="Fechar aviso de recorde">✕</button></div>
  <p id="scramble-record-label"></p>
@@ -38,9 +39,9 @@
  <label class="scramble-menu-check" for="show-cube-preview"><input type="checkbox" id="show-cube-preview"><span>Mostrar cubo embaralhado abaixo do timer</span></label>
  </div>
  <div class="scramble-menu-section"><h3>Sessão de treino</h3><label for="scramble-session-name" class="scramble-session-label">Nome da sessão<input id="scramble-session-name" type="text" maxlength="45" placeholder="Geral" value="Geral" autocomplete="off"></label><p class="scramble-menu-help">As novas resoluções serão registradas nesta sessão. Você pode editar as sessões de tempos antigos no Histórico.</p></div>
- <section class="scramble-cube-section" hidden aria-label="Visualização tridimensional do embaralhamento"><h2 class="scramble-cube-heading"><span id="scramble-cube-heading">Cubo 3D</span> <small>Estado do embaralhamento</small></h2><div id="scramble-cube" aria-live="off"></div><div class="scramble-cube-controls"><button id="cube-left" aria-label="Girar cubo à esquerda">←</button><button id="cube-up" aria-label="Inclinar cubo para cima">↑</button><button id="cube-down" aria-label="Inclinar cubo para baixo">↓</button><button id="cube-right" aria-label="Girar cubo à direita">→</button></div></section>
+
  <button id="scramble-menu-done" type="button" class="scramble-menu-done">Voltar ao cronômetro</button>
  </dialog>
 <nav class="scramble-bottom-nav" aria-label="Áreas do cronômetro"><button data-view="timer" aria-label="Cronômetro" aria-pressed="true">◷ <span>Tempo</span></button><button data-view="history" aria-label="Histórico" aria-pressed="false">▦ <span>Histórico</span></button><button data-view="stats" aria-label="Estatísticas" aria-pressed="false">⌁ <span>Evolução</span></button></nav>
-<script type="module" src="assets/js/scramble.js?v=20261031-scroll-lock-3"></script><script src="v2/cursor-glow.js?v=20261030-27" defer></script><script type="module" src="assets/js/notice-banner.js?v=20261031-2"></script>
+<script type="module" src="assets/js/scramble.js?v=20261031-cube-return-1"></script><script src="v2/cursor-glow.js?v=20261030-27" defer></script><script type="module" src="assets/js/notice-banner.js?v=20261031-2"></script>
 </body></html>
