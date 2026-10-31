@@ -518,3 +518,59 @@ body::before{z-index:0}.cfop-cursor-glow{z-index:0}.app{z-index:1}
 }
 .admin-default-cards select option:disabled{color:#9da6b2}
 .admin-default-cards button:disabled{opacity:.65;cursor:wait}
+
+/* Conta, avatares e cartões de conquistas — responsivo e acessível. */
+.identity-editor{display:grid;gap:15px}
+.identity-editor-heading{display:flex;align-items:center;gap:17px}
+.identity-editor-heading h2{font-size:clamp(20px,3vw,26px);margin:0 0 5px}
+.identity-editor-heading p{margin:0;line-height:1.5}
+.identity-photo-frame,.academy-profile-big-avatar{flex-shrink:0;overflow:hidden;display:flex;align-items:center;justify-content:center}
+.identity-photo-frame{width:86px;height:86px;border:2px solid #83d9ef;border-radius:20px;background:#124f70}
+.identity-photo-frame img,.academy-profile-big-avatar img,.admin-avatar-preview{object-fit:cover;width:100%;height:100%}
+.identity-avatar-initial{font-size:37px;font-weight:850;color:#d9f7ff}
+.academy-profile-big-avatar img{border-radius:18px}
+.identity-form{display:grid;gap:11px;max-width:620px}
+.identity-form label{display:block}
+.identity-actions,.academy-share-actions{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.identity-actions button,.academy-share-actions button,.identity-upload-link{
+ display:inline-flex;justify-content:center;align-items:center;min-height:44px;border-radius:10px;
+ padding:10px 15px;font:750 13px system-ui,sans-serif
+}
+.identity-upload-link{cursor:pointer;border:1px solid #64c7e1;background:#114c65;color:#e5faff}
+.identity-upload-link.disabled{cursor:not-allowed;opacity:.5}
+.identity-signin-hint{display:inline-block;color:#7ddaf7;font-weight:700}
+.identity-crop-editor{display:grid;gap:14px;max-width:500px;padding:18px;background:#0d2440;border:1px solid #547eac;border-radius:16px}
+.identity-crop-editor h3{margin:0}
+.identity-crop-editor p{margin:0;color:#aacbdc}
+.identity-crop-editor canvas{width:min(100%,288px);height:auto;aspect-ratio:1;touch-action:none;cursor:grab;justify-self:center;border:2px solid #70dcf6;border-radius:15px;box-shadow:0 0 18px #50c3ed44}
+.identity-crop-editor canvas:active{cursor:grabbing}
+.identity-crop-editor input[type=range]{width:100%;accent-color:#62dbef}
+.academy-share-panel{display:grid;gap:17px}
+.academy-share-panel>h2,.academy-share-panel>p{margin:0}
+.academy-share-panel>p{line-height:1.45;color:#b9d6e7}
+.academy-share-actions{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));align-items:stretch}
+.academy-share-actions button{white-space:normal;min-height:52px}
+.academy-share-actions button:disabled{opacity:.45;cursor:not-allowed}
+.academy-achievement-collection{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+.academy-achievement-collection article{display:flex;align-items:center;gap:11px;border-radius:13px;border:1px solid #668bad70;padding:12px;background:#112c4b;min-width:0}
+.academy-achievement-collection article.earned{border-color:#54c5ab70;background:linear-gradient(135deg,#11364c,#153f51)}
+.academy-achievement-collection article.locked{opacity:.61}
+.academy-achievement-collection article>span{font-size:27px;flex:0 0 34px;text-align:center}
+.academy-achievement-collection article>div{display:grid;gap:4px;min-width:0;flex:1}
+.academy-achievement-collection article strong{font-size:13px;overflow-wrap:anywhere}
+.academy-achievement-collection article small{font-size:11px;color:#bad2e4}
+.academy-achievement-collection article button{font-size:11px;padding:9px 8px;min-height:39px}
+.admin-identity-review{padding:15px;border:1px solid #537eab80;background:#142a46;border-radius:14px;margin:14px 0}
+.admin-identity-review h3{margin:0 0 12px}
+.admin-avatar-preview{width:144px;height:144px;max-width:100%;border:2px solid #7bd9eb;border-radius:15px}
+.admin-identity-actions{display:flex;flex-wrap:wrap;gap:9px;margin-top:13px}
+.admin-identity-actions button{font-size:12px;min-height:43px}
+@media(max-width:700px){
+ .identity-editor-heading{align-items:flex-start}
+ .identity-photo-frame{width:65px;height:65px;border-radius:14px}
+ .identity-avatar-initial{font-size:26px}
+ .identity-actions>*{flex:1;min-width:140px}
+ .academy-achievement-collection{grid-template-columns:1fr}
+ .academy-share-actions{grid-template-columns:1fr}
+ .academy-achievement-collection article button{min-width:92px}
+}
