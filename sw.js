@@ -1,10 +1,10 @@
 /* GitHub Pages app shell — network-first, version-aware resource fallback.
    Never reuse an old JS module under a different ?v= version. */
-const CACHE='cfop-studio-offline-20261030-v8';
+const CACHE='cfop-studio-offline-20261030-v9';
 const CORE=[
  './index.html','./studio.html','./f2l.html','./oll.html','./pll.html',
  './cross.html','./scramble.html',
- './v2/app.js?v=20261030-32',
+ './v2/app.js?v=20261030-53',
  './v2/app.css?v=20261030-8',
  './assets/css/studio-original.css?v=1',
  './assets/css/academy.css?v=20261030-1',
@@ -23,8 +23,9 @@ const OPTIONAL=[
  './v2/features/progress.mjs','./v2/features/academy-insights.mjs',
  './v2/features/practice.mjs','./v2/features/editor.mjs',
  './v2/features/sticker-editor.mjs',
- './v2/cloud/cloud.mjs','./v2/cloud/coach-merge.mjs',
- './v2/cloud/admin.mjs','./v2/cloud/online.mjs',
+ './v2/cloud/cloud.mjs?v=20261030-53','./v2/cloud/coach-merge.mjs',
+ './v2/cloud/project-config.mjs',
+ './v2/cloud/admin.mjs?v=20261030-53','./v2/cloud/online.mjs?v=20261030-53',
  './v2/data/pdf-import.mjs','./v2/data/pdf-cases.json',
  './assets/js/trainer-coach.js?v=20261030-43',
  './assets/js/secao.js?v=20261030-44',
