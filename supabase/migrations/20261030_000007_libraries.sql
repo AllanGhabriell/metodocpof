@@ -142,7 +142,7 @@ WITH CHECK ((SELECT public.cfop_is_owner(auth.uid())) AND (SELECT public.cfop_us
 
 CREATE OR REPLACE FUNCTION public.cfop_publish_library(p_library uuid)
 RETURNS integer LANGUAGE plpgsql SECURITY DEFINER SET search_path=''
-AS $
+AS $$
 DECLARE
  v_actor uuid:=auth.uid();
  v_count integer:=0;
@@ -171,7 +171,7 @@ BEGIN
  VALUES(v_actor,v_actor,'publish_library',jsonb_build_object('library',p_library,'cases',v_count));
  RETURN v_count;
 END;
-$;
+$$;
 REVOKE ALL ON FUNCTION public.cfop_publish_library(uuid) FROM public,anon;
 GRANT EXECUTE ON FUNCTION public.cfop_publish_library(uuid) TO authenticated;
 
