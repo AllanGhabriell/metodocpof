@@ -905,3 +905,6 @@ body[data-set] .controls-row .trainer-case-action.action-hard:disabled{
   body[data-set] .topbar{width:calc(100% - 12px);margin-top:6px}
   body[data-set] .f2l-container{padding:11px 9px 25px!important}
 }
+
+/* Sem biblioteca publicada, nenhuma ação de treino fica ativa. */
+body[data-set] .controls-row[hidden]{display:none!important}
