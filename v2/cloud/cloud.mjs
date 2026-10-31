@@ -8,7 +8,7 @@ const KEYS={progress:'cfop-studio-progress-v1',times:'cfop-v2-times',drafts:'cfo
 const publicConfig=validateConfig(PUBLIC_SUPABASE_CONFIG.url,PUBLIC_SUPABASE_CONFIG.publishableKey);
 const previousConfig=read(CONF,null);
 const hasSameProject=previousConfig?.url===publicConfig.url;
-let accountMessages=[],accountXp=0;
+let accountMessages=[],accountXp=0,accountRestriction={bannedAt:null,bannedReason:'',suspendedUntil:null,suspensionReason:''};
 let conf=publicConfig,session=hasSameProject?read(AUTH,null):null,
   admin=false,published=[],lastError='',phase='configurado',
   onUpdate=()=>{},onHydrate=()=>{},busy=false,queue=false,
@@ -119,7 +119,7 @@ export async function updatePassword(password){
 export async function signOut(){
  const old=session?.access_token;
  try{if(old)await authFetch('logout','POST',{},old)}catch{}
- session=null;admin=false;accountXp=0;accountMessages=[];save(AUTH,null);setStatus('desconectado');return true;
+ session=null;admin=false;accountXp=0;accountMessages=[];accountRestriction={bannedAt:null,bannedReason:'',suspendedUntil:null,suspensionReason:''};save(AUTH,null);setStatus('desconectado');return true;
 }
 async function rest(table,{method='GET',query='',body=null,anon=false,prefer=''}={}){
  if(!anon)await token();
@@ -150,10 +150,12 @@ export async function loadAccountExtras(){
  try{
   const [notes,state]=await Promise.all([
    rest('cfop_user_notifications',{query:'select=id,body,created_at&order=created_at.desc&limit=20'}),
-   rest('cfop_user_admin_state',{query:'select=xp_adjustment,suspended_until,suspension_reason&user_id=eq.'+encodeURIComponent(session.user.id)})
+   rest('cfop_user_admin_state',{query:'select=xp_adjustment,suspended_until,suspension_reason,banned_at,banned_reason&user_id=eq.'+encodeURIComponent(session.user.id)})
   ]);
   accountMessages=Array.isArray(notes)?notes:[];
-  accountXp=Array.isArray(state)&&state.length?Number(state[0].xp_adjustment)||0:0;
+  const restriction=Array.isArray(state)&&state.length?state[0]:{};
+  accountXp=Number(restriction.xp_adjustment)||0;
+  accountRestriction={bannedAt:restriction.banned_at||null,bannedReason:restriction.banned_reason||'',suspendedUntil:restriction.suspended_until||null,suspensionReason:restriction.suspension_reason||''};
   emit();
  }catch{}
 }
@@ -327,6 +329,7 @@ export function cloudPanel(){
  const technical=admin?'<details class="account-advanced"><summary>Configurações avançadas</summary><p class="muted">Projeto conectado: '+esc(conf?.url||'Não configurado')+'</p><p class="muted">Identificador da conta: <code>'+esc(status.user?.id||'')+'</code> <button type="button" class="secondary" data-cloud="copyid">Copiar</button></p><p class="muted">Sincronização: '+esc(phase)+(lastError?' · '+esc(lastError):'')+'</p></details>':'';
  return '<section class="card cloud-panel account-card"><div class="account-heading"><div class="account-heading-icon" aria-hidden="true">◉</div><div><h2>Minha conta</h2><p class="muted">Acesse seus treinos e mantenha seu progresso salvo.</p></div></div>'+
  (status.error?'<p class="notice" role="alert">Serviço de conta: '+esc(status.error)+'</p>':'')+
+ (status.authenticated&&accountRestriction.bannedAt?'<p class="notice" role="alert"><strong>Conta banida dos recursos online.</strong> '+esc(accountRestriction.bannedReason||'Procure a administração para mais informações.')+'</p>':status.authenticated&&accountRestriction.suspendedUntil&&new Date(accountRestriction.suspendedUntil)>new Date()?'<p class="notice" role="status"><strong>Recursos online suspensos até '+new Date(accountRestriction.suspendedUntil).toLocaleString('pt-BR')+'.</strong> '+esc(accountRestriction.suspensionReason||'')+'</p>':'')+
  (!status.configured?
  '<p class="muted" role="status">O serviço de contas está temporariamente indisponível. Tente atualizar a página.</p>':
  !status.authenticated?
