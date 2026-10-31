@@ -1,1 +1,105 @@
-<!doctype html><html lang="pt-BR"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><title>Importar casos — Academia CPOF</title><link rel="stylesheet" href="assets/css/global.css"><link rel="stylesheet" href="assets/css/academy.css"><link rel="stylesheet" href="assets/css/importer.css?v=20261030-2"></head><body class="importer-body"><header class="importer-header"><a href="studio.html?page=review" aria-label="Voltar à revisão">←</a><strong>Academia CPOF <small>Importação de casos</small></strong><a href="index.html">Início</a></header><main class="importer-main"><section class="importer-hero"><span>ADMINISTRAÇÃO · BIBLIOTECA</span><h1>Importar casos de PDFs e imagens</h1><p>Reconheça títulos e algoritmos, gere recortes das páginas e confira cada caso antes de enviar para revisão. Os casos têm identidade fixa. Só o administrador pode revisar e publicar uma biblioteca; usuários escolhem entre as publicadas.</p></section><div id="importer-access" role="status">Verificando permissões…</div><section id="importer-workspace" hidden><div class="importer-panel"><div class="importer-fields"><label>Biblioteca de destino<select id="import-library"><option value="">Escolha uma biblioteca</option></select></label><label>Nome de nova biblioteca<input id="import-new-library" placeholder="Ex.: O CUBO 2024" maxlength="90"></label><button id="import-create-library" type="button">Criar biblioteca</button><button id="import-rename-library" type="button">Renomear biblioteca selecionada</button><label>Etapa<select id="import-stage"><option value="f2l">F2L · 41 casos</option><option value="oll">OLL · 57 casos</option><option value="pll">PLL · 21 casos</option></select></label><label>Arquivo PDF<input id="import-file" type="file" accept=".pdf,application/pdf"></label></div><p class="importer-help">PDF com texto selecionável: extração automática. PDF com texto selecionável: identificação de casos pela diagramação. PDFs digitalizados exigirão conferência manual ou OCR adicional. Revise cada associação de caso, algoritmo, setup e recorte. A identificação pela ordem fica marcada para conferência.</p><button id="import-run" type="button">Analisar arquivo</button><p id="import-status" role="status" aria-live="polite"></p></div><section class="importer-panel" id="import-results" hidden><div class="importer-results-heading"><div><h2>Casos encontrados</h2><p id="import-count"></p></div><div class="importer-actions"><button id="import-approve-all" type="button">Aprovar casos reconhecidos</button><button id="import-save" type="button">Salvar revisão no Supabase</button><button id="import-publish" type="button">Publicar biblioteca</button><button id="import-download" type="button">Exportar JSON de segurança</button><button id="import-clear" type="button">Limpar</button></div></div><p class="importer-help">Confira as imagens, a numeração e os algoritmos. Casos sem identificação confiável ficam sinalizados e exigem correção manual.</p><div id="import-cards" class="importer-cards"></div></section></section></main><script type="module" src="assets/js/importer.js?v=20261030-4"></script></body></html>
+<!doctype html>
+<html lang="pt-BR">
+<head>
+ <meta charset="utf-8">
+ <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+ <meta name="theme-color" content="#09172b">
+ <title>Publicar casos — Academia CPOF</title>
+ <link rel="stylesheet" href="assets/css/global.css">
+ <link rel="stylesheet" href="assets/css/academy.css">
+ <link rel="stylesheet" href="assets/css/importer.css?v=20261031-1">
+</head>
+<body class="importer-body">
+ <header class="importer-header">
+  <a href="studio.html?page=profile" aria-label="Voltar ao Studio">← Voltar</a>
+  <strong>Academia CPOF <small>Gerenciador de bibliotecas</small></strong>
+  <a href="studio.html?page=admin-users">Administração</a>
+ </header>
+ <main class="importer-main">
+  <section class="importer-hero">
+   <span>ACESSO DO ADMINISTRADOR</span>
+   <h1>Publicar casos</h1>
+   <p>Envie um PDF, confira os casos reconhecidos e publique sua biblioteca. Os alunos só recebem o que você aprovar.</p>
+  </section>
+  <div id="importer-access" role="status">Verificando sua conta de administrador…</div>
+  <section id="importer-workspace" hidden>
+   <nav class="importer-steps" aria-label="Etapas de publicação">
+    <span><b>1</b> Biblioteca</span>
+    <span><b>2</b> PDF</span>
+    <span><b>3</b> Revisar e publicar</span>
+   </nav>
+   <section class="importer-panel importer-start">
+    <div class="importer-step-heading">
+     <span class="importer-step-badge">01</span>
+     <div><h2>Escolha a biblioteca</h2><p>Selecione uma biblioteca existente ou crie outra.</p></div>
+    </div>
+    <div class="importer-fields importer-library-fields">
+     <label>Minha biblioteca
+      <select id="import-library"><option value="">Escolha uma biblioteca</option></select>
+     </label>
+     <div class="importer-create-row">
+      <label>Nova biblioteca
+       <input id="import-new-library" placeholder="Ex.: O CUBO 2024" maxlength="90" autocomplete="off">
+      </label>
+      <button id="import-create-library" type="button" class="importer-secondary">+ Criar</button>
+     </div>
+    </div>
+    <details class="importer-advanced">
+     <summary>Renomear biblioteca selecionada</summary>
+     <button id="import-rename-library" type="button" class="importer-secondary">Salvar novo nome da biblioteca</button>
+    </details>
+    <div class="importer-step-heading importer-upload-heading">
+     <span class="importer-step-badge">02</span>
+     <div><h2>Envie seu PDF</h2><p>Escolha o tipo de caso e o documento. A análise começa ao selecionar o arquivo.</p></div>
+    </div>
+    <div class="importer-fields importer-upload-fields">
+     <label>Tipo de caso
+      <select id="import-stage">
+       <option value="f2l">F2L · 41 casos</option>
+       <option value="oll">OLL · 57 casos</option>
+       <option value="pll">PLL · 21 casos</option>
+      </select>
+     </label>
+     <label class="importer-file-drop">Enviar PDF
+      <input id="import-file" type="file" accept=".pdf,application/pdf" aria-describedby="import-file-hint">
+      <span id="import-file-hint">Escolha um PDF para identificar imagens, algoritmos e setups.</span>
+     </label>
+    </div>
+    <button id="import-run" type="button" class="importer-secondary">Analisar PDF novamente</button>
+    <p id="import-status" role="status" aria-live="polite"></p>
+    <details class="importer-advanced">
+     <summary>Como funciona o reconhecimento?</summary>
+     <p>PDFs com texto selecionável permitem reconhecer linhas e diagramas por posição. PDFs digitalizados e padrões ambíguos exigem conferência manual. Nenhum caso é publicado automaticamente.</p>
+    </details>
+   </section>
+   <section class="importer-panel importer-results-panel" id="import-results" hidden>
+    <div class="importer-step-heading">
+     <span class="importer-step-badge">03</span>
+     <div><h2>Revise antes de publicar</h2><p id="import-count"></p></div>
+    </div>
+    <div class="importer-publish-bar">
+     <div class="importer-publish-copy">
+      <strong id="import-publish-summary">Nenhum caso aprovado</strong>
+      <small>Somente casos aprovados aparecerão para os alunos.</small>
+     </div>
+     <div class="importer-actions">
+      <button id="import-approve-all" type="button" class="importer-secondary">Aprovar casos com algoritmo</button>
+      <button id="import-save" type="button" class="importer-secondary">Salvar rascunhos</button>
+      <button id="import-publish" type="button" class="importer-primary">Publicar casos aprovados</button>
+     </div>
+    </div>
+    <p class="importer-help">Confira o nome, a imagem e o algoritmo de cada caso. Marque como <strong>Aprovado</strong> somente depois de revisar.</p>
+    <div id="import-cards" class="importer-cards"></div>
+    <details class="importer-advanced">
+     <summary>Outras ações</summary>
+     <div class="importer-actions">
+      <button id="import-download" type="button" class="importer-secondary">Exportar JSON de segurança</button>
+      <button id="import-clear" type="button" class="importer-secondary">Limpar revisão local</button>
+     </div>
+    </details>
+   </section>
+  </section>
+ </main>
+ <script type="module" src="assets/js/importer.js?v=20261031-1"></script>
+</body>
+</html>
