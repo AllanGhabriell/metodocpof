@@ -51,7 +51,7 @@ test('Inspection, stop, self-reported correct result and independent histories',
  assert.equal(crossTimerSetLevel(2),true);
  assert.match(crossTimerPage(),/TIMER 2/);
  crossTimerAction({dataset:{crossTimer:'tab-history'}});
- assert.match(crossTimerPage(),/Nenhum resultado registrado/);
+ assert.match(crossTimerPage(),/ainda não fez tentativas neste nível/);
  crossTimerSetLevel(1);
  crossTimerAction({dataset:{crossTimer:'tab-history'}});
  assert.match(crossTimerPage(),/1\/1 peças/);
