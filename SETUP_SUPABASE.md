@@ -10,28 +10,31 @@ A interface do CFOP Studio e os módulos de autenticação/sincronização/desaf
 5. No CFOP Studio, abra **Conta e perfil → Conta e sincronização**, cole esses **dois dados públicos** e selecione **Conectar projeto**.
 6. Crie uma conta com e-mail e senha. Se a confirmação de e-mail estiver ativa no Supabase, confirme o cadastro por e-mail e entre novamente.
 
-## 2. Conceder acesso ao administrador
-A autorização para editar/publicar casos é do **banco de dados** (RLS), não de um botão oculto na interface. Nenhuma conta vira administradora automaticamente.
+## 2. Administrador único e painel
 
-1. Entre na conta do proprietário no aplicativo.
-2. Em **Conta e sincronização**, copie o **ID da sua conta** (UUID).
-3. No **SQL Editor** do projeto Supabase, execute o seguinte comando, substituindo pelo UUID da própria conta:
+Execute no **SQL Editor**, na ordem, as migrações presentes em `supabase/migrations/`:
+
+1. `20261030_000001_cfop_backend.sql` — autenticação, tabelas e RLS.
+2. `20261030_000002_admin_allowlist.sql` — concessão automática ao e-mail autorizado.
+3. `20261030_000003_admin_dashboard.sql` — gestão de usuários, estatísticas e ações.
+4. `20261030_000004_admin_roles_bans.sql` — moderação, banimentos e funções.
+5. `20261030_000005_single_admin.sql` — revoga administradores anteriores e mantém somente a conta autorizada.
+6. `20261030_000006_admin_security_audit.sql` — bloqueios adicionais e auditoria de casos.
+
+Se seu banco já recebeu as migrações `000001` a `000004`, **não precisa reexecutá-las**. Execute apenas as novas migrações `000005` e `000006`, nessa ordem.
+
+**Administrador fundador autorizado:** `coelhodatoca124@gmail.com`, depois de confirmar o e-mail. As outras contas continuam existindo como usuários comuns. O fundador poderá futuramente promover ou rebaixar administradores pelo painel, se desejar.
+
+Para verificar os administradores no SQL Editor:
 
 ```sql
-insert into public.cfop_admins (user_id)
-values ('SEU-UUID-AQUI')
-on conflict (user_id) do nothing;
+select u.email
+from public.cfop_admins a
+join auth.users u on u.id = a.user_id
+order by u.email;
 ```
 
-4. Saia e entre novamente no CFOP Studio. A seção **Admin · Casos** ficará disponível.
-
-**Não** execute o comando de concessão a favor de desconhecidos. Remoção administrativa:
-
-```sql
-delete from public.cfop_admins where user_id = 'UUID-A-REVOGAR';
-```
-
-A migração habilita RLS em todas as tabelas; uma pessoa comum não consegue inserir/alterar casos públicos nem conceder poderes de administrador.
+Após as migrações, entre com a conta autorizada no site e acesse **Meu espaço → Administração** para gerenciar usuários e casos publicados. Não insira outros UUIDs manualmente em `cfop_admins`: a autorização é protegida pelo banco de dados, não por botões ocultos.
 
 ## 3. Funcionalidades online
 - **Conta:** cadastro, login, saída, confirmação por e-mail (se ativada), e recuperação de senha.
