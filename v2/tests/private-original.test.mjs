@@ -29,7 +29,7 @@ test('private base is owner only, deleted on server and never allowed after remo
 });
 test('trainees do not expose initial image, algorithm or gallery outside approved library',()=>{
  assert.match(trainer,/allowed\(stage,ids\)/);
- assert.match(trainer,/selectedVariants\(\)/);
+ assert.match(trainer,/selectedVariants\(stage\)/);
  assert.match(trainer,/Base original \(privada\)/);
  assert.doesNotMatch(trainer,/basic\.textContent='Original'/);
  assert.match(secao,/publicAllowedIds\(\)/);
