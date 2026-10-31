@@ -474,10 +474,17 @@ document.addEventListener('DOMContentLoaded', () => {
     return !!(state.orderedTraining && state.orderedTraining.enabled);
   }
 
+  // O treinador somente usa casos aprovados na biblioteca selecionada.
+  // Antes do carregamento da biblioteca, não revela os PNGs originais.
+  function publicAllowedIds(){
+    return typeof window.CPOFLibrary?.allowed==='function'
+      ? window.CPOFLibrary.allowed(pageSet,CASE_IDS):[];
+  }
   function baseOrderedList() {
     const desired = ORDERED_CASES_BY_SET[pageSet];
     const base = Array.isArray(desired) && desired.length ? desired : CASE_IDS;
-    return base.map((v) => String(v).trim()).filter(Boolean);
+    const allowed=new Set(publicAllowedIds());
+    return base.map((v) => String(v).trim()).filter(v=>v&&allowed.has(v));
   }
 
   function orderedQueue() {
@@ -491,7 +498,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const out = [];
 
     stored.forEach((id) => {
-      if (!CASE_ID_SET.has(id) || excluded.has(id) || seen.has(id)) return;
+      if (!CASE_ID_SET.has(id) || !publicAllowedIds().includes(id) || excluded.has(id) || seen.has(id)) return;
       seen.add(id);
       out.push(id);
     });
@@ -500,13 +507,13 @@ document.addEventListener('DOMContentLoaded', () => {
       seen.add(id);
       out.push(id);
     });
-    CASE_IDS.forEach((id) => {
+    publicAllowedIds().forEach((id) => {
       if (excluded.has(id) || seen.has(id)) return;
       seen.add(id);
       out.push(id);
     });
 
-    return out.length ? out : CASE_IDS.filter((id) => !excluded.has(id));
+    return out.length ? out : publicAllowedIds().filter((id) => !excluded.has(id));
   }
 
   function orderedTotal() {
@@ -888,13 +895,13 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     const blocked = new Set(state.excluded);
     if (state.removeWhenSolved) sessionResolved.forEach((id) => blocked.add(id));
-    return CASE_IDS.filter((id) => !blocked.has(id));
+    return publicAllowedIds().filter((id) => !blocked.has(id));
   }
 
   function availableCompetitiveCases() {
     const out = [];
     const excluded = new Set(state.excluded);
-    CASE_IDS.forEach((id) => {
+    publicAllowedIds().forEach((id) => {
       if (excluded.has(id)) return;
       if (!isCaseMastered(id)) out.push(id);
     });
@@ -907,7 +914,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   function unexcludedCases() {
     const excluded = new Set(state.excluded);
-    return CASE_IDS.filter((id) => !excluded.has(id));
+    return publicAllowedIds().filter((id) => !excluded.has(id));
   }
 
   function competitiveWeight(caseId) {
@@ -1280,7 +1287,14 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   }
 
-  document.addEventListener('cpof:libraries-changed',()=>{if(currentCase)renderCaseScene().catch(console.warn)});
+  document.addEventListener('cpof:libraries-changed',()=>{
+    const allowed=publicAllowedIds();
+    if(!allowed.includes(currentCase)){
+      if(allowed.length)setCurrentCase(allowed[0],true);
+      else currentCase=null;
+    }
+    renderCaseScene().catch(console.warn)
+  });
   async function renderCaseScene() {
     renderLastCaseInfo();
     renderCompetitiveSetup();
@@ -1310,7 +1324,11 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     finalScreen.hidden = true;
-    if (!currentCase) return;
+    if (!currentCase){
+      if(imgEl){imgEl.src=unavailableImage('missing');imgEl.alt='Nenhum caso aprovado nesta biblioteca';imgEl.hidden=false}
+      if(caseMoves)caseMoves.hidden=true;
+      return
+    }
 
     if (state.competitive.enabled && !caseVisible) {
       imgEl.hidden = true;
