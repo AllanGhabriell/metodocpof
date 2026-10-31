@@ -1,5 +1,7 @@
 import {academyActivityData,academyDashboard} from './academy-insights.mjs';
 import {adminXpAdjustment} from '../cloud/cloud.mjs?v=20261030-55';
+import {identityState,identityPanel} from '../cloud/identity.mjs';
+import {achievementBonus,earnedAchievements} from './achievements.mjs';
 const KEY='cfop-studio-progress-v1',DAY=86400000;
 const esc=x=>String(x??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
 const dateOf=d=>[d.getFullYear(),String(d.getMonth()+1).padStart(2,'0'),String(d.getDate()).padStart(2,'0')].join('-');
@@ -12,7 +14,7 @@ export function reloadProgress(){data=load();return data}
 export function progressData(){return data}
 export function progressSummary(){
  const coachEvents=academyActivityData(data.records).cases;
- const earnedXp=data.records.reduce((s,r)=>s+(Number(r.xp)||0),0)+coachEvents.reduce((sum,e)=>sum+Math.max(0,Math.min(20,Number(e.xp)||0)),0);
+ const earnedXp=data.records.reduce((s,r)=>s+(Number(r.xp)||0),0)+coachEvents.reduce((sum,e)=>sum+Math.max(0,Math.min(20,Number(e.xp)||0)),0)+achievementBonus(data.records);
  const xp=Math.max(0,earnedXp+adminXpAdjustment());
  const activity=new Set(data.records.map(r=>r.date));
  let streak=0,d=new Date();d.setHours(12,0,0,0);if(!activity.has(dateOf(d)))d.setDate(d.getDate()-1);
@@ -22,15 +24,12 @@ export function progressSummary(){
  return {xp,level:Math.floor(xp/200)+1,streak,today:data.records.filter(r=>r.date===today()).length+coachEvents.filter(e=>dateOf(new Date(e.at))===today()).length,kinds};
 }
 export function progressDashboard(){
- const summary=progressSummary();
+ const summary=progressSummary(),badges=earnedAchievements(data.records);
  return academyDashboard(data.records,summary.xp,summary.level)+
- '<section class="academy-insight-card academy-achievements"><div><span class="academy-overline">CONQUISTAS</span><h2>Seu desenvolvimento</h2><p>XP '+summary.xp+' · Nível '+summary.level+'. Continue praticando no seu ritmo.</p></div><div class="academy-achievement-chips">'+[
- ['Primeiros passos',summary.xp>=10],
- ['3 dias seguidos',summary.streak>=3],
- ['Uma semana de treino',summary.streak>=7],
- ['100 XP',summary.xp>=100],
- ['10 tempos', (academyActivityData().times.length)>=10]
- ].map(([title,earned])=>'<span class="'+(earned?'earned':'')+'">'+(earned?'★ ':'☆ ')+title+'</span>').join('')+'</div></section>';
+ '<section class="academy-insight-card academy-achievements"><div><span class="academy-overline">CONQUISTAS</span>'+
+ '<h2>'+badges.filter(b=>b.earned).length+' de '+badges.length+' desbloqueadas</h2>'+
+ '<p>XP '+summary.xp+' · Nível '+summary.level+'. Conquistas são calculadas a partir de treinos e tempos realmente registrados.</p></div>'+
+ '<div class="academy-achievement-chips">'+badges.slice(0,8).map(b=>'<span class="'+(b.earned?'earned':'')+'">'+(b.earned?'★ ':'☆ ')+esc(b.title)+'</span>').join('')+'</div></section>';
 }
 
 const week=['Domingo','Segunda','Terça','Quarta','Quinta','Sexta','Sábado'],stage=['Cross','F2L','OLL','PLL','Livre'];
@@ -42,12 +41,27 @@ export function planPage(){
  '<p class="muted">Sem push em segundo plano: as notificações só são verificadas enquanto o site estiver aberto e autorizado.</p></section></div>';
 }
 export function profilePage(){
- const activity=academyActivityData(data.records);
- const n=(data.name||'Cubista').trim(),initial=(n[0]||'C').toUpperCase();
- return '<section class="academy-profile-hero"><span class="academy-overline">SEU ESPAÇO · ACADEMIA CPOF</span><div class="academy-profile-main"><div class="academy-profile-big-avatar" aria-hidden="true">'+esc(initial)+'</div><div class="academy-profile-person"><h1>'+esc(n)+'</h1><p>Seu cubo, seus resultados e seu ritmo de aprendizagem.</p></div><button type="button" data-page="dashboard">Ver minha evolução →</button></div><div class="academy-profile-numbers"><span><strong>'+activity.streak+'</strong> dias de sequência</span><span><strong>'+activity.cases.length+'</strong> casos registrados</span><span><strong>'+activity.times.length+'</strong> tempos salvos</span></div></section>'+
- '<section class="card academy-profile-settings"><div class="academy-settings-head"><span class="academy-overline">PREFERÊNCIAS</span><h2>Suas informações</h2><p>Organize seus dados sem perder o foco nos treinos.</p></div>'+
- '<details class="profile-fold"><summary><span><strong>Editar perfil</strong><small>Como você aparece no aplicativo</small></span><span aria-hidden="true">⌄</span></summary><div class="profile-fold-content"><form class="studio-form" id="studio-profile-form"><label>Apelido<input name="name" class="field" value="'+esc(data.name)+'" maxlength="36" required></label><button>Salvar alterações</button></form><p class="muted" role="status">'+esc(message)+'</p></div></details>'+
- '<details class="profile-fold"><summary><span><strong>Backup e dados</strong><small>Exportar ou recuperar seu progresso local</small></span><span aria-hidden="true">⌄</span></summary><div class="profile-fold-content"><p class="muted">Faça um backup dos dados para evitar perder seu histórico ao trocar de aparelho ou limpar o navegador.</p><div class="studio-actions"><button data-progress="backup">Exportar dados</button><button class="secondary" data-progress="restore">Importar dados</button></div><input type="file" id="studio-file" accept=".json,application/json" hidden></div></details></section>';
+ const activity=academyActivityData(data.records),id=identityState();
+ const n=id.nickname||'Cubista',initial=(n[0]||'C').toUpperCase();
+ const photo=id.avatar?'<img src="'+id.avatar+'" alt="Foto de perfil" class="academy-profile-photo">':esc(initial);
+ return '<section class="academy-profile-hero"><span class="academy-overline">SEU ESPAÇO · ACADEMIA CPOF</span>'+
+ '<div class="academy-profile-main"><div class="academy-profile-big-avatar" aria-hidden="true">'+photo+'</div>'+
+ '<div class="academy-profile-person"><h1>'+esc(n)+'</h1><p>'+
+ (id.userId?'Seu cubo, seus resultados e seu ritmo de aprendizagem.':
+ 'Visitante: seus treinos ficam neste aparelho e não estão protegidos por uma conta.')+
+ '</p></div><button type="button" data-page="dashboard">Ver minha evolução →</button></div>'+
+ '<div class="academy-profile-numbers"><span><strong>'+activity.streak+'</strong> dias de sequência</span>'+
+ '<span><strong>'+activity.cases.length+'</strong> casos registrados</span>'+
+ '<span><strong>'+activity.times.length+'</strong> tempos salvos</span></div></section>'+
+ identityPanel()+
+ '<section class="card academy-profile-settings"><div class="academy-settings-head"><span class="academy-overline">DADOS E BACKUP</span>'+
+ '<h2>Seu progresso</h2><p>Exporte seus treinos para manter uma cópia independente.</p></div>'+
+ '<details class="profile-fold"><summary><span><strong>Backup e dados</strong><small>Exportar ou recuperar seu progresso local</small></span>'+
+ '<span aria-hidden="true">⌄</span></summary><div class="profile-fold-content">'+
+ '<p class="muted">Visitantes dependem deste navegador; contas conectadas podem sincronizar seus dados. Um backup JSON é recomendado antes de trocar de aparelho.</p>'+
+ '<div class="studio-actions"><button data-progress="backup">Exportar dados</button>'+
+ '<button class="secondary" data-progress="restore">Importar dados</button></div>'+
+ '<input type="file" id="studio-file" accept=".json,application/json" hidden></div></details></section>';
 }
 
 function downloadJSON(name,obj){const blob=new Blob([JSON.stringify(obj,null,2)],{type:'application/json'});const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download=name;a.click();setTimeout(()=>URL.revokeObjectURL(url),1000)}
@@ -72,14 +86,14 @@ export function progressClick(button){
  return true;
 }
 export function progressSubmit(form){
- if(!['studio-plan-form','studio-reminder-form','studio-profile-form'].includes(form.id))return false;
+ if(!['studio-plan-form','studio-reminder-form'].includes(form.id))return false;
  const f=new FormData(form);
  if(form.id==='studio-plan-form'){
   const day=Number(f.get('day')),minutes=Number(f.get('minutes')),kind=String(f.get('stage'));
   if(day>=0&&day<=6&&minutes>=5&&minutes<=180&&stage.includes(kind))data.plan.push({day,minutes,stage:kind});
  }
  if(form.id==='studio-reminder-form'){const time=String(f.get('time'));if(/^\d{2}:\d{2}$/.test(time))data.reminder=time;data.goal=Math.max(5,Math.min(240,Number(f.get('goal'))||20))}
- if(form.id==='studio-profile-form')data.name=String(f.get('name')||'Cubista').trim().slice(0,36)||'Cubista';
+ // O apelido cadastrado é validado exclusivamente pelo Supabase.
  save();return true;
 }
 export async function progressImport(file){
