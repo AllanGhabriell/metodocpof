@@ -1,5 +1,5 @@
 import {cloudTable,isAuthenticated,cloudUser,isAdmin} from '../cloud/cloud.mjs?v=20261031-58';
-import {levelFromXp,normalizedRewards,availableTitles,rewardKinds} from './progression.mjs';
+import {levelFromXp,normalizedRewards,availableTitles,rewardKinds} from './progression.mjs?v=20261031-rpg-2';
 import {academyActivityData} from './academy-insights.mjs';
 const esc=x=>String(x??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;','"':'&#39;'}[c]));
 const allowedFocus=['free','cross','f2l','oll','pll','all'];
