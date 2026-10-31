@@ -22,6 +22,11 @@ jobs:
           node --check assets/js/trainer-coach.js
           node --check v2/features/academy-insights.mjs
           node --check v2/features/progress.mjs
+          node --check v2/features/progression.mjs
+          node --check v2/features/journey.mjs
+          node --check v2/features/achievements.mjs
+          node --check v2/features/share-cards.mjs
+          node --check v2/cloud/admin-rewards.mjs
           node --check v2/cloud/cloud.mjs
           node --check v2/cloud/project-config.mjs
           node --check v2/cloud/admin.mjs
