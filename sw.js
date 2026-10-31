@@ -1,13 +1,13 @@
 /* GitHub Pages app shell — network-first, version-aware resource fallback.
    Never reuse an old JS module under a different ?v= version. */
-const CACHE='cfop-studio-offline-20261031-v34';
+const CACHE='cfop-studio-offline-20261031-v35';
 const CORE=[
  './index.html','./studio.html','./f2l.html','./oll.html','./pll.html','./importer.html',
  './cross.html','./scramble.html',
  './assets/css/cross-lab.css?v=20261031-1',
- './v2/features/cross-timer.mjs?v=20261031-1',
+ './v2/features/cross-timer.mjs?v=20261031-2',
  './v2/features/cross-ideas.mjs?v=20261031-1',
- './v2/features/cross.mjs?v=20261031-guided-1',
+ './v2/features/cross.mjs?v=20261031-guided-2',
  './v2/app.js?v=20261031-brand-cfop-1',
  './v2/app.css?v=20261031-6',
  './assets/css/studio-original.css?v=1',
