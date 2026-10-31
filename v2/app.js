@@ -1,4 +1,4 @@
-import {loadLibraries,libraryList,selectedLibrary,selectedLibraryName,libraryCases,chooseLibrary,libraryError,originalBaseInfo,originalCases,loadOriginalBase,deleteOriginalBase,isOriginalOwner,defaultForStage,stageDefaultInfo,setDefaultLibrary,deleteLibrary} from './cloud/libraries.mjs';
+import {loadLibraries,libraryList,selectedLibrary,selectedLibraryName,libraryCases,chooseLibrary,libraryError,originalBaseInfo,originalCases,loadOriginalBase,deleteOriginalBase,isOriginalOwner,defaultForStage,stageDefaultInfo,stageDefaultStatus,setDefaultLibrary,deleteLibrary} from './cloud/libraries.mjs';
 import {adminPanel,adminLoad,adminClick,adminSubmit} from './cloud/admin.mjs?v=20261030-55';
 import {cloudStatus,loadAccountExtras,startActivityTracking,recordActivity,isConfigured,isAuthenticated,isAdmin,cloudUser,cloudPanel,signInWithGoogle,signIn,signUp,recoverPassword,updatePassword,signOut,syncCloud,initializeCloud,acceptAuthRedirect,markLocalChange,markDraftDeleted,cloudProfileRefresh,publishedCases,publishCase,unpublishCase,loadPublishedCases} from './cloud/cloud.mjs?v=20261030-55';
 import {onlinePage,onlineInit,onlineLoad,onlineClick,onlineSubmit} from './cloud/online.mjs?v=20261030-55';
@@ -27,7 +27,8 @@ const sectionNavigation=()=>{const group=sectionFor(page),items=sectionItems[gro
  if((page==='train'&&!f2lMode)||page==='home'||page==='learn'||page==='profile')return '';
  const visible=group==='profile'?items.filter(([id])=>id!=='profile'):items.filter(([id])=>id!=='train');
  return '<nav class="section-navigation" aria-label="Ferramentas"><div class="section-navigation-links">'+visible.map(([id,label])=>'<button type="button" data-page="'+id+'" class="'+(page===id?'active':'')+'">'+label+'</button>').join('')+'</div></nav>'};
-let trainingDifficulty='normal',trainingReveal=false,trainingSettingsOpen=false;let cloudMessage='',page=(new URLSearchParams(location.search).get('page')||'profile'),stage='F2L',f2lMode='',caseIndex=0,lesson=0,inspection=0,timerState='idle',started=0,elapsed=0,inspectionStarted=0,raf=0,scramble='',times=readLocalTimes();
+let trainingDifficulty='normal',trainingReveal=false,trainingSettingsOpen=false;let stageDefaultPending=Object.create(null),stageDefaultFeedback=Object.create(null),stageDefaultSaving=Object.create(null);
+let cloudMessage='',page=(new URLSearchParams(location.search).get('page')||'profile'),stage='F2L',f2lMode='',caseIndex=0,lesson=0,inspection=0,timerState='idle',started=0,elapsed=0,inspectionStarted=0,raf=0,scramble='',times=readLocalTimes();
 function readLocalTimes(){
  try{const value=JSON.parse(localStorage.getItem('cfop-v2-times')||'[]');return Array.isArray(value)?value:[]}
  catch(err){console.warn('Histórico local indisponível. O Studio continuará funcionando.',err);return []}
@@ -147,25 +148,42 @@ function downloadDrafts(){const blob=new Blob([JSON.stringify({format:'cfop-stud
 
 function stageDefaultsPage(){
  if(!isOriginalOwner())return '<section class="card"><h1>Acesso restrito</h1></section>';
- const current=stageDefaultInfo();
+ const current=stageDefaultInfo(),database=stageDefaultStatus(),listed=libraryList();
+ const firstError=database.error
+  ?'<div class="admin-default-warning" role="alert"><strong>Configuração do banco indisponível.</strong> '+escapeHtml(database.error)+
+    ' <a href="https://github.com/AllanGhabriell/metodocpof/blob/main/supabase/CFOP_CORRIGIR_SALVAMENTO_DAS_BASES.sql" target="_blank" rel="noopener">Abrir SQL de correção</a></div>'
+  :'';
  return '<section class="card admin-stage-defaults"><span class="admin-publish-eyebrow">CONFIGURAÇÃO GLOBAL</span>'+
  '<h1>Biblioteca principal de cada etapa</h1>'+
- '<p>É esta biblioteca que todos verão automaticamente ao abrir um treino. Os alunos ainda podem selecionar outras bibliotecas publicadas. F2L e PLL também permitem escolher a Original. OLL não possui base original.</p>'+
+ '<p>Escolha qual base abre automaticamente para todos. Só bibliotecas publicadas, com casos aprovados da etapa, podem ser principais. F2L e PLL também aceitam Original.</p>'+firstError+
  '<div class="admin-default-cards">'+['f2l','oll','pll'].map(stage=>{
-   const entry=current[stage],target=entry?.source==='library'?entry.library_id:entry?.source||'none';
-   const opts=[{id:'none',name:'Nenhuma biblioteca selecionada'}]
+   const entry=current[stage],saved=entry?.source==='library'?entry.library_id:entry?.source||'none';
+   const draft=Object.prototype.hasOwnProperty.call(stageDefaultPending,stage);
+   const target=draft?stageDefaultPending[stage]:saved;
+   const opts=[{id:'none',name:'Nenhuma biblioteca (sem padrão)'}]
     .concat(stage!=='oll'&&originalBaseInfo().state!=='deleted'?[{id:'original',name:'Original · '+stage.toUpperCase()}]:[])
-    .concat(libraryList().map(l=>({id:l.id,name:l.title+(l.is_public?' · pública':' · rascunho')})));
+    .concat(listed.filter(l=>l.is_public).map(l=>({id:l.id,name:l.title})))
+    .concat(listed.filter(l=>!l.is_public).map(l=>({id:l.id,name:l.title+' · rascunho: publique antes',disabled:true})));
+   if(target!=='none'&&!opts.some(o=>o.id===target))opts.push({id:target,name:'Biblioteca indisponível; escolha outra',disabled:true});
+   const selectedLabel=opts.find(o=>o.id===saved)?.name||saved;
+   const msg=stageDefaultFeedback[stage]||'';
    return '<article><div><strong>'+stage.toUpperCase()+'</strong><small>'+({f2l:'41 casos · duas primeiras camadas',oll:'57 casos · última camada',pll:'21 casos · permutações'}[stage])+'</small></div>'+
-     '<label for="admin-default-'+stage+'">Principal para todos</label>'+
-     '<select id="admin-default-'+stage+'" data-default-stage="'+stage+'">'+
-       opts.map(o=>'<option value="'+escapeHtml(o.id)+'" '+(target===o.id?'selected':'')+'>'+escapeHtml(o.name)+'</option>').join('')+
-     '</select><button data-action="admin-save-default" data-stage="'+stage+'">Salvar padrão de '+stage.toUpperCase()+'</button></article>';
-  }).join('')+'</div>'+
+    '<label for="admin-default-'+stage+'">Principal para todos</label>'+
+    '<select id="admin-default-'+stage+'" data-default-stage="'+stage+'" '+(stageDefaultSaving[stage]?'disabled':'')+'>'+
+      opts.map(o=>'<option value="'+escapeHtml(o.id)+'" '+(target===o.id?'selected':'')+(o.disabled?' disabled':'')+'>'+escapeHtml(o.name)+'</option>').join('')+
+    '</select>'+
+    '<p class="admin-stage-current">Salvo atualmente: <strong>'+escapeHtml(selectedLabel)+'</strong></p>'+
+    '<p data-default-feedback="'+stage+'" class="admin-stage-feedback" role="status" aria-live="polite">'+
+      escapeHtml(msg||(draft?'Escolha feita. Clique em Salvar para aplicar.':''))+'</p>'+
+    '<button data-action="admin-save-default" data-stage="'+stage+'" '+(stageDefaultSaving[stage]?'disabled':'')+'>'+
+      (stageDefaultSaving[stage]?'Salvando e conferindo…':'Salvar padrão de '+stage.toUpperCase())+'</button></article>';
+ }).join('')+'</div>'+
  '<h2>Gerenciar bibliotecas</h2><div class="admin-default-cards">'+
- (libraryList().length?libraryList().map(l=>'<article><strong>'+escapeHtml(l.title)+'</strong><small>'+ (l.is_public?'Pública':'Rascunho')+'</small><button class="secondary" data-action="admin-delete-library" data-library-id="'+escapeHtml(l.id)+'">Excluir biblioteca</button></article>').join(''):'<p>Nenhuma biblioteca cadastrada.</p>')+
+ (listed.length?listed.map(l=>'<article><strong>'+escapeHtml(l.title)+'</strong><small>'+(l.is_public?'Publicada':'Rascunho · publique antes de usar como padrão')+'</small>'+
+ (l.is_public?'':'<a href="importer.html">Revisar e publicar</a>')+
+ '<button class="secondary" data-action="admin-delete-library" data-library-id="'+escapeHtml(l.id)+'">Excluir biblioteca</button></article>').join(''):'<p>Nenhuma biblioteca cadastrada.</p>')+
  '</div>'+
- '<p class="muted">A escolha é armazenada no Supabase e vale para visitantes novos ou ao iniciar uma nova sessão. Para selecionar uma biblioteca personalizada, publique antes os casos aprovados desta etapa.</p>'+
+ '<p class="muted">As escolhas são gravadas no Supabase. Os alunos recebem a base principal ao iniciar uma nova sessão, mas podem escolher outra biblioteca pública.</p>'+
  (cloudMessage?'<p role="status" class="notice">'+escapeHtml(cloudMessage)+'</p>':'')+'</section>';
 }
 function privateOriginalPage(){
@@ -239,16 +257,30 @@ case'admin-delete-library':{
 }
 case'admin-save-default':{
  if(!isOriginalOwner())break;
- const stage=b.dataset.stage,value=root.querySelector('select[data-default-stage="'+stage+'"]')?.value;
- if(!['f2l','oll','pll'].includes(stage)||!value)break;
- b.disabled=true;cloudMessage='Salvando a biblioteca principal de '+stage.toUpperCase()+'…';
+ const stage=b.dataset.stage;
+ if(!['f2l','oll','pll'].includes(stage)||stageDefaultSaving[stage])break;
+ const value=Object.prototype.hasOwnProperty.call(stageDefaultPending,stage)
+  ?stageDefaultPending[stage]
+  :root.querySelector('select[data-default-stage="'+stage+'"]')?.value;
+ if(!value)break;
+ stageDefaultSaving[stage]=true;
+ stageDefaultFeedback[stage]='Salvando no Supabase e conferindo a configuração…';
+ render();
  (async()=>{
   try{
-   if(value==='original')await loadOriginalBase();
+   if(value==='original'){
+    await loadOriginalBase();
+    if(originalBaseInfo().state!=='active')throw Error(originalBaseInfo().error||'A base Original ainda não está disponível.');
+   }
    await setDefaultLibrary(stage,value);
-   cloudMessage='Biblioteca principal de '+stage.toUpperCase()+' atualizada para todos.';
-  }catch(e){cloudMessage='Não foi possível salvar: '+e.message}
-  render()
+   delete stageDefaultPending[stage];
+   stageDefaultFeedback[stage]='Salvo e confirmado no Supabase. Este é o novo padrão público de '+stage.toUpperCase()+'.';
+  }catch(e){
+   stageDefaultFeedback[stage]='Não foi salvo: '+e.message;
+  }finally{
+   stageDefaultSaving[stage]=false;
+   render();
+  }
  })();
  break;
 }
@@ -303,7 +335,18 @@ case'draftexport':downloadDrafts();break;case'draftimport':document.getElementBy
  if(progressSubmit(e.target)||practiceSubmit(e.target)){e.preventDefault();markLocalChange();if(id==='studio-profile-form')cloudProfileRefresh().catch(()=>{});render();return}
  if(id!=='draftform')return;e.preventDefault();if(!isAdmin())return;const form=new FormData(e.target);const d=caseDrafts[draftSelection];try{const parseField=name=>{const value=String(form.get(name)||'').trim();return value?JSON.parse(value):null};const updated={...d,id:String(form.get('id')).trim(),name:String(form.get('name')||'').trim().slice(0,90),stage:String(form.get('stage')),algorithm:String(form.get('algorithm')).trim(),setup:String(form.get('setup')).trim(),diagram:parseField('diagram'),expectedState:parseField('expectedState'),updatedAt:Date.now(),review:{approved:false}};caseDrafts[draftSelection]=updated;persistDrafts();reviewMessage='Caso salvo. Confira os resultados antes de aprovar.';render()}catch(err){reviewMessage='Confira os campos JSON: '+err.message;document.getElementById('review-message').textContent=reviewMessage}});
 root.addEventListener('input',e=>{imageChanged(e.target)});
-root.addEventListener('change',async e=>{if(e.target.id==='cfop-library-choice'){await chooseLibrary(e.target.value,caseFilter).catch(err=>{cloudMessage=err.message});activeCase=0;render();return}if(crossChange(e.target)){render();return}if(e.target.id==='studio-file'){if(await progressImport(e.target.files?.[0])){try{times=JSON.parse(localStorage.getItem('cfop-v2-times')||'[]')}catch{times=[]}try{caseDrafts=JSON.parse(localStorage.getItem('cfop-case-drafts')||'[]')}catch{caseDrafts=[]}}render();return}if(e.target.id==='review-image-input'){if(isAdmin())await imageChosen(e.target.files?.[0]);return}if(e.target.id==='inspection')inspection=Number(e.target.value);if(e.target.dataset.penalty!==undefined){const index=Number(e.target.dataset.penalty);times=updatePenalty(times,index,e.target.value);saveTimes();render()}if(e.target.id==='reviewapprove'){const d=caseDrafts[draftSelection];if(isAdmin()&&d&&draftReport(d).automaticPassed){d.review={approved:e.target.checked,reviewer:cloudUser()?.email||'Administrador'};d.updatedAt=Date.now();persistDrafts();render()}}if(e.target.id==='pdffile'){try{const file=e.target.files?.[0];if(!file)return;reviewMessage='Lendo o PDF…';document.getElementById('review-message').textContent=reviewMessage;const imported=await readPdfCases(file);const incoming=imported.cases.map(c=>({...c,diagram:null,expectedState:null,review:{approved:false}}));const exists=new Set(caseDrafts.map(c=>c.stage+':'+c.id));const additions=incoming.filter(c=>!exists.has(c.stage+':'+c.id));caseDrafts=[...caseDrafts,...additions];showHiddenDrafts=false;draftSelection=additions.length?caseDrafts.length-additions.length:draftSelection;persistDrafts();reviewMessage=additions.length+' novos casos importados. Casos existentes preservados; confira algoritmo e setup.';render()}catch(err){reviewMessage='Erro ao ler PDF: '+err.message;document.getElementById('review-message').textContent=reviewMessage}}if(e.target.id==='draftfile'){try{const file=e.target.files[0];if(!file)return;if(file.size>18e6)throw Error('Arquivo muito grande (máximo 18 MB)');const parsed=JSON.parse(await file.text());if(parsed.format!=='cfop-studio-drafts-v1'||!Array.isArray(parsed.cases)||parsed.cases.length>300)throw Error('Formato não reconhecido');const limits={f2l:41,oll:57,pll:21};const counts={f2l:0,oll:0,pll:0};const ids=new Set();const incoming=parsed.cases.map(d=>{const stage=String(d.stage||'').toLowerCase(),id=String(d.id||'');if(!Object.hasOwn(limits,stage)||++counts[stage]>limits[stage]||ids.has(stage+':'+id))throw Error('Limite ou identificação duplicada: '+stage+' '+id);ids.add(stage+':'+id);return {id,stage,name:String(d.name||''),algorithm:String(d.algorithm||''),setup:String(d.setup||''),imageData:typeof d.imageData==='string'&&/^data:image\/(?:webp|png|jpeg);base64,/.test(d.imageData)?d.imageData:null,sourcePage:d.sourcePage||null,diagram:d.diagram||null,expectedState:d.expectedState||null,review:{approved:false},hidden:d.hidden===true}});caseDrafts=incoming;showHiddenDrafts=false;draftSelection=0;persistDrafts();reviewMessage='Casos importados para revisão.';render()}catch(err){reviewMessage='Não foi possível importar: '+err.message;document.getElementById('review-message').textContent=reviewMessage}}});document.addEventListener('keydown',e=>{if(e.code==='Space'&&page==='timer'&&!['INPUT','SELECT','TEXTAREA','BUTTON'].includes(document.activeElement.tagName)){e.preventDefault();if(!e.repeat)timerAction()}});async function handleCloudClick(cmd){
+root.addEventListener('change',async e=>{
+ if(e.target.matches('select[data-default-stage]')){
+  const name=e.target.dataset.defaultStage;
+  if(['f2l','oll','pll'].includes(name)){
+   stageDefaultPending[name]=e.target.value;
+   stageDefaultFeedback[name]='Seleção alterada. Clique em Salvar padrão de '+name.toUpperCase()+'.';
+   const message=root.querySelector('[data-default-feedback="'+name+'"]');
+   if(message)message.textContent=stageDefaultFeedback[name];
+  }
+  return;
+ }
+ if(e.target.id==='cfop-library-choice'){await chooseLibrary(e.target.value,caseFilter).catch(err=>{cloudMessage=err.message});activeCase=0;render();return}if(crossChange(e.target)){render();return}if(e.target.id==='studio-file'){if(await progressImport(e.target.files?.[0])){try{times=JSON.parse(localStorage.getItem('cfop-v2-times')||'[]')}catch{times=[]}try{caseDrafts=JSON.parse(localStorage.getItem('cfop-case-drafts')||'[]')}catch{caseDrafts=[]}}render();return}if(e.target.id==='review-image-input'){if(isAdmin())await imageChosen(e.target.files?.[0]);return}if(e.target.id==='inspection')inspection=Number(e.target.value);if(e.target.dataset.penalty!==undefined){const index=Number(e.target.dataset.penalty);times=updatePenalty(times,index,e.target.value);saveTimes();render()}if(e.target.id==='reviewapprove'){const d=caseDrafts[draftSelection];if(isAdmin()&&d&&draftReport(d).automaticPassed){d.review={approved:e.target.checked,reviewer:cloudUser()?.email||'Administrador'};d.updatedAt=Date.now();persistDrafts();render()}}if(e.target.id==='pdffile'){try{const file=e.target.files?.[0];if(!file)return;reviewMessage='Lendo o PDF…';document.getElementById('review-message').textContent=reviewMessage;const imported=await readPdfCases(file);const incoming=imported.cases.map(c=>({...c,diagram:null,expectedState:null,review:{approved:false}}));const exists=new Set(caseDrafts.map(c=>c.stage+':'+c.id));const additions=incoming.filter(c=>!exists.has(c.stage+':'+c.id));caseDrafts=[...caseDrafts,...additions];showHiddenDrafts=false;draftSelection=additions.length?caseDrafts.length-additions.length:draftSelection;persistDrafts();reviewMessage=additions.length+' novos casos importados. Casos existentes preservados; confira algoritmo e setup.';render()}catch(err){reviewMessage='Erro ao ler PDF: '+err.message;document.getElementById('review-message').textContent=reviewMessage}}if(e.target.id==='draftfile'){try{const file=e.target.files[0];if(!file)return;if(file.size>18e6)throw Error('Arquivo muito grande (máximo 18 MB)');const parsed=JSON.parse(await file.text());if(parsed.format!=='cfop-studio-drafts-v1'||!Array.isArray(parsed.cases)||parsed.cases.length>300)throw Error('Formato não reconhecido');const limits={f2l:41,oll:57,pll:21};const counts={f2l:0,oll:0,pll:0};const ids=new Set();const incoming=parsed.cases.map(d=>{const stage=String(d.stage||'').toLowerCase(),id=String(d.id||'');if(!Object.hasOwn(limits,stage)||++counts[stage]>limits[stage]||ids.has(stage+':'+id))throw Error('Limite ou identificação duplicada: '+stage+' '+id);ids.add(stage+':'+id);return {id,stage,name:String(d.name||''),algorithm:String(d.algorithm||''),setup:String(d.setup||''),imageData:typeof d.imageData==='string'&&/^data:image\/(?:webp|png|jpeg);base64,/.test(d.imageData)?d.imageData:null,sourcePage:d.sourcePage||null,diagram:d.diagram||null,expectedState:d.expectedState||null,review:{approved:false},hidden:d.hidden===true}});caseDrafts=incoming;showHiddenDrafts=false;draftSelection=0;persistDrafts();reviewMessage='Casos importados para revisão.';render()}catch(err){reviewMessage='Não foi possível importar: '+err.message;document.getElementById('review-message').textContent=reviewMessage}}});document.addEventListener('keydown',e=>{if(e.code==='Space'&&page==='timer'&&!['INPUT','SELECT','TEXTAREA','BUTTON'].includes(document.activeElement.tagName)){e.preventDefault();if(!e.repeat)timerAction()}});async function handleCloudClick(cmd){
  cloudMessage='';
  try{
   if(cmd==='google'){signInWithGoogle();return}
