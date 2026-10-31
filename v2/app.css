@@ -450,3 +450,10 @@ body::before{z-index:0}.cfop-cursor-glow{z-index:0}.app{z-index:1}
 @media(max-width:420px){.admin-published-case{align-items:flex-start;flex-direction:column}.admin-published-case .row{align-self:stretch}}
 
 .admin-audit-detail{display:block;font-size:11px;font-weight:500;color:#a8c8df;text-transform:uppercase;margin-top:4px}
+
+/* Biblioteca escolhida pelo aluno: consistente com o Studio. */
+.cfop-library-picker{display:grid;grid-template-columns:minmax(160px,230px) minmax(180px,1fr);align-items:center;gap:12px;margin-bottom:15px}
+.cfop-library-picker label{color:#effaff;font-weight:750;font-size:13px}
+.cfop-library-picker select{min-width:0;min-height:42px}
+.cfop-library-picker p{grid-column:1/-1;margin:0;font-size:12px}
+@media(max-width:650px){.cfop-library-picker{grid-template-columns:1fr}}
