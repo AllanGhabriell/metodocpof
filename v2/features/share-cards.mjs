@@ -1,6 +1,7 @@
 import {identityState} from '../cloud/identity.mjs';
 import {progressData,progressSummary} from './progress.mjs';
 import {achievementStats,earnedAchievements} from './achievements.mjs';
+import {journeyIdentity} from './journey.mjs?v=20261031-1';
 
 const W=1080,H=1920;
 const fmt=ms=>Number.isFinite(ms)?(ms/1000).toFixed(2)+'s':'—';
@@ -60,6 +61,7 @@ async function drawSolvePhoto(ctx,file,x,y,w,h){
 export async function buildShareCard(kind='streak',achievementId='',attachedPhoto=null){
  const records=progressData().records||[],summary=progressSummary(),metrics=achievementStats(records);
  const nickname=identityState().nickname||'Cubista Anônimo';
+ const rank=journeyIdentity(summary.xp);
  const earned=earnedAchievements(records);
  const badge=earned.find(x=>x.id===achievementId&&x.earned);
  if(kind==='achievement'&&!badge)throw Error('Esta conquista ainda não foi desbloqueada.');
@@ -104,8 +106,14 @@ export async function buildShareCard(kind='streak',achievementId='',attachedPhot
  rounded(ctx,69,1530,940,240,28,'rgba(139,208,248,.11)');
  await drawAvatar(ctx,identityState().avatar,154,1650,110);
  const label=nickname.length>28?nickname.slice(0,27)+'…':nickname;
- text(ctx,label,identityState().avatar?238:111,1657,50,'#fff',850,750);
- text(ctx,'NÍVEL '+summary.level+'    •    '+summary.xp+' XP',identityState().avatar?238:111,1718,28,'#a0e7df',700,740);
+ // O cartão compartilhado mostra apenas título, XP e aparência.
+ if(['gold','creator','prismatic'].includes(rank.frame)){
+  ctx.strokeStyle=rank.frame==='creator'?'#ffe3a3':rank.frame==='gold'?'#f0cb68':'#d9a2ff';
+  ctx.lineWidth=7;ctx.beginPath();ctx.arc(154,1650,59,0,Math.PI*2);ctx.stroke();
+ }
+ text(ctx,label,identityState().avatar?238:111,1657,50,['gold','creator'].includes(rank.name)?'#f7d87d':rank.name==='emerald'?'#85f1bd':rank.name==='ocean'?'#7ddfff':'#fff',850,750);
+ text(ctx,rank.creator?'✦ DEUS CRIADOR DOS CUBOS':rank.title.toUpperCase(),identityState().avatar?238:111,1703,24,rank.creator?'#ffe2a0':'#a0e7df',800,740);
+ text(ctx,(rank.creator?'PATENTE DIVINA':'NÍVEL '+summary.level)+'  •  '+summary.xp+' XP',identityState().avatar?238:111,1741,24,'#b5d4e9',700,740);
  text(ctx,new Date().toLocaleDateString('pt-BR')+'  •  Feito para compartilhar',74,1842,28,'#9ebfd7',500);
  return {canvas,title,caption:kind==='record'?
   nickname+' fez '+fmt(metrics.best)+' na Academia CFOP!':
