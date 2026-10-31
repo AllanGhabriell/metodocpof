@@ -15,6 +15,11 @@ UPDATE public.cfop_profiles
  WHERE nickname IS NULL OR length(btrim(nickname))<3
     OR lower(btrim(nickname)) IN ('cubista','cubista anônimo','cubista anonimo');
 
+-- O banco antigo permitia 40 caracteres; ajusta os existentes ao novo limite.
+UPDATE public.cfop_profiles
+ SET nickname=left(btrim(nickname),36),updated_at=now()
+ WHERE length(btrim(nickname))>36;
+
 -- Preserva o primeiro detentor dos nomes repetidos, corrigindo os demais.
 WITH duplicates AS (
  SELECT user_id,row_number() OVER
