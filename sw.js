@@ -1,17 +1,17 @@
 /* GitHub Pages app shell — network-first, version-aware resource fallback.
    Never reuse an old JS module under a different ?v= version. */
-const CACHE='cfop-studio-offline-20261031-v36';
+const CACHE='cfop-studio-offline-20261031-v37';
 const CORE=[
  './index.html','./studio.html','./f2l.html','./oll.html','./pll.html','./importer.html',
  './cross.html','./scramble.html',
  './assets/css/cross-lab.css?v=20261031-1',
  './assets/css/timer-upgrade.css?v=20261031-1',
- './assets/js/timer-history-ui.mjs?v=20261031-1',
+ './assets/js/timer-history-ui.mjs?v=20261031-2',
  './v2/timer/records.mjs','./v2/timer/telemetry.mjs?v=20261031-1',
  './v2/features/cross-timer.mjs?v=20261031-4',
  './v2/features/cross-ideas.mjs?v=20261031-1',
  './v2/features/cross.mjs?v=20261031-guided-2',
- './v2/app.js?v=20261031-timers-admin-2',
+ './v2/app.js?v=20261031-timers-admin-3',
  './v2/app.css?v=20261031-6',
  './assets/css/studio-original.css?v=1',
  './assets/css/academy.css?v=20261030-1',
@@ -42,13 +42,13 @@ const OPTIONAL=[
  './v2/cloud/identity.mjs','./v2/features/avatar-crop.mjs',
  './assets/js/notice-banner.js?v=20261031-2','./assets/css/notice-banner.css?v=20261031-1',
  './v2/features/achievements.mjs','./v2/features/share-cards.mjs',
- './v2/cloud/admin.mjs?v=20261031-timers-4','./v2/cloud/admin-timer.mjs?v=20261031-1',
+ './v2/cloud/admin.mjs?v=20261031-timers-5','./v2/cloud/admin-timer.mjs?v=20261031-2',
  './assets/css/admin-timer.css?v=20261031-1','./v2/cloud/online.mjs?v=20261030-55',
  './v2/data/pdf-import.mjs',
  './assets/js/trainer-coach.js?v=20261030-43',
  './assets/js/secao.js?v=20261031-7',
  './assets/css/trainer-unified.css?v=20261030-43',
- './assets/js/scramble.js?v=20261031-timer-upgrade-2',
+ './assets/js/scramble.js?v=20261031-timer-upgrade-4',
  './assets/css/scramble.css?v=20261031-9'
 ];
 self.addEventListener('install',event=>{
