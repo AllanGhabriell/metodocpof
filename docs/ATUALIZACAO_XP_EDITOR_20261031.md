@@ -1,4 +1,4 @@
-# Academia CPOF — atualização de XP e edição de imagens
+# Academia CFOP — atualização de XP e edição de imagens
 
 ## Situação
 O frontend e o código da migração foram enviados ao GitHub (branch `main`).
