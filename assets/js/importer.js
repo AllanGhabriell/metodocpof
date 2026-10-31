@@ -3,7 +3,7 @@ import {FIXED_CASES,CASE_BY_ID,LIMITS} from '../../v2/data/case-catalog.mjs';
 import {assignFixedCases,cropDiagram} from '../../v2/data/pdf-layout.mjs';
 import {algorithmIndex,identifyByAlgorithm} from '../../v2/data/algorithm-match.mjs';
 import {matchDiagrams} from '../../v2/data/image-match.mjs';
-import {loadLibraries,libraryList,createLibrary,saveLibraryCasesBatch,publishApprovedLibrary,renameLibrary} from '../../v2/cloud/libraries.mjs';
+import {loadLibraries,libraryList,createLibrary,saveLibraryCasesBatch,publishApprovedLibrary,renameLibrary,loadOriginalBase,originalCases} from '../../v2/cloud/libraries.mjs';
 const PDF='https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.10.38/pdf.min.mjs';
 const LAST_LIBRARY='cpof-admin-last-library-v1';
 const context=new URLSearchParams(location.search);
@@ -76,8 +76,9 @@ async function analyzePdf(file){
  records=all;
  // Tentar identificar os casos pela sequência, sem confiar apenas na posição da página.
  try{
-  const response=await fetch('./v2/data/pdf-cases.json');const reference=await response.json();
-  const index=algorithmIndex(reference.cases||[]);const used=new Set();
+  await loadOriginalBase();
+  const reference=['f2l','oll','pll'].flatMap(originalCases);
+  const index=algorithmIndex(reference);const used=new Set();
   for(const r of records){const match=identifyByAlgorithm(stage,r.algorithm,index);
    if(match&&!used.has(match)){r.case_id=match;r.name=CASE_BY_ID.get(match)?.name;r.confidence='algoritmo';used.add(match)}
   }
