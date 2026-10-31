@@ -231,7 +231,7 @@ body[data-set] .img-wrap #case-image{
 body[data-set] .img-wrap #case-image[hidden]{display:none!important}
 body[data-set] .case-mask,
 body[data-set] .final-screen{max-height:calc(100% - 18px)}
-/* Movement algorithms are optional and never auto-expanded in sequential mode. */
+/* Movimentos abrem automaticamente em cada caso do modo Sequencial. */
 body[data-set] .case-moves{
   box-sizing:border-box;
   flex:0 0 auto;
@@ -315,6 +315,7 @@ body[data-set] .trainer-case-action.action-recognized{
 body[data-set] .trainer-case-action:hover:not(:disabled){filter:brightness(1.13);transform:translateY(-1px)}
 body[data-set] .trainer-case-action:disabled{opacity:.38;cursor:default;filter:none}
 body[data-set] .trainer-case-action[hidden]{display:none!important}
+body[data-set] .controls-row.is-sequential{grid-template-columns:1fr 1fr}
 body[data-set] .controls-row.is-competitive{grid-template-columns:1.6fr 1fr}
 body[data-set] .controls-row.is-competitive.has-recognition{grid-template-columns:1.6fr 1fr 1fr}
 body[data-set] .controls-row.is-competitive #prev-case-btn{display:none!important}
