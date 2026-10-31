@@ -1,4 +1,4 @@
-# Contas, nomes únicos, fotos e conquistas — Academia CPOF
+# Contas, nomes únicos, fotos e conquistas — Academia CFOP
 
 ## Ativação no Supabase
 
