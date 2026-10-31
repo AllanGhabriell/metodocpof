@@ -40,7 +40,24 @@ async function drawAvatar(ctx,data,x,y,size){
   ctx.drawImage(img,x-size/2,y-size/2,size,size);ctx.restore();
  }catch{}
 }
-export async function buildShareCard(kind='streak',achievementId=''){
+async function drawSolvePhoto(ctx,file,x,y,w,h){
+ if(!file)return false;
+ if(!/^image\//.test(file.type)||file.size>10*1024*1024)
+  throw Error('Escolha uma foto de até 10 MB.');
+ const url=URL.createObjectURL(file),img=new Image();
+ try{
+  await new Promise((resolve,reject)=>{img.onload=resolve;img.onerror=()=>reject(Error('Foto não suportada.'));img.src=url});
+  const scale=Math.max(w/img.naturalWidth,h/img.naturalHeight);
+  const sw=w/scale,sh=h/scale,sx=(img.naturalWidth-sw)/2,sy=(img.naturalHeight-sh)/2;
+  ctx.save();
+  ctx.beginPath();ctx.roundRect(x,y,w,h,27);ctx.clip();
+  ctx.drawImage(img,sx,sy,sw,sh,x,y,w,h);
+  ctx.restore();
+  return true;
+ }finally{URL.revokeObjectURL(url)}
+}
+
+export async function buildShareCard(kind='streak',achievementId='',attachedPhoto=null){
  const records=progressData().records||[],summary=progressSummary(),metrics=achievementStats(records);
  const nickname=identityState().nickname||'Cubista Anônimo';
  const earned=earnedAchievements(records);
@@ -68,7 +85,8 @@ export async function buildShareCard(kind='streak',achievementId=''){
  ctx.font='500 36px system-ui,Arial,sans-serif';ctx.fillStyle='#bfdbed';
  wrap(ctx,subtitle,72,620,880,47,2);
  rounded(ctx,66,755,948,700,42,'#112f53');
- cube(ctx,540,950,245);
+ if(!(kind==='record'&&attachedPhoto&&await drawSolvePhoto(ctx,attachedPhoto,325,795,430,300)))
+  cube(ctx,540,950,245);
  if(kind==='record'){
   const top=metrics.times.slice().sort((a,b)=>a-b).slice(0,5);
   text(ctx,'MEUS 5 MELHORES TEMPOS',110,1155,36,'#8de6f9',800);
@@ -94,8 +112,8 @@ export async function buildShareCard(kind='streak',achievementId=''){
   kind==='achievement'?nickname+' desbloqueou '+badge.title+' na Academia CPOF!':
   nickname+' chegou a '+metrics.streak+' dias de treino na Academia CPOF!'};
 }
-export async function deliverShareCard(kind,achievementId,share){
- const {canvas,title,caption}=await buildShareCard(kind,achievementId);
+export async function deliverShareCard(kind,achievementId,share,attachedPhoto=null){
+ const {canvas,title,caption}=await buildShareCard(kind,achievementId,attachedPhoto);
  const blob=await new Promise((resolve,reject)=>canvas.toBlob(x=>x?resolve(x):reject(Error('Falha ao gerar PNG')),'image/png'));
  const safe=(kind==='achievement'?achievementId:kind).replace(/[^a-z0-9-]/gi,'-');
  const file=new File([blob],'academia-cpof-'+safe+'.png',{type:'image/png'});
