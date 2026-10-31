@@ -1,5 +1,5 @@
 /* Mensagens administrativas fora do Studio: página inicial, treinos e cronômetro. */
-import {isAuthenticated,loadAccountExtras,markNoticeRead,pendingNotices} from '../../v2/cloud/cloud.mjs?v=20261031-56';
+import {isAuthenticated,loadAccountExtras,markNoticeRead,pendingNotices} from '../../v2/cloud/cloud.mjs?v=20261031-57';
 if(!document.querySelector('link[data-cpof-notice-css]')){
  const link=document.createElement('link');
  link.rel='stylesheet';link.href='assets/css/notice-banner.css?v=20261031-1';
