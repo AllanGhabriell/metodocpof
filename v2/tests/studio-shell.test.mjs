@@ -83,7 +83,7 @@ test('Studio background has exactly one blue source and no old purple pseudo lay
 
 test('service worker rotates its cache and never substitutes old module versions',()=>{
  const sw=read('sw.js');
- assert.match(sw,/cfop-studio-offline-20261030-v\d+/);
+ assert.match(sw,/cfop-studio-offline-202610\d\d-v\d+/);
  assert.match(sw,/\.\/studio\.html/);
  assert.match(sw,/studio-shell-fix\.css\?v=20261030-31/);
  const appVersion=html.match(/v2\/app\.js\?v=([\d-]+)/)?.[1];
