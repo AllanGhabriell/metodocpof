@@ -49,7 +49,7 @@ function mount(){
   const id=selectedLibrary(stage);
   select.replaceChildren();
   if((isOriginalOwner()&&originalBaseInfo().state==='active'||defaultForStage(stage)==='original')&&stage!=='oll'){
-   const basic=document.createElement('option');basic.value='original';basic.textContent='Base original (privada)';select.append(basic);
+   const basic=document.createElement('option');basic.value='original';basic.textContent=isOriginalOwner()?'Base original (privada)':'Original · padrão público';select.append(basic);
   }
   const publicState=publicLibraryStatus();
   for(const library of libraryList().filter(l=>l.is_public)){
