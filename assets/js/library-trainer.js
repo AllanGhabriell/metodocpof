@@ -1,4 +1,4 @@
-import {loadLibraries,libraryList,selectedLibrary,chooseLibrary,libraryCase,selectedLibraryName,libraryError,selectedVariants,isOriginalOwner,originalBaseInfo,loadOriginalBase,defaultForStage} from '../../v2/cloud/libraries.mjs';
+import {loadLibraries,libraryList,selectedLibrary,chooseLibrary,libraryCase,selectedLibraryName,libraryError,selectedVariants,isOriginalOwner,originalBaseInfo,loadOriginalBase,defaultForStage,publicCasesInStage,publicLibraryStatus} from '../../v2/cloud/libraries.mjs';
 import {CASE_BY_ID,LIMITS,trainerCaseToCatalog} from '../../v2/data/case-catalog.mjs';
 import {checkAdmin,isAdmin,cloudUser} from '../../v2/cloud/cloud.mjs?v=20261030-55';
 
@@ -6,6 +6,7 @@ import {checkAdmin,isAdmin,cloudUser} from '../../v2/cloud/cloud.mjs?v=20261030-
 // que pode diferir da numeração das imagens legadas do treinador.
 export {trainerCaseToCatalog};
 window.CPOFLibrary={
+ ready:null,
  allowed(stage,ids){
   if(selectedLibrary(stage)==='original'&&(isOriginalOwner()&&originalBaseInfo().state==='active'||defaultForStage(stage)==='original'))return ids;
   return ids.filter(id=>{
@@ -50,19 +51,35 @@ function mount(){
   if((isOriginalOwner()&&originalBaseInfo().state==='active'||defaultForStage(stage)==='original')&&stage!=='oll'){
    const basic=document.createElement('option');basic.value='original';basic.textContent='Base original (privada)';select.append(basic);
   }
+  const publicState=publicLibraryStatus();
   for(const library of libraryList().filter(l=>l.is_public)){
+   const amount=publicCasesInStage(library.id,stage);
    const option=document.createElement('option');
-   option.value=library.id;option.textContent=library.title;select.append(option)
+   option.value=library.id;
+   option.textContent=library.title+(publicState.lastSync?(amount?' · '+amount+' casos '+stage.toUpperCase():' · sem casos '+stage.toUpperCase()):'');
+   // Mostrar outras etapas como opção identificável, mas não permitir treino vazio.
+   option.disabled=!!publicState.lastSync&&amount===0&&id!==library.id;
+   select.append(option)
   }
   const valid=libraryList().some(l=>l.id===id&&l.is_public)||(id==='original'&&(isOriginalOwner()||defaultForStage(stage)==='original')&&stage!=='oll');
   if(!valid){
    const unavailable=document.createElement('option');unavailable.value='none';unavailable.textContent='Nenhuma biblioteca publicada';select.append(unavailable);
   }
   select.value=valid?id:'none';
-  if(id==='original'&&valid){notice.textContent='Somente administrador';return}
-  if(!valid){notice.textContent='Aguarde a publicação de uma biblioteca';return}
+  if(id==='original'&&valid){
+   notice.textContent=isOriginalOwner()?'Base original':'Base definida pelo administrador';
+   return
+  }
+  if(!valid){
+   notice.textContent=publicState.error?'Falha ao consultar bibliotecas. '+publicState.error:
+    'Nenhuma biblioteca selecionada nesta etapa';
+   return
+  }
   const amount=selectedVariants(stage).filter(r=>r.status==='approved'&&CASE_BY_ID.get(r.case_id)?.stage===stage).length;
-  notice.textContent=libraryError()?'Usando versão offline':amount?amount+'/'+LIMITS[stage]+' casos disponíveis':'Nenhum caso '+stage.toUpperCase()+' aprovado nesta biblioteca';
+  notice.textContent=amount
+   ?amount+'/'+LIMITS[stage]+' casos aprovados'
+   :publicState.error?publicState.error:
+    publicState.lastSync?'Esta biblioteca ainda não tem casos '+stage.toUpperCase()+' publicados.':'Carregando casos da biblioteca…';
  }
  select.addEventListener('change',async()=>{
   select.disabled=true;
@@ -93,8 +110,16 @@ function mountAdminPublishShortcut(){
  document.addEventListener('cpof:libraries-changed',update);
  bar.prepend(link);
 }
+// Inicia antes da montagem da interface para impedir o primeiro frame com
+// PNG original em uma biblioteca personalizada ou não publicada.
+window.CPOFLibrary.ready=loadLibraries().catch(err=>{
+ console.warn('Biblioteca pública indisponível:',err);
+ return [];
+});
 document.addEventListener('DOMContentLoaded',()=>{
  mount();
- loadLibraries().catch(err=>console.warn('Biblioteca indisponível:',err));
- checkAdmin().then(async()=>{if(isOriginalOwner())await loadOriginalBase();mountAdminPublishShortcut()}).catch(()=>{});
+ checkAdmin().then(async()=>{
+  if(isOriginalOwner()){await loadOriginalBase();await loadLibraries()}
+  mountAdminPublishShortcut();
+ }).catch(()=>{});
 });
