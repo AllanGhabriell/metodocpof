@@ -1,5 +1,5 @@
 import {loadLibraries,libraryList,selectedLibrary,selectedLibraryName,libraryCases,chooseLibrary,libraryError,originalBaseInfo,originalCases,loadOriginalBase,deleteOriginalBase,isOriginalOwner,defaultForStage,stageDefaultInfo,stageDefaultStatus,setDefaultLibrary,deleteLibrary,publicLibraryStatus,publicCasesInStage} from './cloud/libraries.mjs?v=20261031-5';
-import {adminPanel,adminLoad,adminClick,adminSubmit} from './cloud/admin.mjs?v=20261031-timers-4';
+import {adminPanel,adminLoad,adminClick,adminSubmit} from './cloud/admin.mjs?v=20261031-timers-5';
 import {cloudStatus,loadAccountExtras,startActivityTracking,recordActivity,isConfigured,isAuthenticated,isAdmin,cloudUser,cloudPanel,signInWithGoogle,signIn,signUp,recoverPassword,updatePassword,signOut,syncCloud,initializeCloud,acceptAuthRedirect,markLocalChange,markDraftDeleted,cloudProfileRefresh,cloudNoticeOverlay,markNoticeRead,publishedCases,publishCase,unpublishCase,loadPublishedCases} from './cloud/cloud.mjs?v=20261031-58';
 import {onlinePage,onlineInit,onlineLoad,onlineClick,onlineSubmit} from './cloud/online.mjs?v=20261030-55';
 import {crossPage,crossClick,crossChange} from './features/cross.mjs';
