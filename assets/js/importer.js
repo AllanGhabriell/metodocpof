@@ -44,6 +44,7 @@ function update(){
  '<label>Orientação<input data-field="orientation" value="'+esc(r.orientation||'')+'" placeholder="Ex.: branco embaixo, frente vermelha"></label>'+
  '<label>Revisão<select data-field="status"><option value="draft" '+(r.status==='draft'?'selected':'')+'>Pendente</option><option value="approved" '+(r.status==='approved'?'selected':'')+'>Aprovado</option><option value="rejected" '+(r.status==='rejected'?'selected':'')+'>Rejeitado</option></select></label>'+
  (r.page?'<small>Página '+r.page+' · '+(r.alternatives?.length?'Possui algoritmos alternativos':'Uma sequência reconhecida')+'</small>':'<small>Versão já cadastrada</small>')+
+ (r.rect?'<div class="importer-crop-controls"><span>Corrigir enquadramento:</span><button type="button" data-crop="up" data-index="'+i+'" title="Subir recorte">↑</button><button type="button" data-crop="left" data-index="'+i+'" title="Mover à esquerda">←</button><button type="button" data-crop="right" data-index="'+i+'" title="Mover à direita">→</button><button type="button" data-crop="down" data-index="'+i+'" title="Descer recorte">↓</button><button type="button" data-crop="zoom-in" data-index="'+i+'" title="Aproximar">+</button><button type="button" data-crop="zoom-out" data-index="'+i+'" title="Afastar">−</button></div>':'')+
  '<div class="importer-card-actions"><button type="button" data-approve="'+i+'" '+(r.status==='approved'?'disabled':'')+'>'+(r.status==='approved'?'✓ Aprovado':'✓ Aprovar caso')+'</button><button type="button" data-rotate="'+i+'">Girar imagem 90°</button><button type="button" data-download="'+i+'">Baixar imagem</button></div>'+
  '</article>').join('')
 }
@@ -126,6 +127,26 @@ $('import-cards').addEventListener('change',e=>{
 });
 $('import-cards').addEventListener('click',async e=>{
  const a=e.target.closest('[data-rotate]'),b=e.target.closest('[data-download]'),approve=e.target.closest('[data-approve]');
+ const crop=e.target.closest('button[data-crop]');
+ if(crop){
+  const r=records[Number(crop.dataset.index)];if(!r?.rect||!doc)return status('Reimporte o PDF para ajustar o recorte.');
+  const page=await renderPage(r.page);
+  const rect={...r.rect},step=Math.max(4,Math.round(rect.w*.065));
+  switch(crop.dataset.crop){
+   case'up':rect.y-=step;break;case'down':rect.y+=step;break;
+   case'left':rect.x-=step;break;case'right':rect.x+=step;break;
+   case'zoom-in':rect.x+=step;rect.y+=step;rect.w-=2*step;rect.h-=2*step;break;
+   case'zoom-out':rect.x-=step;rect.y-=step;rect.w+=2*step;rect.h+=2*step;break;
+  }
+  rect.w=Math.max(35,Math.min(page.width,rect.w));
+  rect.h=Math.max(35,Math.min(page.height,rect.h));
+  rect.x=Math.max(0,Math.min(page.width-rect.w,rect.x));
+  rect.y=Math.max(0,Math.min(page.height-rect.h,rect.y));
+  r.rect=rect;r.imageData=cropDiagram(page,rect);r.status='draft';
+  page.canvas.width=0;page.canvas.height=0;pageImageCache.clear();
+  update();status('Recorte de '+r.case_id+' ajustado. Confira a imagem e aprove novamente.');
+  return;
+ }
  if(approve){const r=records[Number(approve.dataset.approve)];if(!r)return;
   if(!r.algorithm?.trim())return status('Informe o algoritmo desse caso antes de aprová-lo.');
   r.status='approved';update();status('Caso '+r.case_id+' aprovado para publicação.');return
