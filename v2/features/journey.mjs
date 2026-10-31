@@ -29,12 +29,12 @@ export function journeyIdentity(xp){
  };
  return {level:p.level,xp:p.xp,percent:p.percent,needed:p.needed,earned:p.earned,
   title:special?'Deus Criador dos Cubos':choice('title').title,creator:special,
-  frame:special?'creator':choice('frame').style_key,
-  name:special?'creator':choice('name').style_key,
-  background:special?'creator':choice('background').style_key,
-  aura:special?'creator':choice('aura').style_key,
-  badge:special?'creator':choice('badge').style_key,
-  card:special?'creator':choice('card').style_key};
+  frame:special&&!journey.equipped.frame?'creator':choice('frame').style_key,
+  name:special&&!journey.equipped.name?'creator':choice('name').style_key,
+  background:special&&!journey.equipped.background?'creator':choice('background').style_key,
+  aura:special&&!journey.equipped.aura?'creator':choice('aura').style_key,
+  badge:special&&!journey.equipped.badge?'creator':choice('badge').style_key,
+  card:special&&!journey.equipped.card?'creator':choice('card').style_key};
 }
 export async function loadJourney(){
  ensure();const uid=cloudUser()?.id;if(!isAuthenticated()||!uid)return;
@@ -94,8 +94,8 @@ export function journeyPanel(xp,records=[]){
    '<option value="">'+(kind==='title'?'Título da patente atual':'Visual clássico')+'</option>'+
    options.map(r=>'<option value="'+esc(r.id)+'" '+(current[kind]===r.id?'selected':'')+' '+(!p.creator&&r.min_level>p.level?'disabled':'')+'>'+esc(r.title)+' · Nv. '+r.min_level+(!p.creator&&r.min_level>p.level?' 🔒':'')+'</option>').join('')+'</select></label>';
  };
- return '<section class="card journey-profile"><div class="journey-identity"><span class="journey-eyebrow">JORNADA NA ACADEMIA CFOP</span><div class="journey-title-row"><strong>'+esc(p.title)+'</strong>'+(p.creator?'<span class="journey-creator-mark">✦ CRIADOR</span>':'')+'</div>'+
- '<p>Nível '+p.level+' · '+p.xp.toLocaleString('pt-BR')+' XP</p><div class="journey-meter"><span style="width:'+p.percent+'%"></span></div><small>'+(p.needed?p.earned+' / '+p.needed+' XP para o próximo nível':'Nível máximo')+'</small></div>'+
+ return '<section class="card journey-profile"><div class="journey-identity journey-bg-'+esc(p.background)+' journey-aura-'+esc(p.aura)+'"><span class="journey-eyebrow">JORNADA NA ACADEMIA CFOP</span><div class="journey-title-row"><strong>'+esc(p.title)+'</strong>'+(p.creator?'<span class="journey-creator-mark">✦ CRIADOR</span>':'')+'</div>'+
+ '<p>'+(p.creator?'Patente Divina · ':('Nível '+p.level+' · '))+p.xp.toLocaleString('pt-BR')+' XP</p><div class="journey-meter"><span style="width:'+p.percent+'%"></span></div><small>'+(p.needed?p.earned+' / '+p.needed+' XP para o próximo nível':'Nível máximo')+'</small></div>'+
  '<details class="profile-fold"><summary><strong>Minha coleção e aparência</strong><span aria-hidden="true">⌄</span></summary><div class="profile-fold-content">'+
  '<p class="muted">Desbloqueie molduras, cores, auras, brasões, cartões e títulos. Você escolhe o que equipar.</p>'+
  '<div class="journey-cosmetics">'+['title',...kinds].map(group).join('')+'</div><p id="journey-status" class="muted">'+esc(message)+'</p></div></details>'+
