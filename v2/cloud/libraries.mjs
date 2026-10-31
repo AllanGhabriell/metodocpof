@@ -1,4 +1,4 @@
-import {cloudTable,isAuthenticated,isConfigured,isAdmin,cloudUser} from './cloud.mjs?v=20261031-57';
+import {cloudTable,isAuthenticated,isConfigured,isAdmin,cloudUser} from './cloud.mjs?v=20261031-58';
 import {CASE_BY_ID,canonicalCase} from '../data/case-catalog.mjs';
 const META='cpof-library-index-v1',DB_NAME='cpof-library-offline-v1';
 const STAGES=['f2l','oll','pll'],DEFAULT='none',ORIGINAL='original',SETTING='cpof-stage-defaults-v1',PERSONAL='cpof-stage-session-v1';
