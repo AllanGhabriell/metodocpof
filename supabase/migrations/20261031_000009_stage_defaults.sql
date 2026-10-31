@@ -63,18 +63,24 @@ GRANT EXECUTE ON FUNCTION public.cfop_set_stage_default(text,text,uuid) TO authe
 
 -- A base original é publicamente consultável somente para a etapa que o
 -- administrador escolher como principal. As outras etapas seguem privadas.
+CREATE OR REPLACE FUNCTION public.cfop_original_public_stage(p_case_id text)
+RETURNS boolean LANGUAGE sql STABLE SECURITY DEFINER SET search_path=''
+AS $
+ SELECT EXISTS(
+  SELECT 1 FROM public.cfop_case_catalog c
+  JOIN public.cfop_stage_defaults d ON d.stage=c.stage
+  JOIN public.cfop_original_base_control ctl ON ctl.singleton=true
+  WHERE c.case_id=p_case_id AND d.source='original'
+    AND c.stage IN ('f2l','pll') AND ctl.deleted_at IS NULL
+ );
+$;
+REVOKE ALL ON FUNCTION public.cfop_original_public_stage(text) FROM PUBLIC;
+GRANT EXECUTE ON FUNCTION public.cfop_original_public_stage(text) TO anon,authenticated;
+GRANT SELECT ON public.cfop_original_base_cases TO anon;
 DROP POLICY IF EXISTS cfop_original_cases_stage_default_read ON public.cfop_original_base_cases;
 CREATE POLICY cfop_original_cases_stage_default_read
 ON public.cfop_original_base_cases FOR SELECT TO anon,authenticated
-USING(
- EXISTS(
-  SELECT 1 FROM public.cfop_case_catalog cat
-  JOIN public.cfop_stage_defaults d ON d.stage=cat.stage
-  JOIN public.cfop_original_base_control control ON control.singleton=true
-  WHERE cat.case_id=cfop_original_base_cases.case_id
-   AND d.source='original' AND control.deleted_at IS NULL
- )
-);
+USING(public.cfop_original_public_stage(case_id));
 
 -- Não pode excluir a base enquanto ela é padrão público.
 CREATE OR REPLACE FUNCTION public.cfop_delete_original_base()
