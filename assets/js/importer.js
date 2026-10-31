@@ -3,6 +3,7 @@ import {FIXED_CASES,CASE_BY_ID,LIMITS} from '../../v2/data/case-catalog.mjs';
 import {assignFixedCases,cropDiagram} from '../../v2/data/pdf-layout.mjs';
 import {algorithmIndex,identifyByAlgorithm} from '../../v2/data/algorithm-match.mjs';
 import {matchDiagrams} from '../../v2/data/image-match.mjs';
+import {openImageEditor,bulkAdjustImages} from './importer-editor.js?v=20261031-1';
 import {loadLibraries,libraryList,createLibrary,saveLibraryCasesBatch,publishApprovedLibrary,renameLibrary,loadOriginalBase,originalCases} from '../../v2/cloud/libraries.mjs?v=20261031-4';
 const PDF='https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.10.38/pdf.min.mjs';
 const LAST_LIBRARY='cpof-admin-last-library-v1';
@@ -45,7 +46,7 @@ function update(){
  '<label>Revisão<select data-field="status"><option value="draft" '+(r.status==='draft'?'selected':'')+'>Pendente</option><option value="approved" '+(r.status==='approved'?'selected':'')+'>Aprovado</option><option value="rejected" '+(r.status==='rejected'?'selected':'')+'>Rejeitado</option></select></label>'+
  (r.page?'<small>Página '+r.page+' · '+(r.alternatives?.length?'Possui algoritmos alternativos':'Uma sequência reconhecida')+'</small>':'<small>Versão já cadastrada</small>')+
  (r.rect?'<div class="importer-crop-controls"><span>Corrigir enquadramento:</span><button type="button" data-crop="up" data-index="'+i+'" title="Subir recorte">↑</button><button type="button" data-crop="left" data-index="'+i+'" title="Mover à esquerda">←</button><button type="button" data-crop="right" data-index="'+i+'" title="Mover à direita">→</button><button type="button" data-crop="down" data-index="'+i+'" title="Descer recorte">↓</button><button type="button" data-crop="zoom-in" data-index="'+i+'" title="Aproximar">+</button><button type="button" data-crop="zoom-out" data-index="'+i+'" title="Afastar">−</button></div>':'')+
- '<div class="importer-card-actions"><button type="button" data-approve="'+i+'" '+(r.status==='approved'?'disabled':'')+'>'+(r.status==='approved'?'✓ Aprovado':'✓ Aprovar caso')+'</button><button type="button" data-rotate="'+i+'">Girar imagem 90°</button><button type="button" data-download="'+i+'">Baixar imagem</button></div>'+
+ '<div class="importer-card-actions"><button type="button" data-edit-image="'+i+'" class="importer-edit-image" '+(!r.imageData?'disabled':'')+'>✎ Editar imagem / retoque</button><button type="button" data-approve="'+i+'" '+(r.status==='approved'?'disabled':'')+'>'+(r.status==='approved'?'✓ Aprovado':'✓ Aprovar caso')+'</button><button type="button" data-rotate="'+i+'">Girar imagem 90°</button><button type="button" data-download="'+i+'">Baixar imagem</button></div>'+
  '</article>').join('')
 }
 function saveBlob(name,data){const url=URL.createObjectURL(new Blob([data],{type:'application/json'})),a=document.createElement('a');a.href=url;a.download=name;a.click();setTimeout(()=>URL.revokeObjectURL(url),1000)}
@@ -128,6 +129,9 @@ $('import-cards').addEventListener('change',e=>{
 $('import-cards').addEventListener('click',async e=>{
  const a=e.target.closest('[data-rotate]'),b=e.target.closest('[data-download]'),approve=e.target.closest('[data-approve]');
  const crop=e.target.closest('button[data-crop]');
+ const editImage=e.target.closest('button[data-edit-image]');
+ if(editImage){const r=records[Number(editImage.dataset.editImage)];if(!r?.imageData)return status('Imagem indisponível. Importe o PDF primeiro.');
+  await openImageEditor(r,(result,original)=>{r.imageOriginal ||= original;r.imageData=result;r.status='draft';r.imageUpdatedAt=Date.now();update();status('Imagem de '+r.case_id+' corrigida. Reaprove e salve para atualizar a biblioteca.');});return}
  if(crop){
   const r=records[Number(crop.dataset.index)];if(!r?.rect||!doc)return status('Reimporte o PDF para ajustar o recorte.');
   const page=await renderPage(r.page);
@@ -175,7 +179,7 @@ async function loadExistingLibrary(){
 }
 function showExistingStage(){
  records=existingRecords.filter(r=>CASE_BY_ID.get(r.case_id)?.stage===stage).map(r=>({
- case_id:r.case_id,algorithm:r.algorithm,setup:r.setup,orientation:r.orientation,imageData:r.image_data,
+ case_id:r.case_id,algorithm:r.algorithm,setup:r.setup,orientation:r.orientation,imageData:r.image_data,imageOriginal:r.image_original||null,
  status:r.status,sourcePage:r.source_page,page:r.source_page,confidence:'manual',alternatives:[]}));
  update();
 }
@@ -191,6 +195,16 @@ $('import-stage').addEventListener('change',()=>{stage=$('import-stage').value;s
 $('import-new-library').addEventListener('input',()=>{
  const count=records.filter(r=>r.status==='approved').length;
  $('import-publish').disabled=busy||count===0||(!$('import-library').value&&$('import-new-library').value.trim().length<2);
+});
+$('import-global-apply').addEventListener('click',async()=>{
+ try{guard();if(busy)return;const x=Number($('import-global-x').value),y=Number($('import-global-y').value),zoom=Number($('import-global-zoom').value)/100;
+  if(!Number.isFinite(x)||!Number.isFinite(y)||!Number.isFinite(zoom)||Math.abs(x)>45||Math.abs(y)>45||zoom<.5||zoom>2.5)throw Error('Valores de alinhamento inválidos.');
+  const targets=records.filter(r=>r.imageData);if(!targets.length)throw Error('Não há imagens nesta etapa.');
+  if(!confirm('Aplicar o ajuste geral a '+targets.length+' imagens de '+stage.toUpperCase()+'? Os casos ficarão pendentes de nova aprovação.'))return;
+  busy=true;$('import-global-apply').disabled=true;
+  const changed=await bulkAdjustImages(targets,{x,y,zoom},(done,total)=>status('Ajustando imagens: '+done+'/'+total));
+  update();status(changed+' imagens ajustadas em 512 × 512 WebP. Revise, aprove e publique para atualizar a biblioteca.');
+ }catch(err){status('Ajuste geral não aplicado: '+err.message)}finally{busy=false;$('import-global-apply').disabled=false}
 });
 $('import-approve-all').addEventListener('click',()=>{
  records.forEach(r=>{if(r.algorithm.trim())r.status='approved'});update();
