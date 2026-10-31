@@ -60,7 +60,7 @@ export function crossPage(){
  const correct=selected.filter(complete).length;
  const done=correct===selected.length;
  return '<div class="cross-intro"><span class="eyebrow">ACADEMIA CFOP · TREINAMENTO</span><h1>Treino de cruz</h1><p class="muted">Monte a cruz branca na face inferior, alinhando cada peça de meio com a cor do centro lateral.</p></div>'+
- lesson()+'<div class="cross-workspace"><section class="cross-training-panel"><div class="cross-panel-heading"><div><span class="cross-kicker">DESAFIO ATUAL</span><h2>'+(count===4?'Cruz completa':count+' '+(count===1?'peça de meio':'peças de meio'))+'</h2></div><span class="cross-progress '+(done?'is-complete':'')+'">'+correct+' de '+count+' corretas</span></div>'+
+ (mode==='guided'?lesson():'')+'<div class="cross-workspace"><section class="cross-training-panel"><div class="cross-panel-heading"><div><span class="cross-kicker">DESAFIO ATUAL</span><h2>'+(count===4?'Cruz completa':count+' '+(count===1?'peça de meio':'peças de meio'))+'</h2></div><span class="cross-progress '+(done?'is-complete':'')+'">'+correct+' de '+count+' corretas</span></div>'+
  '<div class="cross-view-tabs" role="group" aria-label="Visualização do cubo"><button data-cross="view-cube" aria-pressed="'+(view==='cube')+'" class="'+(view==='cube'?'selected':'')+'">Cubo 3D</button><button data-cross="view-net" aria-pressed="'+(view==='net')+'" class="'+(view==='net'?'selected':'')+'">Cubo aberto</button></div>'+
  '<div class="cross-cube-area">'+(view==='cube'?cube3D(state,{yaw,pitch,size:168,colors}):net())+'</div>'+
  (view==='cube'?'<div class="cross-camera"><button data-cross="left" aria-label="Girar visualização para esquerda">←</button><button data-cross="up" aria-label="Inclinar visualização para cima">↑</button><button data-cross="down" aria-label="Inclinar visualização para baixo">↓</button><button data-cross="right" aria-label="Girar visualização para direita">→</button></div>':'')+
@@ -81,8 +81,8 @@ export function crossClick(button,earn=()=>{}){
  else if(cmd==='hint'){hintStep=Math.min(3,hintStep+1)}
  else if(cmd==='check'){guideStep=3;
   const correct=selected.filter(complete).length;
-  if(correct===selected.length){message='Cruz correta! Todas as peças de meio estão alinhadas.';if(!awarded){earn('Cross',30);awarded=true}}
-  else message=correct+' de '+selected.length+' peças de meio corretas. Confira também o alinhamento com os centros laterais.';
+  if(correct===selected.length){message='Cruz correta! Todas as peças de meio estão alinhadas. Você usou '+attempts+' movimentos; tente comparar outra solução.';if(!awarded){earn('Cross',30);awarded=true}}
+  else message=correct+' de '+selected.length+' peças de meio corretas em '+attempts+' movimentos. Confira também o alinhamento com os centros laterais.';
  }else if(cmd==='view-cube'||cmd==='view-net'){view=cmd==='view-cube'?'cube':'net';save()}
  else if(cmd==='left')yaw-=30;else if(cmd==='right')yaw+=30;
  else if(cmd==='up')pitch=Math.min(75,pitch+15);else if(cmd==='down')pitch=Math.max(-75,pitch-15);
