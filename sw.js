@@ -1,11 +1,11 @@
 /* GitHub Pages app shell — network-first, version-aware resource fallback.
    Never reuse an old JS module under a different ?v= version. */
-const CACHE='cfop-studio-offline-20261031-v42';
+const CACHE='cfop-studio-offline-20261031-v43';
 const CORE=[
  './index.html','./studio.html','./f2l.html','./oll.html','./pll.html','./importer.html',
  './cross.html','./scramble.html',
  './assets/css/cross-lab.css?v=20261031-1',
- './assets/css/timer-upgrade.css?v=20261031-compact-1',
+ './assets/css/timer-upgrade.css?v=20261031-scroll-lock-1',
  './assets/js/timer-history-ui.mjs?v=20261031-2',
  './v2/timer/records.mjs?v=20261031-compact-1','./v2/timer/telemetry.mjs?v=20261031-1',
  './v2/features/cross-timer.mjs?v=20261031-4',
@@ -56,7 +56,7 @@ const OPTIONAL=[
  './assets/js/trainer-coach.js?v=20261030-43',
  './assets/js/secao.js?v=20261031-7',
  './assets/css/trainer-unified.css?v=20261030-43',
- './assets/js/scramble.js?v=20261031-compact-2',
+ './assets/js/scramble.js?v=20261031-scroll-lock-2',
  './assets/css/scramble.css?v=20261031-9'
 ];
 self.addEventListener('install',event=>{
