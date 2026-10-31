@@ -221,7 +221,7 @@ export async function saveLibraryCase(libraryId,record){
 }
 export async function publishApprovedLibrary(libraryId){
  requireOwner();const count=await cloudTable('rpc/cfop_publish_library',{method:'POST',body:{p_library:libraryId}});
- await loadLibraries();if(choice===libraryId)await loadLibraryCases(libraryId);
+ await loadLibraries();if(STAGES.some(stage=>selectedLibrary(stage)===libraryId))await loadLibraryCases(libraryId);
  return count
 }
 export async function setLibraryPublished(libraryId,enabled){
@@ -231,4 +231,17 @@ export async function setLibraryPublished(libraryId,enabled){
 export async function renameLibrary(libraryId,title,description){
  requireOwner();await cloudTable('cfop_libraries',{method:'PATCH',query:'id=eq.'+encodeURIComponent(libraryId),body:{title:String(title).trim(),description:String(description||'').trim(),updated_at:new Date().toISOString()}});
  await loadLibraries();return true
+}
+
+export async function deleteLibrary(libraryId){
+ requireOwner();
+ const lib=libraries.find(l=>l.id===libraryId);
+ if(!lib)throw Error('Biblioteca não encontrada.');
+ await cloudTable('rpc/cfop_delete_library',{method:'POST',body:{p_library:libraryId}});
+ libraries=libraries.filter(l=>l.id!==libraryId);
+ for(const stage of STAGES)if(stageChoices[stage]===libraryId)delete stageChoices[stage];
+ rowsByLibrary.delete(libraryId);
+ try{await cached(libraryId,[])}catch{}
+ await loadLibraries();
+ notify();return true;
 }
