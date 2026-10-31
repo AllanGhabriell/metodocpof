@@ -1,5 +1,6 @@
 import {loadLibraries,libraryList,selectedLibrary,chooseLibrary,libraryCase,selectedLibraryName,libraryError,selectedVariants} from '../../v2/cloud/libraries.mjs';
 import {CASE_BY_ID,LIMITS,trainerCaseToCatalog} from '../../v2/data/case-catalog.mjs';
+import {checkAdmin,isAdmin,cloudUser} from '../../v2/cloud/cloud.mjs?v=20261030-55';
 
 // Os IDs dos casos não são editáveis; OLL 01–57 usa a ordem da biblioteca,
 // que pode diferir da numeração das imagens legadas do treinador.
@@ -60,7 +61,28 @@ function mount(){
  document.addEventListener('cpof:libraries-changed',update);
  update();
 }
+function mountAdminPublishShortcut(){
+ if(!isAdmin()||cloudUser()?.email?.toLowerCase()!=='coelhodatoca124@gmail.com')return;
+ if(document.getElementById('trainer-admin-publish'))return;
+ const bar=document.querySelector('.header-right')||document.querySelector('.topbar');
+ if(!bar)return;
+ const link=document.createElement('a');
+ link.id='trainer-admin-publish';
+ link.className='trainer-admin-publish';
+ link.textContent='+ Publicar casos';
+ link.setAttribute('aria-label','Importar PDF e publicar casos nesta etapa');
+ const stage=document.body.dataset.set||'f2l';
+ const update=()=>{
+  const params=new URLSearchParams({stage});
+  if(selectedLibrary()!=='original')params.set('library',selectedLibrary());
+  link.href='importer.html?'+params.toString();
+ };
+ update();
+ document.addEventListener('cpof:libraries-changed',update);
+ bar.prepend(link);
+}
 document.addEventListener('DOMContentLoaded',()=>{
  mount();
  loadLibraries().catch(err=>console.warn('Biblioteca indisponível:',err));
+ checkAdmin().then(mountAdminPublishShortcut).catch(()=>{});
 });
