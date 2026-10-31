@@ -22,7 +22,10 @@ document.addEventListener('DOMContentLoaded', () => {
     })(),
     pll: ['Ua', 'Ub', 'H', 'Z', 'Aa', 'Ab', 'E', 'Ra', 'Rb', 'Ja', 'Jb', 'T', 'F', 'V', 'Y', 'Na', 'Nb', 'Ga', 'Gb', 'Gc', 'Gd']
   };
-  const currentLibraryVariant=()=>window.CPOFLibrary?.get(pageSet,currentCase)||null;
+  const currentLibraryVariant=()=>{
+    if(!window.CPOFLibrary)return {missing:true,algorithm:'',setup:'',imageData:null};
+    return window.CPOFLibrary.get(pageSet,currentCase)
+  };
   const unavailableImage=reason=>{
     // Não utilizar imagem da biblioteca original quando uma versão personalizada não foi publicada.
     const label=reason==='missing'?'Caso não publicado':'Imagem não cadastrada';
@@ -1004,7 +1007,7 @@ document.addEventListener('DOMContentLoaded', () => {
       const list = availableCases();
       next = list.find((id) => id !== currentCase) || null;
     }
-    if (next) C.preloadImage(`${pageSet}/${next}.png`).catch(() => {});
+    if (next&&window.CPOFLibrary&&window.CPOFLibrary.get(pageSet,next)===null) C.preloadImage(`${pageSet}/${next}.png`).catch(() => {});
   }
 
   function startSessionTimer(manualRequest) {
@@ -1416,12 +1419,12 @@ document.addEventListener('DOMContentLoaded', () => {
     for (let i = state.solvedHistory.length - 1; i >= 0; i -= 1) {
       const entry = state.solvedHistory[i];
       const id = String(entry.caseId).trim();
-      if (CASE_ID_SET.has(id) && !seen.has(id)) {
+      if (publicAllowedIds().includes(id) && !seen.has(id)) {
         seen.add(id);
         ranked.push(id);
       }
     }
-    CASE_IDS.forEach((id) => {
+    publicAllowedIds().forEach((id) => {
       if (!seen.has(id)) ranked.push(id);
     });
     return ranked;
@@ -1432,8 +1435,11 @@ document.addEventListener('DOMContentLoaded', () => {
     btn.className = 'exclude-card';
     btn.dataset.case = String(caseId);
     if (state.excluded.includes(caseId)) btn.classList.add('is-excluded');
+    const variant=window.CPOFLibrary?.get(pageSet,caseId);
+    const src=variant===null? `${pageSet}/${caseId}.png`
+      :(variant?.imageData||unavailableImage(variant?.missing?'missing':'no-image'));
     btn.innerHTML = [
-      `<img src="${pageSet}/${caseId}.png" alt="Caso ${caseId}" loading="lazy">`,
+      `<img src="${src}" alt="Caso ${caseId}" loading="lazy">`,
       `<span class="exclude-case-id">Caso ${caseId}</span>`,
       `<span class="exclude-case-action">${state.excluded.includes(caseId) ? 'Reincluir' : 'Excluir'}</span>`
     ].join('');
@@ -1476,7 +1482,7 @@ document.addEventListener('DOMContentLoaded', () => {
     if (galleryBusy || galleryRendered >= galleryCaseOrder.length) return;
     galleryBusy = true;
     galleryLoading.hidden = false;
-    const slice = galleryCaseOrder.slice(galleryRendered, galleryRendered + PAGE_SIZE);
+    const slice = galleryCaseOrder.filter(id=>publicAllowedIds().includes(id)).slice(galleryRendered, galleryRendered + PAGE_SIZE);
     slice.forEach((id) => galleryEl.appendChild(createGalleryCard(id)));
     galleryRendered += slice.length;
     galleryBusy = false;
