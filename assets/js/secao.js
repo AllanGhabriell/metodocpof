@@ -9,6 +9,8 @@ document.addEventListener('DOMContentLoaded', () => {
   const CASE_INDEX = new Map(CASE_IDS.map((id, idx) => [id, idx]));
   const TOTAL = CASE_IDS.length;
   const STATE_KEY = `cpof_prefs_${pageSet}`;
+  // Preferência curta e independente do cookie grande de configurações.
+  const MODE_KEY = `cpof_last_training_mode_v1_${pageSet}`;
   const UI_SCALE_KEY = 'cpof_ui_scale';
   const PAGE_SIZE = 6;
   const MAX_UNDO = 160;
@@ -253,7 +255,7 @@ document.addEventListener('DOMContentLoaded', () => {
     solvedHistory: [],
     keyboardActions: true,
     orderedTraining: {
-      enabled: true,
+      enabled: false,
       index: 0,
       queue: []
     },
@@ -280,25 +282,41 @@ document.addEventListener('DOMContentLoaded', () => {
       caseStats: {}
     },
     lastCaseReport: null,
-    trainingMode: 'sequential',
+    trainingMode: 'random',
     modeChosen: false,
     trainingConfig: {prioritizeHard:false}
   };
 
   const existingPreference=C.getCookie(STATE_KEY)||{};
   let state=normalizeState(existingPreference);
-  // Primeira visita: sequência. Após escolher qualquer outro modo, salvar
-  // a preferência — mesmo que a pessoa saia e volte em outra sessão.
-  let practicedBefore=false;
-  try{
-   const events=JSON.parse(localStorage.getItem('cpof-academy-activity-v1')||'[]');
-   practicedBefore=Array.isArray(events)&&events.some(e=>e.stage===pageSet);
-  }catch{}
-  if(!existingPreference.modeChosen&&!practicedBefore&&!existingPreference.lastCaseReport){
-   state.trainingMode='sequential';
-   state.orderedTraining.enabled=true;
-   state.competitive.enabled=false;
+  // Um modo por etapa: F2L, OLL e PLL não compartilham a preferência.
+  function applyTrainingMode(mode,remember=false){
+    const next=coach.MODES.includes(mode)?mode:'random';
+    state.trainingMode=next;
+    state.orderedTraining.enabled=next==='sequential';
+    state.competitive.enabled=next==='competitive';
+    if(remember){
+      state.modeChosen=true;
+      try{localStorage.setItem(MODE_KEY,next)}catch{}
+    }
   }
+  function savedTrainingMode(){
+    // Prioridade: escolha explícita salva (localStorage), depois uma escolha
+    // antiga confirmada pelo usuário (cookie). Nunca deduzir pela atividade.
+    try{
+      const preferred=localStorage.getItem(MODE_KEY);
+      if(coach.MODES.includes(preferred)){
+        state.modeChosen=true;
+        return preferred;
+      }
+    }catch{}
+    if(existingPreference.modeChosen===true && coach.MODES.includes(state.trainingMode)){
+      try{localStorage.setItem(MODE_KEY,state.trainingMode)}catch{}
+      return state.trainingMode;
+    }
+    return 'random';
+  }
+  applyTrainingMode(savedTrainingMode());
   const trainerModeSelect=document.getElementById('trainer-mode-select');
   const trainerModeHelpTitle=document.getElementById('trainer-mode-help-title');
   const trainerModeDescription=document.getElementById('trainer-mode-description');
@@ -412,7 +430,7 @@ document.addEventListener('DOMContentLoaded', () => {
     merged.solvedHistory = Array.isArray(merged.solvedHistory) ? merged.solvedHistory : [];
     merged.competitive.caseStats = merged.competitive.caseStats || {};
     merged.keybinds = normalizeKeybinds(merged.keybinds);
-    merged.trainingMode = raw.competitive?.enabled ? 'competitive' : raw.orderedTraining?.enabled ? 'sequential' : ['sequential','random','adaptive','review','focus'].includes(raw.trainingMode) ? raw.trainingMode : 'sequential';
+    merged.trainingMode = raw.competitive?.enabled ? 'competitive' : raw.orderedTraining?.enabled ? 'sequential' : coach.MODES.includes(raw.trainingMode) ? raw.trainingMode : 'random';
     merged.orderedTraining.enabled = !!merged.orderedTraining.enabled;
     merged.orderedTraining.index = Math.max(0, Number(merged.orderedTraining.index) || 0);
     merged.orderedTraining.queue = Array.isArray(merged.orderedTraining.queue) ? merged.orderedTraining.queue.map((v) => String(v).trim()).filter(Boolean) : [];
@@ -1205,10 +1223,7 @@ document.addEventListener('DOMContentLoaded', () => {
   function changeTrainingMode(mode){
     if(!coach.MODES.includes(mode))return;
     stopPracticeTimer(true);stopCaseTimer();
-    state.trainingMode=mode;
-    state.modeChosen=true;
-    state.competitive.enabled=mode==='competitive';
-    state.orderedTraining.enabled=mode==='sequential';
+    applyTrainingMode(mode,true);
     if(competitiveToggle)competitiveToggle.checked=state.competitive.enabled;
     if(orderedToggle)orderedToggle.checked=state.orderedTraining.enabled;
     if(mode==='competitive')enforceMobileCompetitiveTimerRule();
@@ -1875,6 +1890,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
   function resetAllSettings() {
     state = normalizeState(defaults);
+    // Reset total remove a preferência anterior e volta ao Aleatório.
+    try{localStorage.removeItem(MODE_KEY)}catch{}
+    applyTrainingMode('random');
     saveSharedScale();
     save();
     syncUiFromState();
@@ -1884,8 +1902,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   function toggleCompetitiveMode(nextValue) {
     const enable = typeof nextValue === 'boolean' ? nextValue : !state.competitive.enabled;
-    state.competitive.enabled = enable;
-    state.trainingMode=enable?'competitive':'random';state.modeChosen=true;
+    applyTrainingMode(enable?'competitive':'random',true);
     competitiveToggle.checked = enable;
     if (enable && state.orderedTraining.enabled) {
       state.orderedTraining.enabled = false;
@@ -1904,8 +1921,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   function toggleOrderedTrainingMode(nextValue) {
     const enable = typeof nextValue === 'boolean' ? nextValue : !state.orderedTraining.enabled;
-    state.orderedTraining.enabled = enable;
-    state.trainingMode=enable?'sequential':'random';state.modeChosen=true;
+    applyTrainingMode(enable?'sequential':'random',true);
     if (orderedToggle) orderedToggle.checked = enable;
 
     if (enable && state.competitive.enabled) {
@@ -2327,9 +2343,8 @@ document.addEventListener('DOMContentLoaded', () => {
     if(window.CPOFLibrary?.ready)await window.CPOFLibrary.ready;
     const requested=new URLSearchParams(location.search).get('mode');
     if(coach.MODES.includes(requested)){
-      state.trainingMode=requested;
-      state.orderedTraining.enabled=requested==='sequential';
-      state.competitive.enabled=requested==='competitive';
+      // Link explícito (?mode=...) também conta como escolha de modo.
+      applyTrainingMode(requested,true);
       save();
     }
     syncUiFromState();
