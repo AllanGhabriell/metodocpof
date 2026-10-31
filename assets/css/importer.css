@@ -78,6 +78,7 @@ body.importer-body{overflow-y:auto;min-height:100vh;background:radial-gradient(e
 /* Ajuste rápido e seguro de recortes PDF, sem alterar casos já publicados. */
 /* Edição de imagens — sem afetar o tamanho final publicado */
 .importer-global-align{margin:14px 0 20px;padding:15px;border:1px solid #6b9ec455;border-radius:14px;background:#0d2134}
+.importer-global-all{display:flex;align-items:center;gap:10px;margin-top:12px;color:#d6e8f6;font-size:12px}.importer-global-all input{accent-color:#6db5de;width:17px;height:17px}
 .importer-global-align summary{cursor:pointer;font-weight:750;color:#ecf7ff}
 .importer-global-align p{font-size:13px;color:#adbed5}
 .importer-global-fields{display:grid;grid-template-columns:repeat(3,minmax(90px,1fr)) 1.2fr;gap:10px;align-items:end;margin-top:12px}
