@@ -13,7 +13,8 @@ test('the administrator can start publication from header and profile without ex
  assert.match(app,/href="importer.html"/);
 });
 test('training page shows quick publish only after checking founder permissions',()=>{
- assert.match(trainer,/checkAdmin\(\)\.then\(mountAdminPublishShortcut\)/);
+ assert.match(trainer,/checkAdmin\(\)\.then\(async\(\)=>/);
+ assert.match(trainer,/mountAdminPublishShortcut\(\)/);
  assert.match(trainer,/isAdmin\(\)&&?|\!isAdmin\(\)/);
  assert.match(trainer,/cloudUser\(\)\?\.email/);
  assert.match(trainer,/params\.set\('library',selectedLibrary\(\)\)/);
