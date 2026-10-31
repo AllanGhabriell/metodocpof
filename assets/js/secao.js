@@ -2353,6 +2353,9 @@ document.addEventListener('DOMContentLoaded', () => {
   document.addEventListener('keydown', handleShortcuts);
 
   (async function init() {
+    // Esperar a leitura pública para não oferecer um caso da base original
+    // enquanto a biblioteca selecionada ainda está sendo sincronizada.
+    if(window.CPOFLibrary?.ready)await window.CPOFLibrary.ready;
     const requested=new URLSearchParams(location.search).get('mode');
     if(coach.MODES.includes(requested)){
       state.trainingMode=requested;
@@ -2378,7 +2381,13 @@ document.addEventListener('DOMContentLoaded', () => {
       first = pickNextCase();
     }
     if (!first) {
-      const fallback = unexcludedCases()[0] || CASE_IDS[0];
+      const fallback=unexcludedCases()[0]||null;
+      if(!fallback){
+        currentCase=null;
+        save();
+        await renderCaseScene();
+        return;
+      }
       setCurrentCase(fallback, !state.competitive.enabled);
       save();
       imgEl.hidden = false;
