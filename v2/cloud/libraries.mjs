@@ -3,6 +3,9 @@ import {CASE_BY_ID,canonicalCase} from '../data/case-catalog.mjs';
 const META='cpof-library-index-v1',DB_NAME='cpof-library-offline-v1';
 const STAGES=['f2l','oll','pll'],DEFAULT='none',ORIGINAL='original',SETTING='cpof-stage-defaults-v1',PERSONAL='cpof-stage-session-v1';
 let libraries=read(META,[]),rows=[],lastError='',lastSync=null;
+let publicCounts={},publicCatalogError='',publicCatalogSyncedAt=null;
+export const publicLibraryStatus=()=>({counts:publicCounts,error:publicCatalogError,lastSync:publicCatalogSyncedAt});
+export const publicCasesInStage=(id,stage)=>publicCounts[id]?.[stage]||0;
 let stageDefaults=read(SETTING,{}),stageChoices=readSession(PERSONAL,{}),rowsByLibrary=new Map(),publicOriginalRows=new Map();
 let stageDefaultsError='',stageDefaultsLoaded=false;
 export const stageDefaultStatus=()=>({loaded:stageDefaultsLoaded,error:stageDefaultsError});
@@ -164,14 +167,54 @@ export const libraryCases=stage=>{
  return (rowsByLibrary.get(id)||[]).filter(r=>r.status==='approved'&&CASE_BY_ID.get(r.case_id)?.stage===stage)
   .map(r=>libraryCase(stage,r.case_id)).filter(Boolean);
 };
+async function refreshPublicDirectory(){
+ // A mesma requisição ANON usada por visitantes verifica a publicação real;
+ // administrar ou selecionar não equivale a disponibilizar os casos publicamente.
+ try{
+  const publicLibraries=await cloudTable('cfop_libraries',{
+   query:'select=id,title,description,is_public,created_at,updated_at&is_public=eq.true&order=updated_at.desc&limit=100',anon:true
+  });
+  if(!Array.isArray(publicLibraries))throw Error('Resposta inválida do catálogo público');
+  const publishedRows=await cloudTable('cfop_library_cases',{
+   query:'select=library_id,case_id,status&status=eq.approved&limit=5000',anon:true
+  });
+  if(!Array.isArray(publishedRows))throw Error('Não foi possível consultar os casos públicos');
+  const publishedIds=new Set(publicLibraries.map(l=>l.id));
+  const counts={};
+  for(const l of publicLibraries)counts[l.id]={f2l:0,oll:0,pll:0};
+  for(const r of publishedRows){
+   if(!publishedIds.has(r.library_id))continue;
+   const stage=CASE_BY_ID.get(r.case_id)?.stage;
+   if(stage)counts[r.library_id][stage]++;
+  }
+  publicCounts=counts;
+  publicCatalogSyncedAt=new Date().toISOString();
+  publicCatalogError='';
+  return publicLibraries;
+ }catch(e){
+  publicCatalogError='Falha ao consultar bibliotecas visíveis a todos: '+e.message;
+  throw Error(publicCatalogError);
+ }
+}
 export async function loadLibraries(){
  if(!isConfigured()){lastError='Bibliotecas offline';notify();return libraries}
  try{
-  const [latest]=await Promise.all([
-   cloudTable('cfop_libraries',{query:'select=id,title,description,is_public,created_at,updated_at&order=updated_at.desc&limit=100',anon:!isAuthenticated()}),
-   loadStageDefaults()
-  ]);
-  libraries=Array.isArray(latest)?latest:[];localStorage.setItem(META,JSON.stringify(libraries));
+  // O catálogo público nunca depende de o visitante estar conectado.
+  const [publicList]=await Promise.all([refreshPublicDirectory(),loadStageDefaults()]);
+  if(isOriginalOwner()){
+   try{
+    const adminList=await cloudTable('cfop_libraries',{
+     query:'select=id,title,description,is_public,created_at,updated_at&order=updated_at.desc&limit=100'
+    });
+    const byId=new Map(publicList.map(l=>[l.id,l]));
+    for(const l of (Array.isArray(adminList)?adminList:[]))byId.set(l.id,l);
+    libraries=[...byId.values()];
+   }catch(e){
+    libraries=publicList;
+    lastError='Não foi possível carregar os rascunhos: '+e.message;
+   }
+  }else libraries=publicList;
+  localStorage.setItem(META,JSON.stringify(libraries));
   const requests=new Set();
   for(const stage of STAGES){
    const id=selectedLibrary(stage);
@@ -187,8 +230,10 @@ export async function loadLibraries(){
   notify();
  }catch(e){
   lastError='Bibliotecas offline: '+e.message;
-  for(const stage of STAGES){const id=selectedLibrary(stage);
-   if(id!==DEFAULT&&id!==ORIGINAL)await loadLibraryCases(id,true)}
+  for(const stage of STAGES){
+   const id=selectedLibrary(stage);
+   if(id!==DEFAULT&&id!==ORIGINAL)await loadLibraryCases(id,true);
+  }
   notify();
  }
  return libraries;
@@ -199,7 +244,7 @@ export async function loadLibraryCases(id,offlineOnly=false){
  if(stored){rowsByLibrary.set(id,stored);notify()}
  if(offlineOnly||!isConfigured())return rowsByLibrary.get(id)||[];
  try{
-  const latest=await cloudTable('cfop_library_cases',{query:'select=library_id,case_id,algorithm,setup,orientation,image_data,status,source_page,updated_at&library_id=eq.'+encodeURIComponent(id)+'&limit=150',anon:!isAuthenticated()});
+  const latest=await cloudTable('cfop_library_cases',{query:'select=library_id,case_id,algorithm,setup,orientation,image_data,status,source_page,updated_at&library_id=eq.'+encodeURIComponent(id)+'&status=eq.approved&limit=150',anon:true});
   if(!Array.isArray(latest))throw Error('Resposta inválida');
   rows=latest;rowsByLibrary.set(id,latest);await cached(id,latest);
   lastError='';lastSync=new Date().toISOString();notify();
@@ -256,8 +301,15 @@ export async function saveLibraryCase(libraryId,record){
  return validatedDraft(libraryId,record);
 }
 export async function publishApprovedLibrary(libraryId){
- requireOwner();const count=await cloudTable('rpc/cfop_publish_library',{method:'POST',body:{p_library:libraryId}});
- await loadLibraries();if(STAGES.some(stage=>selectedLibrary(stage)===libraryId))await loadLibraryCases(libraryId);
+ requireOwner();
+ const count=await cloudTable('rpc/cfop_publish_library',{method:'POST',body:{p_library:libraryId}});
+ await loadLibraries();
+ const publicEntry=libraries.find(l=>l.id===libraryId&&l.is_public);
+ const visible=STAGES.reduce((total,stage)=>total+publicCasesInStage(libraryId,stage),0);
+ if(!publicEntry||visible<1){
+  throw Error('A publicação foi enviada, mas não consegui confirmar que os visitantes possam ver a biblioteca. Confira as permissões de leitura pública do Supabase. '+(publicCatalogError||lastError));
+ }
+ if(STAGES.some(stage=>selectedLibrary(stage)===libraryId))await loadLibraryCases(libraryId);
  return count
 }
 export async function setLibraryPublished(libraryId,enabled){
