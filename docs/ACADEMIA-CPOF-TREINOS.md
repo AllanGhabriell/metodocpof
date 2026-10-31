@@ -1,4 +1,4 @@
-# Academia CPOF — contrato dos treinamentos
+# Academia CFOP — contrato dos treinamentos
 
 ## Identidade e interface
 F2L, OLL e PLL compartilham a mesma estrutura de HTML e o mesmo CSS (`trainer-unified.css`).
