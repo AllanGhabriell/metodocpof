@@ -127,7 +127,7 @@ export function crossTimerPage(){
  '<p>'+(!hide?esc(sequence):'Oculto durante a execução')+'</p></div>'+
  '<div class="cross-lab-settings"><label>Movimentos<select id="cross-lab-length" '+(working?'disabled':'')+'>'+[15,20,25].map(n=>'<option value="'+n+'" '+(length===n?'selected':'')+'>'+n+'</option>').join('')+'</select></label>'+
  '<label>Inspeção<select id="cross-lab-inspection" '+(working?'disabled':'')+'>'+[0,8,15,30].map(n=>'<option value="'+n+'" '+(inspection===n?'selected':'')+'>'+(n===0?'Desligada':n+' segundos')+'</option>').join('')+'</select></label>'+
- '<label>Visualização<select id="cross-lab-view" '+(working?'disabled':'')+'><option value="3d" '+(cubeView==='3d'?'selected':'')+'>Cubo 3D</option><option value="2d" '+(cubeView==='2d'?'selected':'')+'>Cubo 2D</option></select></label></div>'+
+ '<label class="cross-lab-gold-pref"><input type="checkbox" id="cross-lab-gold" '+(localStorage.getItem('cfop-timer-gold-effect-v1')==='false'?'':'checked')+'> Efeito dourado de recorde</label></div>'+
  '<details class="cross-lab-cube-details"><summary>Visualizar cubo embaralhado <span>'+cubeView.toUpperCase()+'</span></summary>'+
  (hide?'<p>Visualização oculta durante a execução.</p>':
  '<div class="cross-cube-area cross-lab-cube">'+(cubeView==='3d'?cube3D(cube,{yaw,pitch,size:168,colors:palette}):net())+'</div>'+
@@ -200,6 +200,7 @@ export function crossTimerAction(button){
 }
 export function crossTimerChange(node){
  if(node.id==='cross-lab-penalty'){pendingPenalty=['plus2','dnf'].includes(node.value)?node.value:'none';return false}
+ if(node.id==='cross-lab-gold'){localStorage.setItem('cfop-timer-gold-effect-v1',String(node.checked));return false}
  if(active())return false;
  if(node.id==='cross-lab-length'&&[15,20,25].includes(Number(node.value))){length=Number(node.value);savePrefs();nextScramble();return true}
  if(node.id==='cross-lab-inspection'&&[0,8,15,30].includes(Number(node.value))){inspection=Number(node.value);savePrefs();return true}
