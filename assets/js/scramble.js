@@ -107,14 +107,19 @@ $('scramble-share-photo')?.addEventListener('change',e=>{
  }
 });
 document.querySelectorAll('[data-share-record]').forEach(button=>button.addEventListener('click',async()=>{
- const area=button.closest('section');
- const node=area?.querySelector('[role="status"]')||$('scramble-share-status');
- button.disabled=true;if(node)node.textContent='Montando sua imagem PNG…';
+ const record=lastResult||times.filter(t=>t.penalty!=='DNF'&&!t.archived).at(-1);
+ const node=$('scramble-share-status');if(!record){if(node)node.textContent='Ainda não há registro para compartilhar.';return}
+ button.disabled=true;if(node)node.textContent='Criando cartão de recorde…';
  try{
-  await loadIdentity().catch(()=>{});
-  const message=await deliverShareCard('record','',button.dataset.shareRecord==='native',sharePhotoFile);
-  if(node)node.textContent=message;
- }catch(err){if(node)node.textContent='Não foi possível gerar a imagem: '+err.message}
+  const canvas=shareImage({title:'Meu recorde 3×3',subtitle:'Academia CFOP',record,solves:times.filter(t=>!t.archived)});
+  if(sharePhotoFile&&typeof createImageBitmap==='function'){
+   const image=await createImageBitmap(sharePhotoFile);
+   const ctx=canvas.getContext('2d');ctx.save();ctx.beginPath();ctx.roundRect(690,920,280,210,18);ctx.clip();
+   ctx.drawImage(image,690,920,280,210);ctx.restore();image.close?.();
+  }
+  await downloadOrShare(canvas,'academia-cfop-recorde-3x3.png',button.dataset.shareRecord==='native');
+  if(node)node.textContent='Imagem do tempo preparada.';
+ }catch(err){if(node)node.textContent='Não foi possível compartilhar: '+err.message}
  finally{button.disabled=false}
 }));
 $('clear-times').addEventListener('click',()=>{if(times.length&&confirm('Excluir TODOS os tempos locais, incluindo sessões arquivadas? Esta ação não pode ser desfeita.')){times=[];localStorage.removeItem(key);renderStats()}});
