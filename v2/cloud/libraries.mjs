@@ -204,9 +204,17 @@ async function refreshPublicDirectory(){
 }
 export async function loadLibraries(){
  if(!isConfigured()){lastError='Bibliotecas offline';notify();return libraries}
+ // A escolha do fundador é independente da consulta às bibliotecas públicas.
+ // Mesmo se a lista pública falhar, a base original de F2L/PLL ainda poderá
+ // carregar caso tenha sido autorizada como padrão na própria RLS.
+ await loadStageDefaults();
+ let publicList=null;
  try{
-  // O catálogo público nunca depende de o visitante estar conectado.
-  const [publicList]=await Promise.all([refreshPublicDirectory(),loadStageDefaults()]);
+  publicList=await refreshPublicDirectory();
+ }catch(e){
+  lastError='Bibliotecas públicas indisponíveis: '+e.message;
+ }
+ if(publicList){
   if(isOriginalOwner()){
    try{
     const adminList=await cloudTable('cfop_libraries',{
@@ -221,27 +229,21 @@ export async function loadLibraries(){
    }
   }else libraries=publicList;
   localStorage.setItem(META,JSON.stringify(libraries));
-  const requests=new Set();
-  for(const stage of STAGES){
-   const id=selectedLibrary(stage);
-   if(id!==DEFAULT&&id!==ORIGINAL)requests.add(id);
-  }
-  const tasks=[...requests].map(id=>loadLibraryCases(id));
-  for(const stage of STAGES){
-   if(selectedLibrary(stage)===ORIGINAL){
-    tasks.push(isOriginalOwner()?loadOriginalBase():loadPublicOriginal(stage));
-   }
-  }
-  await Promise.all(tasks);
-  notify();
- }catch(e){
-  lastError='Bibliotecas offline: '+e.message;
-  for(const stage of STAGES){
-   const id=selectedLibrary(stage);
-   if(id!==DEFAULT&&id!==ORIGINAL)await loadLibraryCases(id,true);
-  }
-  notify();
+ }else if(!isOriginalOwner()){
+  // Não afirmar que uma biblioteca antiga é pública quando a API negou
+  // a consulta. O cache continua guardado para uso offline.
+  libraries=read(META,[]).filter(l=>l.is_public);
  }
+ const requests=new Set(),tasks=[];
+ for(const stage of STAGES){
+  const id=selectedLibrary(stage);
+  if(id===ORIGINAL){
+   tasks.push(isOriginalOwner()?loadOriginalBase():loadPublicOriginal(stage));
+  }else if(id!==DEFAULT)requests.add(id);
+ }
+ for(const id of requests)tasks.push(loadLibraryCases(id,!publicList));
+ await Promise.allSettled(tasks);
+ notify();
  return libraries;
 }
 export async function loadLibraryCases(id,offlineOnly=false){
