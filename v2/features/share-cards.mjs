@@ -72,7 +72,7 @@ export async function buildShareCard(kind='streak',achievementId='',attachedPhot
  for(let i=0;i<25;i++){ctx.strokeStyle='rgba(91,181,235,.075)';ctx.beginPath();ctx.moveTo(40+i*46,0);ctx.lineTo(i*46-180,H);ctx.stroke()}
  rounded(ctx,58,74,964,100,34,'rgba(92,185,238,.10)');
  text(ctx,'ACADEMIA',96,140,45,'#b3d9f1',800);
- text(ctx,'CPOF',375,140,45,'#65e9ff',900);
+ text(ctx,'CFOP',375,140,45,'#65e9ff',900);
  text(ctx,'3 × 3',868,138,36,'#9cc0da',700);
  ctx.fillStyle='#8de6f9';ctx.fillRect(70,255,122,9);
  const title=kind==='record'?'NOVO RECORDE':kind==='achievement'?'CONQUISTA DESBLOQUEADA':'MINHA SEQUÊNCIA';
@@ -108,17 +108,17 @@ export async function buildShareCard(kind='streak',achievementId='',attachedPhot
  text(ctx,'NÍVEL '+summary.level+'    •    '+summary.xp+' XP',identityState().avatar?238:111,1718,28,'#a0e7df',700,740);
  text(ctx,new Date().toLocaleDateString('pt-BR')+'  •  Feito para compartilhar',74,1842,28,'#9ebfd7',500);
  return {canvas,title,caption:kind==='record'?
-  nickname+' fez '+fmt(metrics.best)+' na Academia CPOF!':
-  kind==='achievement'?nickname+' desbloqueou '+badge.title+' na Academia CPOF!':
-  nickname+' chegou a '+metrics.streak+' dias de treino na Academia CPOF!'};
+  nickname+' fez '+fmt(metrics.best)+' na Academia CFOP!':
+  kind==='achievement'?nickname+' desbloqueou '+badge.title+' na Academia CFOP!':
+  nickname+' chegou a '+metrics.streak+' dias de treino na Academia CFOP!'};
 }
 export async function deliverShareCard(kind,achievementId,share,attachedPhoto=null){
  const {canvas,title,caption}=await buildShareCard(kind,achievementId,attachedPhoto);
  const blob=await new Promise((resolve,reject)=>canvas.toBlob(x=>x?resolve(x):reject(Error('Falha ao gerar PNG')),'image/png'));
  const safe=(kind==='achievement'?achievementId:kind).replace(/[^a-z0-9-]/gi,'-');
- const file=new File([blob],'academia-cpof-'+safe+'.png',{type:'image/png'});
+ const file=new File([blob],'academia-cfop-'+safe+'.png',{type:'image/png'});
  if(share&&navigator.canShare?.({files:[file]})&&navigator.share){
-  try{await navigator.share({title:'Academia CPOF',text:caption,files:[file]});return 'Cartão enviado para compartilhamento.'}
+  try{await navigator.share({title:'Academia CFOP',text:caption,files:[file]});return 'Cartão enviado para compartilhamento.'}
   catch(e){if(e.name==='AbortError')return 'Compartilhamento cancelado.'}
  }
  const url=URL.createObjectURL(blob);
