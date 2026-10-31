@@ -8,7 +8,7 @@ const KEYS={progress:'cfop-studio-progress-v1',times:'cfop-v2-times',drafts:'cfo
 const publicConfig=validateConfig(PUBLIC_SUPABASE_CONFIG.url,PUBLIC_SUPABASE_CONFIG.publishableKey);
 const previousConfig=read(CONF,null);
 const hasSameProject=previousConfig?.url===publicConfig.url;
-let accountMessages=[],accountXp=0,accountRestriction={bannedAt:null,bannedReason:'',suspendedUntil:null,suspensionReason:''};
+let serverXp=0,accountMessages=[],accountXp=0,accountRestriction={bannedAt:null,bannedReason:'',suspendedUntil:null,suspensionReason:''};
 let conf=publicConfig,session=hasSameProject?read(AUTH,null):null,
   admin=false,published=[],lastError='',phase='configurado',
   onUpdate=()=>{},onHydrate=()=>{},busy=false,queue=false,
@@ -29,6 +29,23 @@ export const isAdmin=()=>isAuthenticated()&&admin;
 export const cloudUser=()=>session?.user||null;
 // Ajuste autorizado no servidor; não é parte dos dados locais editáveis.
 export const adminXpAdjustment=()=>isAuthenticated()?accountXp:0;
+export const serverXpBalance=()=>isAuthenticated()?serverXp:0;
+export async function loadXpBalance(){
+ if(!isAuthenticated())return 0;
+ const result=await rest('rpc/cfop_xp_balance',{method:'POST',body:{}});
+ serverXp=Math.max(0,Number(result)||0);
+ return serverXp
+}
+export async function claimCaseXp(stage,caseId,mode,result){
+ if(!isAuthenticated())return {xp:0,balance:0};
+ const caseKey=String(caseId).toUpperCase().startsWith(String(stage).toUpperCase()+'-')
+   ?String(caseId).toUpperCase():String(stage).toUpperCase()+'-'+String(caseId).padStart(2,'0');
+ const value=await rest('rpc/cfop_claim_case_xp',{method:'POST',body:{
+  p_stage:String(stage),p_case_id:caseKey,p_mode:String(mode),p_result:String(result)
+ }});
+ serverXp=Math.max(0,Number(value?.balance)||serverXp);
+ return {xp:Math.max(0,Number(value?.xp)||0),balance:serverXp}
+}
 export const cloudStatus=()=>({configured:isConfigured(),authenticated:isAuthenticated(),admin,user:cloudUser(),phase,error:lastError,lastSynced});
 export const publishedCases=()=>published.slice();
 export const pendingNotices=()=>accountMessages.filter(n=>!n.read_at);
@@ -141,7 +158,7 @@ export async function updatePassword(password){
 export async function signOut(){
  const old=session?.access_token;
  try{if(old)await authFetch('logout','POST',{},old)}catch{}
- session=null;admin=false;accountXp=0;accountMessages=[];accountRestriction={bannedAt:null,bannedReason:'',suspendedUntil:null,suspensionReason:''};save(AUTH,null);setStatus('desconectado');return true;
+ session=null;admin=false;accountXp=0;serverXp=0;accountMessages=[];accountRestriction={bannedAt:null,bannedReason:'',suspendedUntil:null,suspensionReason:''};save(AUTH,null);setStatus('desconectado');return true;
 }
 async function rest(table,{method='GET',query='',body=null,anon=false,prefer=''}={}){
  if(!anon)await token();
@@ -318,7 +335,7 @@ export function markDraftDeleted(draft){
 // Não publicar o apelido genérico local no banco ao fazer login.
 async function updateProfile(){return true}
 export async function postLogin(){
- await checkAdmin();await syncCloud();await loadPublishedCases();await loadAccountExtras();
+ await checkAdmin();await syncCloud();await loadPublishedCases();await loadAccountExtras();await loadXpBalance().catch(()=>{});
 }
 export async function initializeCloud({changed=()=>{},hydrated=()=>{}}={}){
  onUpdate=changed;onHydrate=hydrated;
