@@ -469,3 +469,18 @@ body::before{z-index:0}.cfop-cursor-glow{z-index:0}.app{z-index:1}
 .admin-publish-primary{flex-shrink:0;min-height:50px}
 @media(max-width:800px){.admin-publish-home{flex-direction:column;align-items:stretch}.admin-publish-primary{width:100%}.studio-header-actions .studio-admin-publish{padding:9px 10px;font-size:12px}}
 @media(max-width:540px){.studio-header-actions .studio-admin-publish{white-space:normal;text-align:center;max-width:116px;font-size:11px;min-height:42px}}
+
+/* Base original: controles exclusivos do fundador. */
+.admin-private-original{max-width:1020px;display:grid;gap:14px}
+.admin-private-original h1{margin:0;font-size:clamp(25px,3vw,33px)}
+.admin-private-original .row{display:flex;flex-wrap:wrap;gap:10px}
+.admin-private-original .row button{min-height:43px}
+.admin-private-original .admin-original-preview{display:grid;gap:9px;margin:5px 0 13px}
+.admin-original-preview details{border:1px solid #648ca850;border-radius:12px;overflow:hidden}
+.admin-original-preview summary{cursor:pointer;padding:13px 15px;font-weight:700}
+.admin-original-list{max-height:300px;overflow-y:auto;padding:12px;display:grid;gap:8px}
+.admin-original-list>div{display:flex;gap:12px;justify-content:space-between;align-items:start;border:1px solid #577ba637;border-radius:9px;padding:9px}
+.admin-original-list code{white-space:normal;overflow-wrap:anywhere;max-width:83%;font-size:12px}
+.admin-private-original .admin-original-delete{background:#7e292e;border:1px solid #d96565;color:#fff;min-height:46px;font-weight:750}
+.admin-private-original .admin-original-delete:disabled{opacity:.45}
+@media(max-width:580px){.admin-original-list>div{flex-direction:column}.admin-original-list code{max-width:100%}}
