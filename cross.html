@@ -18,7 +18,7 @@
 <main class="cross-original-main" id="cross-root"><p>Carregando Cross Timer…</p></main>
 <script type="module">
 import {crossPage,crossClick,crossChange} from './v2/features/cross.mjs?v=20261031-guided-2';
-import {crossTimerPage,crossTimerAction,crossTimerChange,crossTimerBind,crossTimerBusy,crossTimerSuspend,crossTimerSetLevel} from './v2/features/cross-timer.mjs?v=20261031-2';
+import {crossTimerPage,crossTimerAction,crossTimerChange,crossTimerBind,crossTimerBusy,crossTimerSuspend,crossTimerSetLevel} from './v2/features/cross-timer.mjs?v=20261031-3';
 import {crossIdeasPage,crossIdeasAction} from './v2/features/cross-ideas.mjs?v=20261031-1';
 const root=document.getElementById('cross-root');
 let section='timer',ideasOpen=false;
@@ -42,6 +42,10 @@ function award(type,xp){
  }catch{}
 }
 root.addEventListener('click',e=>{
+ // Toda a região central do relógio é acionável, não apenas os números.
+ if(section==='timer'&&e.target.closest('.cross-lab-clock-section')&&!e.target.closest('button,a,input,select,textarea')){
+  if(crossTimerAction({dataset:{crossTimer:'clock'}}))render();return;
+ }
  const b=e.target.closest('button');if(!b)return;
  if(b.dataset.crossSection){
   const next=b.dataset.crossSection;if(next===section)return;
