@@ -2,7 +2,7 @@ import {solved,apply,facelets} from '../../v2/cube/engine.mjs';
 import {cube3D} from '../../v2/cube/visual.mjs?v=20261030-8';
 import {deliverShareCard} from '../../v2/features/share-cards.mjs';
 import {loadIdentity} from '../../v2/cloud/identity.mjs';
-import {normalizeAll,newId,statistics,effective,format,celebrate,shareImage,downloadOrShare} from '../../v2/timer/records.mjs?v=20261031-2';
+import {normalizeAll,newId,statistics,effective,format,celebrate,shareImage,downloadOrShare} from '../../v2/timer/records.mjs?v=20261031-compact-1';
 import {createTimerHistory} from './timer-history-ui.mjs?v=20261031-2';
 import {recordTimerSolve} from '../../v2/timer/telemetry.mjs?v=20261031-1';
 const key='cpof-scramble-times-v1';
