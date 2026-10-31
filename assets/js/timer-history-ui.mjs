@@ -17,7 +17,7 @@ export function createTimerHistory({root,getRecords,setRecords,kind='3x3',onUpda
    (selection?'<button data-timer-history="all">Selecionar visíveis</button><button data-timer-history="archive">Arquivar '+selected.size+'</button><button class="timer-danger" data-timer-history="remove">Excluir '+selected.size+'</button>':'')+
    '<button data-timer-history="export">Exportar CSV</button><button data-timer-history="backup">Backup JSON</button><label class="timer-import-label">Importar JSON<input id="timer-json-import" type="file" accept="application/json,.json" hidden></label></div>'+
    '<p class="timer-history-count">'+subset.length+' resultado(s) · '+getRecords().length+' registros locais</p></div>'+
-   '<div class="timer-history-grid">'+(subset.slice(0,300).map(r=>
+   '<div class="timer-history-grid">'+(subset.length?subset.slice(0,300).map(r=>
     '<button type="button" class="timer-history-card '+(selected.has(r.id)?'is-selected':'')+'" data-timer-record="'+esc(r.id)+'" aria-label="'+(selection?'Selecionar tempo':'Ver detalhes do tempo')+' '+esc(solveLabel(r))+'">'+
     '<small>'+esc(new Date(r.date).toLocaleDateString('pt-BR'))+'</small><strong>'+esc(solveLabel(r))+'</strong>'+
     '<span>'+esc(r.comment?.slice(0,32)||r.session||'Geral')+'</span>'+(selection?'<b class="timer-check">'+(selected.has(r.id)?'✓':'○')+'</b>':'')+'</button>').join(''):'<p class="timer-empty">Nenhum tempo encontrado.</p>')+'</div>'+
