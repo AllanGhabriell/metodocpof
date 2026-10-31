@@ -76,6 +76,33 @@ body.importer-body{overflow-y:auto;min-height:100vh;background:radial-gradient(e
 #import-action-status:not(:empty){color:#a5e5ce;max-width:360px}
 
 /* Ajuste rápido e seguro de recortes PDF, sem alterar casos já publicados. */
+/* Edição de imagens — sem afetar o tamanho final publicado */
+.importer-global-align{margin:14px 0 20px;padding:15px;border:1px solid #6b9ec455;border-radius:14px;background:#0d2134}
+.importer-global-align summary{cursor:pointer;font-weight:750;color:#ecf7ff}
+.importer-global-align p{font-size:13px;color:#adbed5}
+.importer-global-fields{display:grid;grid-template-columns:repeat(3,minmax(90px,1fr)) 1.2fr;gap:10px;align-items:end;margin-top:12px}
+.importer-global-fields label{display:grid;gap:6px;font-size:12px;color:#c1d6ed}
+.importer-global-fields input{width:100%;min-height:40px;border:1px solid #6790b45c;border-radius:8px;background:#102941;color:#fff;padding:7px}
+.importer-edit-image{border:1px solid #79b8eb;color:#f1fbff;background:#14466c}
+.cpof-editor-backdrop{position:fixed;inset:0;z-index:9999;background:#030e18dd;display:grid;place-items:center;padding:16px;overflow:auto}
+.cpof-editor-dialog{width:min(100%,1050px);max-height:95dvh;overflow:auto;border:1px solid #6e9bc1;border-radius:20px;background:#102238;color:#eef7ff;box-shadow:0 24px 80px #000a;padding:20px}
+.cpof-editor-title,.cpof-editor-footer{display:flex;justify-content:space-between;align-items:center;gap:15px}
+.cpof-editor-title h2{margin:0;font-size:20px}.cpof-editor-title p{color:#abc8df;font-size:13px;margin:5px 0}
+.cpof-editor-title button,.cpof-editor-buttons button,.cpof-editor-footer button{padding:9px 12px;border:1px solid #527ca4;border-radius:9px;background:#1a3b56;color:#fff;cursor:pointer}
+.cpof-editor-layout{display:grid;grid-template-columns:minmax(0,1.3fr) minmax(210px,.7fr);gap:22px;margin:14px 0}
+.cpof-editor-art{display:grid;place-items:center;gap:8px;background:#071a2c;border-radius:14px;padding:12px;min-width:0}
+.cpof-editor-art canvas{width:min(100%,512px);aspect-ratio:1;touch-action:none;background:white;cursor:grab;border-radius:4px}
+.cpof-editor-art span{color:#a7c3db;font-size:12px;text-align:center}
+.cpof-editor-sidebar{display:grid;align-content:start;gap:12px}
+.cpof-editor-sidebar label{display:grid;gap:5px;color:#d3e4f5;font-size:13px}
+.cpof-editor-sidebar label output{float:right}
+.cpof-editor-sidebar input[type=range],.cpof-editor-sidebar select{width:100%;accent-color:#67b6f3}
+.cpof-editor-sidebar select{background:#182f47;border:1px solid #4b7094;border-radius:7px;color:#fff;padding:8px}
+.cpof-editor-sidebar input[type=color]{width:60px;height:34px}
+.cpof-editor-buttons{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+.cpof-editor-footer{border-top:1px solid #527ca448;padding-top:14px}.cpof-editor-footer span{flex:1;color:#bdd2e6;font-size:12px}
+.cpof-editor-footer .cpof-editor-confirm{background:#17665c;border-color:#329e8b;font-weight:750}
+@media(max-width:690px){.cpof-editor-layout{grid-template-columns:1fr}.cpof-editor-dialog{padding:12px}.cpof-editor-title h2{font-size:16px}.importer-global-fields{grid-template-columns:repeat(2,minmax(0,1fr))}.importer-global-fields button{grid-column:1/-1}}
 .importer-crop-controls{display:flex;align-items:center;justify-content:flex-start;flex-wrap:wrap;gap:7px;padding:10px 0 4px;border-top:1px solid #6387ac36}
 .importer-crop-controls span{flex-basis:100%;font-size:12px;color:#bbdcf1;font-weight:700}
 .importer-crop-controls button{width:36px;min-height:36px;padding:5px;border:1px solid #75aed878;border-radius:9px;background:#143a5d;color:#f0faff;font-size:18px}
