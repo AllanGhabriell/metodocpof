@@ -62,9 +62,19 @@ function complete(stage,id,options={}){
  const rating=wasHard?'hard':wasEasy?(needsPractice?'hard':'easy'):(old.rating||null);
  const priorDue=Number(old.dueAt)||0;
  const reviewed=priorDue>0&&now>=priorDue;
- // Recompense treinos declarados, não classificação manual. Erros rendem XP reduzido.
- const priorToday=activity().filter(e=>e.stage===stage&&e.caseId===id&&localDay(e.at)===localDay(now)).length;
- const xp=priorToday>=8?0:grade==='bad'?2:8+(reviewed?4:0)+(mode==='competitive'&&grade==='good'?4:0)+(mode==='adaptive'?2:0);
+ // XP local é somente para visitantes; o servidor valida recompensas de contas.
+ const events=activity(),previous=events.filter(e=>e.stage===stage&&e.caseId===id);
+ const lastReward=previous.filter(e=>Number(e.xp)>0).sort((a,b)=>Number(b.at)-Number(a.at))[0];
+ const rewardedToday=events.reduce((sum,e)=>sum+(localDay(e.at)===localDay(now)?Math.max(0,Math.min(20,Number(e.xp)||0)):0),0);
+ let authenticated=false;
+ try{const s=JSON.parse(storage()?.getItem('cfop-cloud-session-v1')||'null');authenticated=!!(s?.access_token&&s?.user?.id)}catch{}
+ let xp=0;
+ if(!authenticated&&mode!=='sequential'&&grade==='good'&&rewardedToday<80){
+   if(!previous.length)xp=8;
+   else if(reviewed&&lastReward&&now-Number(lastReward.at)>=DAY&&
+    !previous.some(e=>Number(e.xp)>0&&localDay(e.at)===localDay(now)))xp=2;
+   xp=Math.min(xp,80-rewardedToday);
+ }
  const next={...old,...update,attempts:count,lastAt:now,lastMs:ms??(old.lastMs??null),grade,rating,
   hardClicks,easyClicks,consecutiveEasy,needsPractice,difficultyScore,
   successes:(Number(old.successes)||0)+(grade==='good'?1:0),times,recognitionTimes,executionTimes,
