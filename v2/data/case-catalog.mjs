@@ -3,7 +3,7 @@
 export const PLL_NAMES=["Ua","Ub","H","Z","Aa","Ab","E","Ra","Rb","Ja","Jb","T","F","V","Y","Na","Nb","Ga","Gb","Gc","Gd"];
 export const LIMITS=Object.freeze({f2l:41,oll:57,pll:21});
 const f2lGroups=[["Casos básicos",1,4],["Branco lateral · topo diferente",5,10],["Branco lateral · topo igual",11,14],["Par separado · branco no topo",15,18],["Par conectado incorretamente",19,24],["Canto encaixado · aresta no topo",25,30],["Aresta encaixada · canto no topo",31,36],["Canto e aresta posicionados",37,41]];
-const ollGroups=[["Meios orientados",1,7],["Formato T",8,9],["Quadrados",10,11],["Formato C",12,13],["Formato W",14,15],["Cantos corretos",16,17],["Formato P",18,21],["Linha",22,25],["Peixe",26,29],["Movimento do cavalo",30,33],["Formatos estranhos",34,37],["Formato L",38,43],["Relâmpago",44,49],["Outras orientações",50,57]];
+const ollGroups=[["Meios orientados",1,7],["Formato T",8,9],["Quadrados",10,11],["Formato C",12,13],["Formato W",14,15],["Cantos corretos e meios invertidos",16,17],["Formato P",18,21],["Formato I · linha",22,25],["Peixe",26,29],["Movimento do cavalo",30,33],["Formatos estranhos",34,37],["Formato L",38,43],["Relâmpago",44,47],["Ponto · meios não orientados",48,57]];
 const ollNamed=["Sune","Anti-Sune","H","Pi","T","L","U"];
 const groupFor=(groups,n)=>groups.find(([,first,last])=>n>=first&&n<=last)?.[0]||'Outros';
 const numbered=(stage,n)=>stage.toUpperCase()+'-'+String(n).padStart(2,'0');
