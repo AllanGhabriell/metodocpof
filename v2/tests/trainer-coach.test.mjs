@@ -22,7 +22,7 @@ function fixture(){
  runInNewContext(read('assets/js/trainer-coach.js'),context,{filename:'trainer-coach.js'});
  return {coach:context.CPOFCoach,store,setRandom:value=>{random=value},advance:ms=>{now+=ms},records:()=>JSON.parse(store.getItem('cpof-academy-activity-v1')||'[]')};
 }
-test('three original trainers share compact controls and keep original case PNGs',()=>{
+test('three trainers share compact controls and never flash original case PNGs before library choice',()=>{
  const pages=['f2l.html','oll.html','pll.html'].map(read);
  const ids=pages.map(html=>[...html.matchAll(/\bid="([^"]+)"/g)].map(m=>m[1]));
  assert.deepEqual(ids[0],ids[1]);
@@ -36,7 +36,8 @@ test('three original trainers share compact controls and keep original case PNGs
   assert.ok(!html.includes('data-trainer-rating="medium"'),'only two decisions');
   assert.ok(html.indexOf('<section id="case-moves"')>html.indexOf('<div class="img-wrap"'),'algorithm follows image');
   assert.ok(html.indexOf('<div class="controls-row"')>html.indexOf('<section id="case-moves"'),'controls follow optional algorithm');
-  assert.ok(html.includes('src="'+stage+'/'),stage+' PNG');
+  assert.ok(html.includes('src="data:image/gif;base64,'),stage+' safe placeholder');
+  assert.ok(!html.includes('src="'+stage+'/'),stage+' original PNG should load only after library selection');
   assert.ok(html.includes('trainer-coach.js'));
   assert.ok(html.includes('trainer-unified.css'));
   assert.ok(html.includes('trainer-goal-period'));
