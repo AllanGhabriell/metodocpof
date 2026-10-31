@@ -36,7 +36,7 @@ export function crossPage(){
  if(!scramble)newCross();
  const correct=selected.filter(complete).length;
  const done=correct===selected.length;
- return '<div class="cross-intro"><span class="eyebrow">ACADEMIA CPOF · TREINAMENTO</span><h1>Treino de cruz</h1><p class="muted">Monte a cruz branca na face inferior, alinhando cada aresta com a cor do centro lateral.</p></div>'+
+ return '<div class="cross-intro"><span class="eyebrow">ACADEMIA CFOP · TREINAMENTO</span><h1>Treino de cruz</h1><p class="muted">Monte a cruz branca na face inferior, alinhando cada aresta com a cor do centro lateral.</p></div>'+
  '<div class="cross-workspace"><section class="cross-training-panel"><div class="cross-panel-heading"><div><span class="cross-kicker">DESAFIO ATUAL</span><h2>'+(count===4?'Cruz completa':count+' '+(count===1?'aresta':'arestas'))+'</h2></div><span class="cross-progress '+(done?'is-complete':'')+'">'+correct+' de '+count+' corretas</span></div>'+
  '<div class="cross-view-tabs" role="group" aria-label="Visualização do cubo"><button data-cross="view-cube" aria-pressed="'+(view==='cube')+'" class="'+(view==='cube'?'selected':'')+'">Cubo 3D</button><button data-cross="view-net" aria-pressed="'+(view==='net')+'" class="'+(view==='net'?'selected':'')+'">Cubo aberto</button></div>'+
  '<div class="cross-cube-area">'+(view==='cube'?cube3D(state,{yaw,pitch,size:168,colors}):net())+'</div>'+
