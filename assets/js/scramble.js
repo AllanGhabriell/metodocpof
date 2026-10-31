@@ -36,7 +36,7 @@ function stop(){if(!running)return;running=false;cancelAnimationFrame(raf);elaps
  const isNewRecord=elapsed>=2000&&elapsed<previousBest;
  const solve={id:newId(),ms:Math.round(elapsed),scramble:sequence,date:new Date().toISOString(),penalty:'OK',comment:'',session:String($('scramble-session-name')?.value||'Geral').trim().slice(0,45)||'Geral',archived:false};
  times.push(solve);lastResult=solve;
- if(isNewRecord){celebrate(document.body);
+ if(isNewRecord){celebrate(document.body,true);
   const panel=$('scramble-record-share');
   if(panel)panel.hidden=false;
   const label=$('scramble-record-label');
@@ -63,8 +63,20 @@ function renderStats(){
 }
 function setView(next){view=next;document.querySelectorAll('[data-view]').forEach(b=>{b.classList.toggle('active',b.dataset.view===next);b.setAttribute('aria-pressed',String(b.dataset.view===next))});document.querySelectorAll('[data-panel]').forEach(p=>p.hidden=p.dataset.panel!==next);if(next==='stats')requestAnimationFrame(renderStats)}
 $('new-scramble').addEventListener('click',()=>{if(!running&&!inspection)scramble()});
-$('golden-record-toggle').checked=localStorage.getItem('cfop-timer-gold-effect-v1')!=='false';
-$('golden-record-toggle').addEventListener('change',e=>localStorage.setItem('cfop-timer-gold-effect-v1',String(e.target.checked)));
+// O brilho de recorde é parte da identidade do Timer 3×3, sem configuração adicional.
+const configMenu=$('scramble-menu');
+const configTrigger=$('scramble-menu-toggle');
+configTrigger.addEventListener('click',()=>{
+ if(running||inspection)return;
+ configMenu.showModal();
+});
+$('scramble-menu-close').addEventListener('click',()=>configMenu.close());
+$('scramble-menu-done').addEventListener('click',()=>configMenu.close());
+configMenu.addEventListener('click',e=>{if(e.target===configMenu)configMenu.close()});
+configMenu.addEventListener('close',()=>configTrigger.focus({preventScroll:true}));
+$('show-cube-preview').addEventListener('change',e=>{
+ document.querySelector('.scramble-cube-section').hidden=!e.target.checked;
+});
 $('scramble-session-name').value=localStorage.getItem('cfop-timer-session-v1')||'Geral';
 $('scramble-session-name').addEventListener('change',e=>localStorage.setItem('cfop-timer-session-v1',String(e.target.value||'Geral').slice(0,45)));
 $('inspection-toggle').checked=inspectionEnabled;
@@ -72,7 +84,7 @@ $('scramble-length').value=String(scrambleLength);
 $('scramble-length').addEventListener('change',e=>{scrambleLength=Number(e.target.value);localStorage.setItem('academy-scramble-length',String(scrambleLength));if(!running&&!inspection)scramble()});
 $('cube-view').value=cubeView;
 $('cube-view').addEventListener('change',e=>{cubeView=e.target.value==='2d'?'2d':'3d';localStorage.setItem('academy-cube-view',cubeView);$('scramble-cube-heading').textContent=cubeView==='2d'?'Cubo 2D':'Cubo 3D';drawCube()});
-$('inspection-toggle').addEventListener('change',e=>{inspectionEnabled=e.target.checked;localStorage.setItem('academy-inspection',String(inspectionEnabled));if(inspection){inspection=false;cancelAnimationFrame(inspectionRaf);$('timer-display').textContent='0.00';$('timer-status').textContent='Toque no tempo ou pressione espaço para começar'}});
+$('inspection-toggle').addEventListener('change',e=>{inspectionEnabled=e.target.checked;localStorage.setItem('academy-inspection',String(inspectionEnabled));if(inspection){inspection=false;cancelAnimationFrame(inspectionRaf);$('timer-display').textContent='0.00';$('timer-status').textContent='Toque nesta área ou pressione espaço para começar'}});
 $('cube-left').addEventListener('click',()=>{yaw-=35;drawCube()});
 $('cube-right').addEventListener('click',()=>{yaw+=35;drawCube()});
 $('cube-up').addEventListener('click',()=>{pitch=Math.max(-75,pitch-20);drawCube()});
@@ -89,7 +101,7 @@ $('share-evolution').addEventListener('click',async()=>{
  try{await downloadOrShare(shareImage({title:'Minha evolução no 3×3',subtitle:'Academia CFOP · últimos tempos',solves:times.filter(t=>!t.archived)}),'academia-cfop-evolucao-3x3.png')}
  catch(e){alert('Não foi possível compartilhar: '+e.message)}
 });
-document.addEventListener('keydown',e=>{if(e.code==='Space'&&!e.repeat&&!['BUTTON','INPUT','TEXTAREA','SELECT'].includes(document.activeElement.tagName)){e.preventDefault();action()}});
+document.addEventListener('keydown',e=>{if(view!=='timer'||document.querySelector('dialog[open]'))return;if(e.code==='Space'&&!e.repeat&&!['BUTTON','INPUT','TEXTAREA','SELECT'].includes(document.activeElement.tagName)){e.preventDefault();action()}});
 document.querySelectorAll('[data-view]').forEach(b=>b.addEventListener('click',()=>setView(b.dataset.view)));
 document.querySelectorAll('[data-share-photo-pick]').forEach(button=>
  button.addEventListener('click',()=>$('scramble-share-photo')?.click()));
