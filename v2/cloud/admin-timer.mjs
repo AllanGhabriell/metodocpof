@@ -15,6 +15,16 @@ function summary(data){
  const last=data.length?data.map(r=>String(r.day)).sort().at(-1):null;
  return {attempts,correct,best:Number.isFinite(best)?best:null,avg,last};
 }
+function activityTrend(data){
+ const now=new Date(),week=7*86400000;
+ const recent=data.filter(r=>now-new Date(r.day+'T12:00:00')<week).reduce((sum,r)=>sum+Number(r.attempts||0),0);
+ const prior=data.filter(r=>{const age=now-new Date(r.day+'T12:00:00');return age>=week&&age<2*week}).reduce((sum,r)=>sum+Number(r.attempts||0),0);
+ if(!recent&&!prior)return 'Sem treino recente';
+ if(!prior)return recent?'Começou a treinar':'Sem treino recente';
+ if(recent>=prior*1.2)return 'Treinando mais';
+ if(recent<=prior*.8)return 'Treinando menos';
+ return 'Ritmo estável';
+}
 function graph(data){
  const map=new Map();
  data.forEach(r=>map.set(r.day,(map.get(r.day)||0)+Number(r.attempts||0)));
@@ -35,7 +45,7 @@ export function adminTimerPanel(users=[],selected=null){
  '<div class="admin-timer-period" role="group" aria-label="Período de acompanhamento">'+[7,30,90].map(n=>'<button type="button" data-admin-timer-days="'+n+'" aria-pressed="'+(days===n)+'">'+n+' dias</button>').join('')+'</div></div>'+
  (ready?'<div class="admin-timer-kpis">'+[['Tentativas registradas',total.attempts],['Acertos',total.correct],['Usuários com treino',byUser.size],['Melhor tempo reportado',fmt(total.best)]].map(([k,v])=>'<div><span>'+k+'</span><strong>'+v+'</strong></div>').join('')+'</div>'+
  '<div class="admin-timer-layout"><div><h3>Treinos por dia</h3>'+graph(rows)+'</div><div><h3>Mais ativos no período</h3>'+
- (ranking.length?ranking.slice(0,8).map((r,i)=>'<div class="admin-timer-row"><span>'+(i+1)+'. '+esc(r.name)+'</span><strong>'+r.summary.attempts+' tentativas</strong></div>').join(''):'<p class="muted">Sem atividade registrada.</p>')+'</div></div>':
+ (ranking.length?ranking.slice(0,8).map((r,i)=>'<div class="admin-timer-row"><span>'+(i+1)+'. '+esc(r.name)+'<small>'+activityTrend(byUser.get(r.id))+'</small></span><strong>'+r.summary.attempts+' tentativas</strong></div>').join(''):'<p class="muted">Sem atividade registrada.</p>')+'</div></div>':
  '<p class="notice">'+esc(error||'Carregando métricas…')+'</p>')+
  (selected?'<div class="admin-timer-user"><h3>Treinos do usuário selecionado</h3>'+
  (selectedData.length?'<div class="admin-timer-kpis">'+[['Tentativas',single.attempts],['Acertos',single.correct],['Média reportada',fmt(single.avg)],['Último treino',single.last||'—']].map(([k,v])=>'<div><span>'+k+'</span><strong>'+v+'</strong></div>').join('')+'</div>'+graph(selectedData)+
