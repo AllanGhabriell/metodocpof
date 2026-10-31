@@ -42,6 +42,7 @@ Caso faltem tabelas, examine o banco existente antes de executar, nesta ordem, o
 3. `supabase/migrations/20261030_000003_admin_dashboard.sql` (estatísticas e RPC administrativas).
 4. `supabase/migrations/20261030_000004_admin_roles_bans.sql` (permissões administrativas).
 5. `supabase/migrations/20261030_000005_single_admin.sql` (remove administradores antigos e mantém somente `coelhodatoca124@gmail.com`).
+6. `supabase/migrations/20261030_000006_admin_security_audit.sql` (reforça bloqueios e audita casos publicados).
 
 Uma tabela existir não comprova que todas as políticas/funções estão corretas. Se houver diferenças entre o schema atual e os scripts, revise antes de aplicar qualquer DDL.
 
@@ -61,6 +62,22 @@ order by u.email;
 ```
 
 A consulta deve retornar apenas `coelhodatoca124@gmail.com`. Se não retornar linhas, entre ou cadastre essa conta e confirme o e-mail antes de verificar novamente.
+
+### Ativar a versão completa do painel de administração
+
+Para um projeto que já executou as migrações `000001` a `000004`, execute **somente** as novas migrações `000005` e `000006`, nesta ordem, no SQL Editor. Elas não alteram as contas comuns nem apagam progresso.
+
+Após executar ambas:
+
+1. Entre com `coelhodatoca124@gmail.com` (com e-mail confirmado), atualize a página e abra **Meu espaço → Administração → Usuários**.
+2. Consulte contas, filtros de moderação, sessões e resoluções; selecione um usuário para alterar XP, corrigir estatísticas, enviar notificação, suspender ou banir.
+3. Para revisar o conteúdo, use **Admin · Casos**. A lista de casos publicados permite reabrir uma versão como rascunho ou retirá-la da biblioteca. A republicação exige validação e aprovação manual.
+4. Confira **Histórico de ações administrativas**. Publicações/edições/exclusões feitas após a migração `000006` são registradas.
+5. Entre em uma conta comum para verificar que **Administração** não aparece e que alterações administrativas pela API são bloqueadas.
+
+**Privilégios iniciais:** somente `coelhodatoca124@gmail.com` permanece administrador fundador. O fundador pode delegar a função de administrador a outras contas confirmadas usando o próprio painel, caso decida fazê-lo futuramente.
+
+**Importante:** as alterações no GitHub não executam SQL no banco remoto. Os testes automatizados não substituem a verificação com usuários reais e RLS no Supabase.
 
 ### Conferir RLS nas tabelas privadas
 
