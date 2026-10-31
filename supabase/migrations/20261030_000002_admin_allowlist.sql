@@ -1,4 +1,4 @@
--- Administradores solicitados pelo proprietário do CFOP Studio.
+-- Administrador único autorizado pelo proprietário do CFOP Studio.
 -- Execute após 20261030_000001_cfop_backend.sql.
 -- Somente usuários com e-mail confirmado recebem privilégios.
 -- A autorização efetiva continua sendo conferida por RLS em cfop_admins.
@@ -11,11 +11,7 @@ set search_path = ''
 as $$
 begin
   if new.email_confirmed_at is not null
-     and lower(new.email) in (
-       'allanghabriell8@gmail.com',
-       'allanghabriell572@gmail.com',
-       'coelhodatoca124@gmail.com'
-     ) then
+     and lower(new.email) = 'coelhodatoca124@gmail.com' then
     insert into public.cfop_admins (user_id)
     values (new.id)
     on conflict (user_id) do nothing;
@@ -36,9 +32,5 @@ execute function public.cfop_grant_allowlisted_admin();
 insert into public.cfop_admins (user_id)
 select id from auth.users
 where email_confirmed_at is not null
-  and lower(email) in (
-    'allanghabriell8@gmail.com',
-    'allanghabriell572@gmail.com',
-    'coelhodatoca124@gmail.com'
-  )
+  and lower(email) = 'coelhodatoca124@gmail.com'
 on conflict (user_id) do nothing;
