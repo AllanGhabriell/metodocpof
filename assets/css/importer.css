@@ -80,3 +80,6 @@ body.importer-body{overflow-y:auto;min-height:100vh;background:radial-gradient(e
 .importer-crop-controls span{flex-basis:100%;font-size:12px;color:#bbdcf1;font-weight:700}
 .importer-crop-controls button{width:36px;min-height:36px;padding:5px;border:1px solid #75aed878;border-radius:9px;background:#143a5d;color:#f0faff;font-size:18px}
 .importer-crop-controls button:hover{background:#24638f}
+
+.importer-defaults-link{display:inline-flex;align-items:center;justify-content:center;text-decoration:none;margin:12px 0 3px;min-height:44px;padding:10px 14px;background:#183956;border:1px solid #76b6d796;border-radius:11px;color:#d4f6ff;font-weight:700;font-size:13px}
+.importer-defaults-link:hover{background:#256189;color:#fff}
