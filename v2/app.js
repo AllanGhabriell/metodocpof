@@ -1,6 +1,6 @@
 import {adminPanel,adminLoad,adminClick,adminSubmit} from './cloud/admin.mjs?v=20261030-54';
 import {cloudStatus,loadAccountExtras,startActivityTracking,recordActivity,isConfigured,isAuthenticated,isAdmin,cloudUser,cloudPanel,signInWithGoogle,signIn,signUp,recoverPassword,updatePassword,signOut,syncCloud,initializeCloud,acceptAuthRedirect,markLocalChange,markDraftDeleted,cloudProfileRefresh,publishedCases,publishCase,unpublishCase,loadPublishedCases} from './cloud/cloud.mjs?v=20261030-54';
-import {onlinePage,onlineInit,onlineLoad,onlineClick,onlineSubmit} from './cloud/online.mjs?v=20261030-53';
+import {onlinePage,onlineInit,onlineLoad,onlineClick,onlineSubmit} from './cloud/online.mjs?v=20261030-54';
 import {crossPage,crossClick,crossChange} from './features/cross.mjs';
 import {awardActivity,progressDashboard,progressData,reloadProgress,saveFeatureData,planPage,profilePage,progressClick,progressSubmit,progressImport,checkReminder} from './features/progress.mjs';
 import {saveAcademyGoals} from './features/academy-insights.mjs';
