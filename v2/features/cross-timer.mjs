@@ -106,7 +106,7 @@ export function crossTimerPage(){
  '<div class="cross-lab-hero"><span class="cross-kicker">TREINO COM CUBO FÍSICO · CROSS</span><h1>Timer da cruz</h1>'+
  '<p>Treine uma, duas, três ou as quatro peças de meio. Cada nível tem seu próprio cronômetro e histórico.</p></div>'+
  '<div class="cross-lab-levels" role="group" aria-label="Escolher cronômetro de cruz">'+
- [1,2,3,4].map(n=>'<button type="button" data-cross-timer="level-'+n+'" '+(working?'disabled':'')+' aria-pressed="'+(level===n)+'" class="'+(level===n?'selected':'')+'"><small>TIMER '+n+'</small><strong>'+n+'</strong><span>'+(n===1?'peça de meio':'peças de meio')+'</span></button>').join('')+'</div>'+
+ [1,2,3,4].map(n=>'<button type="button" data-cross-timer="level-'+n+'" '+(working||phase==='review'?'disabled':'')+' aria-pressed="'+(level===n)+'" class="'+(level===n?'selected':'')+'"><small>TIMER '+n+'</small><strong>'+n+'</strong><span>'+(n===1?'peça de meio':'peças de meio')+'</span></button>').join('')+'</div>'+
  '<div class="cross-lab-tabs" role="tablist" aria-label="Áreas do timer">'+
  [['timer','Cronômetro'],['history','Histórico'],['stats','Evolução']].map(([id,name])=>'<button role="tab" aria-selected="'+(tab===id)+'" type="button" data-cross-timer="tab-'+id+'" '+(working?'disabled':'')+'>'+name+'</button>').join('')+'</div>'+
  (tab==='history'?historyPage():tab==='stats'?statsPage():
@@ -120,7 +120,7 @@ export function crossTimerPage(){
  '<p class="cross-lab-help">Os resultados de cubo físico são informados pelo usuário, não verificados automaticamente.</p></div>':'')+
  '<p class="cross-lab-notice" role="status">'+esc(notice)+'</p></section>'+
  '<div class="cross-lab-snapshot" aria-label="Resumo do nível">'+summary()+'</div>'+
- '<div class="cross-lab-scramble"><div><strong>Embaralhamento 3×3</strong><button type="button" data-cross-timer="new" '+(working?'disabled':'')+' aria-label="Gerar novo embaralhamento">⟳ Novo</button></div>'+
+ '<div class="cross-lab-scramble"><div><strong>Embaralhamento 3×3</strong><button type="button" data-cross-timer="new" '+(working||phase==='review'?'disabled':'')+' aria-label="Gerar novo embaralhamento">⟳ Novo</button></div>'+
  '<p>'+(!hide?esc(sequence):'Oculto durante a execução')+'</p></div>'+
  '<div class="cross-lab-settings"><label>Movimentos<select id="cross-lab-length" '+(working?'disabled':'')+'>'+[15,20,25].map(n=>'<option value="'+n+'" '+(length===n?'selected':'')+'>'+n+'</option>').join('')+'</select></label>'+
  '<label>Inspeção<select id="cross-lab-inspection" '+(working?'disabled':'')+'>'+[0,8,15,30].map(n=>'<option value="'+n+'" '+(inspection===n?'selected':'')+'>'+(n===0?'Desligada':n+' segundos')+'</option>').join('')+'</select></label>'+
@@ -129,12 +129,12 @@ export function crossTimerPage(){
  (hide?'<p>Visualização oculta durante a execução.</p>':
  '<div class="cross-cube-area cross-lab-cube">'+(cubeView==='3d'?cube3D(cube,{yaw,pitch,size:168,colors:palette}):net())+'</div>'+
  (cubeView==='3d'?'<div class="cross-camera">'+[['left','←'],['up','↑'],['down','↓'],['right','→']].map(([k,arrow])=>'<button type="button" data-cross-timer="cam-'+k+'">'+arrow+'</button>').join('')+'</div>':''))+'</details>'+
- '<div class="cross-lab-data-actions"><button type="button" data-cross-timer="new" '+(working?'disabled':'')+'>Novo desafio</button><button type="button" data-cross-timer="cancel" '+(!working&&phase!=='review'?'disabled':'')+'>Cancelar tentativa</button></div>'+
+ '<div class="cross-lab-data-actions"><button type="button" data-cross-timer="new" '+(working||phase==='review'?'disabled':'')+'>Novo desafio</button><button type="button" data-cross-timer="cancel" '+(!working&&phase!=='review'?'disabled':'')+'>Cancelar tentativa</button></div>'+
  '</div>')+'</section>';
 }
 export function crossTimerBusy(){return active()}
 export function crossTimerSuspend(){cancelAnimationFrame(frame);frame=0;if(active()){phase='ready';elapsed=0}}
-export function crossTimerSetLevel(n){if(![1,2,3,4].includes(Number(n))||active())return false;selectLevel(Number(n));notice='Treino preparado. Embaralhe o cubo físico e inicie.';return true}
+export function crossTimerSetLevel(n){if(![1,2,3,4].includes(Number(n))||active()||phase==='review'){if(phase==='review')notice='Registre o resultado ou cancele a tentativa antes de trocar de nível.';return false;}selectLevel(Number(n));notice='Treino preparado. Embaralhe o cubo físico e inicie.';return true}
 function download(name,blob){const url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download=name;a.click();setTimeout(()=>URL.revokeObjectURL(url),1000)}
 function shareCard(exportFile=false){
  const s=statsOf(current()),canvas=document.createElement('canvas');canvas.width=960;canvas.height=1200;
@@ -171,7 +171,7 @@ export function crossTimerAction(button){
  }
  if(cmd.startsWith('level-'))return crossTimerSetLevel(Number(cmd.slice(6)));
  if(cmd.startsWith('tab-')&&!active()){tab=cmd.slice(4);notice='';return true}
- if(cmd==='new'&&!active()){nextScramble();notice='Novo embaralhamento gerado.';return true}
+ if(cmd==='new'&&!active()&&phase!=='review'){nextScramble();notice='Novo embaralhamento gerado.';return true}
  if(cmd==='cancel'&&(active()||phase==='review')){nextScramble();notice='Tentativa cancelada, sem registro.';return true}
  if(cmd.startsWith('cam-')&&!active()){
   if(cmd==='cam-left')yaw-=30;if(cmd==='cam-right')yaw+=30;
