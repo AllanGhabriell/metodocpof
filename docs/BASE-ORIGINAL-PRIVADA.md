@@ -1,4 +1,4 @@
-# Base original privada — Academia CPOF
+# Base original privada — Academia CFOP
 
 A base preliminar dos PDFs originais deixa de ser uma biblioteca pública. O catálogo permanente dos 119 casos continua fixo (41 F2L, 57 OLL, 21 PLL); excluir a base não altera os IDs nem as bibliotecas aprovadas.
 
