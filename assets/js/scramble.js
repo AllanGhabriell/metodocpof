@@ -34,7 +34,7 @@ function stop(){if(!running)return;running=false;cancelAnimationFrame(raf);elaps
  }
  const previousBest=Math.min(Infinity,...times.map(effective).filter(Number.isFinite));
  const isNewRecord=elapsed>=2000&&elapsed<previousBest;
- const solve={id:newId(),ms:Math.round(elapsed),scramble:sequence,date:new Date().toISOString(),penalty:'OK',comment:'',session:'Geral',archived:false};
+ const solve={id:newId(),ms:Math.round(elapsed),scramble:sequence,date:new Date().toISOString(),penalty:'OK',comment:'',session:String($('scramble-session-name')?.value||'Geral').trim().slice(0,45)||'Geral',archived:false};
  times.push(solve);lastResult=solve;
  if(isNewRecord){celebrate(document.body);
   const panel=$('scramble-record-share');
@@ -63,6 +63,10 @@ function renderStats(){
 }
 function setView(next){view=next;document.querySelectorAll('[data-view]').forEach(b=>{b.classList.toggle('active',b.dataset.view===next);b.setAttribute('aria-pressed',String(b.dataset.view===next))});document.querySelectorAll('[data-panel]').forEach(p=>p.hidden=p.dataset.panel!==next);if(next==='stats')requestAnimationFrame(renderStats)}
 $('new-scramble').addEventListener('click',()=>{if(!running&&!inspection)scramble()});
+$('golden-record-toggle').checked=localStorage.getItem('cfop-timer-gold-effect-v1')!=='false';
+$('golden-record-toggle').addEventListener('change',e=>localStorage.setItem('cfop-timer-gold-effect-v1',String(e.target.checked)));
+$('scramble-session-name').value=localStorage.getItem('cfop-timer-session-v1')||'Geral';
+$('scramble-session-name').addEventListener('change',e=>localStorage.setItem('cfop-timer-session-v1',String(e.target.value||'Geral').slice(0,45)));
 $('inspection-toggle').checked=inspectionEnabled;
 $('scramble-length').value=String(scrambleLength);
 $('scramble-length').addEventListener('change',e=>{scrambleLength=Number(e.target.value);localStorage.setItem('academy-scramble-length',String(scrambleLength));if(!running&&!inspection)scramble()});
