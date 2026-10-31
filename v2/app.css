@@ -577,3 +577,26 @@ body::before{z-index:0}.cfop-cursor-glow{z-index:0}.app{z-index:1}
 
 .header-avatar{overflow:hidden}
 .header-avatar-photo{display:block;width:100%;height:100%;object-fit:cover;border-radius:inherit}
+
+
+/* Caixa de recados persistentes — a mensagem só fecha com confirmação de leitura. */
+.cfop-notice-backdrop{position:fixed;inset:0;z-index:2147483630;display:flex;align-items:center;justify-content:center;
+ padding:max(22px,env(safe-area-inset-top)) 16px max(22px,env(safe-area-inset-bottom));
+ background:rgba(2,9,24,.84);backdrop-filter:blur(10px);overflow-y:auto}
+.cfop-notice-dialog{display:grid;gap:17px;width:min(100%,510px);max-height:90vh;overflow-y:auto;
+ padding:clamp(23px,4vw,34px);border:1px solid #59b3e2;border-radius:23px;
+ background:linear-gradient(148deg,#102b4e 0%,#0b1e38 70%,#181935 100%);color:#e9f6ff;
+ box-shadow:0 22px 100px #02091eb3,0 0 32px #58caff25;font-family:system-ui,Arial,sans-serif}
+.cfop-notice-eyebrow{font-size:12px;letter-spacing:.14em;color:#84dcfb;font-weight:900}
+.cfop-notice-dialog h2{font:850 clamp(24px,4vw,32px)/1.2 system-ui,Arial,sans-serif;margin:0;color:#f2faff}
+.cfop-notice-text{font-size:clamp(16px,3vw,20px);line-height:1.6;white-space:pre-wrap;overflow-wrap:anywhere;margin:0;color:#e3f2ff}
+.cfop-notice-meta{font-size:12px;line-height:1.5;margin:0;color:#a1c3db}
+.cfop-notice-dialog button{border:1px solid #6bd2ee;border-radius:12px;background:#20678d;color:white;
+ font:800 16px system-ui,Arial,sans-serif;min-height:52px;padding:12px 20px;cursor:pointer}
+.cfop-notice-dialog button:focus-visible{outline:3px solid #a0f0fa;outline-offset:3px}
+.cfop-notice-dialog button:disabled{opacity:.55;cursor:wait}
+.cfop-notice-error{font-size:13px;color:#ffb0aa;margin:0}
+.identity-limits{padding:10px 14px;background:#0b223d;border:1px solid #416b93;border-radius:13px}
+.identity-limits p{margin:6px 0;color:#bcdced;line-height:1.45;font-size:13px}
+.identity-limits strong{color:#eefbff}
+@media(max-width:500px){.cfop-notice-backdrop{align-items:center;padding:16px}.cfop-notice-dialog{padding:23px 18px;border-radius:18px;gap:13px}}
