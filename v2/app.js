@@ -1,4 +1,4 @@
-import {loadLibraries,libraryList,selectedLibrary,selectedLibraryName,libraryCases,chooseLibrary,libraryError,originalBaseInfo,originalCases,loadOriginalBase,deleteOriginalBase,isOriginalOwner,defaultForStage,stageDefaultInfo,stageDefaultStatus,setDefaultLibrary,deleteLibrary} from './cloud/libraries.mjs';
+import {loadLibraries,libraryList,selectedLibrary,selectedLibraryName,libraryCases,chooseLibrary,libraryError,originalBaseInfo,originalCases,loadOriginalBase,deleteOriginalBase,isOriginalOwner,defaultForStage,stageDefaultInfo,stageDefaultStatus,setDefaultLibrary,deleteLibrary,publicLibraryStatus,publicCasesInStage} from './cloud/libraries.mjs';
 import {adminPanel,adminLoad,adminClick,adminSubmit} from './cloud/admin.mjs?v=20261030-55';
 import {cloudStatus,loadAccountExtras,startActivityTracking,recordActivity,isConfigured,isAuthenticated,isAdmin,cloudUser,cloudPanel,signInWithGoogle,signIn,signUp,recoverPassword,updatePassword,signOut,syncCloud,initializeCloud,acceptAuthRedirect,markLocalChange,markDraftDeleted,cloudProfileRefresh,publishedCases,publishCase,unpublishCase,loadPublishedCases} from './cloud/cloud.mjs?v=20261030-55';
 import {onlinePage,onlineInit,onlineLoad,onlineClick,onlineSubmit} from './cloud/online.mjs?v=20261030-55';
@@ -148,7 +148,7 @@ function downloadDrafts(){const blob=new Blob([JSON.stringify({format:'cfop-stud
 
 function stageDefaultsPage(){
  if(!isOriginalOwner())return '<section class="card"><h1>Acesso restrito</h1></section>';
- const current=stageDefaultInfo(),database=stageDefaultStatus(),listed=libraryList();
+ const current=stageDefaultInfo(),database=stageDefaultStatus(),listed=libraryList(),publicState=publicLibraryStatus();
  const firstError=database.error
   ?'<div class="admin-default-warning" role="alert"><strong>Configuração do banco indisponível.</strong> '+escapeHtml(database.error)+
     ' <a href="https://github.com/AllanGhabriell/metodocpof/blob/main/supabase/CFOP_CORRIGIR_SALVAMENTO_DAS_BASES.sql" target="_blank" rel="noopener">Abrir SQL de correção</a></div>'
@@ -156,6 +156,7 @@ function stageDefaultsPage(){
  return '<section class="card admin-stage-defaults"><span class="admin-publish-eyebrow">CONFIGURAÇÃO GLOBAL</span>'+
  '<h1>Biblioteca principal de cada etapa</h1>'+
  '<p>Escolha qual base abre automaticamente para todos. Só bibliotecas publicadas, com casos aprovados da etapa, podem ser principais. F2L e PLL também aceitam Original.</p>'+firstError+
+ (publicState.error?'<div class="admin-default-warning" role="alert">Não consegui confirmar o acesso dos visitantes: '+escapeHtml(publicState.error)+'</div>':'')+
  '<div class="admin-default-cards">'+['f2l','oll','pll'].map(stage=>{
    const entry=current[stage],saved=entry?.source==='library'?entry.library_id:entry?.source||'none';
    const draft=Object.prototype.hasOwnProperty.call(stageDefaultPending,stage);
@@ -179,9 +180,14 @@ function stageDefaultsPage(){
       (stageDefaultSaving[stage]?'Salvando e conferindo…':'Salvar padrão de '+stage.toUpperCase())+'</button></article>';
  }).join('')+'</div>'+
  '<h2>Gerenciar bibliotecas</h2><div class="admin-default-cards">'+
- (listed.length?listed.map(l=>'<article><strong>'+escapeHtml(l.title)+'</strong><small>'+(l.is_public?'Publicada':'Rascunho · publique antes de usar como padrão')+'</small>'+
- (l.is_public?'':'<a href="importer.html">Revisar e publicar</a>')+
- '<button class="secondary" data-action="admin-delete-library" data-library-id="'+escapeHtml(l.id)+'">Excluir biblioteca</button></article>').join(''):'<p>Nenhuma biblioteca cadastrada.</p>')+
+ (listed.length?listed.map(l=>
+ '<article><strong>'+escapeHtml(l.title)+'</strong>'+
+ '<small>'+(l.is_public?'Biblioteca publicada':'Rascunho · não aparece para outras pessoas')+'</small>'+
+ (l.is_public?'<p class="admin-library-visibility">Casos visíveis ao público: <strong>F2L '+publicCasesInStage(l.id,'f2l')+'</strong> · <strong>OLL '+publicCasesInStage(l.id,'oll')+'</strong> · <strong>PLL '+publicCasesInStage(l.id,'pll')+'</strong></p>':
+ '<p class="admin-library-visibility">Para disponibilizar aos alunos: abra o importador, aprove os casos e clique em <strong>Publicar casos aprovados</strong>.</p>')+
+ '<a href="importer.html?library='+encodeURIComponent(l.id)+'">Revisar / publicar casos desta biblioteca</a>'+
+ '<button class="secondary" data-action="admin-delete-library" data-library-id="'+escapeHtml(l.id)+'">Excluir biblioteca</button></article>'
+ ).join(''):'<p>Nenhuma biblioteca cadastrada.</p>')+
  '</div>'+
  '<p class="muted">As escolhas são gravadas no Supabase. Os alunos recebem a base principal ao iniciar uma nova sessão, mas podem escolher outra biblioteca pública.</p>'+
  (cloudMessage?'<p role="status" class="notice">'+escapeHtml(cloudMessage)+'</p>':'')+'</section>';
