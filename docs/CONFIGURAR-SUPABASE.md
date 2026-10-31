@@ -1,4 +1,4 @@
-# Academia CPOF — ativar contas e sincronização
+# Academia CFOP — ativar contas e sincronização
 
 ## O que já está preparado no site
 
