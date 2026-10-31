@@ -1,7 +1,7 @@
 import {identityState} from '../cloud/identity.mjs';
 import {progressData,progressSummary} from './progress.mjs';
-import {achievementStats,earnedAchievements} from './achievements.mjs';
-import {journeyIdentity} from './journey.mjs?v=20261031-1';
+import {achievementStats,earnedAchievements} from './achievements.mjs?v=20261031-rpg-2';
+import {journeyIdentity} from './journey.mjs?v=20261031-rpg-2';
 
 const W=1080,H=1920;
 const fmt=ms=>Number.isFinite(ms)?(ms/1000).toFixed(2)+'s':'—';
