@@ -1,10 +1,10 @@
 import {isAdmin,isConfigured,cloudUser,initializeCloud,acceptAuthRedirect,cloudTable} from '../../v2/cloud/cloud.mjs?v=20261030-55';
 import {FIXED_CASES,CASE_BY_ID,LIMITS} from '../../v2/data/case-catalog.mjs';
 import {assignFixedCases,cropDiagram} from '../../v2/data/pdf-layout.mjs';
-import {loadLibraries,libraryList,createLibrary,saveLibraryCase,setLibraryPublished} from '../../v2/cloud/libraries.mjs';
+import {loadLibraries,libraryList,createLibrary,saveLibraryCase,publishApprovedLibrary,renameLibrary} from '../../v2/cloud/libraries.mjs';
 const PDF='https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.10.38/pdf.min.mjs';
 const $=id=>document.getElementById(id);
-let records=[],stage='f2l',busy=false,doc=null,pdfFile=null,pageImageCache=new Map();
+let records=[],stage='f2l',busy=false,doc=null,pdfFile=null,pageImageCache=new Map(),existingRecords=[];
 const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
 const status=s=>{$('import-status').textContent=s};
 const owner=()=>isAdmin()&&cloudUser()?.email?.toLowerCase()==='coelhodatoca124@gmail.com';
@@ -85,7 +85,9 @@ $('import-cards').addEventListener('change',e=>{
  if(field==='case_id'&&records.some(o=>o!==r&&o.case_id===next)){status('Esse caso já está associado a outro recorte. Escolha um caso disponível.');e.target.value=r.case_id;return}
  r[field]=next;if(field==='case_id')r.confidence='manual';
  if(field==='status'&&next==='approved'&&!r.algorithm.trim()){r.status='draft';e.target.value='draft';return status('Informe um algoritmo antes de aprovar o caso.')}
- if(field==='case_id'||field==='status')update()
+ if(['algorithm','setup','orientation','case_id'].includes(field)&&r.status==='approved'){
+   r.status='draft';update();status('Edição salva somente como rascunho. Aprove novamente para publicar.');
+ }else if(field==='case_id'||field==='status')update()
 });
 $('import-cards').addEventListener('click',async e=>{
  const a=e.target.closest('[data-rotate]'),b=e.target.closest('[data-download]');
@@ -96,19 +98,29 @@ $('import-create-library').addEventListener('click',async()=>{
  try{guard();const title=$('import-new-library').value.trim();if(title.length<2)throw Error('Informe o nome da biblioteca.');
  const l=await createLibrary(title);libraryOptions();$('import-library').value=l.id;status('Biblioteca '+title+' criada como rascunho.')}catch(e){status(e.message)}
 });
-$('import-library').addEventListener('change',async()=>{
- const id=$('import-library').value;if(!id)return;
+async function loadExistingLibrary(){
+ const id=$('import-library').value;existingRecords=[];if(!id){records=[];update();return}
  try{
- const entries=await cloudTable('cfop_library_cases',{query:'select=case_id,algorithm,setup,orientation,image_data,status,source_page&library_id=eq.'+encodeURIComponent(id)+'&limit=150'});
- if(!entries?.length){status('Biblioteca vazia. Envie um PDF para começar.');return}
- stage=CASE_BY_ID.get(entries[0].case_id)?.stage||stage;$('import-stage').value=stage;
- records=entries.filter(r=>CASE_BY_ID.get(r.case_id)?.stage===stage).map(r=>({
+  const query='select=case_id,algorithm,setup,orientation,image_data,status,source_page&library_id=eq.'+encodeURIComponent(id)+'&limit=150';
+  const [drafts,published]=await Promise.all([
+   cloudTable('cfop_library_case_drafts',{query}),
+   cloudTable('cfop_library_cases',{query})
+  ]);
+  const byId=new Map((published||[]).map(r=>[r.case_id,r]));
+  for(const d of drafts||[])byId.set(d.case_id,d);
+  existingRecords=[...byId.values()];
+  showExistingStage();
+  status(existingRecords.length?'Biblioteca carregada. Você pode editar e revisar qualquer etapa.':'Biblioteca vazia. Envie um PDF.');
+ }catch(e){status('Erro ao carregar: '+e.message)}
+}
+function showExistingStage(){
+ records=existingRecords.filter(r=>CASE_BY_ID.get(r.case_id)?.stage===stage).map(r=>({
  case_id:r.case_id,algorithm:r.algorithm,setup:r.setup,orientation:r.orientation,imageData:r.image_data,
  status:r.status,sourcePage:r.source_page,page:r.source_page,confidence:'manual',alternatives:[]}));
- update();status('Casos da biblioteca carregados para edição.');
- }catch(e){status(e.message)}
-});
-$('import-stage').addEventListener('change',()=>{stage=$('import-stage').value;records=[];update();status('Etapa alterada. Selecione um PDF para reconhecer os casos.')});
+ update();
+}
+$('import-library').addEventListener('change',loadExistingLibrary);
+$('import-stage').addEventListener('change',()=>{stage=$('import-stage').value;showExistingStage();status('Etapa alterada. Escolha um caso ou importe um PDF.')});
 $('import-approve-all').addEventListener('click',()=>{
  records.forEach(r=>{if(r.algorithm.trim())r.status='approved'});update();
  status('Casos com algoritmo marcados como aprovados. Confira individualmente a identidade e o recorte antes de salvar.');
@@ -128,8 +140,8 @@ $('import-publish').addEventListener('click',async()=>{
  try{
   guard();if(!records.some(r=>r.status==='approved'))throw Error('Aprove ao menos um caso.');
   if(!confirm('Publicar os casos aprovados? Os alunos poderão escolher esta biblioteca, inclusive após sincronização offline.'))return;
-  const id=await saveAll();await setLibraryPublished(id,true);libraryOptions();$('import-library').value=id;
-  status('Biblioteca publicada. Alterações futuras em casos aprovados ficam disponíveis para todos após sincronização.');
+  const id=await saveAll();const count=await publishApprovedLibrary(id);libraryOptions();$('import-library').value=id;
+  status('Biblioteca publicada com '+count+' casos aprovados. Os alunos verão essas alterações após sincronizar.');
  }catch(e){status('Erro ao publicar: '+e.message)}
 });
 $('import-download').addEventListener('click',()=>{if(!records.length)return status('Nenhum caso.');saveBlob('biblioteca-'+stage+'-revisao.json',JSON.stringify({format:'cfop-library-review-v2',stage,items:records},null,2))});
