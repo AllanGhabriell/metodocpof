@@ -32,7 +32,10 @@ export function achievementStats(extraRecords=[]){
  const valid=rawTimes.map(x=>Number(x.ms)).filter(ms=>Number.isFinite(ms)&&ms>=1000&&ms<=3600000);
  const first=valid.length?Math.min(...valid):null;
  const cross=extraRecords.some(r=>/cross|cruz/i.test(r.type||''));
- const total=cases.length+valid.length+extraRecords.length;
+ // Metas de atividade não devem crescer com cliques repetidos no mesmo caso.
+ const distinctCases=new Set(cases.map(r=>r.stage+'|'+r.caseId));
+ const distinctActivities=new Set(extraRecords.map(r=>String(r.type)+'|'+String(r.date)));
+ const total=distinctCases.size+valid.length+distinctActivities.size;
  return {
   total,streak:activity.streak||0,counts:Object.fromEntries(Object.entries(stages).map(([k,v])=>[k,v.size])),
   stageAttempts:cases.length,cross,best:first,solveCount:valid.length,
