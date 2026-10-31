@@ -2,14 +2,27 @@
 <html lang="pt-BR"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><title>Embaralhamento e cronômetro — Academia CFOP</title>
 <link rel="stylesheet" href="assets/css/global.css?v=20260313k"><link rel="stylesheet" href="assets/css/scramble.css?v=20261031-timer-upgrade-1"><link rel="stylesheet" href="assets/css/cursor-glow.css?v=1">
 <link rel="stylesheet" href="assets/css/academy.css?v=20261030-1">
-<link rel="stylesheet" href="assets/css/timer-upgrade.css?v=20261031-1">
+<link rel="stylesheet" href="assets/css/timer-upgrade.css?v=20261031-compact-1">
 </head><body class="scramble-body">
-<header class="scramble-header"><a href="index.html" aria-label="Voltar">✕</a><strong>Cubo 3×3 <small>Embaralhamento</small></strong><a href="studio.html?page=profile" aria-label="Conta e perfil">☰</a></header>
+<header class="scramble-header"><a href="index.html" aria-label="Voltar à página inicial">✕</a><strong>Cubo 3×3 <small>Embaralhamento</small></strong><button id="scramble-menu-toggle" type="button" aria-label="Abrir menu do cronômetro" aria-controls="scramble-menu" aria-haspopup="dialog">☰</button></header>
 <main class="scramble-main">
 <section data-panel="timer" class="scramble-timer-panel">
 <div class="scramble-alg"><p id="scramble-text" aria-label="Embaralhamento atual"></p><button id="new-scramble" type="button" aria-label="Gerar outro embaralhamento" title="Novo embaralhamento">⟳</button></div>
-<section class="scramble-options" aria-label="Opções de embaralhamento"><div class="scramble-option-head"><strong>Opções de embaralhamento</strong><span>3×3 · treino livre</span></div><div class="scramble-option-fields"><label for="scramble-length">Movimentos<select id="scramble-length"><option value="15">15 · curto</option><option value="20">20 · padrão</option><option value="25">25 · longo</option></select></label><label for="cube-view">Visualização<select id="cube-view"><option value="3d">Cubo 3D</option><option value="2d">Cubo 2D</option></select></label><label class="scramble-inspection"><input type="checkbox" id="inspection-toggle"> Inspeção de 15 segundos</label><label class="scramble-inspection"><input id="golden-record-toggle" type="checkbox" checked> Efeito dourado ao bater recorde</label><label for="scramble-session-name">Sessão<input id="scramble-session-name" type="text" maxlength="45" placeholder="Geral" value="Geral"></label></div></section>
-<div class="scramble-clock"><button id="timer-display" type="button" aria-label="Iniciar ou parar cronômetro">0.00</button><p id="timer-status">Toque no tempo ou pressione espaço para começar</p></div>
+<dialog id="scramble-menu" class="scramble-menu-dialog" aria-labelledby="scramble-menu-title">
+ <div class="scramble-menu-heading"><div><span class="scramble-menu-kicker">ACADEMIA CFOP · TIMER 3×3</span><h2 id="scramble-menu-title">Configurações</h2></div><button id="scramble-menu-close" type="button" aria-label="Fechar configurações">✕</button></div>
+ <nav class="scramble-menu-shortcuts" aria-label="Atalhos"><a href="studio.html?page=profile">Meu perfil</a><a href="index.html">Página inicial</a></nav>
+ <div class="scramble-menu-section"><h3>Embaralhamento</h3>
+ <div class="scramble-menu-fields">
+ <label for="scramble-length">Movimentos<select id="scramble-length"><option value="15">15 · curto</option><option value="20">20 · padrão</option><option value="25">25 · longo</option></select></label>
+ <label for="cube-view">Visualização<select id="cube-view"><option value="3d">Cubo 3D</option><option value="2d">Cubo 2D</option></select></label>
+ </div>
+ <label class="scramble-menu-check" for="inspection-toggle"><input type="checkbox" id="inspection-toggle"><span>Inspeção de 15 segundos</span></label>
+ <label class="scramble-menu-check" for="show-cube-preview"><input type="checkbox" id="show-cube-preview"><span>Mostrar cubo embaralhado abaixo do timer</span></label>
+ </div>
+ <div class="scramble-menu-section"><h3>Sessão de treino</h3><label for="scramble-session-name" class="scramble-session-label">Nome da sessão<input id="scramble-session-name" type="text" maxlength="45" placeholder="Geral" value="Geral" autocomplete="off"></label><p class="scramble-menu-help">As novas resoluções serão registradas nesta sessão. Você pode editar as sessões de tempos antigos no Histórico.</p></div>
+ <button id="scramble-menu-done" type="button" class="scramble-menu-done">Voltar ao cronômetro</button>
+ </dialog>
+<div class="scramble-clock"><button id="timer-display" type="button" aria-label="Iniciar ou parar cronômetro">0.00</button><p id="timer-status">Toque nesta área ou pressione espaço para começar</p></div>
 <section class="scramble-record-share" id="scramble-record-share" hidden>
  <strong>🏆 Novo recorde pessoal!</strong>
  <p id="scramble-record-label"></p>
@@ -17,7 +30,7 @@
  <button type="button" class="secondary" data-share-record="download">Baixar imagem PNG</button></div>
  <small id="scramble-share-status" role="status" aria-live="polite"></small>
  </section>
- <section class="scramble-cube-section" aria-label="Visualização tridimensional do embaralhamento"><h2 class="scramble-cube-heading"><span id="scramble-cube-heading">Cubo 3D</span> <small>Estado do embaralhamento</small></h2><div id="scramble-cube" aria-live="off"></div><div class="scramble-cube-controls"><button id="cube-left" aria-label="Girar cubo à esquerda">←</button><button id="cube-up" aria-label="Inclinar cubo para cima">↑</button><button id="cube-down" aria-label="Inclinar cubo para baixo">↓</button><button id="cube-right" aria-label="Girar cubo à direita">→</button></div></section>
+ <section class="scramble-cube-section" hidden aria-label="Visualização tridimensional do embaralhamento"><h2 class="scramble-cube-heading"><span id="scramble-cube-heading">Cubo 3D</span> <small>Estado do embaralhamento</small></h2><div id="scramble-cube" aria-live="off"></div><div class="scramble-cube-controls"><button id="cube-left" aria-label="Girar cubo à esquerda">←</button><button id="cube-up" aria-label="Inclinar cubo para cima">↑</button><button id="cube-down" aria-label="Inclinar cubo para baixo">↓</button><button id="cube-right" aria-label="Girar cubo à direita">→</button></div></section>
 </section>
 <section data-panel="history" hidden class="scramble-secondary"><h1>Meus tempos</h1><p>Resultados salvos neste dispositivo.</p><div id="solve-list" class="timer-history-root"></div><p class="timer-privacy">Os tempos e comentários ficam neste dispositivo. Contas conectadas poderão enviar apenas resumos diários ao administrador quando a migração for ativada.</p></section>
 <section data-panel="stats" hidden class="scramble-secondary"><h1>Evolução</h1><p>Seu desempenho ao longo das resoluções.</p><canvas id="time-chart" aria-label="Gráfico de tempos"></canvas><div id="stats-summary" class="scramble-stat-grid"></div><button id="share-evolution" type="button" class="scramble-share-evolution">Compartilhar gráfico e evolução</button><section class="scramble-share-stat"><h2>Compartilhar evolução</h2><p>Crie uma imagem com seu recorde, seus cinco melhores tempos e seu perfil.</p>
@@ -27,5 +40,5 @@
 <input type="file" id="scramble-share-photo" accept="image/*" hidden>
 </main>
 <nav class="scramble-bottom-nav" aria-label="Áreas do cronômetro"><button data-view="timer" aria-label="Cronômetro" aria-pressed="true">◷ <span>Tempo</span></button><button data-view="history" aria-label="Histórico" aria-pressed="false">▦ <span>Histórico</span></button><button data-view="stats" aria-label="Estatísticas" aria-pressed="false">⌁ <span>Evolução</span></button></nav>
-<script type="module" src="assets/js/scramble.js?v=20261031-timer-upgrade-5"></script><script src="v2/cursor-glow.js?v=20261030-27" defer></script><script type="module" src="assets/js/notice-banner.js?v=20261031-2"></script>
+<script type="module" src="assets/js/scramble.js?v=20261031-compact-1"></script><script src="v2/cursor-glow.js?v=20261030-27" defer></script><script type="module" src="assets/js/notice-banner.js?v=20261031-2"></script>
 </body></html>
