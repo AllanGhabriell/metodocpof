@@ -574,3 +574,6 @@ body::before{z-index:0}.cfop-cursor-glow{z-index:0}.app{z-index:1}
  .academy-share-actions{grid-template-columns:1fr}
  .academy-achievement-collection article button{min-width:92px}
 }
+
+.header-avatar{overflow:hidden}
+.header-avatar-photo{display:block;width:100%;height:100%;object-fit:cover;border-radius:inherit}
