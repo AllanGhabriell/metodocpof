@@ -1,4 +1,4 @@
-import {normalizeAll,effective,solveLabel,format,statistics,csv,shareImage,downloadOrShare} from '../../v2/timer/records.mjs';
+import {normalizeAll,effective,solveLabel,format,statistics,csv,shareImage,downloadOrShare} from '../../v2/timer/records.mjs?v=20261031-2';
 const esc=x=>String(x??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 export function createTimerHistory({root,getRecords,setRecords,kind='3x3',onUpdate=()=>{}}){
  let search='',selection=false,selected=new Set(),filter='active',session='all',sort='new',detail=null,deleted=null,deleteTimer=0;
