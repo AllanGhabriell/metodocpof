@@ -9,7 +9,16 @@ const today=()=>dateOf(new Date());
 const load=()=>{try{const r=JSON.parse(localStorage.getItem(KEY)||'{}');return {...r,name:typeof r.name==='string'?r.name:'Cubista',records:Array.isArray(r.records)?r.records:[],goal:Number(r.goal)||20,plan:Array.isArray(r.plan)?r.plan:[],reminder:r.reminder||'',notified:r.notified||'',cards:Array.isArray(r.cards)?r.cards:[],challenges:Array.isArray(r.challenges)?r.challenges:[],completedLessons:Array.isArray(r.completedLessons)?r.completedLessons:[]}}catch{return {name:'Cubista',records:[],goal:20,plan:[],reminder:'',notified:'',cards:[],challenges:[]}}};
 let data=load(),message='';
 const save=()=>{localStorage.setItem(KEY,JSON.stringify(data));if(typeof document!=='undefined'&&typeof document.dispatchEvent==='function')document.dispatchEvent(new Event('cfop:local-change'))};
-export function awardActivity(type,xp=10){data.records=[...data.records.slice(-1499),{type:String(type).slice(0,24),xp:Math.min(100,Math.max(0,xp)),date:today(),time:Date.now()}];save()}
+export function awardActivity(type,xp=10){
+ const kind=String(type).slice(0,24),day=today();
+ // Uma atividade idêntica no mesmo dia não cria XP nem progresso artificial.
+ if(data.records.some(r=>r.type===kind&&r.date===day))return false;
+ const signedIn=!!cloudUserId();
+ const daily=data.records.filter(r=>r.date===day).reduce((s,r)=>s+Math.max(0,Number(r.xp)||0),0);
+ const earned=signedIn?0:Math.max(0,Math.min(10,Number(xp)||0,20-daily));
+ data.records=[...data.records.slice(-1499),{type:kind,xp:earned,date:day,time:Date.now()}];save();return true
+}
+function cloudUserId(){try{return JSON.parse(localStorage.getItem('cfop-cloud-session-v1')||'null')?.user?.id||null}catch{return null}}
 export function reloadProgress(){data=load();return data}
 export function progressData(){return data}
 export function progressSummary(){
