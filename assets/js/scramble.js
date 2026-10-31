@@ -3,6 +3,7 @@ import {cube3D} from '../../v2/cube/visual.mjs?v=20261030-8';
 import {deliverShareCard} from '../../v2/features/share-cards.mjs';
 import {loadIdentity} from '../../v2/cloud/identity.mjs';
 const key='cpof-scramble-times-v1';
+let sharePhotoFile=null;
 let times=[];try{const t=JSON.parse(localStorage.getItem(key)||'[]');if(Array.isArray(t))times=t.filter(x=>Number.isFinite(x.ms)&&x.ms>=0&&typeof x.scramble==='string').slice(-3500)}catch{}
 let sequence='',state=solved(),running=false,started=0,raf=0,elapsed=0,view='timer',yaw=-35,pitch=-27,inspection=false,inspectionStarted=0,inspectionRaf=0,inspectionEnabled=localStorage.getItem('academy-inspection')==='true',scrambleLength=[15,20,25].includes(Number(localStorage.getItem('academy-scramble-length')))?Number(localStorage.getItem('academy-scramble-length')):20,cubeView=localStorage.getItem('academy-cube-view')==='2d'?'2d':'3d';
 const $=id=>document.getElementById(id);
@@ -55,13 +56,28 @@ $('cube-down').addEventListener('click',()=>{pitch=Math.min(75,pitch+20);drawCub
 $('timer-display').addEventListener('click',action);
 document.addEventListener('keydown',e=>{if(e.code==='Space'&&!e.repeat&&!['BUTTON','INPUT','TEXTAREA','SELECT'].includes(document.activeElement.tagName)){e.preventDefault();action()}});
 document.querySelectorAll('[data-view]').forEach(b=>b.addEventListener('click',()=>setView(b.dataset.view)));
+document.querySelectorAll('[data-share-photo-pick]').forEach(button=>
+ button.addEventListener('click',()=>$('scramble-share-photo')?.click()));
+$('scramble-share-photo')?.addEventListener('change',e=>{
+ const file=e.target.files?.[0];
+ if(!file)return;
+ const label=document.querySelectorAll('[data-share-photo-pick]');
+ if(!/^image\//.test(file.type)||file.size>10*1024*1024){
+  sharePhotoFile=null;
+  label.forEach(x=>x.textContent='Adicionar foto');
+  alert('Selecione uma imagem de até 10 MB.');
+ }else{
+  sharePhotoFile=file;
+  label.forEach(x=>x.textContent='✓ Foto selecionada');
+ }
+});
 document.querySelectorAll('[data-share-record]').forEach(button=>button.addEventListener('click',async()=>{
  const area=button.closest('section');
  const node=area?.querySelector('[role="status"]')||$('scramble-share-status');
  button.disabled=true;if(node)node.textContent='Montando sua imagem PNG…';
  try{
   await loadIdentity().catch(()=>{});
-  const message=await deliverShareCard('record','',button.dataset.shareRecord==='native');
+  const message=await deliverShareCard('record','',button.dataset.shareRecord==='native',sharePhotoFile);
   if(node)node.textContent=message;
  }catch(err){if(node)node.textContent='Não foi possível gerar a imagem: '+err.message}
  finally{button.disabled=false}
