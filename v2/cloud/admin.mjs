@@ -1,4 +1,4 @@
-import {cloudTable,isAdmin,cloudUser} from './cloud.mjs?v=20261031-56';
+import {cloudTable,isAdmin,cloudUser} from './cloud.mjs?v=20261031-57';
 let users=[],audit=[],flags=[],identities=[],identityLimits=[],identityReady=false,message='',selected='',loading=false,adminFilter='all';
 const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const dt=v=>v?new Date(v).toLocaleString('pt-BR'):'Sem registro';
