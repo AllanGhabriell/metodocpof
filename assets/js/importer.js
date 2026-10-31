@@ -165,10 +165,15 @@ $('import-create-library').addEventListener('click',async()=>{
 async function loadExistingLibrary(){
  const id=$('import-library').value;existingRecords=[];if(!id){records=[];update();return}
  try{
-  const query='select=case_id,algorithm,setup,orientation,image_data,status,source_page&library_id=eq.'+encodeURIComponent(id)+'&limit=150';
+  const query='select=case_id,algorithm,setup,orientation,image_data,image_original,status,source_page&library_id=eq.'+encodeURIComponent(id)+'&limit=150';
+  const fallback='select=case_id,algorithm,setup,orientation,image_data,status,source_page&library_id=eq.'+encodeURIComponent(id)+'&limit=150';
+  const fetchRows=async(table)=>{try{return await cloudTable(table,{query})}catch(e){
+   if(!/image_original|schema cache|does not exist|PGRST204/i.test(e.message))throw e;
+   return cloudTable(table,{query:fallback})
+  }};
   const [drafts,published]=await Promise.all([
-   cloudTable('cfop_library_case_drafts',{query}),
-   cloudTable('cfop_library_cases',{query})
+   fetchRows('cfop_library_case_drafts'),
+   fetchRows('cfop_library_cases')
   ]);
   const byId=new Map((published||[]).map(r=>[r.case_id,r]));
   for(const d of drafts||[])byId.set(d.case_id,d);
