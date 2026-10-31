@@ -31,6 +31,28 @@ export const cloudUser=()=>session?.user||null;
 export const adminXpAdjustment=()=>isAuthenticated()?accountXp:0;
 export const cloudStatus=()=>({configured:isConfigured(),authenticated:isAuthenticated(),admin,user:cloudUser(),phase,error:lastError,lastSynced});
 export const publishedCases=()=>published.slice();
+export const pendingNotices=()=>accountMessages.filter(n=>!n.read_at);
+export function cloudNoticeOverlay(){
+ const pending=pendingNotices();
+ if(!isAuthenticated()||!pending.length)return '';
+ const n=pending[0],count=pending.length;
+ return '<div class="cfop-notice-backdrop" role="presentation"><section class="cfop-notice-dialog" role="dialog" aria-modal="true" aria-labelledby="cfop-notice-title">'+
+  '<span class="cfop-notice-eyebrow">RECADO DA ADMINISTRAÇÃO</span>'+
+  '<h2 id="cfop-notice-title">'+(n.priority==='important'?'Aviso importante':'Você recebeu uma mensagem')+'</h2>'+
+  '<p class="cfop-notice-text">'+esc(n.body)+'</p>'+
+  '<p class="cfop-notice-meta">Enviada em '+new Date(n.created_at).toLocaleString('pt-BR')+
+  (count>1?' · '+count+' mensagens pendentes':'')+'</p>'+
+  '<button type="button" data-cloud="read-notice" data-notice-id="'+esc(n.id)+'">Marcar como lida</button>'+
+  '</section></div>';
+}
+export async function markNoticeRead(id){
+ if(!isAuthenticated()||!accountMessages.some(n=>n.id===id&&!n.read_at))throw Error('Aviso não encontrado.');
+ const done=await rest('rpc/cfop_mark_notice_read',{method:'POST',body:{p_notice:id}});
+ if(!done)throw Error('Não foi possível confirmar a leitura. Atualize os avisos.');
+ accountMessages=accountMessages.map(n=>n.id===id?{...n,read_at:new Date().toISOString()}:n);
+ if(typeof document!=='undefined')document.dispatchEvent(new Event('cpof:notices-changed'));
+ return true;
+}
 function validateConfig(url,key){
  const u=new URL(url.trim());
  if(u.protocol!=='https:'||!u.hostname||u.username||u.password||u.search||u.hash)throw Error('Use a URL HTTPS do projeto Supabase.');
@@ -149,10 +171,15 @@ export async function loadAccountExtras(){
  if(!isAuthenticated())return;
  try{
   const [notes,state]=await Promise.all([
-   rest('cfop_user_notifications',{query:'select=id,body,created_at&order=created_at.desc&limit=20'}),
+   rest('cfop_user_notifications',{query:'select=id,body,created_at,read_at,priority&order=created_at.desc&limit=60'}),
    rest('cfop_user_admin_state',{query:'select=xp_adjustment,suspended_until,suspension_reason,banned_at,banned_reason&user_id=eq.'+encodeURIComponent(session.user.id)})
   ]);
-  accountMessages=Array.isArray(notes)?notes:[];
+  const next=Array.isArray(notes)?notes:[];
+  const oldKey=accountMessages.map(n=>n.id+':'+String(n.read_at)).join('|');
+  const nextKey=next.map(n=>n.id+':'+String(n.read_at)).join('|');
+  accountMessages=next;
+  if(oldKey!==nextKey&&typeof document!=='undefined')
+   document.dispatchEvent(new Event('cpof:notices-changed'));
   const restriction=Array.isArray(state)&&state.length?state[0]:{};
   accountXp=Number(restriction.xp_adjustment)||0;
   accountRestriction={bannedAt:restriction.banned_at||null,bannedReason:restriction.banned_reason||'',suspendedUntil:restriction.suspended_until||null,suspensionReason:restriction.suspension_reason||''};
@@ -291,7 +318,7 @@ export function markDraftDeleted(draft){
 // Não publicar o apelido genérico local no banco ao fazer login.
 async function updateProfile(){return true}
 export async function postLogin(){
- await checkAdmin();await syncCloud();await loadPublishedCases();
+ await checkAdmin();await syncCloud();await loadPublishedCases();await loadAccountExtras();
 }
 export async function initializeCloud({changed=()=>{},hydrated=()=>{}}={}){
  onUpdate=changed;onHydrate=hydrated;
@@ -308,6 +335,7 @@ export async function initializeCloud({changed=()=>{},hydrated=()=>{}}={}){
  });
  // Cloud data is periodically reconciled when signed in; local saving also triggers an upload.
  setInterval(()=>{if(isAuthenticated())syncCloud().catch(()=>{})},45000);
+ setInterval(()=>{if(isAuthenticated()&&document.visibilityState==='visible')loadAccountExtras().catch(()=>{})},20000);
 }
 export async function acceptAuthRedirect(){
  if(!isConfigured())return false;
@@ -331,5 +359,10 @@ export function cloudPanel(){
  !status.authenticated?
  '<div class="account-signin" id="account-login"><p>Entre para sincronizar seus tempos, progresso e preferências.</p><button type="button" class="google-signin" data-cloud="google"><span class="google-mark" aria-hidden="true">G</span> Continuar com Google</button><details class="account-email"><summary>Entrar com e-mail e senha</summary><form id="cloud-auth" class="studio-form"><label>E-mail<input class="field" name="email" type="email" autocomplete="email" required></label><label>Senha<input class="field" name="password" type="password" minlength="8" autocomplete="current-password" required></label><div class="row"><button name="mode" value="login" type="submit">Entrar</button><button name="mode" value="signup" type="submit" class="secondary">Criar conta</button><button name="mode" value="recover" type="submit" class="secondary" formnovalidate>Recuperar senha</button></div></form></details></div>':
  '<div class="account-signed-in"><div class="account-identity"><span class="account-identity-avatar" aria-hidden="true">'+esc((status.user?.email||'?')[0].toUpperCase())+'</span><div><strong>'+esc(status.user?.email||'Conta conectada')+'</strong><p class="muted">'+(status.admin?'Administrador':'Conta conectada')+'</p></div></div><div class="row"><button type="button" data-cloud="sync">Sincronizar</button></div><details class="account-email profile-fold"><summary>Segurança e acesso</summary><div class="profile-fold-content"><button type="button" class="secondary" data-cloud="logout">Sair da conta</button><p class="muted">Sua atividade é estimada apenas enquanto o aplicativo está em primeiro plano e há interação recente. Não coletamos localização ou conteúdo digitado.</p></div></details><details class="account-email profile-fold"><summary>Alterar senha</summary><form id="cloud-password" class="studio-form"><label>Nova senha<input class="field" name="password" type="password" required minlength="8"></label><button>Atualizar senha</button></form></details></div>')+
- (status.authenticated?'<details class="account-notices profile-fold"><summary><strong>Mensagens da equipe ('+accountMessages.length+')</strong></summary><div class="profile-fold-content"><p class="muted">Ajuste administrativo de XP: '+accountXp+'</p>'+(accountMessages.length?accountMessages.map(n=>'<article class="account-notice"><p>'+esc(n.body)+'</p><small>'+new Date(n.created_at).toLocaleString('pt-BR')+'</small></article>').join(''):'<p class="muted">Nenhuma mensagem recebida.</p>')+'</div></details>':'')+(status.configured?technical:'')+'</section>';
+ (status.authenticated?'<details class="account-notices profile-fold"><summary><strong>Mensagens da equipe · '+pendingNotices().length+' pendentes</strong></summary>'+
+ '<div class="profile-fold-content"><p class="muted">Ajuste administrativo de XP: '+accountXp+'</p>'+
+ (accountMessages.length?accountMessages.map(n=>'<article class="account-notice"><p>'+esc(n.body)+'</p>'+
+ '<small>'+new Date(n.created_at).toLocaleString('pt-BR')+' · '+(n.read_at?'Lida':'Pendente')+'</small>'+
+ (!n.read_at?'<button type="button" class="secondary" data-cloud="read-notice" data-notice-id="'+esc(n.id)+'">Marcar como lida</button>':'')+'</article>').join(''):
+ '<p class="muted">Nenhuma mensagem recebida.</p>')+'</div></details>':'')+(status.configured?technical:'')+'</section>';
 }
