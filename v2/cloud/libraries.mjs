@@ -55,12 +55,33 @@ export async function createLibrary(title,description=''){
  requireOwner();const r=await cloudTable('cfop_libraries',{method:'POST',body:{title:String(title).trim(),description:String(description).trim(),created_by:cloudUser().id,is_public:false},prefer:'return=representation'});
  await loadLibraries();return Array.isArray(r)?r[0]:r
 }
+function validatedDraft(libraryId,record){
+ const c=CASE_BY_ID.get(record.case_id);
+ if(!c)throw Error('O caso não pertence ao catálogo fixo.');
+ return {library_id:libraryId,case_id:c.id,algorithm:String(record.algorithm||'').trim(),
+  setup:String(record.setup||'').trim(),orientation:String(record.orientation||'').slice(0,160),
+  image_data:record.imageData||record.image_data||null,
+  status:['draft','approved','rejected'].includes(record.status)?record.status:'draft',
+  source_page:record.sourcePage||record.source_page||null};
+}
+export async function saveLibraryCasesBatch(libraryId,records,onProgress=()=>{}){
+ requireOwner();
+ if(!libraryId||!Array.isArray(records)||!records.length)throw Error('Selecione uma biblioteca e pelo menos um caso.');
+ const rows=records.map(record=>validatedDraft(libraryId,record));
+ if(new Set(rows.map(r=>r.case_id)).size!==rows.length)throw Error('Há casos duplicados na revisão.');
+ for(let start=0;start<rows.length;start+=8){
+  const chunk=rows.slice(start,start+8);
+  await cloudTable('cfop_library_case_drafts',{
+   method:'POST',query:'on_conflict=library_id,case_id',body:chunk,
+   prefer:'resolution=merge-duplicates,return=minimal'
+  });
+  onProgress(Math.min(start+8,rows.length),rows.length);
+ }
+ return rows.length;
+}
 export async function saveLibraryCase(libraryId,record){
- requireOwner();const c=CASE_BY_ID.get(record.case_id);if(!c)throw Error('O caso não pertence ao catálogo fixo.');
- const row={library_id:libraryId,case_id:c.id,algorithm:String(record.algorithm||'').trim(),setup:String(record.setup||'').trim(),orientation:String(record.orientation||'').slice(0,160),image_data:record.imageData||record.image_data||null,status:['draft','approved','rejected'].includes(record.status)?record.status:'draft',source_page:record.sourcePage||record.source_page||null};
- await cloudTable('cfop_library_case_drafts',{method:'POST',query:'on_conflict=library_id,case_id',body:row,prefer:'resolution=merge-duplicates,return=representation'});
- if(choice===libraryId)await loadLibraryCases(libraryId);
- return row
+ await saveLibraryCasesBatch(libraryId,[record]);
+ return validatedDraft(libraryId,record);
 }
 export async function publishApprovedLibrary(libraryId){
  requireOwner();const count=await cloudTable('rpc/cfop_publish_library',{method:'POST',body:{p_library:libraryId}});
