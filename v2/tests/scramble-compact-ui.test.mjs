@@ -12,7 +12,7 @@ test('3x3 timer opens compactly and settings live inside hamburger dialog',()=>{
  assert.match(html,/<button id="scramble-menu-toggle"[^>]+aria-haspopup="dialog"/);
  assert.match(html,/<dialog id="scramble-menu"/);
  assert.doesNotMatch(html,/class="scramble-options"/);
- assert.match(html,/<section class="scramble-cube-section" hidden/);
+ assert.match(html,/<section class="scramble-cube-section" aria-label=/);
  assert.match(js,/configMenu\.showModal\(\)/);
  assert.match(js,/configMenu\.close\(\)/);
 });
@@ -52,8 +52,12 @@ test('Cube preview and PB popup never extend normal timer page height',()=>{
  const dStart=html.indexOf('<dialog id="scramble-menu"'),dEnd=html.indexOf('</dialog>')+9;
  assert.ok(dStart>=0&&dEnd>dStart);
  const menu=html.slice(dStart,dEnd);
- assert.match(menu,/<section class="scramble-cube-section" hidden/);
- assert.doesNotMatch(html.slice(dEnd),/scramble-cube-section/);
+ assert.doesNotMatch(menu,/<section class="scramble-cube-section"/);
+ const timer=html.slice(html.indexOf('<section data-panel="timer"'),html.indexOf('<section data-panel="history"'));
+ assert.match(timer,/<section class="scramble-cube-section" aria-label=/);
+ assert.ok(timer.indexOf('scramble-clock')<timer.indexOf('scramble-cube-section'));
+ assert.match(css,/\.scramble-body\.scramble-timer-active \.scramble-cube-section:not\(\[hidden\]\)/);
+ assert.match(js,/preview\.checked=localStorage\.getItem\(previewKey\)!=='false'/);
  assert.match(html,/id="scramble-record-close"/);
  assert.match(js,/scramble-record-close/);
  assert.match(css,/position:fixed;z-index:9/);
