@@ -140,20 +140,11 @@ export function crossTimerSuspend(){cancelAnimationFrame(frame);frame=0;if(activ
 export function crossTimerSetLevel(n){if(![1,2,3,4].includes(Number(n))||active()||phase==='review'){if(phase==='review')notice='Registre o resultado ou cancele a tentativa antes de trocar de nível.';return false;}selectLevel(Number(n));notice='Treino preparado. Embaralhe o cubo físico e inicie.';return true}
 function download(name,blob){const url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download=name;a.click();setTimeout(()=>URL.revokeObjectURL(url),1000)}
 function shareCard(exportFile=false){
- const s=statsOf(current()),canvas=document.createElement('canvas');canvas.width=960;canvas.height=1200;
- const ctx=canvas.getContext('2d');ctx.fillStyle='#081629';ctx.fillRect(0,0,960,1200);
- ctx.fillStyle='#83ddff';ctx.font='bold 45px system-ui';ctx.fillText('ACADEMIA CFOP',75,120);
- ctx.fillStyle='#fff';ctx.font='bold 60px system-ui';ctx.fillText('Timer da cruz',75,235);
- ctx.font='37px system-ui';ctx.fillText(level+' '+(level===1?'peça de meio':'peças de meio'),75,300);
- [['Melhor tempo',show(s.best)],['Ao5',show(s.ao5)],['Ao12',show(s.ao12)],['Precisão',s.rate+'%'],['Tentativas',s.total]].forEach(([k,v],i)=>{
-  const y=420+i*135;ctx.fillStyle='#acc6e8';ctx.font='30px system-ui';ctx.fillText(k,75,y);
-  ctx.fillStyle='#fff';ctx.font='bold 48px system-ui';ctx.fillText(String(v),75,y+54);
- });
- ctx.fillStyle='#91aecb';ctx.font='24px system-ui';ctx.fillText('Treinamento de cruz com cubo físico',75,1130);
- canvas.toBlob(async blob=>{if(!blob)return;const file=new File([blob],'academia-cfop-cross-'+level+'.png',{type:'image/png'});
-  if(!exportFile&&navigator.share&&navigator.canShare?.({files:[file]})){try{await navigator.share({title:'Academia CFOP — Cross',files:[file]});return}catch(e){if(e?.name==='AbortError')return}}
-  download(file.name,blob);
- },'image/png');
+ const eligible=current().map(r=>({...r,
+  penalty:r.penalty==='plus2'?'+2':r.penalty==='dnf'?'DNF':'OK'
+ }));
+ const canvas=shareImage({title:'Minha evolução no Cross',subtitle:level+' '+(level===1?'peça de meio':'peças de meio'),solves:eligible});
+ downloadOrShare(canvas,'academia-cfop-cross-'+level+'.png',!exportFile).catch(err=>alert('Não foi possível compartilhar: '+err.message));
 }
 export function crossTimerAction(button){
  const cmd=button?.dataset?.crossTimer;if(!cmd)return false;
@@ -165,6 +156,7 @@ export function crossTimerAction(button){
  }
  if(cmd.startsWith('save-')&&phase==='review'){
   const achieved=Number(cmd.slice(5));if(!Number.isInteger(achieved)||achieved<0||achieved>level)return false;
+  if(elapsed<2000&&!confirm('Tempo muito curto ('+fmt(elapsed)+'s). Registrar mesmo assim?'))return false;
   const previousBest=statsOf(current()).best;
   const correct=achieved===level&&pendingPenalty!=='dnf';
   const actual=elapsed+(pendingPenalty==='plus2'?2000:0);
