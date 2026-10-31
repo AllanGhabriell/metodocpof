@@ -20,6 +20,19 @@ export async function bulkAdjustImages(records,settings,onProgress=()=>{}){
  for(const {r,updated} of changed){r.imageOriginal ||= r.imageData;r.imageData=updated;r.status='draft';r.imageUpdatedAt=Date.now()}
  return changed.length
 }
+export async function standardizeImages(records){
+ let normalized=0;
+ for(const record of records){
+  if(!record.imageData)continue;
+  const img=await load(record.imageData);
+  if(img.naturalWidth===SIZE&&img.naturalHeight===SIZE&&record.imageData.startsWith('data:image/webp;'))continue;
+  const target=canvas();paintBase(target,img);
+  record.imageOriginal ||= record.imageData;
+  record.imageData=exportImage(target);normalized++;
+ }
+ return normalized
+}
+
 export function openImageEditor(record,onSave){
  if(!record?.imageData)return Promise.reject(Error('Este caso ainda não tem imagem.'));
  document.getElementById('cpof-image-editor-modal')?.remove();
