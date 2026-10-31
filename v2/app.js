@@ -156,7 +156,10 @@ function stageDefaultsPage(){
  return '<section class="card admin-stage-defaults"><span class="admin-publish-eyebrow">CONFIGURAÇÃO GLOBAL</span>'+
  '<h1>Biblioteca principal de cada etapa</h1>'+
  '<p>Escolha qual base abre automaticamente para todos. Só bibliotecas publicadas, com casos aprovados da etapa, podem ser principais. F2L e PLL também aceitam Original.</p>'+firstError+
- (publicState.error?'<div class="admin-default-warning" role="alert">Não consegui confirmar o acesso dos visitantes: '+escapeHtml(publicState.error)+'</div>':'')+
+ (publicState.error?'<div class="admin-default-warning" role="alert"><strong>Bibliotecas bloqueadas para visitantes.</strong> '+escapeHtml(publicState.error)+
+ '<p>Publicar os casos não altera as permissões do Supabase. Execute o SQL de reparo de acesso público no Supabase SQL Editor e verifique novamente.</p>'+
+ '<a href="https://github.com/AllanGhabriell/metodocpof/blob/main/supabase/CFOP_CORRIGIR_LEITURA_PUBLICA_SEM_LOGIN.sql" target="_blank" rel="noopener">Abrir SQL de reparo do acesso sem login</a> '+
+ '<button class="secondary" data-action="admin-refresh-public">Verificar novamente o acesso público</button></div>':'')+
  '<div class="admin-default-cards">'+['f2l','oll','pll'].map(stage=>{
    const entry=current[stage],saved=entry?.source==='library'?entry.library_id:entry?.source||'none';
    const draft=Object.prototype.hasOwnProperty.call(stageDefaultPending,stage);
@@ -259,6 +262,18 @@ case'admin-delete-library':{
  if(!confirm('Excluir permanentemente a biblioteca "'+lib.title+'" e seus casos? Essa ação não pode ser desfeita.'))break;
  b.disabled=true;
  deleteLibrary(id).then(()=>{cloudMessage='Biblioteca excluída.';render()}).catch(e=>{cloudMessage='Erro ao excluir: '+e.message;render()});
+ break;
+}
+case'admin-refresh-public':{
+ if(!isOriginalOwner())break;
+ b.disabled=true;
+ cloudMessage='Conferindo o acesso como visitante…';
+ loadLibraries().then(()=>{
+  const state=publicLibraryStatus();
+  cloudMessage=state.error?'Acesso ainda bloqueado: '+state.error:
+    'Acesso público confirmado. As bibliotecas publicadas podem ser consultadas sem login.';
+  render();
+ }).catch(e=>{cloudMessage=e.message;render()});
  break;
 }
 case'admin-save-default':{
