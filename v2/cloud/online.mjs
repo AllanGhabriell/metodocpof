@@ -1,4 +1,4 @@
-import {cloudStatus,cloudTable,cloudUser} from './cloud.mjs?v=20261030-53';
+import {cloudStatus,cloudTable,cloudUser} from './cloud.mjs?v=20261030-54';
 const esc=x=>String(x??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
 const match=/^[a-f0-9]{8}-[a-f0-9]{4}-[1-8][a-f0-9]{3}-[89ab][a-f0-9]{3}-[a-f0-9]{12}$/i;
 let latest=[],selected=null,results=[],names={},loading=false,error='',message='',onUpdated=()=>{},lastLoad=0;
