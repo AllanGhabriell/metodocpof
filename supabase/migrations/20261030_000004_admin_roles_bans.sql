@@ -1,6 +1,6 @@
 -- CFOP Studio: delegação de administradores e banimento permanente.
 -- Executar DEPOIS de 000001, 000002 e 000003.
--- Somente as três contas fundadoras podem promover/rebaixar administradores.
+-- Somente a conta fundadora coelhodatoca124@gmail.com pode promover/rebaixar administradores.
 alter table public.cfop_user_admin_state
  add column if not exists banned_at timestamptz,
  add column if not exists banned_reason text not null default '';
@@ -16,11 +16,7 @@ as $$
   select 1 from auth.users u
   join public.cfop_admins a on a.user_id=u.id
   where u.id=p_uid and u.email_confirmed_at is not null
-   and lower(u.email) in (
-    'allanghabriell8@gmail.com',
-    'allanghabriell572@gmail.com',
-    'coelhodatoca124@gmail.com'
-   )
+   and lower(u.email) = 'coelhodatoca124@gmail.com'
  )
 $$;
 revoke all on function public.cfop_is_owner(uuid) from public,anon;
