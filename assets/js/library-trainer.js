@@ -16,7 +16,7 @@ window.CPOFLibrary={
  get(stage,legacy){
   if(selectedLibrary()==='original'&&isOriginalOwner()&&originalBaseInfo().state==='active')return null;
   const id=trainerCaseToCatalog(stage,legacy);
-  if(!id)return null;
+  if(!id)return {missing:true,algorithm:'',setup:'',imageData:null,name:'Caso não publicado'};
   const variant=libraryCase(stage,id);
   return variant||{
    id,stage,name:CASE_BY_ID.get(id)?.name||id,
