@@ -65,7 +65,7 @@ CREATE POLICY cfop_catalog_read ON public.cfop_case_catalog FOR SELECT TO anon,a
 
 DROP POLICY IF EXISTS cfop_libraries_read ON public.cfop_libraries;
 CREATE POLICY cfop_libraries_read ON public.cfop_libraries FOR SELECT TO anon,authenticated
-USING (is_public OR (SELECT public.cfop_is_owner(auth.uid())));
+USING (is_public OR (CASE WHEN (SELECT auth.uid()) IS NULL THEN false ELSE (SELECT public.cfop_is_owner(auth.uid())) END));
 DROP POLICY IF EXISTS cfop_libraries_write ON public.cfop_libraries;
 CREATE POLICY cfop_libraries_write ON public.cfop_libraries FOR ALL TO authenticated
 USING ((SELECT public.cfop_is_owner(auth.uid())) AND (SELECT public.cfop_user_allowed(auth.uid())))
@@ -73,7 +73,7 @@ WITH CHECK (created_by=(SELECT auth.uid()) AND (SELECT public.cfop_is_owner(auth
 DROP POLICY IF EXISTS cfop_library_cases_read ON public.cfop_library_cases;
 CREATE POLICY cfop_library_cases_read ON public.cfop_library_cases FOR SELECT TO anon,authenticated
 USING (
- (SELECT public.cfop_is_owner(auth.uid()))
+ (CASE WHEN (SELECT auth.uid()) IS NULL THEN false ELSE (SELECT public.cfop_is_owner(auth.uid())) END)
  OR (status='approved' AND EXISTS(
   SELECT 1 FROM public.cfop_libraries l WHERE l.id=library_id AND l.is_public
  ))
