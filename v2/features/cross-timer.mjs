@@ -1,5 +1,8 @@
 import {solved,apply,facelets} from '../cube/engine.mjs';
 import {cube3D} from '../cube/visual.mjs?v=20261030-20';
+import {createTimerHistory} from '../../assets/js/timer-history-ui.mjs?v=20261031-1';
+import {normalizeAll,statistics,celebrate,shareImage,downloadOrShare} from '../timer/records.mjs';
+import {recordTimerSolve} from '../timer/telemetry.mjs?v=20261031-1';
 const PREF='academy-cross-physical-settings-v1';
 const DB='academy-cross-physical-records-v1';
 const palette={U:'#f8d649',D:'#fafafa',F:'#20ad75',B:'#4377e8',R:'#db5354',L:'#e89637'};
@@ -11,13 +14,14 @@ let length=[15,20,25].includes(Number(previous.length))?Number(previous.length):
 let inspection=[0,8,15,30].includes(Number(previous.inspection))?Number(previous.inspection):15;
 let cubeView=previous.view==='2d'?'2d':'3d';
 let tab='timer',phase='ready',sequence='',cube=solved(),yaw=-35,pitch=-27;
-let started=0,elapsed=0,frame=0,notice='',pendingPenalty='none';
+let started=0,elapsed=0,frame=0,notice='',pendingPenalty='none',newPB=false;
 const normalizeRecord=r=>{
  if(!r||![1,2,3,4].includes(Number(r.level))||!Number.isFinite(Number(r.ms))||Number(r.ms)<0)return null;
  const lvl=Number(r.level),achieved=Math.max(0,Math.min(lvl,Number(r.achieved)||0));
- const penalty=['none','plus2','dnf'].includes(r.penalty)?r.penalty:'none';
+ const penalty=['none','plus2','dnf','OK','+2','DNF'].includes(r.penalty)?({'OK':'none','+2':'plus2','DNF':'dnf'}[r.penalty]||r.penalty):'none';
  return {id:String(r.id||r.date||Math.random()).slice(0,70),level:lvl,achieved,ms:Math.round(Number(r.ms)),penalty,
-  date:String(r.date||new Date().toISOString()).slice(0,35),scramble:String(r.scramble||'').slice(0,200),inspection:Number(r.inspection)||0};
+  date:String(r.date||new Date().toISOString()).slice(0,35),scramble:String(r.scramble||'').slice(0,200),inspection:Number(r.inspection)||0,
+  comment:String(r.comment||'').slice(0,600),session:String(r.session||'Geral').slice(0,45),archived:Boolean(r.archived)};
 };
 let records=read(DB,[]);
 records=(Array.isArray(records)?records:[]).map(normalizeRecord).filter(Boolean).slice(-3500);
@@ -41,7 +45,7 @@ const statsOf=list=>{
  return {total:list.length,wins:validTimes.length,rate:list.length?Math.round(validTimes.length*100/list.length):0,best,average,ao5:ao(5),ao12:ao(12),ao50:ao(50),ao100:ao(100)};
 };
 const show=ms=>ms===null?'—':Number.isFinite(ms)?fmt(ms)+'s':'DNF';
-const current=()=>records.filter(r=>r.level===level);
+const current=()=>records.filter(r=>r.level===level&&!r.archived);
 const active=()=>phase==='inspection'||phase==='running';
 const selectLevel=n=>{level=n;tab='timer';savePrefs();nextScramble()};
 function generate(){
@@ -55,7 +59,7 @@ function generate(){
  return result.join(' ');
 }
 function nextScramble(){
- cancelAnimationFrame(frame);frame=0;
+ cancelAnimationFrame(frame);frame=0;newPB=false;
  sequence=generate();cube=apply(solved(),sequence);
  phase='ready';elapsed=0;started=0;pendingPenalty='none';
 }
@@ -81,12 +85,11 @@ const summary=()=>{
  '<div><span>'+k+'</span><strong>'+v+'</strong></div>').join('');
 };
 function historyPage(){
- const list=current(),s=statsOf(list);
+ const list=records.filter(r=>r.level===level),s=statsOf(current());
  return '<section class="cross-lab-data"><div class="cross-panel-heading"><h2>Histórico · '+level+' '+(level===1?'meio':'meios')+'</h2><span class="cross-progress">'+s.total+' tentativas</span></div>'+
  '<p class="cross-lab-help">Cada modalidade conserva seu histórico próprio. Erros contam como DNF para as médias.</p>'+
- '<div class="cross-lab-history">'+(list.length?list.slice(-150).reverse().map((r,i)=>
- '<div class="cross-lab-attempt"><div><strong>'+esc(label(r))+'</strong><small>'+esc(new Date(r.date).toLocaleString('pt-BR'))+' · '+r.achieved+'/'+r.level+' peças</small><p>'+esc(r.scramble)+'</p></div><button type="button" data-cross-timer="delete-'+esc(r.id)+'" aria-label="Excluir tentativa">✕</button></div>').join(''):'<p class="cross-lab-empty">Você ainda não fez tentativas neste nível.</p>')+'</div>'+
- '<div class="cross-lab-data-actions"><button type="button" data-cross-timer="export">Exportar CSV</button><button type="button" class="cross-lab-danger" data-cross-timer="clear">Limpar histórico deste nível</button></div></section>';
+ '<div class="cross-lab-history timer-history-root" id="cross-timer-history-panel"></div>'+
+ '<p class="cross-lab-help">Toque em um tempo para alterar penalidade, comentário, sessão ou excluir. Também há seleção múltipla, exportação e backup.</p></section>';
 }
 function statsPage(){
  const s=statsOf(current()),rows=[['Total',s.total],['Corretas',s.wins],['Taxa de acerto',s.rate+'%'],['Melhor',show(s.best)],
@@ -118,7 +121,7 @@ export function crossTimerPage(){
  '<div class="cross-lab-scores">'+Array.from({length:level+1},(_,n)=>'<button type="button" data-cross-timer="save-'+n+'" class="'+(n===level?'success':'')+'">'+n+' / '+level+'</button>').join('')+'</div>'+
  '<label>Penalidade<select id="cross-lab-penalty"><option value="none" '+(pendingPenalty==='none'?'selected':'')+'>Nenhuma</option><option value="plus2" '+(pendingPenalty==='plus2'?'selected':'')+'>+2 segundos</option><option value="dnf" '+(pendingPenalty==='dnf'?'selected':'')+'>DNF</option></select></label>'+
  '<p class="cross-lab-help">Os resultados de cubo físico são informados pelo usuário, não verificados automaticamente.</p></div>':'')+
- '<p class="cross-lab-notice" role="status">'+esc(notice)+'</p></section>'+
+ '<p class="cross-lab-notice" role="status">'+esc(notice)+'</p>'+(newPB?'<div class="cross-lab-pb-notice"><strong>✦ Novo recorde pessoal!</strong><button type="button" data-cross-timer="share-pb">Compartilhar recorde</button></div>':'')+'</section>'+
  '<div class="cross-lab-snapshot" aria-label="Resumo do nível">'+summary()+'</div>'+
  '<div class="cross-lab-scramble"><div><strong>Embaralhamento 3×3</strong><button type="button" data-cross-timer="new" '+(working||phase==='review'?'disabled':'')+' aria-label="Gerar novo embaralhamento">⟳ Novo</button></div>'+
  '<p>'+(!hide?esc(sequence):'Oculto durante a execução')+'</p></div>'+
@@ -162,12 +165,20 @@ export function crossTimerAction(button){
  }
  if(cmd.startsWith('save-')&&phase==='review'){
   const achieved=Number(cmd.slice(5));if(!Number.isInteger(achieved)||achieved<0||achieved>level)return false;
+  const previousBest=statsOf(current()).best;
+  const correct=achieved===level&&pendingPenalty!=='dnf';
+  const actual=elapsed+(pendingPenalty==='plus2'?2000:0);
+  const best=correct&&elapsed>=2000&&(previousBest===null||actual<previousBest);
   records.push({id:Date.now()+'-'+Math.random().toString(36).slice(2,7),level,achieved,ms:Math.round(elapsed),
-   penalty:pendingPenalty,date:new Date().toISOString(),scramble:sequence,inspection});
+   penalty:pendingPenalty,date:new Date().toISOString(),scramble:sequence,inspection,comment:'',session:'Geral',archived:false});
   records=records.slice(-3500);saveRecords();
-  notice=achieved===level&&pendingPenalty!=='dnf'?'Resultado correto registrado: '+fmt(elapsed)+'s.':
+  nextScramble();newPB=best;
+  notice=best?'Novo recorde pessoal no Cross '+level+' peças: '+fmt(actual)+'s!':
+   correct?'Resultado correto registrado: '+fmt(actual)+'s.':
    'Tentativa registrada: '+achieved+' de '+level+' peças de meio.';
-  nextScramble();return true;
+  if(best)celebrate(document.body);
+  recordTimerSolve('cross'+level,Math.round(elapsed),correct).catch(()=>{});
+  return true;
  }
  if(cmd.startsWith('level-'))return crossTimerSetLevel(Number(cmd.slice(6)));
  if(cmd.startsWith('tab-')&&!active()){tab=cmd.slice(4);notice='';return true}
@@ -191,6 +202,7 @@ export function crossTimerAction(button){
   for(const r of current())lines.push([r.date,r.level,r.achieved,r.ms,r.penalty,'"'+r.scramble.replace(/"/g,'""')+'"'].join(','));
   download('academia-cfop-cross-'+level+'.csv',new Blob(['\ufeff'+lines.join('\r\n')],{type:'text/csv;charset=utf-8'}));return false;
  }
+ if(cmd==='share-pb'){const r=current().at(-1);if(r){downloadOrShare(shareImage({title:'Recorde no Cross',subtitle:level+' peças de meio',record:{...r,penalty:r.penalty==='plus2'?'+2':r.penalty==='dnf'?'DNF':'OK'}}),'academia-cfop-cross-pb.png').catch(()=>{});}return false}
  if(cmd==='png'||cmd==='share'){shareCard(cmd==='png');return false}
  return false;
 }
@@ -203,7 +215,17 @@ export function crossTimerChange(node){
  return false;
 }
 export function crossTimerBind(render){
- cancelAnimationFrame(frame);frame=0;if(!active())return;
+ cancelAnimationFrame(frame);frame=0;
+ const root=document.getElementById('cross-timer-history-panel');
+ if(root){
+  const manager=createTimerHistory({
+   root,kind:'cross'+level,
+   getRecords:()=>normalizeAll(records.filter(r=>r.level===level)),
+   setRecords:next=>{records=[...records.filter(r=>r.level!==level),...next.map(normalizeRecord).filter(Boolean)].slice(-3500);saveRecords()},
+   onUpdate:()=>render()
+  });manager.render()
+ }
+ if(!active())return;
  const tick=()=>{
   const label=document.getElementById('cross-lab-digits');if(!label||!active()){frame=0;return}
   const dt=performance.now()-started;
