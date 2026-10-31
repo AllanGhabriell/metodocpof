@@ -21,7 +21,7 @@ test('F2L crop excludes adjacent diagram and algorithm; OLL and PLL remain uncha
 
 test('stage defaults are independent, founder only, and OLL does not have Original',()=>{
  assert.match(sql,/PRIMARY KEY CHECK\(stage IN \('f2l','oll','pll'\)\)/);
- assert.match(sql,/source='original' OR stage IN \('f2l','pll'\)/);
+ assert.match(sql,/source<>'original' OR stage IN \('f2l','pll'\)/);
  assert.match(sql,/IF p_stage='oll' THEN RAISE EXCEPTION 'Não existe base original de OLL'/);
  assert.match(sql,/cfop_is_owner\(actor\)/);
  assert.match(sql,/cfop_original_public_stage\(text\)/);
