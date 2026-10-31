@@ -452,5 +452,8 @@ initializeCloud({
   render()}
 }).then(async()=>{await acceptAuthRedirect().catch(()=>{});await Promise.all([loadIdentity().catch(()=>{}),loadJourney().catch(()=>{})])});
 setInterval(checkReminder,60000);
+// Ações administrativas ficam pendentes no banco até leitura; buscar ao voltar à aba.
+setInterval(()=>{if(document.visibilityState==='visible'&&isAuthenticated())loadAccountExtras().catch(()=>{})},20000);
+document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible'&&isAuthenticated())loadAccountExtras().catch(()=>{})});
 if('serviceWorker'in navigator&&(location.protocol==='https:'||location.hostname==='localhost'))navigator.serviceWorker.register('./sw.js').catch(()=>{});
 // O material original é carregado exclusivamente pelo fundador via Supabase.
