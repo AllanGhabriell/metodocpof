@@ -1,4 +1,4 @@
-import {cloudTable,isAuthenticated,cloudUser} from './cloud.mjs?v=20261031-58';
+import {cloudTable,isAuthenticated,cloudUser,isAdmin} from './cloud.mjs?v=20261031-58';
 
 const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 let profile={userId:null,nickname:'Cubista Anônimo',avatar:null,ready:false,nameLocked:false,avatarBlocked:false,quota:null,error:''};
@@ -65,12 +65,13 @@ export function identityPanel(){
   '<span class="identity-avatar-initial">'+esc((id.nickname||'C')[0].toUpperCase())+'</span>';
  const first=!id.nickname||/^Cubista-[0-9a-f]{12}$/i.test(id.nickname);
  const quota=id.quota||null;
- const nameRemaining=quota?Number(quota.name_remaining):null;
- const photoRemaining=quota?Number(quota.photo_remaining):null;
+ const privileged=isAdmin();
+ const nameRemaining=privileged?Infinity:quota?Number(quota.name_remaining):null;
+ const photoRemaining=privileged?Infinity:quota?Number(quota.photo_remaining):null;
  const nameWaiting=quota?.name_next_at?new Date(quota.name_next_at)>new Date():false;
  const photoWaiting=quota?.photo_next_at?new Date(quota.photo_next_at)>new Date():false;
- const cantRename=id.nameLocked||nameRemaining===0||nameWaiting;
- const cantPhoto=id.avatarBlocked||photoRemaining===0||photoWaiting;
+ const cantRename=!privileged&&(id.nameLocked||nameRemaining===0||nameWaiting);
+ const cantPhoto=!privileged&&(id.avatarBlocked||photoRemaining===0||photoWaiting);
  return '<section class="card identity-editor"><div class="identity-editor-heading"><div class="identity-photo-frame">'+av+'</div><div><h2>'+
   (authenticated?'Seu nome e foto':'Cubista Anônimo')+'</h2><p class="muted">'+
   (authenticated?'O apelido é exclusivo. Sua foto é quadrada e compactada antes de ser enviada ao banco.':
@@ -80,18 +81,16 @@ export function identityPanel(){
    (id.error?'<p role="alert" class="notice">'+esc(id.error)+'</p>':'')+
    (first?'<p class="notice">Escolha um nome para personalizar sua conta. Nenhuma outra conta poderá usar o mesmo apelido.</p>':'')+
    '<div class="identity-limits" aria-live="polite">'+
-    '<p><strong>Nome:</strong> '+(quota?(nameRemaining+' de 3 alterações restantes hoje'):'Até 3 mudanças por dia')+' · intervalo de 30 minutos.'+
-    (nameWaiting?whenNext(quota.name_next_at):'')+'</p>'+
-    '<p><strong>Foto:</strong> '+(quota?(photoRemaining+' de 2 alterações restantes hoje'):'Até 2 mudanças por dia')+' · intervalo de 2 horas.'+
-    (photoWaiting?whenNext(quota.photo_next_at):'')+'</p>'+
+    '<p><strong>Nome:</strong> '+(privileged?'Alterações ilimitadas para administradores.':(quota?(nameRemaining+' de 3 alterações restantes hoje'):'Até 3 mudanças por dia')+' · intervalo de 30 minutos.'+(nameWaiting?whenNext(quota.name_next_at):''))+'</p>'+
+    '<p><strong>Foto:</strong> '+(privileged?'Alterações ilimitadas para administradores.':(quota?(photoRemaining+' de 6 alterações restantes hoje'):'Até 6 mudanças por dia')+' · pausas progressivas de 5, 15, 30, 60 e 120 minutos.'+(photoWaiting?whenNext(quota.photo_next_at):''))+'</p>'+
     '</div>'+
    '<form id="cfop-identity-form" class="studio-form identity-form">'+
-    '<label>Nome exclusivo<input class="field" name="nickname" autocomplete="nickname" maxlength="36" minlength="3" required value="'+esc(id.nickname||'')+'" '+(id.nameLocked?'disabled':'')+' placeholder="Escolha seu apelido"></label>'+
-    (id.nameLocked?'<p class="muted">A administração bloqueou mudanças no nome.</p>':'')+
+    '<label>Nome exclusivo<input class="field" name="nickname" autocomplete="nickname" maxlength="36" minlength="3" required value="'+esc(id.nickname||'')+'" '+(cantRename?'disabled':'')+' placeholder="Escolha seu apelido"></label>'+
+    (id.nameLocked&&!privileged?'<p class="muted">A administração bloqueou mudanças no nome.</p>':'')+
     '<div class="identity-actions"><button type="submit" '+(cantRename?'disabled':'')+'>Salvar nome</button>'+
     '<label class="identity-upload-link '+(cantPhoto?'disabled':'')+'">Escolher foto<input type="file" id="cfop-avatar-file" accept="image/*" '+(cantPhoto?'disabled':'')+' hidden></label>'+
-    (id.avatar?'<button class="secondary" type="button" data-identity="remove-avatar" '+(photoRemaining===0||photoWaiting?'disabled':'')+'>Remover foto</button>':'')+'</div>'+
-    (id.avatarBlocked?'<p class="notice">O envio de fotos foi bloqueado pela administração.</p>':'')+
+    (id.avatar?'<button class="secondary" type="button" data-identity="remove-avatar" '+(cantPhoto?'disabled':'')+'>Remover foto</button>':'')+'</div>'+
+    (id.avatarBlocked&&!privileged?'<p class="notice">O envio de fotos foi bloqueado pela administração.</p>':'')+
    '</form>'+
    '<div id="cfop-avatar-crop-host"></div>'+
    '<p id="cfop-identity-status" role="status" class="muted">'+esc(lastMessage)+'</p>'
