@@ -3,62 +3,70 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<title>CROSS — Academia CFOP</title>
+<meta name="theme-color" content="#081629">
+<title>Cross Timer — Academia CFOP</title>
 <link rel="stylesheet" href="assets/css/global.css?v=20260313k">
 <link rel="stylesheet" href="assets/css/cross-original.css?v=1">
 <link rel="stylesheet" href="assets/css/cursor-glow.css?v=1">
 <link rel="stylesheet" href="assets/css/academy.css?v=20261030-1">
 <link rel="stylesheet" href="assets/css/cross-v2.css?v=20261030-20">
-<link rel="stylesheet" href="assets/css/cross-physical.css?v=20261031-1">
+<link rel="stylesheet" href="assets/css/cross-lab.css?v=20261031-1">
 </head>
 <body data-set="cross">
-<header class="topbar"><a href="index.html" class="icon-btn" aria-label="Voltar à página inicial">✕</a><span class="cross-top-label">CROSS</span><a href="studio.html?page=profile" class="icon-btn cross-account" aria-label="Conta e perfil">☰</a></header>
-<main class="cross-original-main"><div id="cross-root"><p>Carregando treino de cruz…</p></div></main>
+<header class="topbar"><a href="index.html" class="icon-btn" aria-label="Voltar à página inicial">✕</a><span class="cross-top-label">CROSS · TIMER</span><a href="studio.html?page=profile" class="icon-btn cross-account" aria-label="Conta e perfil">☰</a></header>
+<main class="cross-original-main" id="cross-root"><p>Carregando Cross Timer…</p></main>
 <script type="module">
-import {crossPage,crossClick,crossChange} from './v2/features/cross.mjs?v=20261031-brand-cfop-1';
-import {physicalCrossPage,physicalCrossAction,physicalCrossChange,physicalCrossBind,physicalCrossBusy,physicalCrossSuspend} from './v2/features/cross-physical.mjs?v=20261031-brand-cfop-1';
+import {crossPage,crossClick,crossChange} from './v2/features/cross.mjs?v=20261031-guided-1';
+import {crossTimerPage,crossTimerAction,crossTimerChange,crossTimerBind,crossTimerBusy,crossTimerSuspend,crossTimerSetLevel} from './v2/features/cross-timer.mjs?v=20261031-1';
+import {crossIdeasPage,crossIdeasAction} from './v2/features/cross-ideas.mjs?v=20261031-1';
 const root=document.getElementById('cross-root');
-const TAB='academy-cross-active-tab-v1';
-let tab='physical';
-try{tab=localStorage.getItem(TAB)==='simulator'?'simulator':'physical'}catch{}
+let section='timer',ideasOpen=false;
 function render(){
- root.innerHTML='<nav class="cross-mode-switch" aria-label="Tipo de treino de cruz">'+
-  '<button type="button" data-cross-tab="physical" aria-pressed="'+(tab==='physical')+'">Treino com cubo físico</button>'+
-  '<button type="button" data-cross-tab="simulator" aria-pressed="'+(tab==='simulator')+'">Simulador</button></nav>'+
-  (tab==='physical'?physicalCrossPage():crossPage());
- if(tab==='physical')physicalCrossBind(render);
+ const heading=section==='timer'?
+ '<div class="cross-lab-top"><div><span class="cross-kicker">ACADEMIA CFOP</span><strong>Cross · treinamento especializado</strong></div><button type="button" class="cross-lab-sim-link" data-cross-section="simulator">◇ Simulador guiado</button></div>':
+ '<div class="cross-lab-top"><button type="button" class="cross-lab-back" data-cross-section="timer">← Voltar ao timer</button><span>Simulação e aprendizado</span></div>';
+ root.innerHTML=heading+(section==='timer'?
+  crossTimerPage()+'<details id="cross-ideas-disclosure" class="cross-lab-ideas-disclosure" '+(ideasOpen?'open':'')+'><summary><span>✦ Ideias de treino</span><small>Básico · Intermediário · Avançado</small><span aria-hidden="true" class="cross-lab-chevron">⌄</span></summary>'+crossIdeasPage()+'</details>':
+  crossPage());
+ if(section==='timer')crossTimerBind(render);
 }
-function earn(type,xp){
+function award(type,xp){
  try{
-  const key='cfop-studio-progress-v1',state=JSON.parse(localStorage.getItem(key)||'{}');
-  const date=new Date();
-  const day=[date.getFullYear(),String(date.getMonth()+1).padStart(2,'0'),String(date.getDate()).padStart(2,'0')].join('-');
+  const key='cfop-studio-progress-v1',state=JSON.parse(localStorage.getItem(key)||'{}'),now=new Date();
+  const today=[now.getFullYear(),String(now.getMonth()+1).padStart(2,'0'),String(now.getDate()).padStart(2,'0')].join('-');
   const records=Array.isArray(state.records)?state.records:[];
-  records.push({type,xp,date:day,time:Date.now()});state.records=records.slice(-1500);
+  if(records.some(x=>x.type===type&&x.date===today))return;
+  records.push({type,xp:0,date:today,time:Date.now()});state.records=records.slice(-1500);
   localStorage.setItem(key,JSON.stringify(state));
  }catch{}
 }
 root.addEventListener('click',e=>{
- const button=e.target.closest('button');if(!button)return;
- if(button.dataset.crossTab){
-  const chosen=button.dataset.crossTab;if(chosen===tab)return;
-  if(tab==='physical'&&physicalCrossBusy()&&!confirm('Abandonar a tentativa em andamento? O tempo não será salvo.'))return;
-  physicalCrossSuspend();tab=chosen;
-  try{localStorage.setItem(TAB,tab)}catch{}
-  render();return;
+ const b=e.target.closest('button');if(!b)return;
+ if(b.dataset.crossSection){
+  const next=b.dataset.crossSection;if(next===section)return;
+  if(section==='timer'&&crossTimerBusy()&&!confirm('Abandonar a tentativa atual? O tempo não será salvo.'))return;
+  crossTimerSuspend();section=next;render();window.scrollTo({top:0,behavior:'smooth'});return;
  }
- if(tab==='physical'){if(physicalCrossAction(button))render()}
- else if(crossClick(button,earn))render();
+ if(section==='timer'){
+  if(b.dataset.crossIdeas){
+   const changed=crossIdeasAction(b,n=>{
+    if(crossTimerSetLevel(n)){ideasOpen=false;window.scrollTo({top:0,behavior:'smooth'})}
+   });
+   if(changed)render();
+   return;
+  }
+  if(crossTimerAction(b))render();
+ }else if(crossClick(b,award))render();
 });
 root.addEventListener('change',e=>{
- if(tab==='physical'){if(physicalCrossChange(e.target))render()}
+ if(section==='timer'){if(crossTimerChange(e.target))render()}
  else if(crossChange(e.target))render();
 });
+root.addEventListener('toggle',e=>{if(e.target.id==='cross-ideas-disclosure')ideasOpen=e.target.open},true);
 document.addEventListener('keydown',e=>{
- if(tab!=='physical'||e.code!=='Space'||e.repeat||e.defaultPrevented)return;
- if(['INPUT','SELECT','TEXTAREA','BUTTON'].includes(document.activeElement?.tagName))return;
- e.preventDefault();
- if(physicalCrossAction({dataset:{crossPhysical:'clock'}}))render();
+ if(section!=='timer'||e.code!=='Space'||e.repeat||e.defaultPrevented||e.altKey||e.ctrlKey||e.metaKey)return;
+ if(['INPUT','SELECT','TEXTAREA','BUTTON','A','SUMMARY'].includes(document.activeElement?.tagName))return;
+ e.preventDefault();if(crossTimerAction({dataset:{crossTimer:'clock'}}))render();
 });
 render();
 </script>
