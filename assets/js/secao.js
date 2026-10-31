@@ -1878,8 +1878,10 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   function resetCompetitiveSettings() {
-    state.competitive = { ...defaults.competitive, caseStats: {} };
-    competitiveToggle.checked = false;
+    // Restaurar os limites não deve desativar silenciosamente o modo escolhido.
+    const active=currentTrainingMode()==='competitive';
+    state.competitive = { ...defaults.competitive, enabled:active, caseStats: {} };
+    competitiveToggle.checked = active;
     competitiveLimitInput.value = String(defaults.competitive.limitSec);
     competitiveRepeatInput.value = String(defaults.competitive.repeatBase);
     dynamicBgToggle.checked = defaults.competitive.dynamicBg;
@@ -1902,13 +1904,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
   function toggleCompetitiveMode(nextValue) {
     const enable = typeof nextValue === 'boolean' ? nextValue : !state.competitive.enabled;
+    const leavingSequential=isOrderedTrainingMode();
     applyTrainingMode(enable?'competitive':'random',true);
     competitiveToggle.checked = enable;
-    if (enable && state.orderedTraining.enabled) {
-      state.orderedTraining.enabled = false;
-      if (orderedToggle) orderedToggle.checked = false;
-      state.orderedTraining.index = 0;
-    }
+    if (orderedToggle) orderedToggle.checked = false;
+    if (leavingSequential) state.orderedTraining.index = 0;
     if (state.competitive.enabled && !IS_TOUCH_DEVICE) state.timerState.enabled = true;
     if (isMobileCompetitiveTimerLocked()) {
       state.timerState.enabled = false;
@@ -1923,11 +1923,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const enable = typeof nextValue === 'boolean' ? nextValue : !state.orderedTraining.enabled;
     applyTrainingMode(enable?'sequential':'random',true);
     if (orderedToggle) orderedToggle.checked = enable;
-
-    if (enable && state.competitive.enabled) {
-      state.competitive.enabled = false;
-      competitiveToggle.checked = false;
-    }
+    competitiveToggle.checked = false;
 
     state.orderedTraining.index = 0;
     state.orderedTraining.queue = orderedQueue();
