@@ -26,7 +26,7 @@ function cube2D(current){
 }
 function drawCube(){const target=$('scramble-cube');if(!target)return;target.innerHTML=cubeView==='2d'?cube2D(state):cube3D(state,{yaw,pitch,size:174});target.setAttribute('aria-label','Cubo '+(cubeView==='2d'?'2D':'3D')+' embaralhado: '+sequence);document.querySelector('.scramble-cube-controls').hidden=cubeView==='2d';}
 function tick(){if(!running)return;elapsed=performance.now()-started;$('timer-display').textContent=fmt(elapsed);raf=requestAnimationFrame(tick)}
-function start(){if(running)return;if(inspection){inspection=false;cancelAnimationFrame(inspectionRaf)}running=true;started=performance.now();$('timer-display').textContent='0.00';$('timer-status').textContent='Toque ou pressione espaço para parar';document.body.classList.add('is-timing');tick()}
+function start(){if(running)return;$('scramble-record-share').hidden=true;if(inspection){inspection=false;cancelAnimationFrame(inspectionRaf)}running=true;started=performance.now();$('timer-display').textContent='0.00';$('timer-status').textContent='Toque ou pressione espaço para parar';document.body.classList.add('is-timing');tick()}
 function stop(){if(!running)return;running=false;cancelAnimationFrame(raf);elapsed=performance.now()-started;document.body.classList.remove('is-timing');
  // Resoluções muito curtas não viram recordes por acidente.
  if(elapsed<2000&&!confirm('Tempo de '+fmt(elapsed)+'s. Registrar mesmo assim? Toque em Cancelar se foi um clique acidental.')){
@@ -43,7 +43,7 @@ function stop(){if(!running)return;running=false;cancelAnimationFrame(raf);elaps
   if(label)label.textContent='Seu novo melhor tempo: '+fmt(elapsed)+' segundos';
  }localStorage.setItem(key,JSON.stringify(times.slice(-3500)));$('timer-display').textContent=fmt(elapsed);$('timer-status').textContent='Tempo salvo · toque para começar outra resolução';scramble();renderStats();
  recordTimerSolve('3x3',solve.ms,true).catch(()=>{});
- if(isNewRecord){const actions=$('scramble-record-share');if(actions)actions.scrollIntoView({behavior:'smooth',block:'nearest'});}
+ // O aviso de recorde é flutuante e nunca força a rolagem da tela.
 }
 function inspectionTick(){if(!inspection)return;const left=15-(performance.now()-inspectionStarted)/1000;if(left<=0){inspection=false;cancelAnimationFrame(inspectionRaf);start();$('timer-status').textContent='Inspeção encerrada · cronômetro iniciado';return}$('timer-display').textContent=left.toFixed(1);inspectionRaf=requestAnimationFrame(inspectionTick)}
 function action(){if(running){stop();return}if(inspectionEnabled&&!inspection){inspection=true;inspectionStarted=performance.now();$('timer-status').textContent='Inspeção de 15 segundos · toque para iniciar';inspectionTick();return}start()}
@@ -61,7 +61,16 @@ function renderStats(){
  ctx.lineWidth=2*ratio;ctx.strokeStyle='#82c8ff';ctx.beginPath();
  series.forEach((n,i)=>{const x=18*ratio+i*(w-36*ratio)/(series.length-1),y=(h-20*ratio)-(n-lo)/span*(h-40*ratio);if(i)ctx.lineTo(x,y);else ctx.moveTo(x,y)});ctx.stroke()
 }
-function setView(next){view=next;document.querySelectorAll('[data-view]').forEach(b=>{b.classList.toggle('active',b.dataset.view===next);b.setAttribute('aria-pressed',String(b.dataset.view===next))});document.querySelectorAll('[data-panel]').forEach(p=>p.hidden=p.dataset.panel!==next);if(next==='stats')requestAnimationFrame(renderStats)}
+function setView(next){
+ // Bloqueia o arrasto vertical apenas no cronômetro. Histórico e Evolução continuam roláveis.
+ if(next==='timer')window.scrollTo(0,0);
+ view=next;
+ document.documentElement.classList.toggle('scramble-scroll-locked',next==='timer');
+ document.body.classList.toggle('scramble-timer-active',next==='timer');
+ document.querySelectorAll('[data-view]').forEach(b=>{b.classList.toggle('active',b.dataset.view===next);b.setAttribute('aria-pressed',String(b.dataset.view===next))});
+ document.querySelectorAll('[data-panel]').forEach(p=>p.hidden=p.dataset.panel!==next);
+ if(next==='stats')requestAnimationFrame(renderStats);
+}
 $('new-scramble').addEventListener('click',()=>{if(!running&&!inspection)scramble()});
 // O brilho de recorde é parte da identidade do Timer 3×3, sem configuração adicional.
 const configMenu=$('scramble-menu');
@@ -74,6 +83,10 @@ $('scramble-menu-close').addEventListener('click',()=>configMenu.close());
 $('scramble-menu-done').addEventListener('click',()=>configMenu.close());
 configMenu.addEventListener('click',e=>{if(e.target===configMenu)configMenu.close()});
 configMenu.addEventListener('close',()=>configTrigger.focus({preventScroll:true}));
+$('scramble-record-close').addEventListener('click',()=>{
+ $('scramble-record-share').hidden=true;
+});
+
 $('show-cube-preview').addEventListener('change',e=>{
  document.querySelector('.scramble-cube-section').hidden=!e.target.checked;
 });
