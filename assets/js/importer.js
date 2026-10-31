@@ -3,7 +3,7 @@ import {FIXED_CASES,CASE_BY_ID,LIMITS} from '../../v2/data/case-catalog.mjs';
 import {assignFixedCases,cropDiagram} from '../../v2/data/pdf-layout.mjs';
 import {algorithmIndex,identifyByAlgorithm} from '../../v2/data/algorithm-match.mjs';
 import {matchDiagrams} from '../../v2/data/image-match.mjs';
-import {openImageEditor,bulkAdjustImages} from './importer-editor.js?v=20261031-1';
+import {openImageEditor,bulkAdjustImages,standardizeImages} from './importer-editor.js?v=20261031-2';
 import {loadLibraries,libraryList,createLibrary,saveLibraryCasesBatch,publishApprovedLibrary,renameLibrary,loadOriginalBase,originalCases} from '../../v2/cloud/libraries.mjs?v=20261031-4';
 const PDF='https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.10.38/pdf.min.mjs';
 const LAST_LIBRARY='cpof-admin-last-library-v1';
@@ -204,11 +204,31 @@ $('import-new-library').addEventListener('input',()=>{
 $('import-global-apply').addEventListener('click',async()=>{
  try{guard();if(busy)return;const x=Number($('import-global-x').value),y=Number($('import-global-y').value),zoom=Number($('import-global-zoom').value)/100;
   if(!Number.isFinite(x)||!Number.isFinite(y)||!Number.isFinite(zoom)||Math.abs(x)>45||Math.abs(y)>45||zoom<.5||zoom>2.5)throw Error('Valores de alinhamento inválidos.');
-  const targets=records.filter(r=>r.imageData);if(!targets.length)throw Error('Não há imagens nesta etapa.');
-  if(!confirm('Aplicar o ajuste geral a '+targets.length+' imagens de '+stage.toUpperCase()+'? Os casos ficarão pendentes de nova aprovação.'))return;
+  const all=$('import-global-all').checked;
+  let targets=records.filter(r=>r.imageData);
+  if(all){
+   const library=$('import-library').value;
+   if(!library)throw Error('Selecione uma biblioteca existente para ajustar todas as etapas.');
+   const combined=new Map(existingRecords.map(r=>[r.case_id,{
+     case_id:r.case_id,algorithm:r.algorithm,setup:r.setup,orientation:r.orientation,
+     imageData:r.image_data,imageOriginal:r.image_original||null,status:r.status,
+     sourcePage:r.source_page,confidence:'manual'}]));
+   for(const r of records)combined.set(r.case_id,r);
+   targets=[...combined.values()];
+  }
+  if(!targets.some(r=>r.imageData))throw Error('Não há imagens disponíveis.');
+  if(!confirm('Aplicar o ajuste às imagens de '+(all?'toda a biblioteca':'etapa '+stage.toUpperCase())+'? '+(all?'As mudanças de todas as etapas serão salvas como rascunhos. ':'')+'Os casos alterados precisarão de nova aprovação.'))return;
   busy=true;$('import-global-apply').disabled=true;
   const changed=await bulkAdjustImages(targets,{x,y,zoom},(done,total)=>status('Ajustando imagens: '+done+'/'+total));
-  update();status(changed+' imagens ajustadas em 512 × 512 WebP. Revise, aprove e publique para atualizar a biblioteca.');
+  if(all){
+   await saveLibraryCasesBatch($('import-library').value,targets,(done,total)=>status('Salvando rascunhos: '+done+'/'+total));
+   existingRecords=targets.map(r=>({
+     case_id:r.case_id,algorithm:r.algorithm,setup:r.setup,orientation:r.orientation,
+     image_data:r.imageData,image_original:r.imageOriginal,status:r.status,source_page:r.sourcePage
+   }));
+   showExistingStage();
+  }else update();
+  status(changed+' imagens padronizadas em 512 × 512 WebP. Revise, aprove e publique para atualizar os casos.');
  }catch(err){status('Ajuste geral não aplicado: '+err.message)}finally{busy=false;$('import-global-apply').disabled=false}
 });
 $('import-approve-all').addEventListener('click',()=>{
@@ -229,7 +249,7 @@ async function saveAll(){
  }
 
  busy=true;$('import-save').disabled=true;$('import-publish').disabled=true;
- try{await saveLibraryCasesBatch(libraryId,records,(done,total)=>status('Salvando '+done+'/'+total+' casos…'))}
+ try{await standardizeImages(records);await saveLibraryCasesBatch(libraryId,records,(done,total)=>status('Salvando '+done+'/'+total+' casos…'))}
  finally{busy=false;$('import-save').disabled=false;update()}
  return libraryId;
 }
