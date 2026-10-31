@@ -65,7 +65,7 @@ GRANT EXECUTE ON FUNCTION public.cfop_set_stage_default(text,text,uuid) TO authe
 -- administrador escolher como principal. As outras etapas seguem privadas.
 CREATE OR REPLACE FUNCTION public.cfop_original_public_stage(p_case_id text)
 RETURNS boolean LANGUAGE sql STABLE SECURITY DEFINER SET search_path=''
-AS $
+AS $$
  SELECT EXISTS(
   SELECT 1 FROM public.cfop_case_catalog c
   JOIN public.cfop_stage_defaults d ON d.stage=c.stage
@@ -73,7 +73,7 @@ AS $
   WHERE c.case_id=p_case_id AND d.source='original'
     AND c.stage IN ('f2l','pll') AND ctl.deleted_at IS NULL
  );
-$;
+$$;
 REVOKE ALL ON FUNCTION public.cfop_original_public_stage(text) FROM PUBLIC;
 GRANT EXECUTE ON FUNCTION public.cfop_original_public_stage(text) TO anon,authenticated;
 GRANT SELECT ON public.cfop_original_base_cases TO anon;
