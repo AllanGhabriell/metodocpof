@@ -87,8 +87,13 @@ $('scramble-record-close').addEventListener('click',()=>{
  $('scramble-record-share').hidden=true;
 });
 
-$('show-cube-preview').addEventListener('change',e=>{
+const previewKey='academy-show-scramble-cube';
+const preview=$('show-cube-preview');
+preview.checked=localStorage.getItem(previewKey)!=='false';
+document.querySelector('.scramble-cube-section').hidden=!preview.checked;
+preview.addEventListener('change',e=>{
  document.querySelector('.scramble-cube-section').hidden=!e.target.checked;
+ localStorage.setItem(previewKey,String(e.target.checked));
 });
 $('scramble-session-name').value=localStorage.getItem('cfop-timer-session-v1')||'Geral';
 $('scramble-session-name').addEventListener('change',e=>localStorage.setItem('cfop-timer-session-v1',String(e.target.value||'Geral').slice(0,45)));
