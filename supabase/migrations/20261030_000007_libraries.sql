@@ -105,7 +105,7 @@ CREATE OR REPLACE FUNCTION public.cfop_library_publication_guard()
 RETURNS trigger LANGUAGE plpgsql SECURITY DEFINER SET search_path=''
 AS $$
 BEGIN
- IF NEW.is_public AND NOT OLD.is_public AND NOT EXISTS(
+ IF NEW.is_public AND NOT EXISTS(
   SELECT 1 FROM public.cfop_library_cases c
   WHERE c.library_id=NEW.id AND c.status='approved'
  ) THEN RAISE EXCEPTION 'Aprove ao menos um caso antes de publicar a biblioteca'; END IF;
@@ -114,7 +114,7 @@ END;
 $$;
 REVOKE ALL ON FUNCTION public.cfop_library_publication_guard() FROM public,anon,authenticated;
 DROP TRIGGER IF EXISTS cfop_library_publication_guard ON public.cfop_libraries;
-CREATE TRIGGER cfop_library_publication_guard BEFORE UPDATE ON public.cfop_libraries
+CREATE TRIGGER cfop_library_publication_guard BEFORE INSERT OR UPDATE ON public.cfop_libraries
 FOR EACH ROW EXECUTE FUNCTION public.cfop_library_publication_guard();
 
 COMMIT;
