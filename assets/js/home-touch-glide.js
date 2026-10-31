@@ -2,7 +2,7 @@
 (()=>{
  'use strict';
  if(!document.body.classList.contains('academy-home'))return;
- const selector='.academy-home-profile, .academy-home-brand, .academy-home-rail > .academy-rail-link, .academy-home-rail .academy-utility summary, .academy-home-streak, .academy-side-menu a, .home-actions .academy-stage';
+ const selector='.academy-home-profile, .academy-home-rail > .academy-rail-link, .academy-home-rail .academy-utility summary, .academy-home-streak, .academy-side-menu a, .home-actions .academy-stage';
  let touchId=null,active=null,clearTimer=0;
  function highlight(element){
   if(active===element)return;
