@@ -10,7 +10,11 @@ let stageDefaults=read(SETTING,{}),stageChoices=readSession(PERSONAL,{}),rowsByL
 let stageDefaultsError='',stageDefaultsLoaded=false;
 export const stageDefaultStatus=()=>({loaded:stageDefaultsLoaded,error:stageDefaultsError});
 function readSession(k,f){try{return JSON.parse(sessionStorage.getItem(k)||'null')??f}catch{return f}}
-function updatePersonal(stage,id){stageChoices={...stageChoices,[stage]:id};try{sessionStorage.setItem(PERSONAL,JSON.stringify(stageChoices))}catch{}}
+function updatePersonal(stage,id){
+ // Uma atualização administrativa do padrão prevalece sobre a escolha antiga.
+ stageChoices={...stageChoices,[stage]:{id,version:stageDefaults[stage]?.updated_at||''}};
+ try{sessionStorage.setItem(PERSONAL,JSON.stringify(stageChoices))}catch{}
+}
 function baseForStage(stage){const entry=stageDefaults[stage];if(!entry)return DEFAULT;
  if(entry.source===ORIGINAL)return stage==='oll'?DEFAULT:ORIGINAL;
  if(entry.source==='library'&&entry.library_id&&libraries.some(l=>l.id===entry.library_id&&l.is_public))return entry.library_id;
@@ -71,7 +75,9 @@ export const defaultForStage=stage=>baseForStage(stage);
 export const stageDefaultInfo=()=>({...stageDefaults});
 export const selectedLibrary=stage=>{
  stage=STAGES.includes(stage)?stage:'f2l';
- const requested=stageChoices[stage]||baseForStage(stage);
+ const local=stageChoices[stage],stamp=stageDefaults[stage]?.updated_at||'';
+ const requested=local&&typeof local==='object'&&local.version===stamp
+  ?local.id:baseForStage(stage);
  if(requested===ORIGINAL)return stage==='oll'||!(isOriginalOwner()||baseForStage(stage)===ORIGINAL)?DEFAULT:ORIGINAL;
  if(requested===DEFAULT)return DEFAULT;
  return libraries.some(l=>l.id===requested&&l.is_public)?requested:baseForStage(stage);
@@ -124,7 +130,7 @@ export async function loadStageDefaults({strict=false}={}){
   if(strict)throw e;return stageDefaults;
  }
  try{
-  const rows=await cloudTable('cfop_stage_defaults',{query:'select=stage,source,library_id,updated_at&order=stage.asc',anon:!isAuthenticated()});
+  const rows=await cloudTable('cfop_stage_defaults',{query:'select=stage,source,library_id,updated_at&order=stage.asc',anon:true});
   if(!Array.isArray(rows)||!STAGES.every(stage=>rows.some(row=>row.stage===stage)))
    throw Error('A configuração das três etapas não foi encontrada no Supabase.');
   stageDefaults=Object.fromEntries(rows.filter(r=>STAGES.includes(r.stage)).map(r=>[r.stage,r]));
@@ -263,7 +269,11 @@ export async function chooseLibrary(id,stage='f2l'){
  }
  if(id!==DEFAULT&&!libraries.some(l=>l.id===id&&l.is_public))throw Error('Biblioteca não publicada.');
  if(id===DEFAULT&&libraryList().some(l=>l.is_public))throw Error('Escolha uma biblioteca publicada.');
- updatePersonal(stage,id);notify();return loadLibraryCases(id);
+ if(id===DEFAULT){updatePersonal(stage,id);notify();return []}
+ const loaded=await loadLibraryCases(id);
+ if(!loaded.some(r=>r.status==='approved'&&CASE_BY_ID.get(r.case_id)?.stage===stage))
+  throw Error('A biblioteca escolhida não possui casos '+stage.toUpperCase()+' publicados. Revise os casos no importador e clique em Publicar.');
+ updatePersonal(stage,id);notify();return loaded;
 }
 function requireOwner(){
  if(!isAuthenticated()||!isAdmin()||cloudUser()?.email?.toLowerCase()!=='coelhodatoca124@gmail.com')throw Error('Somente o administrador fundador pode modificar bibliotecas.');
