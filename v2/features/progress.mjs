@@ -37,7 +37,7 @@ export function progressSummary(){
 export function progressDashboard(){
  const summary=progressSummary(),badges=earnedAchievements(data.records),rank=journeyIdentity(summary.xp);
  return academyDashboard(data.records,summary.xp,summary.level)+
- '<section class="academy-insight-card journey-dashboard"><span class="academy-overline">SUA JORNADA</span><h2>'+esc(rank.title)+' · Nível '+summary.level+'</h2><div class="journey-meter"><span style="width:'+rank.percent+'%"></span></div><p>'+summary.xp.toLocaleString('pt-BR')+' XP acumulados · '+(rank.needed?rank.earned+' / '+rank.needed+' XP até o próximo nível':'Nível máximo')+'</p><p>Seus treinos são acompanhados automaticamente. Personalize sua jornada e seu foco na área Meu perfil.</p></section>'+
+ '<section class="academy-insight-card journey-dashboard"><span class="academy-overline">SUA JORNADA</span><h2>'+esc(rank.title)+' · '+(rank.creator?'Patente Divina':'Nível '+summary.level)+'</h2><div class="journey-meter"><span style="width:'+rank.percent+'%"></span></div><p>'+summary.xp.toLocaleString('pt-BR')+' XP acumulados · '+(rank.needed?rank.earned+' / '+rank.needed+' XP até o próximo nível':'Nível máximo')+'</p><p>Seus treinos são acompanhados automaticamente. Personalize sua jornada e seu foco na área Meu perfil.</p></section>'+
  '<section class="academy-insight-card academy-achievements"><div><span class="academy-overline">CONQUISTAS</span>'+
  '<h2>'+badges.filter(b=>b.earned).length+' de '+badges.length+' desbloqueadas</h2>'+
  '<p>XP '+summary.xp+' · Nível '+summary.level+'. Conquistas são calculadas a partir de treinos e tempos realmente registrados.</p></div>'+
