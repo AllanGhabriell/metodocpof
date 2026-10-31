@@ -119,7 +119,8 @@ function showExistingStage(){
  status:r.status,sourcePage:r.source_page,page:r.source_page,confidence:'manual',alternatives:[]}));
  update();
 }
-$('import-library').addEventListener('change',loadExistingLibrary);
+$('import-library').addEventListener('change',()=>{const l=libraryList().find(x=>x.id===$('import-library').value);if(l)$('import-new-library').value=l.title;loadExistingLibrary()});
+$('import-rename-library').addEventListener('click',async()=>{try{guard();const id=$('import-library').value;if(!id)throw Error('Selecione uma biblioteca.');await renameLibrary(id,$('import-new-library').value.trim(),'');libraryOptions();$('import-library').value=id;status('Nome da biblioteca atualizado para os usuários online.')}catch(e){status(e.message)}});
 $('import-stage').addEventListener('change',()=>{stage=$('import-stage').value;showExistingStage();status('Etapa alterada. Escolha um caso ou importe um PDF.')});
 $('import-approve-all').addEventListener('click',()=>{
  records.forEach(r=>{if(r.algorithm.trim())r.status='approved'});update();
