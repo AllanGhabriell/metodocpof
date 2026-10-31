@@ -1,20 +1,20 @@
 /* GitHub Pages app shell — network-first, version-aware resource fallback.
    Never reuse an old JS module under a different ?v= version. */
-const CACHE='cfop-studio-offline-20261030-v15';
+const CACHE='cfop-studio-offline-20261031-v16';
 const CORE=[
  './index.html','./studio.html','./f2l.html','./oll.html','./pll.html','./importer.html',
  './cross.html','./scramble.html',
- './v2/app.js?v=20261030-56',
- './v2/app.css?v=20261030-11',
+ './v2/app.js?v=20261031-1',
+ './v2/app.css?v=20261031-1',
  './assets/css/studio-original.css?v=1',
  './assets/css/academy.css?v=20261030-1',
  './assets/css/academy-tools.css?v=20261030-22',
  './assets/css/studio-shell-fix.css?v=20261030-31',
  './assets/css/cursor-glow.css?v=1',
- './assets/css/trainer-unified.css?v=20261030-44',
- './assets/css/importer.css?v=20261030-2',
- './assets/js/library-trainer.js?v=20261030-3',
- './assets/js/importer.js?v=20261030-4',
+ './assets/css/trainer-unified.css?v=20261031-1',
+ './assets/css/importer.css?v=20261031-1',
+ './assets/js/library-trainer.js?v=20261031-1',
+ './assets/js/importer.js?v=20261031-1',
  './v2/data/case-catalog.mjs','./v2/data/algorithm-match.mjs','./v2/data/image-match.mjs','./v2/data/pdf-layout.mjs','./v2/cloud/libraries.mjs',
  './v2/cursor-glow.js?v=20261030-31'
 ];
