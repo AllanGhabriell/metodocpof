@@ -1,30 +1,145 @@
-import {isAdmin,isConfigured,initializeCloud,acceptAuthRedirect} from '../../v2/cloud/cloud.mjs';
-const MAX={f2l:41,oll:57,pll:21};
+import {isAdmin,isConfigured,cloudUser,initializeCloud,acceptAuthRedirect,cloudTable} from '../../v2/cloud/cloud.mjs?v=20261030-55';
+import {FIXED_CASES,CASE_BY_ID,LIMITS} from '../../v2/data/case-catalog.mjs';
+import {assignFixedCases,cropDiagram} from '../../v2/data/pdf-layout.mjs';
+import {loadLibraries,libraryList,createLibrary,saveLibraryCase,setLibraryPublished} from '../../v2/cloud/libraries.mjs';
 const PDF='https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.10.38/pdf.min.mjs';
 const $=id=>document.getElementById(id);
-let records=[],stage='f2l',busy=false;
+let records=[],stage='f2l',busy=false,doc=null,pdfFile=null,pageImageCache=new Map();
 const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
-const setStatus=s=>$('import-status').textContent=s;
-function numberOf(text){const m=String(text).match(/(?:caso|case|n[º°.]?|#)\s*0*([1-9]\d?)/i);return m?Number(m[1]):null}
-function algorithm(text){const parts=String(text).replace(/[’‘′]/g,"'").match(/(?:[URFDLBMESxyzurfdlb](?:w)?(?:2|')?\s*){3,}/g)||[];return parts.map(s=>s.trim()).sort((a,b)=>b.length-a.length)[0]||''}
-function anchor(text){const n=numberOf(text);if(n!==null)return n;const m=String(text).trim().match(/^0*([1-9]\d?)(?:\s|[.):-]|$)/);return m?Number(m[1]):null}
-function imageData(canvas,rect){const c=document.createElement('canvas');const sx=Math.max(0,Math.floor(rect.x)),sy=Math.max(0,Math.floor(rect.y));const sw=Math.min(canvas.width-sx,Math.ceil(rect.w)),sh=Math.min(canvas.height-sy,Math.ceil(rect.h));if(sw<=0||sh<=0)return null;const scale=Math.min(1,680/Math.max(sw,sh));c.width=Math.max(1,Math.round(sw*scale));c.height=Math.max(1,Math.round(sh*scale));c.getContext('2d').drawImage(canvas,sx,sy,sw,sh,0,0,c.width,c.height);return c.toDataURL('image/webp',.76)}
-async function pdfPages(file){const lib=await import(PDF);lib.GlobalWorkerOptions.workerSrc=PDF.replace('pdf.min.mjs','pdf.worker.min.mjs');const doc=await lib.getDocument({data:new Uint8Array(await file.arrayBuffer())}).promise;const pages=[];if(doc.numPages>90)throw Error('O PDF ultrapassa 90 páginas. Divida-o em partes.');for(let i=1;i<=doc.numPages;i++){setStatus('Lendo página '+i+' de '+doc.numPages+'…');const page=await doc.getPage(i),vp=page.getViewport({scale:1.65}),canvas=document.createElement('canvas');canvas.width=Math.round(vp.width);canvas.height=Math.round(vp.height);await page.render({canvasContext:canvas.getContext('2d'),viewport:vp}).promise;const content=await page.getTextContent();const items=content.items.filter(x=>x.str?.trim()).map(x=>({text:x.str,x:x.transform[4]*1.65,y:canvas.height-x.transform[5]*1.65}));pages.push({canvas,items,page:i})}return pages}
-async function photoPage(file){const img=await createImageBitmap(file);if(img.width*img.height>24e6)throw Error('Imagem muito grande. Use até 24 megapixels.');const canvas=document.createElement('canvas');const ratio=Math.min(1,1600/Math.max(img.width,img.height));canvas.width=Math.round(img.width*ratio);canvas.height=Math.round(img.height*ratio);canvas.getContext('2d').drawImage(img,0,0,canvas.width,canvas.height);img.close?.();return [{canvas,items:[],page:1}]}
-async function ocr(page){try{const t=await import('https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.esm.min.js');const worker=await t.createWorker('eng');try{const result=await worker.recognize(page.canvas);return (result.data.lines||[]).map(line=>({text:line.text,x:line.bbox.x0,y:line.bbox.y0}))}finally{await worker.terminate()}}catch{return []}}
-function regions(page,items){const marks=items.map(i=>({...i,n:anchor(i.text)})).filter(i=>i.n!==null&&i.n<=MAX[stage]).sort((a,b)=>a.y-b.y||a.x-b.x);
- const unique=[];for(const m of marks)if(!unique.some(v=>v.n===m.n&&Math.abs(v.y-m.y)<30))unique.push(m);
- if(!unique.length)return [];
- // Multiple columns: group anchors by horizontal proximity, then split vertically.
- const cols=[];for(const m of unique){let c=cols.find(c=>Math.abs(c.x-m.x)<page.canvas.width*.12);if(!c){c={x:m.x,marks:[]};cols.push(c)}c.marks.push(m)}
- cols.sort((a,b)=>a.x-b.x);
- return cols.flatMap((col,ci)=>{const x0=Math.max(0,col.x-page.canvas.width*.025),x1=ci+1<cols.length?Math.min(page.canvas.width,cols[ci+1].x-page.canvas.width*.025):page.canvas.width;const sorted=col.marks.sort((a,b)=>a.y-b.y);return sorted.map((m,i)=>{const y0=Math.max(0,m.y-22),y1=i+1<sorted.length?Math.max(y0+50,sorted[i+1].y-22):page.canvas.height;const lines=items.filter(v=>v.x>=x0&&v.x<x1&&v.y>=y0&&v.y<y1).map(v=>v.text);return {n:m.n,rect:{x:x0,y:y0,w:x1-x0,h:Math.min(page.canvas.height-y0,y1-y0)},text:lines.join(' '),page:page.page}})})}
-function update(){const limit=MAX[stage];$('import-count').textContent=records.length+' de '+limit+' casos · '+records.filter(x=>x.algorithm).length+' com algoritmo detectado';$('import-results').hidden=!records.length;const root=$('import-cards');root.innerHTML=records.map((r,i)=>'<article class="importer-card" data-index="'+i+'"><h3>Caso '+esc(r.n)+' · página '+r.page+'</h3><img src="'+r.imageData+'" alt="Recorte automático do caso '+esc(r.n)+'"><label>Número<input data-field="n" type="number" min="1" max="'+limit+'" value="'+r.n+'"></label><label>Nome<input data-field="name" value="'+esc(r.name)+'" maxlength="90"></label><label>Algoritmo<input data-field="algorithm" value="'+esc(r.algorithm)+'" placeholder="Confira a notação"></label><p class="'+(!r.algorithm?'importer-warning':'')+'">'+(r.algorithm?'Algoritmo identificado · confira antes de exportar':'Algoritmo não identificado · revisão obrigatória')+'</p><div class="importer-card-actions"><button data-crop="'+i+'" type="button">Baixar recorte</button><button data-remove="'+i+'" type="button">Remover</button></div></article>').join('')}
-function download(name,content,type){const url=URL.createObjectURL(new Blob([content],{type}));const a=document.createElement('a');a.href=url;a.download=name;a.click();setTimeout(()=>URL.revokeObjectURL(url),1500)}
-function downloadImage(r){const a=document.createElement('a');a.href=r.imageData;a.download=stage.toUpperCase()+'-'+String(r.n).padStart(2,'0')+'.webp';a.click()}
-$('import-run').addEventListener('click',async()=>{if(busy)return;const file=$('import-file').files[0];if(!file)return setStatus('Selecione um PDF ou uma imagem.');if(file.size>20e6)return setStatus('O arquivo deve ter até 20 MB.');stage=$('import-stage').value;busy=true;$('import-run').disabled=true;records=[];update();try{const pages=file.type==='application/pdf'||/\.pdf$/i.test(file.name)?await pdfPages(file):/^image\/(png|jpeg|webp)$/.test(file.type)?await photoPage(file):null;if(!pages)throw Error('Formato não suportado.');const seen=new Set();for(const page of pages){let items=page.items;if(!items.length){setStatus('Tentando reconhecer texto na imagem da página '+page.page+'…');items=await ocr(page)}const parts=regions(page,items);for(const p of parts){if(seen.has(p.n))continue;if(records.length>=MAX[stage])break;const data=imageData(page.canvas,p.rect);if(!data)continue;seen.add(p.n);records.push({n:p.n,name:stage.toUpperCase()+' '+p.n,algorithm:algorithm(p.text),page:p.page,imageData:data})}}records.sort((a,b)=>a.n-b.n);update();setStatus(records.length?'Foram encontrados '+records.length+' casos. Confira cada recorte e algoritmo antes de exportar.':'Nenhum caso foi identificado com segurança. O reconhecimento depende de títulos numerados legíveis; tente um PDF com texto selecionável ou outra imagem.')}catch(e){setStatus('Não foi possível analisar: '+e.message)}finally{busy=false;$('import-run').disabled=false}});
-$('import-cards').addEventListener('input',e=>{const card=e.target.closest('[data-index]');if(!card)return;const r=records[Number(card.dataset.index)],field=e.target.dataset.field;if(!r||!field)return;r[field]=field==='n'?Number(e.target.value):e.target.value});
-$('import-cards').addEventListener('click',e=>{const crop=e.target.closest('[data-crop]'),remove=e.target.closest('[data-remove]');if(crop)downloadImage(records[Number(crop.dataset.crop)]);if(remove){records.splice(Number(remove.dataset.remove),1);update()}});
-$('import-clear').addEventListener('click',()=>{records=[];update();setStatus('Resultados limpos.')});
-$('import-download').addEventListener('click',()=>{const limit=MAX[stage],nums=records.map(x=>x.n);if(records.some(x=>!Number.isInteger(x.n)||x.n<1||x.n>limit)||new Set(nums).size!==nums.length)return setStatus('Corrija os números: devem ser únicos e estar entre 1 e '+limit+'.');if(records.some(x=>!x.algorithm.trim()))return setStatus('Preencha todos os algoritmos antes de exportar.');const cases=records.map(r=>({id:stage.toUpperCase()+'-'+String(r.n).padStart(2,'0'),stage,name:r.name,algorithm:r.algorithm,setup:'',imageData:r.imageData,sourcePage:r.page,diagram:null,expectedState:null,review:{approved:false}}));download('academia-cpof-'+stage+'-revisao.json',JSON.stringify({format:'cfop-studio-drafts-v1',cases},null,2),'application/json');setStatus('Arquivo de revisão exportado. Importe o JSON na área de revisão administrativa; nenhum caso foi publicado.')});
-(async()=>{try{await acceptAuthRedirect();await initializeCloud();if(!isConfigured()||!isAdmin()){$('importer-access').textContent='Acesso restrito. Entre com uma conta administradora em Conta e perfil para importar casos.';return}$('importer-access').hidden=true;$('importer-workspace').hidden=false}catch(e){$('importer-access').textContent='Não foi possível confirmar a permissão: '+e.message}})();
+const status=s=>{$('import-status').textContent=s};
+const owner=()=>isAdmin()&&cloudUser()?.email?.toLowerCase()==='coelhodatoca124@gmail.com';
+function libraryOptions(){
+ const previous=$('import-library').value;
+ $('import-library').innerHTML='<option value="">Selecione a biblioteca</option>'+libraryList().map(l=>'<option value="'+esc(l.id)+'">'+esc(l.title)+(l.is_public?' · pública':' · rascunho')+'</option>').join('');
+ if(libraryList().some(x=>x.id===previous))$('import-library').value=previous;
+}
+function cropRotated(data,turns){
+ if(!turns)return Promise.resolve(data);
+ return new Promise((resolve,reject)=>{const image=new Image();image.onload=()=>{
+  const canvas=document.createElement('canvas');canvas.width=image.naturalWidth;canvas.height=image.naturalHeight;
+  const ctx=canvas.getContext('2d');ctx.translate(canvas.width/2,canvas.height/2);ctx.rotate(turns*Math.PI/2);
+  ctx.drawImage(image,-image.width/2,-image.height/2);resolve(canvas.toDataURL('image/webp',.78));
+ };image.onerror=()=>reject(Error('Imagem inválida'));image.src=data})
+}
+function update(){
+ const checked=records.filter(r=>r.status==='approved').length,unknown=records.filter(r=>r.confidence!=='nome').length;
+ $('import-count').textContent=records.length+' de '+LIMITS[stage]+' casos · '+checked+' aprovados · '+unknown+' exigem conferência da identidade';
+ $('import-results').hidden=!records.length;
+ const fixed=FIXED_CASES.filter(c=>c.stage===stage);
+ $('import-cards').innerHTML=records.map((r,i)=>'<article class="importer-card" data-index="'+i+'">'+
+ '<div class="importer-card-title"><h3>'+esc(CASE_BY_ID.get(r.case_id)?.name||r.case_id)+'</h3><span class="'+(r.confidence==='nome'?'importer-detected':'importer-warning')+'">'+(r.confidence==='nome'?'Nome reconhecido':'Conferir associação')+'</span></div>'+
+ '<img src="'+esc(r.imageData||'')+'" alt="Recorte do '+esc(r.case_id)+'" loading="lazy">'+
+ '<label>Caso fixo<select data-field="case_id">'+fixed.map(c=>'<option value="'+esc(c.id)+'" '+(c.id===r.case_id?'selected':'')+'>'+esc(c.name)+' ('+c.id+')</option>').join('')+'</select></label>'+
+ '<label>Algoritmo<input data-field="algorithm" value="'+esc(r.algorithm||'')+'" placeholder="Sequência para resolver o caso"></label>'+
+ '<label>Setup<input data-field="setup" value="'+esc(r.setup||'')+'" placeholder="Sequência para montar o caso"></label>'+
+ '<label>Orientação<input data-field="orientation" value="'+esc(r.orientation||'')+'" placeholder="Ex.: branco embaixo, frente vermelha"></label>'+
+ '<label>Revisão<select data-field="status"><option value="draft" '+(r.status==='draft'?'selected':'')+'>Pendente</option><option value="approved" '+(r.status==='approved'?'selected':'')+'>Aprovado</option><option value="rejected" '+(r.status==='rejected'?'selected':'')+'>Rejeitado</option></select></label>'+
+ (r.page?'<small>Página '+r.page+' · '+(r.alternatives?.length?'Possui algoritmos alternativos':'Uma sequência reconhecida')+'</small>':'<small>Versão já cadastrada</small>')+
+ '<div class="importer-card-actions"><button type="button" data-rotate="'+i+'">Girar imagem 90°</button><button type="button" data-download="'+i+'">Baixar imagem</button></div>'+
+ '</article>').join('')
+}
+function saveBlob(name,data){const url=URL.createObjectURL(new Blob([data],{type:'application/json'})),a=document.createElement('a');a.href=url;a.download=name;a.click();setTimeout(()=>URL.revokeObjectURL(url),1000)}
+function guard(){if(!owner())throw Error('Somente o administrador fundador pode editar as bibliotecas.')}
+async function renderPage(number){
+ if(pageImageCache.has(number))return pageImageCache.get(number);
+ const page=await doc.getPage(number);const vp=page.getViewport({scale:1.55});
+ const canvas=document.createElement('canvas');canvas.width=Math.floor(vp.width);canvas.height=Math.floor(vp.height);
+ await page.render({canvasContext:canvas.getContext('2d',{alpha:false}),viewport:vp}).promise;
+ const content=await page.getTextContent();
+ const items=content.items.filter(i=>i.str?.trim()).map(i=>({text:i.str,x:i.transform[4]*1.55,y:canvas.height-i.transform[5]*1.55}));
+ const result={page:number,canvas,items,width:canvas.width,height:canvas.height};
+ pageImageCache.set(number,result);return result
+}
+async function analyzePdf(file){
+ const pdfjs=await import(PDF).catch(()=>{throw Error('Leitor de PDF indisponível. Para importar um novo PDF é necessária a primeira conexão com a internet.')});
+ pdfjs.GlobalWorkerOptions.workerSrc=PDF.replace('pdf.min.mjs','pdf.worker.min.mjs');
+ doc=await pdfjs.getDocument({data:new Uint8Array(await file.arrayBuffer())}).promise;
+ if(doc.numPages>30)throw Error('Use um PDF de até 30 páginas.');
+ const all=[];
+ for(let p=1;p<=doc.numPages;p++){
+  status('Reconhecendo página '+p+'/'+doc.numPages+'…');
+  const page=await renderPage(p);
+  all.push(page);
+ }
+ const result=assignFixedCases(all,stage);
+ records=result.cases.map(c=>{
+  const page=all[c.page-1];return {...c,imageData:cropDiagram(page,c.rect),sourcePage:c.page,rotation:0}
+ });
+ // Liberar os canvases renderizados; o PDF permanece disponível para um novo recorte.
+ for(const p of all){p.canvas.width=0;p.canvas.height=0}
+ pageImageCache.clear();
+ records.sort((a,b)=>CASE_BY_ID.get(a.case_id).ordinal-CASE_BY_ID.get(b.case_id).ordinal);
+ update();
+ status(result.incomplete?
+ 'Reconhecidos '+records.length+' de '+LIMITS[stage]+' casos. Revise as associações e os casos faltantes antes de publicar.':
+ 'Detectados '+records.length+' casos. Confira os nomes atribuídos por posição, os setups e cada recorte; nada foi publicado.');
+}
+$('import-run').addEventListener('click',async()=>{
+ if(busy)return;try{guard();const file=$('import-file').files[0];if(!file)throw Error('Selecione um PDF.');
+ if(file.size>20e6)throw Error('PDF maior que 20 MB.');if(!/\.pdf$/i.test(file.name)&&file.type!=='application/pdf')throw Error('Para reconhecimento automático, envie um PDF.');
+ stage=$('import-stage').value;busy=true;$('import-run').disabled=true;pdfFile=file;
+ await analyzePdf(file);
+ }catch(e){status('Não foi possível analisar: '+e.message)}finally{busy=false;$('import-run').disabled=false}
+});
+$('import-cards').addEventListener('change',e=>{
+ const card=e.target.closest('[data-index]');if(!card)return;const r=records[Number(card.dataset.index)],field=e.target.dataset.field;if(!r||!field)return;
+ const next=e.target.value;
+ if(field==='case_id'&&records.some(o=>o!==r&&o.case_id===next)){status('Esse caso já está associado a outro recorte. Escolha um caso disponível.');e.target.value=r.case_id;return}
+ r[field]=next;if(field==='case_id')r.confidence='manual';
+ if(field==='status'&&next==='approved'&&!r.algorithm.trim()){r.status='draft';e.target.value='draft';return status('Informe um algoritmo antes de aprovar o caso.')}
+ if(field==='case_id'||field==='status')update()
+});
+$('import-cards').addEventListener('click',async e=>{
+ const a=e.target.closest('[data-rotate]'),b=e.target.closest('[data-download]');
+ if(a){const r=records[Number(a.dataset.rotate)];if(r?.imageData){r.rotation=(r.rotation+1)%4;r.imageData=await cropRotated(r.imageData,1);update()}}
+ if(b){const r=records[Number(b.dataset.download)];if(r?.imageData){const link=document.createElement('a');link.href=r.imageData;link.download=r.case_id+'.webp';link.click()}}
+});
+$('import-create-library').addEventListener('click',async()=>{
+ try{guard();const title=$('import-new-library').value.trim();if(title.length<2)throw Error('Informe o nome da biblioteca.');
+ const l=await createLibrary(title);libraryOptions();$('import-library').value=l.id;status('Biblioteca '+title+' criada como rascunho.')}catch(e){status(e.message)}
+});
+$('import-library').addEventListener('change',async()=>{
+ const id=$('import-library').value;if(!id)return;
+ try{
+ const entries=await cloudTable('cfop_library_cases',{query:'select=case_id,algorithm,setup,orientation,image_data,status,source_page&library_id=eq.'+encodeURIComponent(id)+'&limit=150'});
+ if(!entries?.length){status('Biblioteca vazia. Envie um PDF para começar.');return}
+ stage=CASE_BY_ID.get(entries[0].case_id)?.stage||stage;$('import-stage').value=stage;
+ records=entries.filter(r=>CASE_BY_ID.get(r.case_id)?.stage===stage).map(r=>({
+ case_id:r.case_id,algorithm:r.algorithm,setup:r.setup,orientation:r.orientation,imageData:r.image_data,
+ status:r.status,sourcePage:r.source_page,page:r.source_page,confidence:'manual',alternatives:[]}));
+ update();status('Casos da biblioteca carregados para edição.');
+ }catch(e){status(e.message)}
+});
+$('import-stage').addEventListener('change',()=>{stage=$('import-stage').value;records=[];update();status('Etapa alterada. Selecione um PDF para reconhecer os casos.')});
+$('import-approve-all').addEventListener('click',()=>{
+ records.forEach(r=>{if(r.algorithm.trim())r.status='approved'});update();
+ status('Casos com algoritmo marcados como aprovados. Confira individualmente a identidade e o recorte antes de salvar.');
+});
+async function saveAll(){
+ guard();const libraryId=$('import-library').value;if(!libraryId)throw Error('Escolha ou crie a biblioteca antes de salvar.');
+ if(!records.length)throw Error('Nenhum caso para salvar.');
+ if(new Set(records.map(r=>r.case_id)).size!==records.length)throw Error('Corrija os casos duplicados.');
+ busy=true;$('import-save').disabled=true;let done=0;
+ try{for(const r of records){
+  await saveLibraryCase(libraryId,r);done++;status('Salvando '+done+'/'+records.length+' casos…');
+ }}finally{busy=false;$('import-save').disabled=false}
+ return libraryId;
+}
+$('import-save').addEventListener('click',async()=>{try{await saveAll();status('Revisão salva. A biblioteca só fica pública quando você clicar em Publicar biblioteca.')}catch(e){status('Erro ao salvar: '+e.message)}});
+$('import-publish').addEventListener('click',async()=>{
+ try{
+  guard();if(!records.some(r=>r.status==='approved'))throw Error('Aprove ao menos um caso.');
+  if(!confirm('Publicar os casos aprovados? Os alunos poderão escolher esta biblioteca, inclusive após sincronização offline.'))return;
+  const id=await saveAll();await setLibraryPublished(id,true);libraryOptions();$('import-library').value=id;
+  status('Biblioteca publicada. Alterações futuras em casos aprovados ficam disponíveis para todos após sincronização.');
+ }catch(e){status('Erro ao publicar: '+e.message)}
+});
+$('import-download').addEventListener('click',()=>{if(!records.length)return status('Nenhum caso.');saveBlob('biblioteca-'+stage+'-revisao.json',JSON.stringify({format:'cfop-library-review-v2',stage,items:records},null,2))});
+$('import-clear').addEventListener('click',()=>{records=[];update();status('Revisão local limpa; dados já salvos no Supabase permanecem.')});
+(async()=>{try{
+ await acceptAuthRedirect();await initializeCloud();
+ if(!isConfigured()||!owner()){$('importer-access').textContent='Acesso exclusivo do administrador fundador. Entre na conta autorizada no Studio.';return}
+ await loadLibraries();libraryOptions();$('importer-access').hidden=true;$('importer-workspace').hidden=false;
+ status('Selecione ou crie uma biblioteca. Depois envie o PDF e revise os casos.');
+ }catch(e){$('importer-access').textContent='Não foi possível confirmar seu acesso: '+e.message}
+})();
