@@ -10,7 +10,7 @@ const context=new URLSearchParams(location.search);
 const $=id=>document.getElementById(id);
 let records=[],stage='f2l',busy=false,doc=null,pdfFile=null,pageImageCache=new Map(),existingRecords=[];
 const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
-const status=s=>{$('import-status').textContent=s};
+const status=s=>{$('import-status').textContent=s;const near=$('import-action-status');if(near)near.textContent=s};
 const owner=()=>isAdmin()&&cloudUser()?.email?.toLowerCase()==='coelhodatoca124@gmail.com';
 function libraryOptions(){
  const previous=$('import-library').value;
@@ -31,7 +31,7 @@ function update(){
  const checked=records.filter(r=>r.status==='approved').length,unknown=records.filter(r=>!['nome','algoritmo','visual'].includes(r.confidence)).length;
  $('import-count').textContent=records.length+' de '+LIMITS[stage]+' casos · '+checked+' aprovados · '+unknown+' exigem conferência da identidade';
  $('import-publish-summary').textContent=checked+' caso'+(checked===1?'':'s')+' aprovado'+(checked===1?'':'s')+' nesta etapa';
- $('import-publish').disabled=busy||checked===0||!$('import-library').value;
+ $('import-publish').disabled=busy||checked===0||(!$('import-library').value&&$('import-new-library').value.trim().length<2);
  $('import-publish').textContent=checked?'Publicar '+checked+' aprovado'+(checked===1?'':'s'):'Publicar casos aprovados';
  $('import-results').hidden=!records.length;
  const fixed=FIXED_CASES.filter(c=>c.stage===stage);
@@ -44,7 +44,7 @@ function update(){
  '<label>Orientação<input data-field="orientation" value="'+esc(r.orientation||'')+'" placeholder="Ex.: branco embaixo, frente vermelha"></label>'+
  '<label>Revisão<select data-field="status"><option value="draft" '+(r.status==='draft'?'selected':'')+'>Pendente</option><option value="approved" '+(r.status==='approved'?'selected':'')+'>Aprovado</option><option value="rejected" '+(r.status==='rejected'?'selected':'')+'>Rejeitado</option></select></label>'+
  (r.page?'<small>Página '+r.page+' · '+(r.alternatives?.length?'Possui algoritmos alternativos':'Uma sequência reconhecida')+'</small>':'<small>Versão já cadastrada</small>')+
- '<div class="importer-card-actions"><button type="button" data-rotate="'+i+'">Girar imagem 90°</button><button type="button" data-download="'+i+'">Baixar imagem</button></div>'+
+ '<div class="importer-card-actions"><button type="button" data-approve="'+i+'" '+(r.status==='approved'?'disabled':'')+'>'+(r.status==='approved'?'✓ Aprovado':'✓ Aprovar caso')+'</button><button type="button" data-rotate="'+i+'">Girar imagem 90°</button><button type="button" data-download="'+i+'">Baixar imagem</button></div>'+
  '</article>').join('')
 }
 function saveBlob(name,data){const url=URL.createObjectURL(new Blob([data],{type:'application/json'})),a=document.createElement('a');a.href=url;a.download=name;a.click();setTimeout(()=>URL.revokeObjectURL(url),1000)}
@@ -124,7 +124,11 @@ $('import-cards').addEventListener('change',e=>{
  }else if(field==='case_id'||field==='status')update()
 });
 $('import-cards').addEventListener('click',async e=>{
- const a=e.target.closest('[data-rotate]'),b=e.target.closest('[data-download]');
+ const a=e.target.closest('[data-rotate]'),b=e.target.closest('[data-download]'),approve=e.target.closest('[data-approve]');
+ if(approve){const r=records[Number(approve.dataset.approve)];if(!r)return;
+  if(!r.algorithm?.trim())return status('Informe o algoritmo desse caso antes de aprová-lo.');
+  r.status='approved';update();status('Caso '+r.case_id+' aprovado para publicação.');return
+ }
  if(a){const r=records[Number(a.dataset.rotate)];if(r?.imageData){r.rotation=(r.rotation+1)%4;r.imageData=await cropRotated(r.imageData,1);if(r.status==='approved')r.status='draft';update();status('Imagem girada. Confira e aprove novamente antes de publicar.')}}
  if(b){const r=records[Number(b.dataset.download)];if(r?.imageData){const link=document.createElement('a');link.href=r.imageData;link.download=r.case_id+'.webp';link.click()}}
 });
@@ -162,13 +166,22 @@ $('import-library').addEventListener('change',()=>{
 });
 $('import-rename-library').addEventListener('click',async()=>{try{guard();const id=$('import-library').value;if(!id)throw Error('Selecione uma biblioteca.');await renameLibrary(id,$('import-new-library').value.trim(),'');libraryOptions();$('import-library').value=id;status('Nome da biblioteca atualizado para os usuários online.')}catch(e){status(e.message)}});
 $('import-stage').addEventListener('change',()=>{stage=$('import-stage').value;showExistingStage();status('Etapa alterada. Escolha um caso ou importe um PDF.')});
+$('import-new-library').addEventListener('input',update);
 $('import-approve-all').addEventListener('click',()=>{
  records.forEach(r=>{if(r.algorithm.trim())r.status='approved'});update();
  status('Casos com algoritmo marcados como aprovados. Confira individualmente a identidade e o recorte antes de salvar.');
 });
 async function saveAll(){
- guard();const libraryId=$('import-library').value;
- if(!libraryId)throw Error('Escolha ou crie uma biblioteca antes de publicar.');
+ guard();let libraryId=$('import-library').value;
+ if(!libraryId){
+  const title=$('import-new-library').value.trim();
+  if(title.length<2)throw Error('Escolha uma biblioteca ou informe um nome para criar uma nova.');
+  const newLibrary=await createLibrary(title);
+  libraryOptions();libraryId=newLibrary.id;$('import-library').value=libraryId;
+  localStorage.setItem(LAST_LIBRARY,libraryId);
+  status('Biblioteca '+title+' criada. Salvando revisão…');
+ }
+
  if(!records.length)throw Error('Nenhum caso para salvar.');
  if(new Set(records.map(r=>r.case_id)).size!==records.length)throw Error('Corrija os casos duplicados.');
  busy=true;$('import-save').disabled=true;$('import-publish').disabled=true;
@@ -180,7 +193,8 @@ $('import-save').addEventListener('click',async()=>{try{await saveAll();status('
 $('import-publish').addEventListener('click',async()=>{
  try{
   guard();if(!records.some(r=>r.status==='approved'))throw Error('Aprove ao menos um caso.');
-  if(!confirm('Publicar os casos aprovados? Os alunos poderão escolher esta biblioteca, inclusive após sincronização offline.'))return;
+  const target=libraryList().find(l=>l.id===$('import-library').value)?.title||$('import-new-library').value.trim();
+  if(!confirm('Publicar os casos aprovados em "'+target+'"? Os alunos poderão escolher esta biblioteca após sincronizar.'))return;
   const id=await saveAll();const count=await publishApprovedLibrary(id);libraryOptions();$('import-library').value=id;update();
   status('Publicado! '+count+' caso'+(count===1?'':'s')+' disponibilizado'+(count===1?'':'s')+' aos alunos após sincronização.');
  }catch(e){status('Erro ao publicar: '+e.message)}
