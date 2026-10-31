@@ -43,7 +43,9 @@ function complete(stage,id,options={}){
  else if(options.result==='easy')grade='good';
  else if(old.rating==='hard')grade='medium'; // compatibility with previous recorded attempts
  else grade='good';
- const update=schedule(old,grade,now);
+ // Cliques sucessivos podem registrar prática, mas não acelerar o domínio.
+ const spaced=!Number.isFinite(Number(old.lastAt))||!old.lastAt||now-Number(old.lastAt)>=120000;
+ const update=spaced?schedule(old,grade,now):{memoryLevel:Number(old.memoryLevel)||0,dueAt:Number(old.dueAt)||0};
  const times=[...(Array.isArray(old.times)?old.times:[]),...(ms===null?[]:[ms])].slice(-25);
  const recognitionValid=recognitionMs!==null&&ms!==null&&recognitionMs<=ms;
  const recognitionTimes=[...(Array.isArray(old.recognitionTimes)?old.recognitionTimes:[]),...(recognitionValid?[recognitionMs]:[])].slice(-25);
