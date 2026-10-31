@@ -49,7 +49,7 @@ function inspectionTick(){if(!inspection)return;const left=15-(performance.now()
 function action(){if(running){stop();return}if(inspectionEnabled&&!inspection){inspection=true;inspectionStarted=performance.now();$('timer-status').textContent='Inspeção de 15 segundos · toque para iniciar';inspectionTick();return}start()}
 function mean(values){return values.length?values.reduce((a,b)=>a+b,0)/values.length:null}
 function ao(values,n){if(values.length<n)return null;const sample=values.slice(-n).sort((a,b)=>a-b);const trim=n===5?1:Math.ceil(n*.05);return mean(sample.slice(trim,n-trim))}
-function stat(ms){return ms===null?'—':fmt(ms)}
+function stat(ms){return format(ms)}
 function renderStats(){
  const s=statistics(times.filter(t=>!t.archived)),nums=times.filter(t=>!t.archived).map(effective).filter(Number.isFinite);
  $('stats-summary').innerHTML=[['Total',s.total],['DNF',s.dnf],['Melhor',stat(s.best)],['Pior',stat(s.worst)],['Média',stat(s.average)],['Mediana',stat(s.median)],['Desvio',stat(s.deviation)],['Ao5',stat(s.ao5)],['Ao12',stat(s.ao12)],['Ao50',stat(s.ao50)],['Ao100',stat(s.ao100)],['Ao1000',stat(s.ao1000)]].map(([k,v])=>'<div><span>'+k+'</span><strong>'+v+'</strong></div>').join('');
