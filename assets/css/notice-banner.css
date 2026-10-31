@@ -20,3 +20,22 @@
 .identity-limits p{margin:6px 0;color:#bcdced;line-height:1.45;font-size:13px}
 .identity-limits strong{color:#eefbff}
 @media(max-width:500px){.cfop-notice-backdrop{align-items:center;padding:16px}.cfop-notice-dialog{padding:23px 18px;border-radius:18px;gap:13px}}
+
+/* Identificação verificada do administrador nos avisos do Supabase. */
+.cfop-notice-sender{display:flex;align-items:center;gap:13px;margin:6px 0 4px;
+ padding:12px;background:linear-gradient(120deg,#122f53,#142a49);
+ border:1px solid #4d769d;border-radius:14px;min-width:0}
+.cfop-notice-sender-avatar{width:60px;height:60px;flex:0 0 60px;border-radius:17px;
+ display:grid;place-items:center;overflow:hidden;background:linear-gradient(145deg,#18436e,#319bb3);
+ color:#e9f7ff;font:800 27px system-ui,sans-serif}
+.cfop-notice-sender-avatar img{display:block;width:100%;height:100%;object-fit:cover}
+.cfop-notice-sender-admin{border:3px solid #83c2ef;box-shadow:0 0 12px #73b9fa66}
+.cfop-notice-sender-creator{border:3px solid #f0cf78;box-shadow:0 0 11px #fff1b3,0 0 23px #e0b44a86}
+.cfop-notice-sender-text{display:grid;gap:4px;min-width:0}
+.cfop-notice-sender-text small{color:#91cfe3;font-size:10px;letter-spacing:.1em;font-weight:800}
+.cfop-notice-sender-text strong{font-size:16px;overflow-wrap:anywhere;color:#f2faff}
+.cfop-notice-sender-text em{font-size:11px;font-style:normal;color:#edcf88}
+.account-notice .cfop-notice-sender{margin:0 0 12px}
+@media(max-width:420px){.cfop-notice-sender{padding:9px;gap:10px}
+ .cfop-notice-sender-avatar{width:50px;height:50px;flex-basis:50px;border-radius:14px}
+ .cfop-notice-sender-text strong{font-size:14px}}
