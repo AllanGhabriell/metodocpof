@@ -17,7 +17,7 @@ export const librarySyncedAt=()=>lastSync;
 export const selectedVariants=()=>rows.slice();
 export function libraryCase(stage,id){const c=CASE_BY_ID.get(id);if(!c||c.stage!==stage||choice===DEFAULT)return null;
  const row=rows.find(r=>r.case_id===id&&r.status==='approved');if(!row)return null;
- return {id,stage,name:c.name,algorithm:row.algorithm,setup:row.setup,orientation:row.orientation||'',imageData:row.image_data||null,source:'Biblioteca '+selectedLibraryName(),reviewStatus:'verified',reviewed:true}
+ return {id,stage,name:c.name,algorithm:row.algorithm,setup:row.setup,orientation:row.orientation||'',imageData:row.image_data||null,source:'Biblioteca '+selectedLibraryName(),libraryApproved:true,reviewStatus:'editor-approved',reviewed:false}
 }
 export const libraryCases=stage=>rows.filter(r=>r.status==='approved'&&CASE_BY_ID.get(r.case_id)?.stage===stage).map(r=>libraryCase(stage,r.case_id)).filter(Boolean);
 export async function loadLibraries(){
