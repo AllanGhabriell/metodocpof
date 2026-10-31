@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
-import {FIXED_CASES,CASE_BY_ID,PLL_NAMES,canonicalCase,matchCaseId} from '../data/case-catalog.mjs';
+import {FIXED_CASES,CASE_BY_ID,PLL_NAMES,canonicalCase,matchCaseId,trainerCaseToCatalog} from '../data/case-catalog.mjs';
 import {assignFixedCases,isAlgorithm,cropDiagram} from '../data/pdf-layout.mjs';
 const read=path=>readFileSync(new URL(path,import.meta.url),'utf8');
 
@@ -55,14 +55,20 @@ test('only the founder writes libraries, public users read approved entries',()=
  assert.match(importer,/cropDiagram/);
 });
 
-test('trainer library selection has a deliberate fallback for OLL mismatched numbering',()=>{
+test('selected OLL library maps all 57 cases without showing legacy image or algorithm',()=>{
+ for(let n=1;n<=57;n++)assert.equal(trainerCaseToCatalog('oll',n),'OLL-'+String(n).padStart(2,'0'));
+ assert.equal(trainerCaseToCatalog('oll',58),null);
+ assert.equal(trainerCaseToCatalog('pll','Ua'),'PLL-01');
+ assert.equal(trainerCaseToCatalog('f2l','38'),'F2L-01');
  const bridge=read('../../assets/js/library-trainer.js');
- assert.match(bridge,/if\(stage==='f2l'\)/);
- assert.match(bridge,/if\(stage==='pll'\)/);
- assert.match(bridge,/return null/);
+ assert.match(bridge,/trainerCaseToCatalog\(stage,legacy\)/);
+ assert.match(bridge,/missing:true,algorithm:'',setup:'',imageData:null/);
+ assert.doesNotMatch(bridge,/treino original não remapeado/);
  const coach=read('../../assets/js/secao.js');
- assert.match(coach,/currentLibraryVariant\(\)\?\.algorithm/);
- assert.match(coach,/currentLibraryVariant\(\)\?\.imageData/);
+ assert.match(coach,/const src=variant/);
+ assert.match(coach,/unavailableImage\(variant.missing/);
+ assert.match(coach,/const alg = variant \? variant.algorithm/);
+ assert.match(coach,/const setup = variant \? variant.setup/);
 });
 
 test('SQL das bibliotecas fecha todas as funções PostgreSQL com delimitadores válidos',()=>{
