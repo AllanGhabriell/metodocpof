@@ -54,7 +54,7 @@ export function availableTitles(level,additional=[]){
 }
 export function normalizedRewards(items=[]){
  const byId=new Map(defaultRewards.map(x=>[x.id,{...x,active:true}]));
- for(const raw of items)if(raw&&/^[a-z0-9_-]{3,48}$/.test(String(raw.id))&&Object.hasOwn(rewardKinds,raw.kind)||raw?.kind==='title'){
+ for(const raw of items)if(raw&&/^[a-z0-9_-]{3,48}$/.test(String(raw.id))&&(Object.hasOwn(rewardKinds,raw.kind)||raw.kind==='title')&&/^[a-z0-9_-]{3,48}$/.test(String(raw.style_key))){
   if(raw.active===false){byId.delete(raw.id);continue}
   byId.set(raw.id,{id:String(raw.id),kind:raw.kind,title:String(raw.title||'').slice(0,65),style_key:String(raw.style_key||'classic'),min_level:Number(raw.min_level)||1,active:true});
  }
