@@ -448,3 +448,5 @@ body::before{z-index:0}.cfop-cursor-glow{z-index:0}.app{z-index:1}
 .admin-published-case button{font-size:12px;padding:8px 11px}
 @media(max-width:850px){.admin-published-grid{grid-template-columns:1fr}}
 @media(max-width:420px){.admin-published-case{align-items:flex-start;flex-direction:column}.admin-published-case .row{align-self:stretch}}
+
+.admin-audit-detail{display:block;font-size:11px;font-weight:500;color:#a8c8df;text-transform:uppercase;margin-top:4px}
