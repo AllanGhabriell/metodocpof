@@ -53,12 +53,12 @@ export function detectColumns(page,stage){
  }
  return candidates.sort((a,b)=>a.y-b.y||a.x-b.x);
 }
-export function assignFixedCases(pages,stage){
+export function assignFixedCases(pages,stage,start=0){
  if(!LIMITS[stage])throw Error('Etapa inválida');
  const detections=pages.flatMap(p=>detectColumns(p,stage)),found=[],used=new Set();
  for(let i=0;i<detections.length;i++){
   const c=detections[i],named=matchCaseId(stage,c.detectedName);
-  let fixed=named&&CASE_BY_ID.get(named)?.stage===stage?CASE_BY_ID.get(named):canonicalCase(stage,i+1);
+  let fixed=named&&CASE_BY_ID.get(named)?.stage===stage?CASE_BY_ID.get(named):canonicalCase(stage,start+i+1);
   if(fixed&&used.has(fixed.id)){fixed=null}
   if(!fixed)continue;used.add(fixed.id);
   found.push({...c,case_id:fixed.id,name:fixed.name,stage,confidence:named?'nome':'ordem',
