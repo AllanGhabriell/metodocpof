@@ -21,7 +21,13 @@ export const achievementCatalog=[
  {id:'sub60',title:'Sub-60',subtitle:'Faça um tempo abaixo de 60s',xp:60,icon:'💨'},
  {id:'sub30',title:'Sub-30',subtitle:'Faça um tempo abaixo de 30s',xp:100,icon:'🥇'},
  {id:'sub20',title:'Sub-20',subtitle:'Faça um tempo abaixo de 20s',xp:180,icon:'⚡'},
- {id:'cross',title:'Cruz construída',subtitle:'Conclua uma atividade Cross',xp:25,icon:'✚'}
+ {id:'cross',title:'Cruz construída',subtitle:'Conclua uma atividade Cross',xp:25,icon:'✚'},
+ {id:'f2l41',title:'Cartógrafo dos 41',subtitle:'Pratique os 41 casos distintos de F2L',xp:0,icon:'🗺️',rarity:'lendária'},
+ {id:'oll57',title:'Olhos do Prisma',subtitle:'Pratique os 57 casos distintos de OLL',xp:0,icon:'🔮',rarity:'mítica'},
+ {id:'solves100',title:'Centúria dos Giros',subtitle:'Registre 100 resoluções válidas',xp:0,icon:'⚔️',rarity:'épica'},
+ {id:'streak90',title:'Disciplina de Ferro',subtitle:'Treine 90 dias consecutivos',xp:0,icon:'🛡️',rarity:'lendária'},
+ {id:'sub15',title:'Raio Primordial',subtitle:'Registre tempo válido abaixo de 15 segundos',xp:0,icon:'⚡',rarity:'mítica'},
+ {id:'persistence',title:'Caminho do Artesão',subtitle:'Pratique ao menos 10 casos de cada etapa',xp:0,icon:'🛠️',rarity:'rara'}
 ];
 const safeArray=(key)=>{try{const v=JSON.parse(localStorage.getItem(key)||'[]');return Array.isArray(v)?v:[]}catch{return []}};
 export function achievementStats(extraRecords=[]){
@@ -53,7 +59,9 @@ export function earnedAchievements(records=[]){
   streak3:s.streak>=3,streak7:s.streak>=7,streak30:s.streak>=30,
   firstsolve:s.solveCount>=1,solves10:s.solveCount>=10,
   sub60:s.best!==null&&s.best<60000,sub30:s.best!==null&&s.best<30000,
-  sub20:s.best!==null&&s.best<20000,cross:s.cross
+  sub20:s.best!==null&&s.best<20000,cross:s.cross,
+  f2l41:c.f2l>=41,oll57:c.oll>=57,solves100:s.solveCount>=100,streak90:s.streak>=90,
+  sub15:s.best!==null&&s.best<15000,persistence:c.f2l>=10&&c.oll>=10&&c.pll>=10
  };
  return achievementCatalog.map(a=>({...a,earned:!!passed[a.id]}));
 }
