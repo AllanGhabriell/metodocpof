@@ -1936,7 +1936,7 @@ document.addEventListener('DOMContentLoaded', () => {
   function toggleCompetitiveMode(nextValue) {
     const enable = typeof nextValue === 'boolean' ? nextValue : !state.competitive.enabled;
     state.competitive.enabled = enable;
-    state.trainingMode=enable?'competitive':'random';
+    state.trainingMode=enable?'competitive':'random';state.modeChosen=true;
     competitiveToggle.checked = enable;
     if (enable && state.orderedTraining.enabled) {
       state.orderedTraining.enabled = false;
@@ -1956,7 +1956,7 @@ document.addEventListener('DOMContentLoaded', () => {
   function toggleOrderedTrainingMode(nextValue) {
     const enable = typeof nextValue === 'boolean' ? nextValue : !state.orderedTraining.enabled;
     state.orderedTraining.enabled = enable;
-    state.trainingMode=enable?'sequential':'random';
+    state.trainingMode=enable?'sequential':'random';state.modeChosen=true;
     if (orderedToggle) orderedToggle.checked = enable;
 
     if (enable && state.competitive.enabled) {
