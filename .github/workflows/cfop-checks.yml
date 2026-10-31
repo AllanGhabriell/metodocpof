@@ -29,6 +29,7 @@ jobs:
           node --check v2/cloud/libraries.mjs
           node --check v2/data/case-catalog.mjs
           node --check v2/data/pdf-layout.mjs
+          node --check v2/data/algorithm-match.mjs
           node --check assets/js/importer.js
           node --check assets/js/library-trainer.js
           node --check v2/cloud/coach-merge.mjs
