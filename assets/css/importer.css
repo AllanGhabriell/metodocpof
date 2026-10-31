@@ -10,3 +10,62 @@ body.importer-body{overflow-y:auto;min-height:100vh;background:radial-gradient(e
 .importer-fields button{min-height:44px}
 .importer-actions button{font-size:12px}
 @media(max-width:600px){.importer-fields{grid-template-columns:1fr}}
+
+/* Publicação simplificada — três passos com ação principal sempre acessível. */
+.importer-header{position:sticky;top:8px;z-index:35;backdrop-filter:blur(14px)}
+.importer-hero{padding:20px 4px 12px}
+.importer-hero h1{font-size:clamp(28px,4vw,36px)}
+.importer-hero p{margin-top:8px}
+.importer-steps{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin:18px 0}
+.importer-steps>span{display:flex;align-items:center;gap:9px;padding:12px;background:#142744;border:1px solid #45689280;border-radius:12px;font-size:13px;font-weight:650}
+.importer-steps b,.importer-step-badge{display:inline-flex;align-items:center;justify-content:center;background:#214f7b;color:#dff7ff;border:1px solid #78afd283;border-radius:10px;width:32px;height:32px;flex-shrink:0;font-weight:800}
+.importer-step-heading{display:flex;align-items:center;gap:14px;margin:0 0 18px}
+.importer-step-heading h2{font-size:20px;line-height:1.25;margin:0 0 4px}
+.importer-step-heading p{color:#acbed7;font-size:13px;margin:0}
+.importer-start{display:block}
+.importer-library-fields{grid-template-columns:1fr 1.2fr;align-items:end}
+.importer-create-row{display:flex;align-items:end;gap:9px;min-width:0}
+.importer-create-row label{flex:1;min-width:0}
+.importer-create-row button{white-space:nowrap}
+.importer-upload-heading{border-top:1px solid #89b6dd30;margin:26px 0 18px;padding-top:25px}
+.importer-upload-fields{grid-template-columns:minmax(170px,.48fr) minmax(0,1fr);align-items:start}
+.importer-file-drop{border:1px dashed #69b2e7a6;background:linear-gradient(135deg,#163b62b8,#0b2845b5);border-radius:13px;padding:15px 17px;cursor:pointer}
+.importer-file-drop input{background:#071b33;cursor:pointer}
+.importer-file-drop input::file-selector-button{margin-right:10px;padding:8px 12px;background:#265c8c;border:1px solid #79d3f188;border-radius:8px;color:#fff;cursor:pointer}
+.importer-file-drop span{font-size:12px;color:#afcbe1}
+.importer-advanced{margin-top:15px;border-top:1px solid #7096bb29;padding-top:12px;font-size:13px;color:#b6c9df}
+.importer-advanced summary{cursor:pointer;color:#bad8ee;font-weight:600}
+.importer-advanced>*:not(summary){margin-top:12px}
+.importer-panel button.importer-secondary{border-color:#4d7faa8a;background:#132e4c;color:#cde7fa}
+.importer-panel button.importer-secondary:hover{background:#205079}
+.importer-panel button.importer-primary{border-color:#8cc8e7;background:linear-gradient(135deg,#2d7ca9,#267f8e);color:#fff;font-weight:800;box-shadow:0 8px 18px #05112155}
+.importer-panel button.importer-primary:disabled{background:#243850;box-shadow:none}
+#import-status{margin:11px 0;min-height:20px;font-size:13px;color:#b9e4f6}
+.importer-results-panel{padding-top:22px}
+.importer-publish-bar{position:sticky;top:80px;z-index:20;display:flex;align-items:center;justify-content:space-between;gap:14px;margin:10px 0 16px;padding:16px;background:#101f36f5;border:1px solid #7ca9d76e;border-radius:14px;backdrop-filter:blur(18px);box-shadow:0 12px 26px #050d2070}
+.importer-publish-copy{display:grid;gap:5px;min-width:170px}
+.importer-publish-copy strong{font-size:15px;color:#f5fbff}
+.importer-publish-copy small{color:#9fb7d2;font-size:12px}
+.importer-publish-bar .importer-actions{justify-content:end}
+.importer-publish-bar .importer-actions button{min-height:43px}
+.importer-publish-bar .importer-actions .importer-primary{font-size:14px;padding:12px 17px}
+.importer-card{transition:border-color .18s ease}
+.importer-card:focus-within{border-color:#73c5ed}
+@media(max-width:800px){
+ .importer-publish-bar{flex-direction:column;align-items:stretch;top:74px}
+ .importer-publish-bar .importer-actions{display:grid;grid-template-columns:1fr 1fr}
+ .importer-publish-bar .importer-actions .importer-primary{grid-column:1/-1;grid-row:1}
+ .importer-steps>span{font-size:11px;padding:10px 7px;gap:5px}
+ .importer-steps b{width:25px;height:25px}
+}
+@media(max-width:620px){
+ .importer-library-fields,.importer-upload-fields{grid-template-columns:1fr}
+ .importer-create-row{align-items:stretch}
+ .importer-create-row button{align-self:end}
+ .importer-publish-bar{top:70px;padding:12px}
+ .importer-header{padding:9px}
+ .importer-header a{padding:0 8px;font-size:12px}
+ .importer-steps{gap:5px}
+ .importer-steps>span{font-size:10px}
+ .importer-hero h1{font-size:28px}
+}
