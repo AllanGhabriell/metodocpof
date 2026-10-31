@@ -16,3 +16,24 @@ export const CASE_BY_ID=new Map(FIXED_CASES.map(c=>[c.id,c]));
 export function canonicalCase(stage,ordinal){return FIXED_CASES.find(c=>c.stage===stage&&c.ordinal===Number(ordinal))||null}
 export function matchCaseId(stage,reference){const input=String(reference||'').trim();if(!LIMITS[stage]||!input)return null;const exact=FIXED_CASES.find(c=>c.stage===stage&&(c.id.toLowerCase()===input.toLowerCase()||stage==='pll'&&c.name.toLowerCase()===input.toLowerCase()));if(exact)return exact.id;const n=Number(input.replace(new RegExp('^'+stage+'-?','i'),''));return canonicalCase(stage,n)?.id||null}
 export function isCanonicalCase(stage,id){return CASE_BY_ID.get(id)?.stage===stage}
+
+/**
+ * Identificação do caso nos treinadores.
+ * OLL é apresentado na ordem canônica da biblioteca (01–57), sem reaproveitar
+ * imagens antigas como se fossem equivalentes ao PDF.
+ */
+export function trainerCaseToCatalog(stage,legacy){
+ const n=Number(legacy);
+ if(stage==='oll'){
+  return Number.isInteger(n)&&n>=1&&n<=57?canonicalCase('oll',n)?.id:null;
+ }
+ if(stage==='f2l'){
+  return Number.isInteger(n)&&n>=1&&n<=41
+   ?canonicalCase('f2l',n>=38?n-37:n+4)?.id:null;
+ }
+ if(stage==='pll'){
+  const i=PLL_NAMES.indexOf(String(legacy));
+  return i>=0?canonicalCase('pll',i+1)?.id:null;
+ }
+ return null;
+}
