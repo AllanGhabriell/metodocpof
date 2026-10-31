@@ -1,0 +1,157 @@
+/* Academia CFOP | Cross Timer — cronômetro em destaque, aprendizagem progressiva e simulador guiado. */
+body[data-set="cross"] .cross-original-main{width:min(1050px,calc(100% - 32px));margin:88px auto 70px}
+.cross-lab-top{display:flex;justify-content:space-between;align-items:center;gap:16px;margin-bottom:20px;padding:11px 0;color:#e8f6ff}
+.cross-lab-top>div{display:grid;gap:5px}
+.cross-lab-top strong{font-size:17px;font-weight:800}
+.cross-original-main .cross-lab-sim-link,.cross-original-main .cross-lab-back{min-height:43px;font-size:12px;font-weight:700;color:#b8d0eb;border-radius:10px;background:rgba(17,34,60,.73);border-color:rgba(145,184,255,.22)}
+.cross-original-main .cross-lab-sim-link:hover,.cross-original-main .cross-lab-back:hover{color:white;border-color:#7dbadf}
+.cross-lab-timer{display:grid;gap:17px}
+.cross-lab-hero{margin:0}.cross-lab-hero h1{margin:5px 0 7px!important;font-size:clamp(29px,4.2vw,39px)!important}
+.cross-lab-hero p{color:#b1c5e2;max-width:750px;font-size:14px;line-height:1.55;margin:0}
+.cross-lab-levels{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:11px}
+.cross-original-main .cross-lab-levels button{display:grid;justify-items:center;align-content:center;gap:4px;min-height:104px;padding:13px 6px;background:linear-gradient(155deg,rgba(12,27,52,.91),rgba(9,20,43,.97));border:1px solid rgba(142,186,241,.24);border-radius:17px;transition:transform .18s,border-color .18s,box-shadow .18s}
+.cross-original-main .cross-lab-levels button:hover:not(:disabled){transform:translateY(-3px);border-color:#84caff}
+.cross-original-main .cross-lab-levels button.selected{border-color:#83d8ff;background:linear-gradient(155deg,rgba(29,86,150,.76),rgba(10,44,87,.85));box-shadow:0 8px 27px rgba(50,142,226,.2),inset 0 1px rgba(238,250,255,.16)}
+.cross-lab-levels small{font-size:10px;font-weight:800;letter-spacing:.11em;color:#b4d9fc}
+.cross-lab-levels strong{font-size:34px;font-weight:850;line-height:1;color:white}
+.cross-lab-levels span{font-size:12px;color:#c8d8ed}
+.cross-lab-tabs{display:flex;gap:6px;border-bottom:1px solid rgba(145,184,255,.2);padding:0 2px 3px}
+.cross-original-main .cross-lab-tabs button{flex:1;min-height:43px;background:transparent;border:0;border-bottom:2px solid transparent;border-radius:0;color:#b9cbe4}
+.cross-original-main .cross-lab-tabs button[aria-selected="true"]{border-bottom-color:#7edbfc;color:#ecf9ff;background:linear-gradient(0deg,rgba(32,93,152,.22),transparent)}
+.cross-lab-timer-content,.cross-lab-data{display:grid;gap:15px}
+.cross-lab-clock-section{display:grid;justify-items:center;gap:7px;text-align:center;padding:25px 16px 19px;border:1px solid rgba(125,185,251,.32);border-radius:21px;background:radial-gradient(ellipse at 50% 12%,rgba(28,82,143,.34),rgba(7,19,38,.92) 68%);box-shadow:0 15px 37px rgba(0,0,0,.2)}
+.cross-lab-clock-status{font:800 11px/1.4 system-ui,sans-serif;letter-spacing:.15em;color:#8cccf6}
+.cross-original-main .cross-lab-clock{display:grid;justify-items:center;gap:5px;width:min(100%,690px);min-height:146px;padding:20px 10px;background:transparent;border:0;border-radius:17px;box-shadow:none;color:#fff;touch-action:manipulation;user-select:none;-webkit-tap-highlight-color:transparent}
+.cross-original-main .cross-lab-clock:hover:not(:disabled){background:rgba(69,147,235,.1);border-color:transparent}
+.cross-lab-clock strong{font:800 clamp(43px,10vw,82px)/1.12 ui-monospace,SFMono-Regular,Consolas,monospace;letter-spacing:-.035em;font-variant-numeric:tabular-nums}
+.cross-lab-clock span{color:#d2ebff;font:650 13px/1.5 system-ui,sans-serif}
+.cross-lab-clock-hint{font-size:12px;color:#9fb8d5;margin:0}
+.cross-lab-notice{color:#9de8cd;min-height:18px;margin:5px 0 0;font-size:13px}
+.cross-lab-snapshot{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px}
+.cross-lab-snapshot>div,.cross-lab-all-stats>div{display:grid;gap:7px;border:1px solid rgba(145,184,255,.18);border-radius:13px;padding:13px;background:rgba(10,23,44,.8)}
+.cross-lab-snapshot span,.cross-lab-all-stats span{font:600 11px/1.35 system-ui,sans-serif;color:#a8c3e2}
+.cross-lab-snapshot strong,.cross-lab-all-stats strong{font-size:clamp(15px,2vw,21px);color:#ecfaff;font-variant-numeric:tabular-nums}
+.cross-lab-scramble{padding:17px 20px;border:1px solid rgba(145,184,255,.28);border-radius:17px;background:rgba(8,23,46,.88)}
+.cross-lab-scramble>div{display:flex;align-items:center;justify-content:space-between;gap:12px}
+.cross-lab-scramble strong{font-size:13px;color:#e3f1ff}
+.cross-original-main .cross-lab-scramble button{padding:8px 12px;font-size:12px;flex:none}
+.cross-lab-scramble p{font:650 clamp(14px,2.5vw,18px)/1.75 ui-monospace,Consolas,monospace;letter-spacing:.02em;overflow-wrap:anywhere;color:#fff;margin:12px 0 0}
+.cross-lab-settings{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
+.cross-lab-settings label,.cross-lab-review label{display:grid;gap:7px;color:#a9c5e3;font-size:12px;font-weight:750}
+.cross-original-main .cross-lab-settings select,.cross-original-main .cross-lab-review select{width:100%;min-height:45px;color:#f4f8ff;background:#122844}
+.cross-lab-cube-details{background:rgba(9,21,40,.82);border:1px solid rgba(145,184,255,.22);padding:13px 16px;border-radius:16px}
+.cross-lab-cube-details summary{cursor:pointer;list-style:none;font-size:13px;font-weight:750;display:flex;justify-content:space-between;gap:12px;min-height:30px;align-items:center}
+.cross-lab-cube-details summary::-webkit-details-marker{display:none}
+.cross-lab-cube-details summary span{font-size:11px;color:#95caf0}
+.cross-lab-cube-details[open] summary{border-bottom:1px solid rgba(145,184,255,.16);padding-bottom:12px}
+.cross-lab-cube-details>p{font-size:13px;color:#aac3de}
+.cross-lab-cube{min-height:265px}.cross-lab-cube .cube3d-stage{min-height:260px}
+.cross-lab-net{width:min(94%,390px);display:grid;grid-template-columns:repeat(4,minmax(0,1fr));grid-template-rows:repeat(3,auto);gap:4px}
+.cross-lab-net-face{display:grid;grid-template-columns:repeat(3,1fr);grid-template-rows:repeat(3,1fr);aspect-ratio:1;gap:2px;padding:3px;background:#13121c;border:1px solid #090b10;border-radius:5px}
+.cross-lab-net-face span{border-radius:3px;border:1px solid #0004}
+.cross-lab-review{display:grid;gap:14px;text-align:left;max-width:620px;width:100%;margin:12px auto 0;border:1px solid rgba(95,203,159,.34);background:rgba(16,69,65,.2);border-radius:16px;padding:17px}
+.cross-lab-review h3{font-size:15px;margin:0;color:#f2fffe}
+.cross-lab-scores{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:8px}
+.cross-original-main .cross-lab-scores button{min-height:50px;padding:10px 4px;font-size:14px;font-variant-numeric:tabular-nums}
+.cross-original-main .cross-lab-scores button.success{border-color:#5cd4a2;background:rgba(27,94,72,.55)}
+.cross-lab-help{font-size:12px;line-height:1.65;color:#a4bddb;margin:0}
+.cross-lab-data{background:rgba(8,22,44,.83);border:1px solid rgba(145,184,255,.22);border-radius:18px;padding:clamp(15px,3vw,24px)}
+.cross-lab-data h2{font-size:22px}.cross-lab-data h3{margin:18px 0 0;font-size:16px}
+.cross-lab-history{display:grid;gap:8px}
+.cross-lab-attempt{display:flex;justify-content:space-between;align-items:start;gap:12px;border:1px solid rgba(145,184,255,.15);padding:13px;background:rgba(10,27,54,.66);border-radius:12px}
+.cross-lab-attempt>div{min-width:0}
+.cross-lab-attempt strong{font-size:17px;color:#e4f7ff}
+.cross-lab-attempt small{display:block;font-size:11px;color:#a6bad3;margin-top:4px}
+.cross-lab-attempt p{font:600 11px/1.55 monospace;color:#a5bfe0;margin:6px 0 0;overflow-wrap:anywhere}
+.cross-original-main .cross-lab-attempt button{flex:none;padding:8px 11px}
+.cross-lab-data-actions{display:flex;flex-wrap:wrap;gap:10px}
+.cross-lab-data-actions button{flex:1 1 140px;min-height:44px}
+.cross-original-main .cross-lab-danger{color:#ffb9b9;border-color:rgba(250,115,115,.45)}
+.cross-lab-empty{padding:20px;color:#a8c0df;font-size:13px;text-align:center}
+.cross-lab-all-stats{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+.cross-lab-chart{height:185px;display:flex;gap:5px;align-items:end;padding:16px 9px 28px;border:1px solid rgba(145,184,255,.16);border-radius:12px;background:linear-gradient(180deg,rgba(20,48,82,.42),rgba(7,21,39,.87))}
+.cross-lab-chart>div{position:relative;flex:1;min-width:3px;max-width:42px;background:linear-gradient(0deg,#356ead,#6fd3ee);border-radius:5px 5px 1px 1px}
+.cross-lab-chart span{position:absolute;bottom:-18px;left:50%;transform:translateX(-50%);font-size:9px;color:#a4c6e3}
+.cross-lab-ideas-disclosure{margin-top:25px;border:1px solid rgba(145,184,255,.31);background:rgba(8,21,42,.77);border-radius:18px}
+.cross-lab-ideas-disclosure>summary{display:flex;align-items:center;gap:14px;cursor:pointer;padding:20px;list-style:none}
+.cross-lab-ideas-disclosure>summary::-webkit-details-marker{display:none}
+.cross-lab-ideas-disclosure>summary>span:first-child{font-size:17px;font-weight:850;color:#f0f9ff}
+.cross-lab-ideas-disclosure>summary small{flex:1;color:#a4c5e0;font-size:12px}
+.cross-lab-chevron{font-size:21px;color:#8bc2eb}
+.cross-lab-ideas-disclosure[open] .cross-lab-chevron{transform:rotate(180deg)}
+.cross-lab-ideas{padding:20px;border-top:1px solid rgba(145,184,255,.18)}
+.cross-lab-ideas-intro h2{margin:5px 0 6px;font-size:25px}
+.cross-lab-ideas-intro p,.cross-lab-idea-intro-text{color:#b6c9df;font-size:13px;line-height:1.6}
+.cross-lab-idea-tabs{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin:20px 0 11px}
+.cross-lab-idea-tabs button{min-height:45px;font-size:13px}
+.cross-original-main .cross-lab-idea-tabs button[aria-selected="true"]{border-color:#83d1f7;background:rgba(30,87,155,.6);color:#fff}
+.cross-lab-idea-grid{display:grid;gap:10px}
+.cross-lab-idea-card{border:1px solid rgba(145,184,255,.21);background:rgba(11,28,56,.72);border-radius:15px;overflow:hidden}
+.cross-original-main .cross-lab-idea-head{display:flex;align-items:center;text-align:left;width:100%;gap:13px;min-height:75px;padding:13px;border:0;background:transparent;border-radius:0}
+.cross-original-main .cross-lab-idea-head:hover{background:rgba(46,108,169,.18)}
+.cross-lab-idea-num{flex:none;width:36px;height:36px;display:grid;place-items:center;border-radius:10px;background:rgba(45,96,155,.26);color:#b9e2f7;font-size:13px}
+.cross-lab-idea-title{flex:1;display:grid;gap:5px;min-width:0}
+.cross-lab-idea-title strong{font-size:14px;color:#f5faff}
+.cross-lab-idea-title span{font-size:12px;color:#9fbad8;line-height:1.45}
+.cross-lab-idea-check{font-size:11px;color:#8ee4c8;white-space:nowrap}
+.cross-lab-idea-detail{padding:0 19px 18px;border-top:1px solid rgba(145,184,255,.16)}
+.cross-lab-idea-detail ol{padding-left:20px;margin:15px 0;color:#d2e2f2;font-size:13px;line-height:1.7}
+.cross-lab-idea-detail li{margin-bottom:7px}
+.cross-lab-idea-tip{border-left:2px solid #80c4f5;padding:10px 13px;background:rgba(13,47,80,.47);color:#bcddf0;font-size:13px;line-height:1.6}
+.cross-lab-idea-actions{display:flex;flex-wrap:wrap;gap:9px}
+.cross-lab-idea-actions button{flex:1 1 155px;min-height:44px}
+.cross-original-main .cross-lab-idea-actions button:first-child{background:linear-gradient(130deg,#154e8f,#276e9b);border-color:#67bcde}
+.cross-lab-lesson{padding:20px;margin:0 0 20px;background:rgba(8,20,42,.88);border:1px solid rgba(145,184,255,.27);border-radius:17px}
+.cross-lab-lesson-top{display:flex;justify-content:space-between;align-items:center;gap:9px;flex-wrap:wrap}
+.cross-lab-lesson-top h2{margin:6px 0;font-size:20px}
+.cross-lab-lesson-steps{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;margin:15px 0}
+.cross-original-main .cross-lab-lesson-steps button{display:grid;justify-items:center;gap:7px;min-width:0;min-height:66px;padding:10px 5px;color:#a4bedb;font-size:11px}
+.cross-lab-lesson-steps button b{display:grid;place-items:center;width:22px;height:22px;border-radius:50%;background:#274666;color:white}
+.cross-original-main .cross-lab-lesson-steps button[aria-current="step"]{border-color:#8ad4f8;background:rgba(29,78,137,.59);color:#f4ffff}
+.cross-lab-lesson-text{padding:15px 17px;border-radius:12px;background:rgba(11,35,66,.64);font-size:13px;color:#d4e5fa;line-height:1.7}
+.cross-lab-lesson-text strong{font-size:15px}.cross-lab-lesson-text p{margin:6px 0 0}
+.cross-lab-lesson-text small{color:#a5c4e3}
+.cross-lab-hint{font:600 13px/1.65 system-ui,sans-serif;margin:12px 0 0;padding:11px 15px;border:1px solid #70bcd755;border-radius:10px;background:#12406065;color:#bce7f6}
+.cross-lab-lesson-actions{display:flex;justify-content:flex-end;gap:8px;flex-wrap:wrap;margin-top:13px}
+.cross-lab-lesson-actions button{min-height:44px}
+@media(max-width:700px){
+ body[data-set="cross"] .cross-original-main{width:calc(100% - 24px);margin:82px auto 48px}
+ .cross-lab-top strong{font-size:14px}
+ .cross-lab-levels{gap:7px}
+ .cross-original-main .cross-lab-levels button{min-height:88px;padding:10px 3px}
+ .cross-lab-levels strong{font-size:29px}
+ .cross-lab-levels span{font-size:10px;text-align:center;line-height:1.3}
+ .cross-lab-snapshot{gap:6px}
+ .cross-lab-snapshot>div{padding:10px 6px}
+ .cross-lab-snapshot strong{font-size:14px}
+ .cross-lab-snapshot span{font-size:10px}
+ .cross-lab-clock-section{padding:17px 10px}
+ .cross-original-main .cross-lab-clock{min-height:128px}
+ .cross-lab-settings{gap:7px}
+ .cross-lab-settings label{font-size:11px}
+ .cross-original-main .cross-lab-settings select{padding:8px 4px;font-size:12px}
+ .cross-lab-all-stats{grid-template-columns:repeat(2,minmax(0,1fr))}
+ .cross-lab-ideas-disclosure>summary{padding:15px;flex-wrap:wrap;gap:6px}
+ .cross-lab-ideas-disclosure>summary small{order:3;flex:1 1 100%}
+ .cross-lab-ideas{padding:13px}
+ .cross-lab-idea-head{gap:8px!important}
+ .cross-lab-idea-title strong{font-size:13px}
+ .cross-lab-idea-check{display:none}
+ .cross-lab-lesson{padding:13px}
+ .cross-lab-lesson-steps{gap:5px}
+ .cross-original-main .cross-lab-lesson-steps button{font-size:10px;padding:8px 2px}
+ .cross-lab-lesson-top h2{font-size:18px}
+}
+@media(max-width:390px){
+ .cross-original-main .cross-lab-sim-link{padding:8px 9px;font-size:11px}
+ .cross-lab-top strong{font-size:13px}
+ .cross-lab-levels span{font-size:9px}
+ .cross-lab-levels small{font-size:9px}
+ .cross-lab-settings{grid-template-columns:1fr}
+ .cross-lab-settings label{display:grid;grid-template-columns:minmax(0,1fr) minmax(120px,1fr);align-items:center;gap:10px}
+ .cross-lab-scores{gap:5px}
+ .cross-original-main .cross-lab-scores button{font-size:12px}
+}
+@media(prefers-reduced-motion:reduce){
+ .cross-original-main .cross-lab-levels button{transition:none!important;transform:none!important}
+}
