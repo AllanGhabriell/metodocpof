@@ -1,0 +1,50 @@
+/* Progressão CFOP — perfil/XP com acessórios desbloqueáveis. */
+.journey-profile{margin:18px 0;overflow:hidden}
+.journey-identity{position:relative;isolation:isolate;border:1px solid #5684b884;border-radius:18px;padding:24px;background:linear-gradient(120deg,#0b2344,#102b4b 70%,#181c42);box-shadow:inset 0 1px #dcefff18}
+.journey-identity::before{content:"";position:absolute;inset:0;z-index:-1;border-radius:inherit;pointer-events:none;background:radial-gradient(circle at 90% 8%,#58ceef26,transparent 48%)}
+.journey-eyebrow{font:750 11px/1.4 system-ui,sans-serif;letter-spacing:.17em;color:#91cfec}
+.journey-title-row{display:flex;align-items:center;gap:13px;flex-wrap:wrap;margin:11px 0}
+.journey-title-row strong{font-size:clamp(20px,4vw,30px);color:#f8fdff}
+.journey-creator-mark{font:850 10px/1.2 system-ui,sans-serif;letter-spacing:.14em;border:1px solid #f3d58b;background:#6f50285c;border-radius:999px;padding:8px 12px;color:#ffe6a1;box-shadow:0 0 17px #e9c87944}
+.journey-identity p{font-size:13px;color:#d1e3ef;margin:5px 0}
+.journey-identity small{color:#9bbfd6;font-size:11px}
+.journey-meter{height:10px;border-radius:99px;background:#101d32;overflow:hidden;border:1px solid #709ab142;margin:12px 0}
+.journey-meter>span{display:block;height:100%;background:linear-gradient(90deg,#2793b7,#78e6f5 70%,#daeefe);border-radius:99px;transition:width .25s}
+.journey-cosmetics{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin:14px 0}
+.journey-cosmetics label{display:grid;gap:7px;font-size:12px;color:#aacedb;font-weight:700}
+.journey-cosmetics select{max-width:100%;min-height:46px}
+.journey-report{margin-top:17px;padding:18px;background:#0b2641;border:1px solid #6395b64c;border-radius:14px}
+.journey-report h3{margin:0 0 8px;font-size:17px}
+.journey-report p,.journey-report li{color:#c2d9ec;font-size:13px;line-height:1.62}
+.journey-report small{font-size:11px;color:#95bfd3}
+.journey-report ul{padding-left:19px}
+.journey-stages{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;margin:16px 0}
+.journey-stages>div{display:grid;gap:5px;padding:12px 6px;background:#132e4d;border:1px solid #8bcdeb2a;border-radius:10px}
+.journey-stages strong{color:#ccefff;font-size:14px}
+.journey-stages span{font-size:10px;color:#aacbe1}
+.journey-dashboard .journey-meter{width:min(500px,100%)}
+.journey-profile-title{font-size:13px;color:#c8e7ed;font-weight:750;margin:7px 0}
+.journey-frame-crystal{border:3px solid #62d5ed!important;box-shadow:0 0 22px #62cafa60}
+.journey-frame-fire{border:3px solid #ef8b46!important;box-shadow:0 0 24px #ee73396c}
+.journey-frame-gold{border:3px solid #ecca68!important;box-shadow:0 0 24px #e3b6566d}
+.journey-frame-prismatic{border:3px solid #9e9ffa!important;box-shadow:0 0 25px #cf8eff85}
+.journey-frame-creator{border:4px solid #f3d890!important;box-shadow:0 0 8px #fff3c8,0 0 30px #e2b44b80}
+.journey-name-ocean{color:#66d8fa!important;text-shadow:0 0 14px #47bcfa44}
+.journey-name-emerald{color:#74f1bb!important;text-shadow:0 0 14px #58dbb944}
+.journey-name-gold{color:#ffe5a1!important;text-shadow:0 0 14px #e2b45250}
+.journey-name-creator{background:linear-gradient(90deg,#fff3c8,#f2c35a,#fff9da,#d6a047);background-clip:text;-webkit-background-clip:text;color:transparent!important;filter:drop-shadow(0 0 7px #eac56a40)}
+.journey-bg-space{background:radial-gradient(circle at 20% 20%,#516ca982,transparent 40%),linear-gradient(130deg,#0c163b,#14184f)}
+.journey-bg-arcane{background:radial-gradient(circle at 85% 10%,#975ae65b,transparent 46%),linear-gradient(125deg,#1b1745,#081f3b)}
+.journey-bg-prism{background:linear-gradient(130deg,#062c44,#2d1b67,#194f69)}
+.journey-bg-creator{background:radial-gradient(circle at 93% 14%,#d2aa4777,transparent 52%),linear-gradient(120deg,#1e2041,#37304c,#121c36);border-color:#c9ac6e}
+.journey-aura-energy{box-shadow:inset 0 1px #fff2,0 0 25px #63cced30}
+.journey-aura-gold,.journey-aura-creator{box-shadow:inset 0 1px #ffe89a38,0 0 26px #e5b45533}
+.admin-reward-panel{margin:18px 0}
+.admin-reward-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+.admin-reward-grid label{display:grid;gap:7px;font-size:12px}
+.admin-reward-list{display:grid;gap:6px;max-height:320px;overflow:auto;margin:15px 0}
+.admin-reward-list>div{display:flex;justify-content:space-between;gap:12px;padding:11px;background:#102b4b;border-radius:10px}
+.admin-reward-list small{display:block;color:#abc4d9;font-size:10px;margin-top:4px}
+.admin-reward-list strong{white-space:nowrap;font-size:11px;color:#93d3ee}
+@media(max-width:550px){.journey-cosmetics,.admin-reward-grid{grid-template-columns:1fr}.journey-stages{grid-template-columns:repeat(2,minmax(0,1fr))}.journey-identity{padding:16px}}
+@media(prefers-reduced-motion:reduce){.journey-meter>span{transition:none}}
