@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 108 108" width="108" height="108" role="img" aria-labelledby="title">
+ <title id="title">Academia CFOP — cubo colorido 3 por 3</title>
+ <circle cx="54" cy="54" r="52" fill="#07142E"/>
+ <circle cx="54" cy="54" r="47" fill="#081629"/>
+ <rect x="19" y="19" width="70" height="70" rx="1" fill="#07142E"/>
+ <rect x="22" y="22" width="21" height="21" fill="#49C6EC"/>
+ <rect x="44" y="22" width="21" height="21" fill="#F0CE68"/>
+ <rect x="66" y="22" width="21" height="21" fill="#7681EF"/>
+ <rect x="22" y="44" width="21" height="21" fill="#4FCDA7"/>
+ <rect x="44" y="44" width="21" height="21" fill="#E5F5FF"/>
+ <rect x="66" y="44" width="21" height="21" fill="#EF6C79"/>
+ <rect x="22" y="66" width="21" height="21" fill="#69AAF2"/>
+ <rect x="44" y="66" width="21" height="21" fill="#ECA560"/>
+ <rect x="66" y="66" width="21" height="21" fill="#8ADADA"/>
+</svg>
