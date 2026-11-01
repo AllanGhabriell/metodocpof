@@ -7,5 +7,13 @@
   "display": "standalone",
   "background_color": "#090713",
   "theme_color": "#0a1630",
-  "lang": "pt-BR"
+  "lang": "pt-BR",
+  "icons": [
+    {
+      "src": "./assets/icons/academia-cfop.svg?v=20261031-1",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    }
+  ]
 }
