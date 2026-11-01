@@ -31,7 +31,7 @@ test('header has three responsive columns and ADM buttons are hidden only at mob
 test('updated assets are in the Studio and the service worker cache',()=>{
  const worker=read('sw.js');
  assert.match(html,/studio-admin-mobile\.css\?v=20261031-1/);
- assert.match(html,/app\.js\?v=20261031-admin-notify-1/);
+ assert.match(html,/app\.js\?v=20261031-share-profile-1/);
  assert.match(worker,/studio-admin-mobile\.css\?v=20261031-1/);
- assert.match(worker,/app\.js\?v=20261031-admin-notify-1/);
+ assert.match(worker,/app\.js\?v=20261031-share-profile-1/);
 });
