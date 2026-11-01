@@ -197,7 +197,7 @@ $('share-evolution').addEventListener('click',async()=>{
 });
 // CS Timer no PC: segure Space por 350 ms (indicador verde) e solte para iniciar.
 // Enquanto o relógio roda, Space para imediatamente. Botões com foco não roubam o atalho.
-let spaceHeld=false,spaceArmed=false,spaceTimer=0;
+let spaceHeld=false,spaceArmed=false,spaceTimer=0,spaceStopped=false;
 function keyboardIgnored(e){
  return view!=='timer'||Boolean(document.querySelector('dialog[open]'))||
  ['INPUT','TEXTAREA','SELECT'].includes(document.activeElement?.tagName)||
@@ -207,9 +207,9 @@ document.addEventListener('keydown',e=>{
  if(e.code!=='Space'||keyboardIgnored(e))return;
  e.preventDefault();
  if(e.repeat||spaceHeld)return;
- spaceHeld=true;
+ spaceHeld=true;spaceStopped=false;
  if(running){
-  action(); // para na pressão, nunca volta a iniciar ao soltar
+  spaceStopped=true;action(); // para na pressão, nunca volta a iniciar ao soltar
   return;
  }
  if(!isDesktopTimer()){action();return}
@@ -226,12 +226,13 @@ document.addEventListener('keyup',e=>{
  e.preventDefault();
  spaceHeld=false;clearTimeout(spaceTimer);
  document.body.classList.remove('timer-space-ready','timer-space-preparing');
+ if(spaceStopped){spaceStopped=false;spaceArmed=false;return}
  if(!isDesktopTimer())return;
  if(running)return;
  if(spaceArmed){spaceArmed=false;action()}
  else $('timer-status').textContent='Segure espaço por um instante e solte para iniciar';
 },true);
-window.addEventListener('blur',()=>{spaceHeld=false;spaceArmed=false;clearTimeout(spaceTimer);document.body.classList.remove('timer-space-ready','timer-space-preparing')});
+window.addEventListener('blur',()=>{spaceHeld=false;spaceArmed=false;spaceStopped=false;clearTimeout(spaceTimer);document.body.classList.remove('timer-space-ready','timer-space-preparing')});
 document.querySelectorAll('[data-view]').forEach(b=>b.addEventListener('click',()=>setView(b.dataset.view)));
 document.querySelectorAll('[data-share-photo-pick]').forEach(button=>
  button.addEventListener('click',()=>$('scramble-share-photo')?.click()));
