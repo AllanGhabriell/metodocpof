@@ -1,6 +1,6 @@
 import {addShareProfile} from './share-profile.mjs?v=20261031-1';
 import {identityState} from '../cloud/identity.mjs';
-import {progressData,progressSummary} from './progress.mjs';
+import {progressData,progressSummary} from './progress.mjs?v=20261031-rpg-3';
 import {achievementStats,earnedAchievements} from './achievements.mjs?v=20261031-rpg-2';
 import {journeyIdentity} from './journey.mjs?v=20261031-rpg-3';
 
