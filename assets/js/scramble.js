@@ -1,6 +1,6 @@
 import {solved,apply,facelets} from '../../v2/cube/engine.mjs';
 import {cube3D} from '../../v2/cube/visual.mjs?v=20261030-8';
-import {normalizeAll,newId,statistics,effective,format,celebrate,shareImage,downloadOrShare} from '../../v2/timer/records.mjs?v=20261031-compact-1';
+import {normalizeAll,newId,statistics,effective,format,celebrate,shareImage,downloadOrShare} from '../../v2/timer/records.mjs?v=20261031-profile-1';
 import {createTimerHistory} from './timer-history-ui.mjs?v=20261031-2';
 import {recordTimerSolve} from '../../v2/timer/telemetry.mjs?v=20261031-1';
 const key='cpof-scramble-times-v1';
