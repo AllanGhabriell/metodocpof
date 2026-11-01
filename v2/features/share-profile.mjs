@@ -3,9 +3,10 @@
 import {identityState,loadIdentity} from '../cloud/identity.mjs';
 import {journeyIdentity,loadJourney} from './journey.mjs?v=20261031-rpg-3';
 import {progressSummary} from './progress.mjs?v=20261031-rpg-3';
+import {loadXpBalance,loadAccountExtras} from '../cloud/cloud.mjs?v=20261031-58';
 
 export async function prepareShareIdentity(){
- await Promise.allSettled([loadIdentity(),loadJourney()]);
+ await Promise.allSettled([loadIdentity(),loadJourney(),loadXpBalance(),loadAccountExtras()]);
  const xp=progressSummary().xp;
  return {identity:identityState(),rank:journeyIdentity(xp),xp};
 }
