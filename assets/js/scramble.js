@@ -1,7 +1,5 @@
 import {solved,apply,facelets} from '../../v2/cube/engine.mjs';
 import {cube3D} from '../../v2/cube/visual.mjs?v=20261030-8';
-import {deliverShareCard} from '../../v2/features/share-cards.mjs';
-import {loadIdentity} from '../../v2/cloud/identity.mjs';
 import {normalizeAll,newId,statistics,effective,format,celebrate,shareImage,downloadOrShare} from '../../v2/timer/records.mjs?v=20261031-compact-1';
 import {createTimerHistory} from './timer-history-ui.mjs?v=20261031-2';
 import {recordTimerSolve} from '../../v2/timer/telemetry.mjs?v=20261031-1';
@@ -13,6 +11,24 @@ let sequence='',state=solved(),running=false,started=0,raf=0,elapsed=0,view='tim
 const $=id=>document.getElementById(id);
 const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
 const fmt=ms=>((ms/1000).toFixed(2));
+// WCA 3×3 Single vigente em outubro de 2026: 2,51 segundos.
+const WORLD_RECORD_3X3_MS=2510;
+const isDesktopTimer=()=>matchMedia('(pointer: fine)').matches;
+let jokeTimeout=null;
+function recordJoke(ms){
+ if(ms>=WORLD_RECORD_3X3_MS)return;
+ const jokes=[
+  'Ei, trapaceiro interdimensional! Você resolveu ou teleportou o cubo? 👀',
+  'Mais rápido que o recorde mundial? A polícia dos cubos quer conversar! 🚨',
+  'Calma, velocista! Esse cubo veio montado de fábrica? 🤨',
+  'Os algoritmos pediram demissão. Você hackeou a realidade? 🧙'
+ ];
+ const box=$('scramble-world-joke');
+ $('scramble-world-joke-text').textContent=jokes[Math.floor(Math.random()*jokes.length)];
+ box.hidden=false;
+ clearTimeout(jokeTimeout);
+ jokeTimeout=setTimeout(()=>box.hidden=true,6500);
+}
 function scramble(){
  const faces=['U','D','R','L','F','B'],suffix=['',"'",'2'];let prev='',axis='',moves=[];
  const axisOf=f=>f==='U'||f==='D'?'y':f==='R'||f==='L'?'x':'z';
@@ -24,7 +40,16 @@ function cube2D(current){
  const faces=facelets(current),slots=[['U',1,0],['L',0,1],['F',1,1],['R',2,1],['B',3,1],['D',1,2]];
  return '<div class="scramble-cube-net" role="img" aria-label="Planificação do cubo 3 por 3">'+slots.map(([name,x,y])=>'<div class="scramble-net-face" style="grid-column:'+(x+1)+';grid-row:'+(y+1)+'" aria-label="Face '+name+'">'+faces[name].map(c=>'<span style="background:'+cubePalette[c]+'"></span>').join('')+'</div>').join('')+'</div>';
 }
-function drawCube(){const target=$('scramble-cube');if(!target)return;target.innerHTML=cubeView==='2d'?cube2D(state):cube3D(state,{yaw,pitch,size:174});target.setAttribute('aria-label','Cubo '+(cubeView==='2d'?'2D':'3D')+' embaralhado: '+sequence);document.querySelector('.scramble-cube-controls').hidden=cubeView==='2d';}
+function drawCube(){
+ const target=$('scramble-cube');
+ if(!target)return;
+ target.innerHTML=cubeView==='2d'?cube2D(state):cube3D(state,{yaw,pitch,size:150});
+ target.setAttribute('aria-label','Cubo '+(cubeView==='2d'?'2D':'3D')+' embaralhado. Arraste para girar ou toque para iniciar/parar o tempo.');
+}
+function rotateCube(){
+ const scene=$('scramble-cube')?.querySelector('.cube3d-scene');
+ if(scene){scene.style.setProperty('--yaw',yaw+'deg');scene.style.setProperty('--pitch',pitch+'deg');}
+}
 function tick(){if(!running)return;elapsed=performance.now()-started;$('timer-display').textContent=fmt(elapsed);raf=requestAnimationFrame(tick)}
 function start(){if(running)return;$('scramble-record-share').hidden=true;if(inspection){inspection=false;cancelAnimationFrame(inspectionRaf)}running=true;started=performance.now();$('timer-display').textContent='0.00';$('timer-status').textContent='Toque ou pressione espaço para parar';document.body.classList.add('is-timing');tick()}
 function stop(){if(!running)return;running=false;cancelAnimationFrame(raf);elapsed=performance.now()-started;document.body.classList.remove('is-timing');
@@ -36,6 +61,7 @@ function stop(){if(!running)return;running=false;cancelAnimationFrame(raf);elaps
  const isNewRecord=elapsed>=2000&&elapsed<previousBest;
  const solve={id:newId(),ms:Math.round(elapsed),scramble:sequence,date:new Date().toISOString(),penalty:'OK',comment:'',session:String($('scramble-session-name')?.value||'Geral').trim().slice(0,45)||'Geral',archived:false};
  times.push(solve);lastResult=solve;
+ recordJoke(elapsed);
  if(isNewRecord){celebrate(document.body,true);
   const panel=$('scramble-record-share');
   if(panel)panel.hidden=false;
@@ -103,10 +129,60 @@ $('scramble-length').addEventListener('change',e=>{scrambleLength=Number(e.targe
 $('cube-view').value=cubeView;
 $('cube-view').addEventListener('change',e=>{cubeView=e.target.value==='2d'?'2d':'3d';localStorage.setItem('academy-cube-view',cubeView);$('scramble-cube-heading').textContent=cubeView==='2d'?'Cubo 2D':'Cubo 3D';drawCube()});
 $('inspection-toggle').addEventListener('change',e=>{inspectionEnabled=e.target.checked;localStorage.setItem('academy-inspection',String(inspectionEnabled));if(inspection){inspection=false;cancelAnimationFrame(inspectionRaf);$('timer-display').textContent='0.00';$('timer-status').textContent='Toque nesta área ou pressione espaço para começar'}});
-$('cube-left').addEventListener('click',()=>{yaw-=35;drawCube()});
-$('cube-right').addEventListener('click',()=>{yaw+=35;drawCube()});
-$('cube-up').addEventListener('click',()=>{pitch=Math.max(-75,pitch-20);drawCube()});
-$('cube-down').addEventListener('click',()=>{pitch=Math.min(75,pitch+20);drawCube()});
+const cubeSection=document.querySelector('.scramble-cube-section');
+const cubeTarget=$('scramble-cube');
+const cubeMiniKey='academy-scramble-cube-mini-v1';
+let cubeMini=localStorage.getItem(cubeMiniKey)==='true';
+function updateCubeSize(){
+ cubeSection.classList.toggle('cube-mini',cubeMini);
+ const button=$('cube-size-toggle');
+ button.textContent=cubeMini?'⤢ Ampliar':'− Reduzir';
+ button.setAttribute('aria-label',cubeMini?'Ampliar cubo':'Reduzir cubo');
+ button.setAttribute('aria-pressed',String(cubeMini));
+}
+updateCubeSize();
+function toggleCubeSize(){
+ cubeMini=!cubeMini;localStorage.setItem(cubeMiniKey,String(cubeMini));updateCubeSize();
+}
+$('cube-size-toggle').addEventListener('click',toggleCubeSize);
+$('scramble-world-joke-close').addEventListener('click',()=>{$('scramble-world-joke').hidden=true;clearTimeout(jokeTimeout)});
+let cubePointer=null;
+cubeTarget.addEventListener('pointerdown',e=>{
+ if(view!=='timer'||document.querySelector('dialog[open]'))return;
+ if(e.pointerType==='mouse'&&e.button!==0)return;
+ cubePointer={id:e.pointerId,x:e.clientX,y:e.clientY,moved:false};
+ cubeTarget.setPointerCapture?.(e.pointerId);
+});
+cubeTarget.addEventListener('pointermove',e=>{
+ const p=cubePointer;
+ if(!p||p.id!==e.pointerId)return;
+ const dx=e.clientX-p.x,dy=e.clientY-p.y;
+ if(Math.abs(dx)+Math.abs(dy)>8)p.moved=true;
+ if(p.moved&&cubeView==='3d'&&!cubeMini){
+  e.preventDefault();
+  yaw+=dx*.65;
+  pitch=Math.max(-75,Math.min(75,pitch-dy*.55));
+  rotateCube();
+ }
+ p.x=e.clientX;p.y=e.clientY;
+});
+cubeTarget.addEventListener('pointerup',e=>{
+ const p=cubePointer;
+ if(!p||p.id!==e.pointerId)return;
+ cubePointer=null;
+ if(!p.moved){
+  if(cubeMini)toggleCubeSize();
+  else if(view==='timer'&&!document.querySelector('dialog[open]'))action();
+ }
+});
+cubeTarget.addEventListener('pointercancel',()=>cubePointer=null);
+cubeTarget.addEventListener('keydown',e=>{
+ if(e.code==='Enter'){
+  e.preventDefault();
+  if(cubeMini)toggleCubeSize();
+  else action();
+ }
+});
 // Grande região central de toque: permite parar o timer sem procurar os dígitos.
 $('timer-display').addEventListener('click',action);
 document.querySelector('.scramble-clock').addEventListener('click',event=>{
@@ -119,7 +195,43 @@ $('share-evolution').addEventListener('click',async()=>{
  try{await downloadOrShare(shareImage({title:'Minha evolução no 3×3',subtitle:'Academia CFOP · últimos tempos',solves:times.filter(t=>!t.archived)}),'academia-cfop-evolucao-3x3.png')}
  catch(e){alert('Não foi possível compartilhar: '+e.message)}
 });
-document.addEventListener('keydown',e=>{if(view!=='timer'||document.querySelector('dialog[open]'))return;if(e.code==='Space'&&!e.repeat&&!['BUTTON','INPUT','TEXTAREA','SELECT'].includes(document.activeElement.tagName)){e.preventDefault();action()}});
+// CS Timer no PC: segure Space por 350 ms (indicador verde) e solte para iniciar.
+// Enquanto o relógio roda, Space para imediatamente. Botões com foco não roubam o atalho.
+let spaceHeld=false,spaceArmed=false,spaceTimer=0;
+function keyboardIgnored(e){
+ return view!=='timer'||Boolean(document.querySelector('dialog[open]'))||
+ ['INPUT','TEXTAREA','SELECT'].includes(document.activeElement?.tagName)||
+ document.activeElement?.isContentEditable||e.altKey||e.ctrlKey||e.metaKey;
+}
+document.addEventListener('keydown',e=>{
+ if(e.code!=='Space'||keyboardIgnored(e))return;
+ e.preventDefault();
+ if(e.repeat||spaceHeld)return;
+ spaceHeld=true;
+ if(running){
+  action(); // para na pressão, nunca volta a iniciar ao soltar
+  return;
+ }
+ if(!isDesktopTimer()){action();return}
+ spaceArmed=false;document.body.classList.add('timer-space-preparing');
+ $('timer-status').textContent='Segure a barra de espaço para preparar…';
+ spaceTimer=setTimeout(()=>{
+  if(!spaceHeld)return;
+  spaceArmed=true;document.body.classList.add('timer-space-ready');
+  $('timer-status').textContent='Pronto! Solte a barra de espaço para iniciar';
+ },350);
+},true);
+document.addEventListener('keyup',e=>{
+ if(e.code!=='Space'||!spaceHeld)return;
+ e.preventDefault();
+ spaceHeld=false;clearTimeout(spaceTimer);
+ document.body.classList.remove('timer-space-ready','timer-space-preparing');
+ if(!isDesktopTimer())return;
+ if(running)return;
+ if(spaceArmed){spaceArmed=false;action()}
+ else $('timer-status').textContent='Segure espaço por um instante e solte para iniciar';
+},true);
+window.addEventListener('blur',()=>{spaceHeld=false;spaceArmed=false;clearTimeout(spaceTimer);document.body.classList.remove('timer-space-ready','timer-space-preparing')});
 document.querySelectorAll('[data-view]').forEach(b=>b.addEventListener('click',()=>setView(b.dataset.view)));
 document.querySelectorAll('[data-share-photo-pick]').forEach(button=>
  button.addEventListener('click',()=>$('scramble-share-photo')?.click()));
