@@ -14,7 +14,7 @@ test('módulo de embaralhamento carrega arquivos existentes do motor e do cubo 3
 });
 test('opções de embaralhamento estão de fato na interface, inclusive no celular',()=>{
  const html=read('scramble.html'),css=read('assets/css/scramble.css');
- for(const id of ['scramble-length','cube-view','inspection-toggle','scramble-cube','cube-left','cube-up','cube-down','cube-right'])assert.ok(html.includes('id="'+id+'"'),id);
+ for(const id of ['scramble-length','cube-view','inspection-toggle','scramble-cube','cube-size-toggle','show-cube-preview'])assert.ok(html.includes('id="'+id+'"'),id);
  assert.ok(css.includes('.scramble-option-fields'));
  assert.ok(css.includes('.scramble-cube-net'));
 });
