@@ -8,7 +8,7 @@ import {loadJourney,journeyEquip,journeyAnswers} from './features/journey.mjs?v=
 import {saveAcademyGoals} from './features/academy-insights.mjs';
 import {identityState,loadIdentity,saveIdentity} from './cloud/identity.mjs';
 import {openAvatarCrop,exportAvatarCrop,cancelAvatarCrop} from './features/avatar-crop.mjs';
-import {shareSection,deliverShareCard} from './features/share-cards.mjs?v=20261031-rpg-2';
+import {shareSection,deliverShareCard} from './features/share-cards.mjs?v=20261031-rpg-4';
 import {drillsPage,challengesPage,practiceClick,practiceSubmit} from './features/practice.mjs';
 import {imageEditorPanel,mountEditor,imageChosen,imageChanged,imageEditorClick} from './features/editor.mjs';
 import {stickerPanel,stickerClick} from './features/sticker-editor.mjs';
