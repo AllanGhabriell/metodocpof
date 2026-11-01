@@ -1,23 +1,24 @@
 /* GitHub Pages app shell — network-first, version-aware resource fallback.
    Never reuse an old JS module under a different ?v= version. */
-const CACHE='cfop-studio-offline-20261031-v46';
+const CACHE='cfop-studio-offline-20261031-v47';
 const CORE=[
  './index.html','./studio.html','./f2l.html','./oll.html','./pll.html','./importer.html',
  './cross.html','./scramble.html',
  './assets/css/cross-lab.css?v=20261031-1',
- './assets/css/timer-upgrade.css?v=20261031-cube-return-1',
- './assets/js/timer-history-ui.mjs?v=20261031-2',
- './v2/timer/records.mjs?v=20261031-compact-1','./v2/timer/telemetry.mjs?v=20261031-1',
+ './assets/css/timer-upgrade.css?v=20261031-timer-interact-1',
+ './assets/js/timer-history-ui.mjs?v=20261031-profile-1',
+ './v2/timer/records.mjs?v=20261031-profile-1','./v2/timer/telemetry.mjs?v=20261031-1',
  './v2/features/cross-timer.mjs?v=20261031-4',
  './v2/features/cross-ideas.mjs?v=20261031-1',
  './v2/features/cross.mjs?v=20261031-guided-2',
- './v2/app.js?v=20261031-admin-notify-1',
+ './v2/app.js?v=20261031-share-profile-1',
  './assets/css/journey.css?v=20261031-1',
  './v2/features/progression.mjs?v=20261031-rpg-2',
  './v2/features/journey.mjs?v=20261031-rpg-3',
  './v2/features/progress.mjs?v=20261031-rpg-3',
  './v2/features/achievements.mjs?v=20261031-rpg-2',
- './v2/features/share-cards.mjs?v=20261031-rpg-2',
+ './v2/features/share-cards.mjs?v=20261031-rpg-4',
+ './v2/features/share-profile.mjs?v=20261031-1',
  './v2/cloud/admin.mjs?v=20261031-rpg-1',
  './v2/cloud/admin-rewards.mjs?v=20261031-1',
  './v2/app.css?v=20261031-6',
@@ -58,7 +59,7 @@ const OPTIONAL=[
  './assets/js/trainer-coach.js?v=20261030-43',
  './assets/js/secao.js?v=20261031-7',
  './assets/css/trainer-unified.css?v=20261030-43',
- './assets/js/scramble.js?v=20261031-cube-return-1',
+ './assets/js/scramble.js?v=20261031-timer-interact-2',
  './assets/css/scramble.css?v=20261031-9'
 ];
 self.addEventListener('install',event=>{
