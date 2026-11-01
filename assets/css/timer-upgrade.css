@@ -289,3 +289,90 @@ body.scramble-body.scramble-timer-active{
  font-size:clamp(57px,14vw,125px)!important;
  }
 }
+
+
+/* Cubo manipulável: arraste com mouse/dedo, toque para iniciar ou parar. */
+.scramble-cube-section .scramble-cube-bar{
+ display:flex;align-items:center;justify-content:space-between;
+ gap:12px;width:100%;min-height:34px;padding:0 7px;
+}
+.scramble-cube-section #cube-size-toggle{
+ display:inline-flex;align-items:center;justify-content:center;
+ flex:none;min-width:86px;min-height:36px;
+ border-radius:9px;border:1px solid rgba(116,185,234,.55);
+ background:#123e65;color:#deeffe;font:700 12px system-ui,sans-serif;
+ cursor:pointer;touch-action:manipulation;
+}
+.scramble-body .scramble-cube-section #scramble-cube{
+ width:100%;min-height:0;touch-action:none;
+ cursor:grab;user-select:none;-webkit-user-select:none;
+ -webkit-tap-highlight-color:transparent;
+}
+.scramble-body .scramble-cube-section #scramble-cube:active{cursor:grabbing}
+.scramble-body .scramble-cube-section .cube3d-scene{transition:none!important}
+/* Cubo normal menor do que antes, sem roubar a tela do cronômetro. */
+.scramble-body.scramble-timer-active .scramble-cube-section:not([hidden]):not(.cube-mini){
+ height:clamp(120px,22dvh,182px);max-height:25dvh;
+ padding:2px 6px 4px;margin:0 auto 3px;
+}
+.scramble-body.scramble-timer-active .scramble-cube-section:not(.cube-mini) #scramble-cube,
+.scramble-body.scramble-timer-active .scramble-cube-section:not(.cube-mini) .cube3d-stage{
+ height:clamp(76px,14dvh,123px);min-height:0!important;
+}
+.scramble-body.scramble-timer-active .scramble-cube-section:not(.cube-mini) .cube3d-scene{
+ --cube-size:clamp(69px,12dvh,112px)!important;
+ --cube-half:calc(var(--cube-size)/2)!important;
+}
+.scramble-body.scramble-timer-active .scramble-cube-section.cube-mini:not([hidden]){
+ display:flex!important;height:82px!important;max-height:82px!important;
+ padding:4px 7px;margin:0 auto 3px;overflow:hidden;
+ flex-direction:row;align-items:center;justify-content:space-between;
+}
+.scramble-body.scramble-timer-active .scramble-cube-section.cube-mini .scramble-cube-bar{
+ width:auto;flex:1;min-width:0;min-height:0;order:2;
+}
+.scramble-body.scramble-timer-active .scramble-cube-section.cube-mini .scramble-cube-heading{display:none}
+.scramble-body.scramble-timer-active .scramble-cube-section.cube-mini #scramble-cube{
+ order:1;width:72px;min-height:0!important;height:68px!important;flex:none;
+}
+.scramble-body.scramble-timer-active .scramble-cube-section.cube-mini .cube3d-stage{
+ width:72px!important;height:65px!important;min-height:0!important;
+}
+.scramble-body.scramble-timer-active .scramble-cube-section.cube-mini .cube3d-scene{
+ --cube-size:50px!important;--cube-half:25px!important;
+}
+.scramble-body.scramble-timer-active .scramble-cube-section.cube-mini .scramble-cube-net{
+ height:65px;width:68px;gap:1px;
+}
+.scramble-body.scramble-timer-active .scramble-cube-section.cube-mini #cube-size-toggle{
+ min-height:44px;
+}
+@media(max-height:640px){
+ .scramble-body.scramble-timer-active .scramble-cube-section:not([hidden]):not(.cube-mini){
+  height:112px;max-height:112px
+ }
+ .scramble-body.scramble-timer-active .scramble-cube-section:not(.cube-mini) #scramble-cube,
+ .scramble-body.scramble-timer-active .scramble-cube-section:not(.cube-mini) .cube3d-stage{
+  height:79px
+ }
+}
+body.timer-space-preparing .scramble-clock #timer-display{color:#ffd48f}
+body.timer-space-ready .scramble-clock #timer-display{
+ color:#7effb5;text-shadow:0 0 21px rgba(88,255,160,.5)
+}
+.scramble-world-joke:not([hidden]){
+ display:flex;align-items:center;gap:10px;
+ position:fixed;z-index:18;top:76px;right:12px;
+ width:min(320px,calc(100vw - 28px));padding:12px 13px;
+ border:1px solid #e8be67;border-radius:12px;
+ background:linear-gradient(135deg,#213956,#163455);
+ color:#ffebbc;box-shadow:0 10px 35px rgba(2,9,22,.55);
+ font:650 13px/1.45 system-ui,sans-serif;
+ pointer-events:auto;
+}
+.scramble-world-joke button{
+ flex:none;margin-left:auto;align-self:flex-start;
+ min-width:31px;min-height:31px;border-radius:7px;
+ border:1px solid rgba(244,207,126,.5);
+ background:rgba(13,29,51,.7);color:#ffebbc;cursor:pointer;
+}
