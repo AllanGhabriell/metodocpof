@@ -24,7 +24,7 @@ test('all browser tabs use the same versioned Academia CFOP favicon and manifest
   const rootPrefix=path.startsWith('v2/')?'../':'';
   assert.ok(html.includes('rel="icon" type="image/svg+xml"'),path);
   assert.ok(html.includes('href="'+rootPrefix+'assets/icons/academia-cfop.svg?v=20261031-1"'),path);
-  assert.ok(html.includes('href="'+rootPrefix+'manifest.webmanifest"'),path);
+  assert.ok(html.includes('href="'+rootPrefix+'manifest.webmanifest"')||html.includes('href="./'+rootPrefix+'manifest.webmanifest"'),path);
  }
 });
 
