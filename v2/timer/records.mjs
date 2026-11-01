@@ -1,3 +1,4 @@
+import {addShareProfile} from '../features/share-profile.mjs?v=20261031-1';
 // Shared 3×3 and Cross result model. No network access, deterministic statistics.
 export function normalizeSolve(raw,index=0){
  if(!raw||!Number.isFinite(Number(raw.ms))||Number(raw.ms)<0)return null;
@@ -43,8 +44,8 @@ export function csv(list){
 }
 export function newId(){return Date.now()+'-'+Math.random().toString(36).slice(2,10)}
 export function shareImage({title='Meu treino 3×3',subtitle='',record=null,solves=[]}={}){
- const s=statistics(solves),c=document.createElement('canvas');c.width=1080;c.height=1350;
- const ctx=c.getContext('2d');const bg=ctx.createLinearGradient(0,0,1080,1350);bg.addColorStop(0,'#06162c');bg.addColorStop(.5,'#0d3864');bg.addColorStop(1,'#1b1150');ctx.fillStyle=bg;ctx.fillRect(0,0,1080,1350);
+ const s=statistics(solves),c=document.createElement('canvas');c.width=1080;c.height=1510;c.dataset.cfopShareProfile='pending';
+ const ctx=c.getContext('2d');const bg=ctx.createLinearGradient(0,0,1080,1510);bg.addColorStop(0,'#06162c');bg.addColorStop(.5,'#0d3864');bg.addColorStop(1,'#1b1150');ctx.fillStyle=bg;ctx.fillRect(0,0,1080,1510);
  const line=(t,x,y,size=44,color='#f3faff',bold=false)=>{ctx.fillStyle=color;ctx.font=(bold?'800 ':'500 ')+size+'px system-ui, sans-serif';ctx.fillText(String(t),x,y,950)};
  line('ACADEMIA CFOP',74,120,37,'#9eddf8',true);line(title,74,243,61,'#fff',true);
  line(subtitle,74,312,30,'#b5d3ec');
@@ -68,9 +69,13 @@ export function shareImage({title='Meu treino 3×3',subtitle='',record=null,solv
    ctx.fillStyle='#b7c7dc';ctx.font='23px system-ui';ctx.fillText('Mais recente →',740,1185);
   }
  }
- line('Compartilhado voluntariamente pelo cubista',74,1265,23,'#b6c6dd');return c;
+ line('Compartilhado voluntariamente pelo cubista',74,1485,23,'#b6c6dd');return c;
 }
 export async function downloadOrShare(canvas,name,share=true){
+ if(canvas.dataset?.cfopShareProfile==='pending'){
+  await addShareProfile(canvas,{top:1215,height:195});
+  canvas.dataset.cfopShareProfile='ready';
+ }
  const blob=await new Promise(resolve=>canvas.toBlob(resolve,'image/png'));if(!blob)throw Error('PNG indisponível');
  const file=new File([blob],name,{type:'image/png'});
  if(share&&navigator.share&&navigator.canShare?.({files:[file]})){
