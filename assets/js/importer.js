@@ -4,7 +4,7 @@ import {assignFixedCases,cropDiagram} from '../../v2/data/pdf-layout.mjs';
 import {algorithmIndex,identifyByAlgorithm} from '../../v2/data/algorithm-match.mjs';
 import {matchDiagrams} from '../../v2/data/image-match.mjs';
 import {openImageEditor,bulkAdjustImages,standardizeImages} from './importer-editor.js?v=20261031-2';
-import {loadLibraries,libraryList,createLibrary,saveLibraryCasesBatch,publishApprovedLibrary,renameLibrary,loadOriginalBase,originalCases,setDefaultLibrary,stageDefaultInfo,stageDefaultStatus,publicCasesInStage,publicLibraryStatus,originalBaseInfo} from '../../v2/cloud/libraries.mjs?v=20261031-5';
+import {loadLibraries,libraryList,createLibrary,saveLibraryCasesBatch,publishApprovedLibrary,renameLibrary,deleteLibrary,loadOriginalBase,originalCases,setDefaultLibrary,stageDefaultInfo,stageDefaultStatus,publicCasesInStage,publicLibraryStatus,originalBaseInfo} from '../../v2/cloud/libraries.mjs?v=20261031-5';
 const PDF='https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.10.38/pdf.min.mjs';
 const LAST_LIBRARY='cpof-admin-last-library-v1';
 const context=new URLSearchParams(location.search);
@@ -314,7 +314,7 @@ async function selectLibrary(id,scroll=false){
  $('import-library').value=id;
  if(id)localStorage.setItem(LAST_LIBRARY,id);
  const library=libraryList().find(l=>l.id===id);
- if(library)$('import-new-library').value=library.title;
+ if(library)$('import-rename-title').value=library.title;
  await loadExistingLibrary();
  if(scroll)document.getElementById('hub-cases')?.scrollIntoView({behavior:'smooth',block:'start'});
 }
@@ -339,7 +339,27 @@ $('import-default-cards').addEventListener('click',async event=>{
  }catch(e){defaultMessages[s]='Não foi possível salvar: '+e.message;}
  finally{defaultSaving.delete(s);renderDefaults();}
 });
-$('import-rename-library').addEventListener('click',async()=>{try{guard();const id=$('import-library').value;if(!id)throw Error('Selecione uma biblioteca.');await renameLibrary(id,$('import-new-library').value.trim(),'');libraryOptions();$('import-library').value=id;renderLibraryCards();renderDefaults();status('Nome da biblioteca atualizado para os usuários online.')}catch(e){status(e.message)}});
+$('import-rename-library').addEventListener('click',async()=>{try{
+ guard();const id=$('import-library').value;if(!id)throw Error('Selecione uma biblioteca.');
+ const title=$('import-rename-title').value.trim();if(title.length<2)throw Error('Digite um nome com pelo menos 2 caracteres.');
+ await renameLibrary(id,title,'');
+ libraryOptions();$('import-library').value=id;renderLibraryCards();renderDefaults();
+ status('Nome da biblioteca atualizado no Supabase.');
+}catch(e){status('Não foi possível renomear: '+e.message)}});
+$('import-delete-library').addEventListener('click',async()=>{
+ try{
+  guard();const id=$('import-library').value,lib=libraryList().find(l=>l.id===id);
+  if(!lib)throw Error('Selecione a biblioteca que deseja excluir.');
+  if(!confirm('Excluir permanentemente a biblioteca "'+lib.title+'", incluindo os casos? Esta operação não pode ser desfeita.'))return;
+  if(prompt('Digite o nome exato da biblioteca para confirmar:')!==lib.title){status('Exclusão cancelada: o nome não corresponde.');return}
+  await deleteLibrary(id);
+  existingRecords=[];records=[];clearLocalEdits();editedCaseIds.clear();loadedLibraryId='';
+  localStorage.removeItem(LAST_LIBRARY);
+  await loadLibraries();libraryOptions();$('import-library').value='';$('import-rename-title').value='';
+  renderLibraryCards();renderDefaults();update();
+  status('Biblioteca excluída do Supabase. Os demais dados foram preservados.');
+ }catch(e){status('Não foi possível excluir: '+e.message)}
+});
 $('import-stage').addEventListener('change',()=>{rememberStage();stage=$('import-stage').value;showExistingStage();status('Etapa alterada. As edições de outras etapas serão incluídas ao salvar.')});
 $('import-new-library').addEventListener('input',()=>{
  const anyApproved=allCaseRecords().some(r=>r.status==='approved');
@@ -449,7 +469,7 @@ $('import-clear').addEventListener('click',()=>{records=[];unsavedStages.delete(
  if($('import-library').value){
   localStorage.setItem(LAST_LIBRARY,$('import-library').value);
   const library=libraryList().find(l=>l.id===$('import-library').value);
-  if(library)$('import-new-library').value=library.title;
+  if(library)$('import-rename-title').value=library.title;
   await loadExistingLibrary();
  }
  update();status(existingRecords.length?'Biblioteca pronta para edição. Escolha a etapa e abra o editor do caso.':'Escolha uma biblioteca existente ou crie uma nova; o PDF só é necessário para adicionar casos.');
