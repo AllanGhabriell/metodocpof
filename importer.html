@@ -37,6 +37,11 @@
      <div><h2>Minhas bibliotecas</h2><p>Toque em <strong>Editar biblioteca</strong> para abrir seus casos já salvos. Você também pode criar uma biblioteca nova.</p></div>
     </div>
     <div class="hub-library-grid" id="import-library-cards" aria-live="polite"></div>
+    <div id="import-original-setup" class="hub-original-setup" role="alert" hidden>
+     <strong>A edição da Base Original precisa de uma migração no Supabase.</strong>
+     <p>Os casos continuam disponíveis para consulta, mas salvar, publicar e restaurar ficam bloqueados até instalar a migração.</p>
+     <a href="https://github.com/AllanGhabriell/metodocpof/blob/main/supabase/migrations/20261103_000001_original_case_overrides.sql" target="_blank" rel="noopener noreferrer">Abrir SQL da Base Original</a>
+    </div>
     <div class="importer-fields importer-library-fields">
      <label>Minha biblioteca
       <select id="import-library"><option value="">Escolha uma biblioteca</option></select>
