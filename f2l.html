@@ -29,16 +29,14 @@
               <option value="random">Aleatório</option>
               <option value="sequential">Sequencial</option>
               <option value="competitive">Competitivo</option>
-              <option value="adaptive">Adaptativo</option>
-              <option value="review">Revisão espaçada</option>
-              <option value="focus">Foco em dificuldades</option>
+              <option value="adaptive">Inteligente</option>
             </select>
           </label>
           <details class="trainer-mode-help" id="trainer-mode-help">
             <summary aria-label="Como funciona este modo de treino?" title="Como funciona este modo?">?</summary>
             <div class="trainer-mode-help-content">
               <strong id="trainer-mode-help-title">Aleatório</strong>
-              <p id="trainer-mode-description">Os casos aparecem em ordem variada. Os mais difíceis voltam com mais frequência.</p>
+              <p id="trainer-mode-description">Conclua os casos: Fácil elimina da sessão, Difícil mantém na fila.</p>
               <span id="trainer-mode-caption" class="trainer-mode-footnote">Treino livre</span>
             </div>
           </details>
@@ -86,7 +84,7 @@
         <div id="final-screen" class="final-screen" hidden>
           <h2>Parabéns! Todos os casos foram concluídos.</h2>
           <p id="final-time-line" class="final-time-line"></p>
-          <button id="restart-session-btn" class="big-btn">Limpar resolvidos e reiniciar sessão</button>
+          <div id="trainer-session-summary" aria-live="polite"></div><div class="trainer-finish-actions"><button id="restart-session-btn" class="big-btn">Tentar novamente</button><button type="button" class="big-btn" data-next-stage>Próximo módulo</button><button type="button" class="big-btn" data-exit-stage>Sair</button></div>
         </div>
       </div>
       <section id="case-moves" class="case-moves" aria-label="Movimentos do caso" hidden>
@@ -284,7 +282,7 @@
   <script src="assets/js/utils.js?v=20260303o" defer></script>
   <script src="assets/js/main.js?v=20260311a" defer></script>
   <script src="assets/js/trainer-coach.js?v=20261031-46" defer></script>
-  <script src="assets/js/secao.js?v=20261031-10" defer></script>
+  <script src="assets/js/secao.js?v=20261103-session-1" defer></script>
   <script type="module" src="assets/js/library-trainer.js?v=20261031-8"></script>
 <script src="v2/cursor-glow.js?v=20261030-27" defer></script>
 <script type="module" src="assets/js/notice-banner.js?v=20261031-admin-notify-1"></script>
