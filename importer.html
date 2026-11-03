@@ -4,10 +4,10 @@
  <meta charset="utf-8">
  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
  <meta name="theme-color" content="#09172b">
- <title>Publicar casos — Academia CFOP</title>
+ <title>Bibliotecas — Academia CFOP</title>
  <link rel="stylesheet" href="assets/css/global.css">
  <link rel="stylesheet" href="assets/css/academy.css">
- <link rel="stylesheet" href="assets/css/importer.css?v=20261103-editor-review-2">
+ <link rel="stylesheet" href="assets/css/importer.css?v=20261103-libraryhub-1">
 <link rel="icon" type="image/svg+xml" sizes="any" href="assets/icons/academia-cfop.svg?v=20261031-1">
 <link rel="manifest" href="manifest.webmanifest">
 </head>
@@ -15,27 +15,28 @@
  <header class="importer-header">
   <a href="studio.html?page=profile" aria-label="Voltar ao Studio">← Voltar</a>
   <strong>Academia CFOP <small>Gerenciador de bibliotecas</small></strong>
-  <a href="studio.html?page=admin-users">Administração</a>
+  <a href="#hub-defaults">Biblioteca principal</a>
  </header>
  <main class="importer-main">
   <section class="importer-hero">
    <span>ACESSO DO ADMINISTRADOR</span>
-   <h1>Editar e publicar bibliotecas</h1>
-   <p>Selecione uma biblioteca existente para editar casos já salvos ou envie um PDF para adicionar novos. Ajuste imagens, gire para os dois lados e republique quando estiver pronto.</p>
-   <a class="importer-defaults-link" href="studio.html?page=admin-defaults">Definir qual biblioteca abre para todos →</a>
+   <h1>Bibliotecas</h1>
+   <p>Gerencie suas bibliotecas de F2L, OLL e PLL em um único lugar: edite casos salvos, organize imagens e escolha qual versão abre para todos.</p>
+   <nav class="importer-hub-nav" aria-label="Seções da configuração de bibliotecas">
+    <a href="#hub-libraries"><span>01</span> Minhas bibliotecas</a>
+    <a href="#hub-defaults"><span>02</span> Base principal</a>
+    <a href="#hub-cases"><span>03</span> Editar casos</a>
+    <a href="#hub-pdf"><span>04</span> Importar PDF</a>
+   </nav>
   </section>
   <div id="importer-access" role="status">Verificando sua conta de administrador…</div>
   <section id="importer-workspace" hidden>
-   <nav class="importer-steps" aria-label="Etapas de publicação">
-    <span><b>1</b> Biblioteca</span>
-    <span><b>2</b> Editar casos</span>
-    <span><b>3</b> Salvar e publicar</span>
-   </nav>
-   <section class="importer-panel importer-start">
+   <section class="importer-panel importer-start" id="hub-libraries">
     <div class="importer-step-heading">
      <span class="importer-step-badge">01</span>
-     <div><h2>Escolha a biblioteca</h2><p>Selecione uma biblioteca existente. Se preferir, dê um nome a uma nova — ela também pode ser criada ao publicar.</p></div>
+     <div><h2>Minhas bibliotecas</h2><p>Toque em <strong>Editar biblioteca</strong> para abrir seus casos já salvos. Você também pode criar uma biblioteca nova.</p></div>
     </div>
+    <div class="hub-library-grid" id="import-library-cards" aria-live="polite"></div>
     <div class="importer-fields importer-library-fields">
      <label>Minha biblioteca
       <select id="import-library"><option value="">Escolha uma biblioteca</option></select>
@@ -60,7 +61,7 @@
      <summary>Renomear biblioteca selecionada</summary>
      <button id="import-rename-library" type="button" class="importer-secondary">Salvar novo nome da biblioteca</button>
     </details>
-    <details class="importer-pdf-optional"><summary>Adicionar casos por PDF (opcional)</summary>
+    <details id="hub-pdf" class="importer-pdf-optional"><summary>Adicionar casos por PDF (opcional)</summary>
     <div class="importer-step-heading importer-upload-heading">
      <span class="importer-step-badge">02</span>
      <div><h2>Adicionar casos por PDF (opcional)</h2><p>Para editar casos já salvos, selecione a biblioteca acima. Não é necessário enviar o PDF novamente.</p></div>
@@ -79,10 +80,23 @@
      <p>PDFs com texto selecionável permitem reconhecer linhas e diagramas por posição. PDFs digitalizados e padrões ambíguos exigem conferência manual. Nenhum caso é publicado automaticamente.</p>
     </details>
    </section>
+   <section class="importer-panel hub-defaults-panel" id="hub-defaults" aria-labelledby="hub-defaults-heading">
+    <div class="importer-step-heading">
+     <span class="importer-step-badge">02</span>
+     <div><h2 id="hub-defaults-heading">Qual biblioteca abre para todos?</h2><p>Defina uma biblioteca principal para F2L, OLL e PLL sem sair desta página. A alteração só vale depois de salvar.</p></div>
+    </div>
+    <div id="import-default-notice" role="status" aria-live="polite"></div>
+    <div id="import-default-cards" class="hub-default-grid"></div>
+   </section>
+   <div id="hub-cases" class="importer-anchor" aria-hidden="true"></div>
+   <section id="import-empty-state" class="importer-panel hub-empty-state" role="status">
+    <h2>Editar casos da biblioteca</h2>
+    <p>Selecione uma biblioteca acima para visualizar e editar os casos existentes.</p>
+   </section>
    <section class="importer-panel importer-results-panel" id="import-results" hidden>
     <div class="importer-step-heading">
      <span class="importer-step-badge">03</span>
-     <div><h2>Editar casos salvos ou importados</h2><p id="import-count"></p></div>
+     <div><h2>Editar casos da biblioteca</h2><p id="import-count"></p></div>
     </div>
     <div class="importer-publish-bar">
      <div class="importer-publish-copy">
@@ -107,7 +121,7 @@
    </section>
   </section>
  </main>
- <script type="module" src="assets/js/importer.js?v=20261103-editor-review-4"></script>
+ <script type="module" src="assets/js/importer.js?v=20261103-libraryhub-1"></script>
 <script type="module" src="assets/js/notice-banner.js?v=20261031-admin-notify-1"></script>
 </body>
 </html>
