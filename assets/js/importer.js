@@ -282,6 +282,8 @@ async function loadExistingLibrary(){
   const byId=new Map((published||[]).map(r=>[r.case_id,r]));
   for(const d of drafts||[]){const previous=byId.get(d.case_id);if(!previous||d.status==='approved'||d.status==='draft')byId.set(d.case_id,{...previous,...d,image_data:d.image_data||previous?.image_data,image_original:d.image_original||previous?.image_original});}
   existingRecords=[...byId.values()];
+  const currentLibrary=libraryList().find(l=>l.id===id);
+  if(currentLibrary)$('import-rename-title').value=currentLibrary.title;
   clearLocalEdits();editedCaseIds.clear();loadedLibraryId=id;
   showExistingStage();
   if(!records.length&&existingRecords.length&&!context.get('stage')){
