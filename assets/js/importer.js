@@ -4,9 +4,11 @@ import {assignFixedCases,cropDiagram} from '../../v2/data/pdf-layout.mjs';
 import {algorithmIndex,identifyByAlgorithm} from '../../v2/data/algorithm-match.mjs';
 import {matchDiagrams} from '../../v2/data/image-match.mjs';
 import {openImageEditor,bulkAdjustImages,standardizeImages} from './importer-editor.js?v=20261031-2';
-import {loadLibraries,libraryList,createLibrary,saveLibraryCasesBatch,publishApprovedLibrary,renameLibrary,deleteLibrary,loadOriginalBase,originalCases,setDefaultLibrary,stageDefaultInfo,stageDefaultStatus,publicCasesInStage,publicLibraryStatus,originalBaseInfo} from '../../v2/cloud/libraries.mjs?v=20261031-5';
+import {loadLibraries,libraryList,createLibrary,saveLibraryCasesBatch,publishApprovedLibrary,renameLibrary,deleteLibrary,loadOriginalBase,originalCases,originalEditorCases,isOriginalOwner,saveOriginalDraftsBatch,publishOriginalOverrides,restoreOriginalCase,verifyOriginalCases,setDefaultLibrary,stageDefaultInfo,stageDefaultStatus,publicCasesInStage,publicLibraryStatus,originalBaseInfo} from '../../v2/cloud/libraries.mjs?v=20261031-5';
 const PDF='https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.10.38/pdf.min.mjs';
-const LAST_LIBRARY='cpof-admin-last-library-v1';
+const LAST_LIBRARY='cpof-admin-last-library-v1',ORIGINAL='original';
+const editingOriginal=()=>$('import-library').value===ORIGINAL;
+const originalUnavailable=()=>editingOriginal()&&!originalBaseInfo().editable;
 const context=new URLSearchParams(location.search);
 const $=id=>document.getElementById(id);
 let records=[],stage='f2l',busy=false,doc=null,pdfFile=null,pageImageCache=new Map(),existingRecords=[];
@@ -50,9 +52,12 @@ const status=s=>{$('import-status').textContent=s;const near=$('import-action-st
 const owner=()=>isAdmin()&&cloudUser()?.email?.toLowerCase()==='coelhodatoca124@gmail.com';
 function libraryOptions(){
  const previous=$('import-library').value;
- $('import-library').innerHTML='<option value="">Selecione a biblioteca</option>'+libraryList().map(l=>'<option value="'+esc(l.id)+'">'+esc(l.title)+(l.is_public?' · pública':' · rascunho')+'</option>').join('');
- const options=libraryList(),requested=previous||context.get('library')||localStorage.getItem(LAST_LIBRARY);
- const picked=options.some(l=>l.id===requested)?requested:options.length===1?options[0].id:'';
+ const showOriginal=isOriginalOwner()&&originalBaseInfo().state!=='deleted';
+ $('import-library').innerHTML='<option value="">Selecione a biblioteca</option>'+
+ (showOriginal?'<option value="original">Base Original · F2L e PLL</option>':'')+
+ libraryList().map(l=>'<option value="'+esc(l.id)+'">'+esc(l.title)+(l.is_public?' · pública':' · rascunho')+'</option>').join('');
+ const options=libraryList().map(l=>l.id).concat(showOriginal?[ORIGINAL]:[]),requested=previous||context.get('library')||localStorage.getItem(LAST_LIBRARY);
+ const picked=options.includes(requested)?requested:options.length===1?options[0]:'';
  if(picked)$('import-library').value=picked;
  renderLibraryCards();
 }
@@ -61,7 +66,12 @@ const STAGE_LABELS={f2l:'F2L',oll:'OLL',pll:'PLL'};
 function renderLibraryCards(){
  const host=$('import-library-cards');if(!host)return;
  const list=libraryList(),selected=$('import-library').value,publicInfo=publicLibraryStatus();
- host.innerHTML=list.length?list.map(l=>{
+ const hasOriginal=isOriginalOwner()&&originalBaseInfo().state!=='deleted';
+ const originalTile=hasOriginal?'<article class="hub-library-card hub-library-original '+(selected===ORIGINAL?'is-active':'')+'">'+
+  '<span class="hub-library-status"><strong>Biblioteca do sistema</strong></span>'+
+  '<h3>Base Original</h3><p class="hub-library-counts">F2L e PLL · os casos que já vêm com o sistema. Abra para editar, sem PDF.</p>'+
+  '<button type="button" class="importer-secondary" data-open-library="original">Editar casos originais</button></article>':'';
+ host.innerHTML=originalTile+(list.length?list.map(l=>{
   const verified=l.is_public&&!publicInfo.error;
   const counts=verified?['f2l','oll','pll'].map(s=>s.toUpperCase()+': '+publicCasesInStage(l.id,s)).join(' · '):'';
   return '<article class="hub-library-card '+(selected===l.id?'is-active':'')+'">'+
@@ -70,7 +80,7 @@ function renderLibraryCards(){
    '<p class="hub-library-counts">'+(counts||'Abra para consultar e editar os casos salvos.')+'</p>'+
    '<button type="button" class="importer-secondary" data-open-library="'+esc(l.id)+'">Editar biblioteca</button>'+
    '</article>';
- }).join(''):'<div class="hub-library-empty">Nenhuma biblioteca cadastrada. Use <strong>+ Criar</strong> para começar.</div>';
+ }).join(''):hasOriginal?'':'<div class="hub-library-empty">Nenhuma biblioteca cadastrada. Use <strong>+ Criar</strong> para começar.</div>');
 }
 function renderDefaults(){
  const host=$('import-default-cards'),notice=$('import-default-notice');if(!host||!notice)return;
