@@ -192,7 +192,7 @@ function stageDefaultsPage(){
  '<small>'+(l.is_public?'Biblioteca publicada':'Rascunho · não aparece para outras pessoas')+'</small>'+
  (l.is_public?'<p class="admin-library-visibility">Casos visíveis ao público: <strong>F2L '+publicCasesInStage(l.id,'f2l')+'</strong> · <strong>OLL '+publicCasesInStage(l.id,'oll')+'</strong> · <strong>PLL '+publicCasesInStage(l.id,'pll')+'</strong></p>':
  '<p class="admin-library-visibility">Para disponibilizar aos alunos: abra o importador, aprove os casos e clique em <strong>Publicar casos aprovados</strong>.</p>')+
- '<a href="importer.html?library='+encodeURIComponent(l.id)+'">Revisar / publicar casos desta biblioteca</a>'+
+ '<a href="importer.html?library='+encodeURIComponent(l.id)+'">Editar imagens, casos e publicação</a>'+
  '<button class="secondary" data-action="admin-delete-library" data-library-id="'+escapeHtml(l.id)+'">Excluir biblioteca</button></article>'
  ).join(''):'<p>Nenhuma biblioteca cadastrada.</p>')+
  '</div>'+
