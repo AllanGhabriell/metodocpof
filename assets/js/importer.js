@@ -154,6 +154,7 @@ function update(){
   empty.hidden=!!records.length;
   empty.innerHTML='<h2>Editar casos da biblioteca</h2><p>'+(editingOriginal()&&stage==='oll'?'Não existe Base Original de OLL no sistema. Escolha F2L ou PLL.':$('import-library').value?'Esta etapa não contém casos. Escolha outra etapa ou importe um PDF em uma biblioteca comum.':'Selecione uma biblioteca acima para editar os casos existentes.')+'</p>';
  }
+ const setup=$('import-original-setup');if(setup)setup.hidden=!originalUnavailable();
  const disabledEdit=originalUnavailable()?'disabled title="Instale a migração SQL da Base Original"':'';
  const fixed=FIXED_CASES.filter(c=>c.stage===stage);
  const search=String($('import-case-search').value||'').trim().toLowerCase();
