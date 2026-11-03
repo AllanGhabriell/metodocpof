@@ -109,6 +109,35 @@ function renderDefaults(){
  }).join('');
 }
 
+function originalImagePath(id){
+ const info=CASE_BY_ID.get(id);if(!info)return '';
+ if(info.stage==='f2l'){
+  const n=Number(info.ordinal);
+  return n>=1&&n<=41?'f2l/'+(n<=4?n+37:n-4)+'.png':'';
+ }
+ if(info.stage==='pll')return 'pll/'+encodeURIComponent(info.name)+'.png';
+ return '';
+}
+function normalizedImage(img){
+ const canvas=document.createElement('canvas');canvas.width=512;canvas.height=512;
+ const ctx=canvas.getContext('2d');if(!ctx)throw Error('Canvas indisponível.');
+ ctx.fillStyle='#ffffff';ctx.fillRect(0,0,512,512);
+ const fit=Math.min(512/img.width,512/img.height);
+ ctx.drawImage(img,256-img.width*fit/2,256-img.height*fit/2,img.width*fit,img.height*fit);
+ const output=canvas.toDataURL('image/webp',.84);
+ if(output.length>650000)throw Error('Imagem muito grande após compactação.');
+ return output;
+}
+async function normalizedOriginalImage(caseId){
+ const src=originalImagePath(caseId);
+ if(!src)throw Error('O caso não possui imagem local de referência.');
+ const image=await new Promise((resolve,reject)=>{
+  const img=new Image();img.onload=()=>resolve(img);
+  img.onerror=()=>reject(Error('A imagem original não pôde ser aberta.'));
+  img.src=src;
+ });
+ return normalizedImage(image);
+}
 async function normalizeUploadedImage(file){
  if(!file||!/^image\/(png|jpeg|webp)$/.test(file.type)||file.size>10e6)
   throw Error('Escolha PNG, JPG ou WebP com até 10 MB.');
@@ -118,14 +147,7 @@ async function normalizeUploadedImage(file){
    const image=new Image();image.onload=()=>resolve(image);
    image.onerror=()=>reject(Error('Não foi possível abrir a imagem.'));image.src=url;
   });
-  const canvas=document.createElement('canvas');canvas.width=512;canvas.height=512;
-  const ctx=canvas.getContext('2d');if(!ctx)throw Error('Canvas indisponível.');
-  ctx.fillStyle='#ffffff';ctx.fillRect(0,0,512,512);
-  const fit=Math.min(512/img.width,512/img.height);
-  ctx.drawImage(img,256-img.width*fit/2,256-img.height*fit/2,img.width*fit,img.height*fit);
-  const output=canvas.toDataURL('image/webp',.84);
-  if(output.length>650000)throw Error('Imagem acima do limite de armazenamento após compactação.');
-  return output;
+  return normalizedImage(img);
  }finally{URL.revokeObjectURL(url);}
 }
 function cropRotated(data,turns){
@@ -168,7 +190,8 @@ function update(){
  $('import-case-visible').textContent='Exibindo '+visible.length+' de '+records.length+' casos';
  $('import-cards').innerHTML=visible.length?visible.map(({r,i})=>'<article class="importer-card" data-index="'+i+'">'+
  '<div class="importer-card-title"><h3>'+esc(CASE_BY_ID.get(r.case_id)?.name||r.case_id)+'</h3><span class="'+(['nome','algoritmo','visual','manual'].includes(r.confidence)?'importer-detected':'importer-warning')+'">'+(r.confidence==='nome'?'Nome reconhecido':r.confidence==='algoritmo'?'Algoritmo reconhecido':r.confidence==='visual'?'Diagrama reconhecido':r.confidence==='manual'?'Caso salvo':'Conferir associação')+'</span></div>'+
- '<img src="'+esc(r.imageData||'')+'" alt="Recorte do '+esc(r.case_id)+'" loading="lazy">'+
+ '<img src="'+esc(r.imageData||(editingOriginal()?originalImagePath(r.case_id):''))+'" alt="Imagem do '+esc(r.case_id)+'" loading="lazy">'+
+ (editingOriginal()&&!r.imageData?'<small>Imagem original do site (editável)</small>':'')+
  '<label>Caso fixo<select data-field="case_id" '+(editingOriginal()?'disabled':'')+'>'+fixed.map(c=>'<option value="'+esc(c.id)+'" '+(c.id===r.case_id?'selected':'')+'>'+esc(c.name)+' ('+c.id+')</option>').join('')+'</select></label>'+
  '<label>Algoritmo<input data-field="algorithm" '+disabledEdit+' value="'+esc(r.algorithm||'')+'" placeholder="Sequência para resolver o caso"></label>'+
  '<label>Setup<input data-field="setup" '+disabledEdit+' value="'+esc(r.setup||'')+'" placeholder="Sequência para montar o caso"></label>'+
@@ -177,7 +200,7 @@ function update(){
  (r.page?'<small>Página '+r.page+' · '+(r.alternatives?.length?'Possui algoritmos alternativos':'Uma sequência reconhecida')+'</small>':'<small>Versão já cadastrada</small>')+
  (r.rect?'<div class="importer-crop-controls"><span>Corrigir enquadramento:</span><button type="button" data-crop="up" data-index="'+i+'" title="Subir recorte">↑</button><button type="button" data-crop="left" data-index="'+i+'" title="Mover à esquerda">←</button><button type="button" data-crop="right" data-index="'+i+'" title="Mover à direita">→</button><button type="button" data-crop="down" data-index="'+i+'" title="Descer recorte">↓</button><button type="button" data-crop="zoom-in" data-index="'+i+'" title="Aproximar">+</button><button type="button" data-crop="zoom-out" data-index="'+i+'" title="Afastar">−</button></div>':'')+
  '<label class="hub-case-image-upload">Adicionar ou substituir imagem <input type="file" data-image-upload="'+i+'" accept="image/png,image/jpeg,image/webp" '+disabledEdit+'></label>'+
- '<div class="importer-card-actions"><button type="button" data-edit-image="'+i+'" class="importer-edit-image" '+(!r.imageData||originalUnavailable()?'disabled':'')+'>✎ Editar imagem / retoque</button><button type="button" data-approve="'+i+'" '+(r.status==='approved'||originalUnavailable()?'disabled':'')+'>'+(r.status==='approved'?'✓ Aprovado':'✓ Aprovar caso')+'</button><button type="button" '+disabledEdit+' data-rotate="'+i+'" data-direction="-1" aria-label="Girar 90 graus no sentido anti-horário">↶ 90°</button><button type="button" '+disabledEdit+' data-rotate="'+i+'" data-direction="1" aria-label="Girar 90 graus no sentido horário">↷ 90°</button><button type="button" data-download="'+i+'">Baixar imagem</button>'+(editingOriginal()&&(r.hasPublished||r.hasDraft)?'<button type="button" class="importer-secondary" data-restore-original="'+i+'">Restaurar versão original</button>':'')+'</div>'+
+ '<div class="importer-card-actions"><button type="button" data-edit-image="'+i+'" class="importer-edit-image" '+((!r.imageData&&!editingOriginal())||originalUnavailable()?'disabled':'')+'>✎ Editar imagem / retoque</button><button type="button" data-approve="'+i+'" '+(r.status==='approved'||originalUnavailable()?'disabled':'')+'>'+(r.status==='approved'?'✓ Aprovado':'✓ Aprovar caso')+'</button><button type="button" '+disabledEdit+' data-rotate="'+i+'" data-direction="-1" aria-label="Girar 90 graus no sentido anti-horário">↶ 90°</button><button type="button" '+disabledEdit+' data-rotate="'+i+'" data-direction="1" aria-label="Girar 90 graus no sentido horário">↷ 90°</button><button type="button" data-download="'+i+'">Baixar imagem</button>'+(editingOriginal()&&(r.hasPublished||r.hasDraft)?'<button type="button" class="importer-secondary" data-restore-original="'+i+'">Restaurar versão original</button>':'')+'</div>'+
  '</article>').join(''):'<p class="hub-filter-empty">Nenhum caso corresponde à busca. Altere os filtros para visualizar os demais.</p>';
 }
 function saveBlob(name,data){const url=URL.createObjectURL(new Blob([data],{type:'application/json'})),a=document.createElement('a');a.href=url;a.download=name;a.click();setTimeout(()=>URL.revokeObjectURL(url),1000)}
