@@ -15,8 +15,17 @@ window.CPOFLibrary={
   });
  },
  get(stage,legacy){
-  if(selectedLibrary(stage)==='original'&&(isOriginalOwner()&&originalBaseInfo().state==='active'||defaultForStage(stage)==='original'))return null;
   const id=trainerCaseToCatalog(stage,legacy);
+  const original=selectedLibrary(stage)==='original'&&
+   (isOriginalOwner()&&originalBaseInfo().state==='active'||defaultForStage(stage)==='original');
+  if(original){
+   // Sem correção publicada, preservar as imagens e algoritmos legados.
+   // Com correção, substituir somente os dados editados e reaproveitar a imagem
+   // local quando a edição não informar uma imagem personalizada.
+   if(!id)return null;
+   const variant=libraryCase(stage,id);
+   return variant?.originalEdited?{...variant,originalFallback:true}:null;
+  }
   if(!id)return {missing:true,algorithm:'',setup:'',imageData:null,name:'Caso não publicado'};
   const variant=libraryCase(stage,id);
   return variant||{
@@ -101,12 +110,12 @@ function mountAdminPublishShortcut(){
  const link=document.createElement('a');
  link.id='trainer-admin-publish';
  link.className='trainer-admin-publish';
- link.textContent='+ Publicar casos';
- link.setAttribute('aria-label','Importar PDF e publicar casos nesta etapa');
+ link.textContent='Bibliotecas';
+ link.setAttribute('aria-label','Abrir editor de bibliotecas nesta etapa');
  const stage=document.body.dataset.set||'f2l';
  const update=()=>{
   const params=new URLSearchParams({stage});
-  if(selectedLibrary(stage)!=='original')params.set('library',selectedLibrary(stage));
+  if(selectedLibrary(stage)!=='none')params.set('library',selectedLibrary(stage));
   link.href='importer.html?'+params.toString();
  };
  update();
