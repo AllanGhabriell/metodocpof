@@ -116,6 +116,20 @@
      </div>
     </div>
     <details class="importer-global-align"><summary>◈ Ajuste geral das imagens desta biblioteca</summary><p>Corrija todas as imagens da etapa selecionada de uma vez. A prévia individual permanece disponível em cada cartão. Após aplicar, revise e aprove novamente os casos antes de publicar.</p><div class="importer-global-fields"><label>Horizontal (%)<input id="import-global-x" type="number" min="-45" max="45" value="0" step="1"></label><label>Vertical (%)<input id="import-global-y" type="number" min="-45" max="45" value="0" step="1"></label><label>Zoom (%)<input id="import-global-zoom" type="number" min="50" max="250" value="100" step="5"></label><button type="button" id="import-global-apply" class="importer-secondary">Aplicar ajuste</button></div><label class="importer-global-all"><input id="import-global-all" type="checkbox"> Aplicar a todas as etapas desta biblioteca (F2L, OLL e PLL). Salva as imagens ajustadas como rascunhos.</label></details><p class="importer-help">Clique em <strong>Editar imagem / retoque</strong> para arrastar, girar, limpar rebarbas ou pintar pequenos detalhes, inclusive em casos já publicados. Use ↶ e ↷ para girar 90° em cada direção. Marque como <strong>Aprovado</strong> somente depois de revisar.</p>
+    <div class="hub-case-filters" role="group" aria-label="Filtrar casos da biblioteca">
+     <label>Buscar caso
+      <input id="import-case-search" type="search" autocomplete="off" placeholder="Ex.: F2L-12, Ua, algoritmo">
+     </label>
+     <label>Mostrar
+      <select id="import-case-filter">
+       <option value="all">Todos os casos</option>
+       <option value="draft">Pendentes</option>
+       <option value="approved">Aprovados</option>
+       <option value="rejected">Rejeitados</option>
+      </select>
+     </label>
+     <p id="import-case-visible" aria-live="polite"></p>
+    </div>
     <div id="import-cards" class="importer-cards"></div>
     <details class="importer-advanced">
      <summary>Outras ações</summary>
