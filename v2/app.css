@@ -606,3 +606,35 @@ body::before{z-index:0}.cfop-cursor-glow{z-index:0}.app{z-index:1}
 .admin-library-edit-link{display:flex;flex-direction:column;gap:7px;padding:15px;border:1px solid rgba(139,188,243,.32);border-radius:13px;background:rgba(13,34,67,.5);text-decoration:none!important;color:#eef6ff!important}
 .admin-library-edit-link:hover,.admin-library-edit-link:focus-visible{border-color:rgba(134,210,246,.8);background:rgba(22,52,91,.7)}
 .admin-library-edit-link span{font-size:12px;color:#b4cee6}
+
+
+/* Atalho explícito à edição das bibliotecas no painel de administração. */
+.admin-case-library-entry{
+ display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;
+ gap:16px;margin:18px 0;padding:clamp(16px,3vw,24px);
+ border:1px solid rgba(111,177,233,.48);border-radius:17px;
+ background:linear-gradient(125deg,rgba(23,47,88,.88),rgba(29,38,76,.87));
+}
+.admin-case-library-entry__content{flex:1 1 260px;min-width:0}
+.admin-case-library-entry__content h2{margin:6px 0 8px;font-size:clamp(18px,2.7vw,23px);line-height:1.3}
+.admin-case-library-entry__content p{margin:0;line-height:1.5}
+.admin-case-library-entry__actions{display:flex;flex:1 1 250px;flex-wrap:wrap;gap:9px}
+.admin-case-library-entry__actions a{
+ display:inline-flex;align-items:center;justify-content:center;
+ min-height:46px;padding:11px 15px;border-radius:12px;
+ font-size:13px;font-weight:750;text-align:center;text-decoration:none!important;
+ color:#eefaff!important;border:1px solid rgba(138,192,245,.45);
+ background:rgba(12,35,66,.65);
+}
+.admin-case-library-entry__actions .admin-case-library-entry__primary{
+ background:linear-gradient(125deg,#2468a0,#2853a6);
+ border-color:rgba(146,226,255,.8);flex:1 1 100%;
+}
+.admin-case-library-entry__actions a:hover,.admin-case-library-entry__actions a:focus-visible{
+ border-color:#aee9ff;box-shadow:0 0 0 2px rgba(138,220,255,.22);
+}
+@media(max-width:600px){
+ .admin-case-library-entry{padding:15px}
+ .admin-case-library-entry__actions{flex:1 1 100%}
+ .admin-case-library-entry__secondary{flex:1 1 135px}
+}
