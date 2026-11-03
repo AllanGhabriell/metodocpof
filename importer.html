@@ -20,8 +20,8 @@
  <main class="importer-main">
   <section class="importer-hero">
    <span>ACESSO DO ADMINISTRADOR</span>
-   <h1>Publicar casos</h1>
-   <p>Envie um PDF, confira os casos reconhecidos e publique sua biblioteca. Os alunos só recebem o que você aprovar.</p>
+   <h1>Editar e publicar bibliotecas</h1>
+   <p>Selecione uma biblioteca existente para editar casos já salvos ou envie um PDF para adicionar novos. Ajuste imagens, gire para os dois lados e republique quando estiver pronto.</p>
    <a class="importer-defaults-link" href="studio.html?page=admin-defaults">Definir qual biblioteca abre para todos →</a>
   </section>
   <div id="importer-access" role="status">Verificando sua conta de administrador…</div>
@@ -53,7 +53,7 @@
     </details>
     <div class="importer-step-heading importer-upload-heading">
      <span class="importer-step-badge">02</span>
-     <div><h2>Envie seu PDF</h2><p>Escolha o tipo de caso e o documento. A análise começa ao selecionar o arquivo.</p></div>
+     <div><h2>Adicionar casos por PDF (opcional)</h2><p>Para editar casos já salvos, selecione a biblioteca acima. Não é necessário enviar o PDF novamente.</p></div>
     </div>
     <div class="importer-fields importer-upload-fields">
      <label>Tipo de caso
@@ -78,7 +78,7 @@
    <section class="importer-panel importer-results-panel" id="import-results" hidden>
     <div class="importer-step-heading">
      <span class="importer-step-badge">03</span>
-     <div><h2>Revise antes de publicar</h2><p id="import-count"></p></div>
+     <div><h2>Editar casos salvos ou importados</h2><p id="import-count"></p></div>
     </div>
     <div class="importer-publish-bar">
      <div class="importer-publish-copy">
@@ -91,7 +91,7 @@
       <button id="import-publish" type="button" class="importer-primary">Publicar casos aprovados</button>
      </div>
     </div>
-    <details class="importer-global-align"><summary>◈ Ajuste geral das imagens desta biblioteca</summary><p>Corrija todas as imagens da etapa selecionada de uma vez. A prévia individual permanece disponível em cada cartão. Após aplicar, revise e aprove novamente os casos antes de publicar.</p><div class="importer-global-fields"><label>Horizontal (%)<input id="import-global-x" type="number" min="-45" max="45" value="0" step="1"></label><label>Vertical (%)<input id="import-global-y" type="number" min="-45" max="45" value="0" step="1"></label><label>Zoom (%)<input id="import-global-zoom" type="number" min="50" max="250" value="100" step="5"></label><button type="button" id="import-global-apply" class="importer-secondary">Aplicar ajuste</button></div><label class="importer-global-all"><input id="import-global-all" type="checkbox"> Aplicar a todas as etapas desta biblioteca (F2L, OLL e PLL). Salva as imagens ajustadas como rascunhos.</label></details><p class="importer-help">Clique em <strong>Editar imagem / retoque</strong> para arrastar, girar, limpar rebarbas ou pintar pequenos detalhes sem alterar o quadrado final. Marque como <strong>Aprovado</strong> somente depois de revisar.</p>
+    <details class="importer-global-align"><summary>◈ Ajuste geral das imagens desta biblioteca</summary><p>Corrija todas as imagens da etapa selecionada de uma vez. A prévia individual permanece disponível em cada cartão. Após aplicar, revise e aprove novamente os casos antes de publicar.</p><div class="importer-global-fields"><label>Horizontal (%)<input id="import-global-x" type="number" min="-45" max="45" value="0" step="1"></label><label>Vertical (%)<input id="import-global-y" type="number" min="-45" max="45" value="0" step="1"></label><label>Zoom (%)<input id="import-global-zoom" type="number" min="50" max="250" value="100" step="5"></label><button type="button" id="import-global-apply" class="importer-secondary">Aplicar ajuste</button></div><label class="importer-global-all"><input id="import-global-all" type="checkbox"> Aplicar a todas as etapas desta biblioteca (F2L, OLL e PLL). Salva as imagens ajustadas como rascunhos.</label></details><p class="importer-help">Clique em <strong>Editar imagem / retoque</strong> para arrastar, girar, limpar rebarbas ou pintar pequenos detalhes, inclusive em casos já publicados. Use ↶ e ↷ para girar 90° em cada direção. Marque como <strong>Aprovado</strong> somente depois de revisar.</p>
     <div id="import-cards" class="importer-cards"></div>
     <details class="importer-advanced">
      <summary>Outras ações</summary>
@@ -103,7 +103,7 @@
    </section>
   </section>
  </main>
- <script type="module" src="assets/js/importer.js?v=20261031-12"></script>
+ <script type="module" src="assets/js/importer.js?v=20261103-editpublished-1"></script>
 <script type="module" src="assets/js/notice-banner.js?v=20261031-admin-notify-1"></script>
 </body>
 </html>
