@@ -291,7 +291,7 @@ document.addEventListener('DOMContentLoaded', () => {
   let state=normalizeState(existingPreference);
   // Um modo por etapa: F2L, OLL e PLL não compartilham a preferência.
   function applyTrainingMode(mode,remember=false){
-    const next=coach.MODES.includes(mode)?mode:'random';
+    const next=coach.MODES.includes(mode)?(['review','focus'].includes(mode)?'adaptive':mode):'random';
     state.trainingMode=next;
     state.orderedTraining.enabled=next==='sequential';
     state.competitive.enabled=next==='competitive';
@@ -356,6 +356,12 @@ document.addEventListener('DOMContentLoaded', () => {
   let sessionActive = false;
   let sessionTargetCount = 0;
   let sessionResolved = new Set();
+  let sessionCasePool = [];
+  let sessionHardAttempts = 0;
+  const SESSION_MODES=new Set(['random','adaptive']);
+  const sessionSummaryEl=document.getElementById('trainer-session-summary');
+  const nextStageButton=document.querySelector('[data-next-stage]');
+  const exitStageButton=document.querySelector('[data-exit-stage]');
 
   let galleryCaseOrder = [];
   let galleryRendered = 0;
@@ -901,7 +907,12 @@ document.addEventListener('DOMContentLoaded', () => {
   function currentTrainingMode() {return state.competitive.enabled?'competitive':isOrderedTrainingMode()?'sequential':state.trainingMode||'random'}
   function availableNormalCases() {
     const mode=currentTrainingMode();
-    if (['adaptive','review','focus'].includes(mode)) {
+    if(SESSION_MODES.has(mode)){
+      const blocked=new Set(state.excluded);
+      sessionResolved.forEach(id=>blocked.add(id));
+      return (sessionCasePool.length?sessionCasePool:unexcludedCases()).filter(id=>!blocked.has(id));
+    }
+    if (['review','focus'].includes(mode)) {
       const pool=unexcludedCases();
       if(mode==='review'){
         const due=coach.dueCases(pageSet,pool);
@@ -1132,13 +1143,13 @@ document.addEventListener('DOMContentLoaded', () => {
 
   const COACH_MODE_TITLES={
     random:'Aleatório',sequential:'Sequencial',competitive:'Competitivo',
-    adaptive:'Adaptativo',review:'Revisão espaçada',focus:'Foco em dificuldades'
+    adaptive:'Inteligente',review:'Inteligente',focus:'Inteligente'
   };
   const COACH_CAPTIONS={
     random:'Casos variados · dificuldade marcada por você',
     sequential:'Aprendizado na ordem · sem avaliações ou repetições',
     competitive:'Tempo automático · consistência e repetições',
-    adaptive:'O treinador prioriza suas dificuldades',
+    adaptive:'Sessão personalizada · até 12 casos prioritários',
     review:'Pratique os casos recomendados · sem cobranças',
     focus:'Treine principalmente os casos marcados difíceis'
   };
@@ -1165,10 +1176,10 @@ document.addEventListener('DOMContentLoaded', () => {
     tick();practiceTimer=setInterval(tick,70);
   }
   const COACH_EXPLANATIONS={
-    random:'Casos em ordem variada. Ao marcar Difícil, o caso ganha mais chances de voltar, evitando repetição imediata.',
+    random:'Todos os casos da etapa em ordem variada. Fácil conclui o caso nesta sessão; Difícil mantém o caso pendente.',
     sequential:'Aprenda os casos em ordem, com nome, algoritmo e setup abertos. Use Caso anterior e Próximo caso sem avaliações ou reforço automático.',
     competitive:'O tempo mede seu desempenho. Casos lentos voltam mais vezes. Use Reconheci para separar reconhecimento e execução.',
-    adaptive:'Combina seus cliques em Fácil e Difícil, tempos medidos, reconhecimento e histórico para escolher o próximo caso.',
+    adaptive:'Sessão de até 12 casos escolhidos pelas dificuldades e revisões. Marque Fácil para concluir cada caso.',
     review:'Prioriza casos recomendados pelos intervalos de prática. Você resolve no cubo, sem tarefas atrasadas obrigatórias.',
     focus:'Treino livre com prioridade aos casos difíceis. Quando você melhorar, a frequência deles diminui.'
   };
@@ -1182,7 +1193,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const position=isOrderedTrainingMode()
       ?(' · '+Math.min(total,(Number(state.orderedTraining.index)||0)+1)+'/'+total)
       :'';
-    if(trainerCaseLabel)trainerCaseLabel.textContent=completed?'Treino concluído':currentCase?'Caso '+currentCase+position:'Sem casos disponíveis';
+    if(trainerCaseLabel)trainerCaseLabel.textContent=completed?'Treino concluído':currentCase?('Caso '+currentCase+position+(SESSION_MODES.has(mode)?' · '+sessionResolved.size+'/'+sessionTargetCount+' concluídos':'')):'Sem casos disponíveis';
     const competitive=state.competitive.enabled;
     const sequential=mode==='sequential';
     if(trainerEasyButton)trainerEasyButton.hidden=completed||competitive||sequential;
@@ -1221,7 +1232,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
   function changeTrainingMode(mode){
-    if(!coach.MODES.includes(mode))return;
+    if(!['random','sequential','competitive','adaptive'].includes(mode))return;
     stopPracticeTimer(true);stopCaseTimer();
     applyTrainingMode(mode,true);
     if(competitiveToggle)competitiveToggle.checked=state.competitive.enabled;
@@ -1391,7 +1402,7 @@ document.addEventListener('DOMContentLoaded', () => {
     } else {
       prevBtn.disabled = historyIndex <= 0 || completed || state.competitive.enabled;
     }
-    const shouldShowRemaining = (state.removeWhenSolved && !['adaptive','review','focus'].includes(currentTrainingMode())) || state.competitive.enabled || orderedMode;
+    const shouldShowRemaining = SESSION_MODES.has(currentTrainingMode()) || state.competitive.enabled || orderedMode;
     casesRemainingEl.hidden = !shouldShowRemaining;
 
     if (state.competitive.enabled) {
@@ -1419,8 +1430,8 @@ document.addEventListener('DOMContentLoaded', () => {
     } else {
       if (remainingLabel) remainingLabel.textContent = 'Casos restantes';
       const blocked = new Set(state.excluded);
-      if (state.removeWhenSolved) sessionResolved.forEach((id) => blocked.add(id));
-      remainingCount.textContent = String(Math.max(0, TOTAL - blocked.size));
+      sessionResolved.forEach((id) => blocked.add(id));
+      remainingCount.textContent = String(Math.max(0, sessionTargetCount - sessionResolved.size));
       competitiveBreakdown.hidden = true;
     }
 
@@ -1552,6 +1563,13 @@ document.addEventListener('DOMContentLoaded', () => {
     sessionResolved = new Set();
   }
 
+  function buildSessionPool(){
+    const all=unexcludedCases();
+    if(currentTrainingMode()!=='adaptive')return all;
+    const due=new Set(coach.dueCases(pageSet,all));
+    return all.map(id=>{const x=coach.getCase(pageSet,id)||{};return {id,score:(due.has(id)?30:0)+(x.rating==='hard'?20:x.rating==='medium'?10:0)+(x.needsPractice?15:0)+(Number(x.difficultyScore)||0)}}).sort((a,b)=>b.score-a.score).slice(0,12).map(x=>x.id);
+  }
+
   function restartSession(clearCompetitiveStats, hardReset) {
     if (hardReset || !state.competitive.enabled) state.solved = [];
     if (hardReset) {
@@ -1565,10 +1583,11 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     resetSessionTimer();
     resetRun();
-    sessionAttempts=0;recentCoachCases=[];
+    sessionAttempts=0;sessionHardAttempts=0;recentCoachCases=[];
     clampOrderedIndex();
-    sessionTargetCount = isOrderedTrainingMode() ? orderedTotal() : unexcludedCases().length;
     sessionResolved = new Set();
+    sessionCasePool=buildSessionPool();
+    sessionTargetCount=isOrderedTrainingMode()?orderedTotal():sessionCasePool.length;
     sessionActive = true;
     let first = null;
     if (isOrderedTrainingMode()) {
@@ -1627,7 +1646,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   function handleNormalResult(caseId,elapsedMs=null) {
     const timed=Number.isFinite(elapsedMs)&&elapsedMs>=100?Math.round(elapsedMs):null;
-    if (state.removeWhenSolved && !state.solved.includes(caseId)) state.solved.push(caseId);
+    if (!state.solved.includes(caseId)) state.solved.push(caseId);
     state.solvedHistory.push({ caseId, ts: Date.now(), grade: 'good', timeMs: timed });
     state.lastCaseReport = {
       caseId,
@@ -1644,14 +1663,14 @@ document.addEventListener('DOMContentLoaded', () => {
   function shouldCompleteSession() {
     if (isOrderedTrainingMode()) return false;
     if (state.competitive.enabled) return unexcludedCases().length>0&&availableCompetitiveCases().length===0;
-    if (['adaptive','review','focus'].includes(currentTrainingMode())) return false;
-    if (!sessionActive) return false;
-    if (sessionTargetCount <= 0 || !state.removeWhenSolved) return false;
+    if (!sessionActive || sessionTargetCount <= 0) return false;
     return sessionResolved.size >= sessionTargetCount;
   }
 
   function completeSession() {
     completed = true;
+    if(sessionSummaryEl)sessionSummaryEl.textContent=`${sessionTargetCount} casos concluídos · ${sessionAttempts} tentativas · ${sessionHardAttempts} marcações de Difícil`;
+    if(nextStageButton){const next=pageSet==='f2l'?'oll':pageSet==='oll'?'pll':'f2l';nextStageButton.textContent='Ir para '+next.toUpperCase();nextStageButton.dataset.destination=next+'.html;'}
     const title=finalScreen?.querySelector('h2');
     if(title)title.textContent=state.competitive.enabled
       ?'Treino competitivo finalizado'
@@ -1712,6 +1731,7 @@ document.addEventListener('DOMContentLoaded', () => {
     pushUndo('difficult-attempt');
     const caseId=currentCase,elapsed=stopPracticeTimer();
     logCasePractice(caseId,elapsed,'hard');
+    sessionHardAttempts++;
     state.lastCaseReport={caseId,grade:'bad',timeMs:Number.isFinite(elapsed)?elapsed:null,solveCount:0};
     const next=pickNextCase();
     if(!next){showToast('Sem outro caso disponível');return}
@@ -2144,7 +2164,9 @@ document.addEventListener('DOMContentLoaded', () => {
   });
   panelClose.addEventListener('click', closeMenu);
   galleryEl.addEventListener('scroll', onGalleryScroll);
-  restartSessionBtn.addEventListener('click', () => restartSession(true, true));
+  restartSessionBtn.addEventListener('click', () => restartSession(false, false));
+  nextStageButton?.addEventListener('click',()=>location.assign((nextStageButton.dataset.destination||'index.html').replace(/;$/,'')));
+  exitStageButton?.addEventListener('click',()=>location.assign('index.html'));
 
   caseMask.addEventListener('mousemove', (e) => {
     const rect = caseMask.getBoundingClientRect();
@@ -2346,8 +2368,10 @@ document.addEventListener('DOMContentLoaded', () => {
     syncUiFromState();
     updateTimerDisplays();
     clampOrderedIndex();
-    sessionTargetCount = isOrderedTrainingMode() ? orderedTotal() : unexcludedCases().length;
+    state.solved=[];
     sessionResolved = new Set();
+    sessionCasePool=buildSessionPool();
+    sessionTargetCount=isOrderedTrainingMode()?orderedTotal():sessionCasePool.length;
     sessionActive = true;
     completed = false;
     finalScreen.hidden = true;
