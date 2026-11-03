@@ -638,3 +638,10 @@ body::before{z-index:0}.cfop-cursor-glow{z-index:0}.app{z-index:1}
  .admin-case-library-entry__actions{flex:1 1 100%}
  .admin-case-library-entry__secondary{flex:1 1 135px}
 }
+
+/* Links para a central de Bibliotecas têm a mesma aparência dos atalhos antigos. */
+.profile-admin-hub .profile-destination-grid a{display:flex;flex-direction:column;justify-content:center;gap:5px;text-decoration:none;color:inherit;min-height:75px;border-radius:12px;border:1px solid rgba(128,180,230,.3);background:rgba(16,37,65,.55);padding:14px}
+.profile-admin-hub .profile-destination-grid a:hover,.profile-admin-hub .profile-destination-grid a:focus-visible{border-color:#82cff3;background:rgba(36,67,103,.7)}
+.profile-admin-hub .profile-destination-grid a strong{font-size:14px}
+.profile-admin-hub .profile-destination-grid a span{font-size:12px;color:#a7bfda}
+.admin-primary-actions a.secondary{display:inline-flex;align-items:center;justify-content:center;min-height:43px;text-decoration:none;border:1px solid rgba(137,187,235,.45);border-radius:10px;padding:10px 14px;background:rgba(19,48,82,.5);color:#e2f5ff}
