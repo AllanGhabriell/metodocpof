@@ -106,6 +106,7 @@ function cropRotated(data,turns){
   ctx.drawImage(image,-image.width/2,-image.height/2);resolve(canvas.toDataURL('image/webp',.78));
  };image.onerror=()=>reject(Error('Imagem inválida'));image.src=data})
 }
+function resetCaseFilters(){if($('import-case-search'))$('import-case-search').value='';if($('import-case-filter'))$('import-case-filter').value='all';}
 function update(){
  const checked=records.filter(r=>r.status==='approved').length,unknown=records.filter(r=>!['nome','algoritmo','visual','manual'].includes(r.confidence)).length;
  const anyApproved=allCaseRecords().some(r=>r.status==='approved');
@@ -118,8 +119,17 @@ function update(){
  $('import-results').hidden=!records.length;
  const empty=$('import-empty-state');if(empty){empty.hidden=!!records.length;empty.innerHTML='<h2>Editar casos da biblioteca</h2><p>'+($('import-library').value?'Esta etapa ainda não tem casos cadastrados. Se houver outra etapa, escolha F2L, OLL ou PLL acima. Você também pode importar um PDF.':'Selecione uma biblioteca acima para editar os casos existentes.')+'</p>'; }
  const fixed=FIXED_CASES.filter(c=>c.stage===stage);
- $('import-cards').innerHTML=records.map((r,i)=>'<article class="importer-card" data-index="'+i+'">'+
- '<div class="importer-card-title"><h3>'+esc(CASE_BY_ID.get(r.case_id)?.name||r.case_id)+'</h3><span class="'+(['nome','algoritmo','visual'].includes(r.confidence)?'importer-detected':'importer-warning')+'">'+(r.confidence==='nome'?'Nome reconhecido':r.confidence==='algoritmo'?'Algoritmo reconhecido':r.confidence==='visual'?'Diagrama reconhecido':'Conferir associação')+'</span></div>'+
+ const search=String($('import-case-search').value||'').trim().toLowerCase();
+ const filter=$('import-case-filter').value||'all';
+ const visible=records.map((r,i)=>({r,i})).filter(({r})=>{
+  if(filter!=='all'&&r.status!==filter)return false;
+  if(!search)return true;
+  const label=CASE_BY_ID.get(r.case_id)?.name||'';
+  return [r.case_id,label,r.algorithm,r.setup].some(value=>String(value||'').toLowerCase().includes(search));
+ });
+ $('import-case-visible').textContent='Exibindo '+visible.length+' de '+records.length+' casos';
+ $('import-cards').innerHTML=visible.length?visible.map(({r,i})=>'<article class="importer-card" data-index="'+i+'">'+
+ '<div class="importer-card-title"><h3>'+esc(CASE_BY_ID.get(r.case_id)?.name||r.case_id)+'</h3><span class="'+(['nome','algoritmo','visual','manual'].includes(r.confidence)?'importer-detected':'importer-warning')+'">'+(r.confidence==='nome'?'Nome reconhecido':r.confidence==='algoritmo'?'Algoritmo reconhecido':r.confidence==='visual'?'Diagrama reconhecido':r.confidence==='manual'?'Caso salvo':'Conferir associação')+'</span></div>'+
  '<img src="'+esc(r.imageData||'')+'" alt="Recorte do '+esc(r.case_id)+'" loading="lazy">'+
  '<label>Caso fixo<select data-field="case_id">'+fixed.map(c=>'<option value="'+esc(c.id)+'" '+(c.id===r.case_id?'selected':'')+'>'+esc(c.name)+' ('+c.id+')</option>').join('')+'</select></label>'+
  '<label>Algoritmo<input data-field="algorithm" value="'+esc(r.algorithm||'')+'" placeholder="Sequência para resolver o caso"></label>'+
@@ -129,7 +139,7 @@ function update(){
  (r.page?'<small>Página '+r.page+' · '+(r.alternatives?.length?'Possui algoritmos alternativos':'Uma sequência reconhecida')+'</small>':'<small>Versão já cadastrada</small>')+
  (r.rect?'<div class="importer-crop-controls"><span>Corrigir enquadramento:</span><button type="button" data-crop="up" data-index="'+i+'" title="Subir recorte">↑</button><button type="button" data-crop="left" data-index="'+i+'" title="Mover à esquerda">←</button><button type="button" data-crop="right" data-index="'+i+'" title="Mover à direita">→</button><button type="button" data-crop="down" data-index="'+i+'" title="Descer recorte">↓</button><button type="button" data-crop="zoom-in" data-index="'+i+'" title="Aproximar">+</button><button type="button" data-crop="zoom-out" data-index="'+i+'" title="Afastar">−</button></div>':'')+
  '<div class="importer-card-actions"><button type="button" data-edit-image="'+i+'" class="importer-edit-image" '+(!r.imageData?'disabled':'')+'>✎ Editar imagem / retoque</button><button type="button" data-approve="'+i+'" '+(r.status==='approved'?'disabled':'')+'>'+(r.status==='approved'?'✓ Aprovado':'✓ Aprovar caso')+'</button><button type="button" data-rotate="'+i+'" data-direction="-1" aria-label="Girar 90 graus no sentido anti-horário">↶ 90°</button><button type="button" data-rotate="'+i+'" data-direction="1" aria-label="Girar 90 graus no sentido horário">↷ 90°</button><button type="button" data-download="'+i+'">Baixar imagem</button></div>'+
- '</article>').join('')
+ '</article>').join(''):'<p class="hub-filter-empty">Nenhum caso corresponde à busca. Altere os filtros para visualizar os demais.</p>';
 }
 function saveBlob(name,data){const url=URL.createObjectURL(new Blob([data],{type:'application/json'})),a=document.createElement('a');a.href=url;a.download=name;a.click();setTimeout(()=>URL.revokeObjectURL(url),1000)}
 function guard(){if(!owner())throw Error('Somente o administrador fundador pode editar as bibliotecas.')}
@@ -285,7 +295,7 @@ async function loadExistingLibrary(){
   const currentLibrary=libraryList().find(l=>l.id===id);
   if(currentLibrary)$('import-rename-title').value=currentLibrary.title;
   clearLocalEdits();editedCaseIds.clear();loadedLibraryId=id;
-  showExistingStage();
+  resetCaseFilters();showExistingStage();
   if(!records.length&&existingRecords.length&&!context.get('stage')){
    const first=existingRecords.map(r=>CASE_BY_ID.get(r.case_id)?.stage).find(Boolean);
    if(first){stage=first;$('import-stage').value=stage;showExistingStage();}
@@ -323,6 +333,8 @@ async function selectLibrary(id,scroll=false){
 $('import-library').addEventListener('change',async()=>{
  await selectLibrary($('import-library').value);
 });
+$('import-case-search').addEventListener('input',update);
+$('import-case-filter').addEventListener('change',update);
 $('import-library-cards').addEventListener('click',async event=>{
  const btn=event.target.closest('button[data-open-library]');if(!btn)return;
  await selectLibrary(btn.dataset.openLibrary,true);
@@ -362,7 +374,7 @@ $('import-delete-library').addEventListener('click',async()=>{
   status('Biblioteca excluída do Supabase. Os demais dados foram preservados.');
  }catch(e){status('Não foi possível excluir: '+e.message)}
 });
-$('import-stage').addEventListener('change',()=>{rememberStage();stage=$('import-stage').value;showExistingStage();status('Etapa alterada. As edições de outras etapas serão incluídas ao salvar.')});
+$('import-stage').addEventListener('change',()=>{rememberStage();stage=$('import-stage').value;resetCaseFilters();showExistingStage();status('Etapa alterada. As edições de outras etapas serão incluídas ao salvar.')});
 $('import-new-library').addEventListener('input',()=>{
  const anyApproved=allCaseRecords().some(r=>r.status==='approved');
  $('import-publish').disabled=busy||!anyApproved||notYetApproved().length>0||(!$('import-library').value&&$('import-new-library').value.trim().length<2);
