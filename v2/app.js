@@ -6,7 +6,7 @@ import {crossPage,crossClick,crossChange} from './features/cross.mjs';
 import {awardActivity,progressDashboard,progressData,reloadProgress,saveFeatureData,planPage,profilePage,progressClick,progressSubmit,progressImport,checkReminder,progressSummary} from './features/progress.mjs?v=20261031-rpg-3';
 import {loadJourney,journeyEquip,journeyAnswers} from './features/journey.mjs?v=20261031-rpg-3';
 import {saveAcademyGoals} from './features/academy-insights.mjs';
-import {identityState,loadIdentity,saveIdentity} from './cloud/identity.mjs';
+import {identityState,loadIdentity,saveIdentity} from './cloud/identity.mjs?v=20261103-profile-2';
 import {openAvatarCrop,exportAvatarCrop,cancelAvatarCrop} from './features/avatar-crop.mjs';
 import {shareSection,deliverShareCard} from './features/share-cards.mjs?v=20261031-rpg-4';
 import {drillsPage,challengesPage,practiceClick,practiceSubmit} from './features/practice.mjs';
