@@ -909,3 +909,27 @@ body[data-set] .controls-row .trainer-case-action.action-hard:disabled{
 
 /* Sem biblioteca publicada, nenhuma ação de treino fica ativa. */
 body[data-set] .controls-row[hidden]{display:none!important}
+
+/* Mobile trainer: keep the actual exercise and actions within the visible viewport.
+   Allow normal scrolling only on genuinely short displays or expanded panels. */
+@media(max-width:760px){
+ body[data-set] .topbar{margin-top:5px;min-height:0;padding:6px 8px;gap:5px}
+ body[data-set] .topbar #back-btn,body[data-set] .topbar #menu-btn{min-height:38px;padding:6px 10px}
+ body[data-set] .topbar .trainer-library-choice{padding:5px 8px;gap:3px}
+ body[data-set] .topbar .trainer-library-choice select{min-height:35px}
+ body[data-set] .trainer-library-note{font-size:10px;line-height:1.15}
+ body[data-set] .f2l-container{padding:7px 10px 12px!important}
+ body[data-set] .image-area{gap:6px}
+ body[data-set] .trainer-toolbar{padding:9px 12px;gap:7px}
+ body[data-set] .img-wrap,body[data-set] .img-wrap.show-mask{height:clamp(175px,29dvh,260px);min-height:0;max-height:29dvh;padding:6px}
+ body[data-set] .img-wrap img,body[data-set] .img-wrap #case-image{max-height:calc(29dvh - 12px);max-width:100%;object-fit:contain}
+ body[data-set] .controls-row{gap:6px}
+ body[data-set] .controls-row .trainer-case-action{min-height:42px!important;padding:7px 8px}
+ body[data-set] .controls-row .trainer-case-action.action-easy,body[data-set] .controls-row .trainer-case-action.action-hard{min-height:46px!important}
+}
+@media(max-width:760px) and (max-height:740px){
+ body[data-set] .img-wrap,body[data-set] .img-wrap.show-mask{height:clamp(145px,24dvh,200px);max-height:24dvh}
+ body[data-set] .img-wrap img,body[data-set] .img-wrap #case-image{max-height:calc(24dvh - 12px)}
+ body[data-set] .trainer-toolbar{padding:7px 10px}
+ body[data-set] .trainer-progress-strip{row-gap:3px}
+}
