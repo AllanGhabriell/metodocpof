@@ -87,7 +87,8 @@ BEGIN
  ) THEN RETURN; END IF;
  RETURN QUERY
  SELECT b.case_id,
-   b.details || (coalesce(o.published,'{}'::jsonb) - 'status' - 'imageOriginal')
+   b.details || (coalesce(o.published,'{}'::jsonb) - 'status' - 'imageOriginal') ||
+   jsonb_build_object('originalEdited',o.published IS NOT NULL)
  FROM public.cfop_original_base_cases b
  LEFT JOIN public.cfop_original_case_overrides o ON o.case_id=b.case_id
  JOIN public.cfop_case_catalog cc ON cc.case_id=b.case_id
