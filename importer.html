@@ -58,8 +58,14 @@
      <button type="button" class="importer-secondary" id="import-reload">Atualizar casos do banco</button>
     </div>
 <details class="importer-advanced">
-     <summary>Renomear biblioteca selecionada</summary>
-     <button id="import-rename-library" type="button" class="importer-secondary">Salvar novo nome da biblioteca</button>
+     <summary>Renomear ou excluir a biblioteca selecionada</summary>
+     <div class="hub-library-management">
+      <label>Nome da biblioteca selecionada
+       <input id="import-rename-title" type="text" maxlength="90" placeholder="Nome da biblioteca" autocomplete="off">
+      </label>
+      <button id="import-rename-library" type="button" class="importer-secondary">Salvar novo nome</button>
+      <button id="import-delete-library" type="button" class="importer-danger">Excluir biblioteca definitivamente</button>
+     </div>
     </details>
     <details id="hub-pdf" class="importer-pdf-optional"><summary>Adicionar casos por PDF (opcional)</summary>
     <div class="importer-step-heading importer-upload-heading">
