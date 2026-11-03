@@ -20,19 +20,37 @@ function baseForStage(stage){const entry=stageDefaults[stage];if(!entry)return D
  if(entry.source==='library'&&entry.library_id&&libraries.some(l=>l.id===entry.library_id&&l.is_public))return entry.library_id;
  return DEFAULT;
 }
-let originalRows=[],originalState='unknown',originalError='',originalLoading=null;
+let originalRows=[],originalRawRows=[],originalOverrides=new Map(),originalState='unknown',originalError='',originalLoading=null;
+let originalOverrideAvailable=false,originalOverrideError='Migração de edição da Base Original ainda não confirmada.';
 export const isOriginalOwner=()=>isAuthenticated()&&isAdmin()&&cloudUser()?.email?.toLowerCase()==='coelhodatoca124@gmail.com';
-export const originalBaseInfo=()=>({state:originalState,count:originalRows.length,error:originalError});
+export const originalBaseInfo=()=>({state:originalState,count:originalRows.length,error:originalError,
+ editable:originalOverrideAvailable,editError:originalOverrideError});
+export const originalEditorCases=stage=>isOriginalOwner()&&originalState==='active'
+ ?originalRawRows.filter(c=>c.stage===stage).map(c=>{
+   const version=originalOverrides.get(c.id);
+   const draft=version?.draft||null,published=version?.published||null,data=draft||published||{};
+   return {...c,...data,id:c.id,stage:c.stage,case_id:c.id,
+    imageData:data.imageData??c.imageData??null,imageOriginal:data.imageOriginal??c.imageData??null,
+    status:draft?.status||'approved',hasDraft:!!draft,hasPublished:!!published,
+    originalEdited:!!version,confidence:'manual'};
+ }):[];
+function mergeOriginalPublished(base){
+ const entry=originalOverrides.get(base.id)?.published;
+ if(!entry)return {...base};
+ const {imageOriginal,status,...rest}=entry;
+ return {...base,...rest,id:base.id,stage:base.stage};
+}
+
 export const originalCases=stage=>isOriginalOwner()&&originalState==='active'?originalRows
  .filter(c=>c.stage===stage).map(c=>({...c,reviewed:false,reviewStatus:'unreviewed',source:'Base original privada'})):[];
 export async function loadOriginalBase(){
- if(!isOriginalOwner()){originalRows=[];return []}
+ if(!isOriginalOwner()){originalRows=[];originalRawRows=[];originalOverrides.clear();return []}
  if(originalLoading)return originalLoading;
  originalLoading=(async()=>{
  try{
   const control=await cloudTable('cfop_original_base_control',{query:'select=deleted_at&singleton=eq.true'});
   if(control?.[0]?.deleted_at){
-   originalState='deleted';originalRows=[];originalError='';
+   originalState='deleted';originalRows=[];originalRawRows=[];originalOverrides.clear();originalOverrideAvailable=false;originalError='';
    for(const stage of STAGES)if(stageChoices[stage]===ORIGINAL)delete stageChoices[stage];notify();return [];
   }
   let list=await cloudTable('cfop_original_base_cases',{query:'select=case_id,details&order=case_id.asc&limit=150'});
@@ -50,7 +68,20 @@ export async function loadOriginalBase(){
    }
    list=await cloudTable('cfop_original_base_cases',{query:'select=case_id,details&order=case_id.asc&limit=150'});
   }
-  originalRows=(list||[]).map(r=>r.details).filter(c=>c.stage!=='oll'&&CASE_BY_ID.get(c.id)?.stage===c.stage);
+  originalRawRows=(list||[]).map(r=>r.details).filter(c=>c.stage!=='oll'&&CASE_BY_ID.get(c.id)?.stage===c.stage);
+  originalOverrides=new Map();
+  try{
+   const editable=await cloudTable('cfop_original_case_overrides',{
+    query:'select=case_id,draft,published,updated_at&limit=150'
+   });
+   if(!Array.isArray(editable))throw Error('Resposta inválida para as edições originais');
+   originalOverrides=new Map(editable.map(row=>[row.case_id,row]));
+   originalOverrideAvailable=true;originalOverrideError='';
+  }catch(e){
+   originalOverrideAvailable=false;
+   originalOverrideError='Instale a migração 20261103_000001_original_case_overrides.sql: '+e.message;
+  }
+  originalRows=originalRawRows.map(mergeOriginalPublished);
   originalState='active';originalError='';notify();return originalRows;
  }catch(e){originalState='error';originalError=e.message;originalRows=[];notify();return []}
  })().finally(()=>{originalLoading=null});
@@ -59,7 +90,7 @@ export async function loadOriginalBase(){
 export async function deleteOriginalBase(){
  requireOwner();
  const result=await cloudTable('rpc/cfop_delete_original_base',{method:'POST',body:{}});
- originalState='deleted';originalRows=[];originalError='';publicOriginalRows.clear();rows=[];
+ originalState='deleted';originalRows=[];originalRawRows=[];originalOverrides.clear();originalOverrideAvailable=false;originalError='';publicOriginalRows.clear();rows=[];
  for(const stage of STAGES)if(stageChoices[stage]===ORIGINAL)delete stageChoices[stage];
  await loadLibraries();notify();
  return result;
@@ -147,9 +178,13 @@ export async function loadStageDefaults({strict=false}={}){
 async function loadPublicOriginal(stage){
  if(stage==='oll'||baseForStage(stage)!==ORIGINAL)return [];
  try{
-  const prefix=stage.toUpperCase()+'-';
-  const results=await cloudTable('cfop_original_base_cases',{query:'select=case_id,details&case_id=like.'+prefix+'*&limit=65',anon:!isAuthenticated()});
-  if(Array.isArray(results)){publicOriginalRows.set(stage,results.map(r=>r.details));notify()}
+  const results=await cloudTable('rpc/cfop_original_cases_for_stage',{
+   method:'POST',body:{p_stage:stage},anon:!isAuthenticated()
+  });
+  if(Array.isArray(results)){
+   publicOriginalRows.set(stage,results.map(r=>r.details).filter(r=>r.stage===stage&&CASE_BY_ID.get(r.id)?.stage===stage));
+   notify();
+  }
  }catch(e){lastError='Base original offline: '+e.message}
  return publicOriginalRows.get(stage)||[];
 }
@@ -279,6 +314,64 @@ export async function chooseLibrary(id,stage='f2l'){
 }
 function requireOwner(){
  if(!isAuthenticated()||!isAdmin()||cloudUser()?.email?.toLowerCase()!=='coelhodatoca124@gmail.com')throw Error('Somente o administrador fundador pode modificar bibliotecas.');
+}
+function requireOriginalEditable(){
+ requireOwner();
+ if(originalState!=='active')throw Error('A Base Original não está disponível.');
+ if(!originalOverrideAvailable)throw Error(originalOverrideError);
+}
+export async function saveOriginalDraftsBatch(records,onProgress=()=>{}){
+ requireOriginalEditable();
+ if(!Array.isArray(records)||!records.length)throw Error('Nenhuma alteração original para salvar.');
+ const rows=records.map(record=>{
+  const id=record.case_id||record.id;
+  if(!originalRawRows.some(c=>c.id===id&&CASE_BY_ID.get(id)?.stage===c.stage))
+   throw Error('Caso '+id+' não existe na Base Original.');
+  if(!String(record.algorithm||'').trim())throw Error('Algoritmo obrigatório para '+id);
+  return {case_id:id,updated_by:cloudUser().id,
+   draft:{algorithm:String(record.algorithm).trim(),setup:String(record.setup||''),
+    orientation:String(record.orientation||''),imageData:record.imageData||null,
+    imageOriginal:record.imageOriginal||null,
+    status:['draft','approved','rejected'].includes(record.status)?record.status:'draft'}};
+ });
+ for(let i=0;i<rows.length;i+=8){
+  await cloudTable('cfop_original_case_overrides',{
+   method:'POST',query:'on_conflict=case_id',body:rows.slice(i,i+8),
+   prefer:'resolution=merge-duplicates,return=minimal'
+  });
+  onProgress(Math.min(i+8,rows.length),rows.length);
+ }
+ await loadOriginalBase();
+ return rows.length;
+}
+export async function publishOriginalOverrides(ids){
+ requireOriginalEditable();
+ if(!Array.isArray(ids)||!ids.length)throw Error('Aprove pelo menos uma edição original.');
+ const count=await cloudTable('rpc/cfop_publish_original_overrides',{
+  method:'POST',body:{p_case_ids:ids}
+ });
+ await loadOriginalBase();
+ return Number(count)||0;
+}
+export async function restoreOriginalCase(id){
+ requireOriginalEditable();
+ if(!originalRawRows.some(c=>c.id===id))throw Error('O caso não existe na Base Original.');
+ await cloudTable('rpc/cfop_restore_original_case',{method:'POST',body:{p_case_id:id}});
+ await loadOriginalBase();
+ return true;
+}
+export async function verifyOriginalCases(ids){
+ requireOriginalEditable();
+ const all=[];
+ for(const stage of ['f2l','pll']){
+  if(!ids.some(id=>CASE_BY_ID.get(id)?.stage===stage))continue;
+  const rows=await cloudTable('rpc/cfop_original_cases_for_stage',{
+   method:'POST',body:{p_stage:stage}
+  });
+  if(!Array.isArray(rows))throw Error('O Supabase não confirmou a leitura pública dos casos originais.');
+  all.push(...rows.map(r=>r.details));
+ }
+ return all.filter(r=>ids.includes(r.id));
 }
 export async function createLibrary(title,description=''){
  requireOwner();const r=await cloudTable('cfop_libraries',{method:'POST',body:{title:String(title).trim(),description:String(description).trim(),created_by:cloudUser().id,is_public:false},prefer:'return=representation'});
