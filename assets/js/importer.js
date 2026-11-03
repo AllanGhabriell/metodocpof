@@ -327,8 +327,21 @@ $('import-cards').addEventListener('click',async e=>{
   }catch(err){status('Erro ao restaurar: '+err.message)}return;
  }
  if(originalUnavailable()){status(originalBaseInfo().editError);return;}
- if(editImage){const r=records[Number(editImage.dataset.editImage)];if(!r?.imageData)return status('Este caso não possui imagem. Importe um PDF ou selecione outro caso.');
-  await openImageEditor(r,(result,original)=>{r.imageOriginal ||= original;r.imageData=result;r.status='draft';r.imageUpdatedAt=Date.now();markEdited(r);update();status('Imagem de '+r.case_id+' corrigida. Reaprove e salve para atualizar a biblioteca.');});return}
+ if(editImage){
+  const r=records[Number(editImage.dataset.editImage)];if(!r)return;
+  try{
+   const source=r.imageData||(editingOriginal()?await normalizedOriginalImage(r.case_id):null);
+   if(!source)throw Error('Este caso não possui imagem. Selecione uma imagem para adicionar.');
+   // Cancelar o editor não altera a imagem anteriormente salva.
+   const candidate={...r,imageData:source,imageOriginal:r.imageOriginal||source};
+   await openImageEditor(candidate,(result,original)=>{
+    r.imageOriginal ||= original;r.imageData=result;r.status='draft';
+    r.imageUpdatedAt=Date.now();markEdited(r);update();
+    status('Imagem de '+r.case_id+' corrigida. Aprove e publique para atualizar o treino.');
+   });
+  }catch(err){status('Não foi possível abrir o editor: '+err.message)}
+  return;
+}
  if(crop){
   const r=records[Number(crop.dataset.index)];if(!r?.rect||!doc)return status('Reimporte o PDF para ajustar o recorte.');
   const page=await renderPage(r.page);
@@ -352,8 +365,28 @@ $('import-cards').addEventListener('click',async e=>{
   if(!r.algorithm?.trim())return status('Informe o algoritmo desse caso antes de aprová-lo.');
   r.status='approved';markEdited(r);update();status('Caso '+r.case_id+' aprovado para publicação.');return
  }
- if(a){const r=records[Number(a.dataset.rotate)];if(r?.imageData){const direction=Number(a.dataset.direction)===-1?-1:1;r.rotation=((r.rotation||0)+direction+4)%4;r.imageOriginal ||=r.imageData;r.imageData=await cropRotated(r.imageData,direction);markEdited(r);if(r.status==='approved')r.status='draft';update();status('Imagem girada '+(direction===1?'no sentido horário':'no sentido anti-horário')+'. Confira e aprove novamente antes de publicar.')}}
- if(b){const r=records[Number(b.dataset.download)];if(r?.imageData){const link=document.createElement('a');link.href=r.imageData;link.download=r.case_id+'.webp';link.click()}}
+ if(a){
+  const r=records[Number(a.dataset.rotate)];
+  if(r){
+   try{
+    const source=r.imageData||(editingOriginal()?await normalizedOriginalImage(r.case_id):null);
+    if(!source)throw Error('Imagem não cadastrada. Escolha uma imagem.');
+    const direction=Number(a.dataset.direction)===-1?-1:1;
+    const rotated=await cropRotated(source,direction);
+    r.imageOriginal ||=source;r.imageData=rotated;
+    r.rotation=((r.rotation||0)+direction+4)%4;
+    markEdited(r);if(r.status==='approved')r.status='draft';
+    update();status('Imagem girada '+(direction===1?'no sentido horário':'no sentido anti-horário')+'. Aprove novamente e publique.');
+   }catch(err){status('Rotação não aplicada: '+err.message)}
+  }
+}
+ if(b){
+ const r=records[Number(b.dataset.download)];
+ if(r){
+  const source=r.imageData||(editingOriginal()?originalImagePath(r.case_id):'');
+  if(source){const link=document.createElement('a');link.href=source;link.download=r.case_id+(r.imageData?'.webp':'.png');link.click()}
+ }
+}
 });
 $('import-create-library').addEventListener('click',async()=>{
  try{guard();const title=$('import-new-library').value.trim();if(title.length<2)throw Error('Informe o nome da biblioteca.');
