@@ -24,6 +24,15 @@ export function adminPanel(){
  const actionNames={notice_sent:'Aviso enviado',profile_rename:'Nome corrigido',profile_reset_name_limit:'Cota de nomes zerada',profile_reset_photo_limit:'Cota de fotos zerada',xp:'Ajuste de XP',suspend:'Suspensão',unsuspend:'Fim da suspensão',ban:'Banimento',unban:'Fim do banimento',message:'Mensagem',adjust_solves:'Correção de resoluções',adjust_sessions:'Correção de sessões',adjust_minutes:'Correção de tempo',grant_admin:'Promover a admin',revoke_admin:'Retirar admin',publish_case:'Publicação de caso',update_case:'Atualização de caso',unpublish_case:'Retirada de caso'};
  const filters=[['all','Todos'],['active','Regulares'],['admins','Administradores'],['suspended','Suspensos'],['banned','Banidos']];
  return '<div class="eyebrow">Administração / Acesso restrito</div><div class="row between"><div><h1>Gestão de usuários</h1><p class="muted">Consulte contas, moderação e estatísticas registradas.</p></div><button type="button" data-admin="refresh">Atualizar</button></div>'+
+
+ '<section class="card admin-case-library-entry" aria-labelledby="admin-case-library-heading">'+
+ '<div class="admin-case-library-entry__content"><span class="eyebrow">Bibliotecas de casos</span><h2 id="admin-case-library-heading">Gerenciar bibliotecas F2L, OLL e PLL</h2>'+
+ '<p class="muted">Edite imagens, rotação, recortes, algoritmos e setups de bibliotecas já publicadas. Não é necessário importar o PDF novamente.</p></div>'+
+ '<div class="admin-case-library-entry__actions"><a class="admin-case-library-entry__primary" href="studio.html?page=admin-libraries">Ver minhas bibliotecas</a>'+
+ '<a class="admin-case-library-entry__secondary" href="importer.html">Abrir editor</a>'+
+ '<a class="admin-case-library-entry__secondary" href="studio.html?page=admin-defaults">Definir base principal</a></div>'+
+ '</section>'+
+
  '<p class="notice">Tempo de uso estimado por atividade com a página aberta e em primeiro plano, a partir da ativação do registro. Não inclui uso anterior nem atividade offline.</p>'+
  (message?'<p role="status" class="notice">'+esc(message)+'</p>':'')+
  '<div class="admin-kpis"><div class="card"><span>Contas exibidas</span><strong>'+total+'</strong></div><div class="card"><span>Ativos (7 dias)</span><strong>'+active+'</strong></div><div class="card"><span>Inativos (7 dias)</span><strong>'+Math.max(0,total-active)+'</strong></div><div class="card"><span>Suspensos</span><strong>'+suspended+'</strong></div><div class="card"><span>Banidos</span><strong>'+banned+'</strong></div></div>'+
