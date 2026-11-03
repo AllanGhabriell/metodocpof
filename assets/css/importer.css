@@ -125,3 +125,39 @@ body.importer-body{overflow-y:auto;min-height:100vh;background:radial-gradient(e
 .admin-library-edit-link{display:flex;flex-direction:column;gap:7px;padding:15px;border:1px solid rgba(135,192,237,.35);border-radius:12px;background:rgba(15,44,77,.45);text-decoration:none!important;color:#f1f7ff!important}
 .admin-library-edit-link span{font-size:12px;color:#b4cee5}
 @media(max-width:600px){.importer-edit-stage{padding:11px}.importer-edit-stage select{max-width:100%}}
+
+
+/* Central única de bibliotecas: navegação local e áreas separadas. */
+html{scroll-behavior:smooth}
+#importer-workspace{display:block}
+#importer-workspace[hidden]{display:none!important}
+.importer-hub-nav{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:9px;margin:24px 0 7px}
+.importer-hub-nav a{display:flex;align-items:center;justify-content:center;gap:9px;min-height:52px;padding:9px 11px;border:1px solid rgba(126,188,241,.38);border-radius:13px;background:rgba(16,39,77,.72);color:#e8f6ff;text-align:center;text-decoration:none;font-weight:750;font-size:13px}
+.importer-hub-nav a span{color:#9bdafb;font-size:11px;font-weight:900}
+.importer-hub-nav a:hover,.importer-hub-nav a:focus-visible{background:rgba(34,85,139,.74);border-color:#8bd9fa}
+#hub-libraries,#hub-defaults,#hub-pdf,.importer-anchor{scroll-margin-top:95px}
+.hub-library-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:12px;margin:15px 0 18px}
+.hub-library-card{display:flex;flex-direction:column;gap:10px;padding:17px;border:1px solid rgba(122,173,233,.35);border-radius:15px;background:linear-gradient(145deg,rgba(13,39,76,.9),rgba(17,29,58,.9));min-width:0}
+.hub-library-card.is-active{border-color:#86dcff;box-shadow:0 0 0 1px rgba(78,187,232,.3)}
+.hub-library-card h3{font-size:17px;line-height:1.35;margin:0;overflow-wrap:anywhere}
+.hub-library-status{font-size:11px;letter-spacing:.025em;color:#c3d8ef}
+.hub-library-status strong{color:#e0f7ff}
+.hub-library-counts{font-size:12px;line-height:1.5;color:#acbdd8;margin:0;flex:1}
+.hub-library-card button{min-height:43px;font-size:13px}
+.hub-library-empty{grid-column:1/-1;padding:22px;border:1px dashed rgba(149,188,236,.35);border-radius:14px;color:#c5d5eb;background:rgba(12,28,57,.45)}
+.hub-defaults-panel{margin-top:16px}
+.hub-default-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin-top:16px}
+.hub-default-card{padding:17px;border:1px solid rgba(136,191,233,.35);border-radius:15px;background:rgba(12,32,60,.8);min-width:0}
+.hub-default-card h3{font-size:22px;letter-spacing:.06em;margin:0 0 9px;color:#edfaff}
+.hub-default-card p{font-size:12px;color:#b7cce1;line-height:1.5;margin:8px 0}
+.hub-default-card label{font-size:12px;color:#d9edff;font-weight:700;display:grid;gap:8px}
+.hub-default-card select{width:100%;min-height:44px;border:1px solid rgba(132,182,243,.56);border-radius:10px;padding:9px 10px;background:#102d4e;color:#effaff;font-size:13px;min-width:0}
+.hub-default-card button{width:100%;margin-top:13px}
+.hub-default-current{color:#92d5fc!important;overflow-wrap:anywhere}
+.hub-default-feedback{min-height:1.5em}
+.hub-default-warning{margin:10px 0 0;padding:12px;border:1px solid rgba(255,183,106,.4);border-radius:10px;color:#ffe5c1;background:rgba(91,51,20,.32);font-size:13px}
+.hub-empty-state{margin-top:16px}
+.hub-empty-state h2{margin-top:0}
+.importer-pdf-optional{margin-top:18px}
+@media(max-width:860px){.hub-default-grid{grid-template-columns:1fr}.importer-hub-nav{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:540px){.importer-hub-nav{gap:7px;margin:16px 0}.importer-hub-nav a{padding:9px 7px;font-size:12px;min-height:46px}.hub-library-grid{grid-template-columns:1fr}.hub-default-card{padding:14px}#hub-libraries,#hub-defaults,#hub-pdf,.importer-anchor{scroll-margin-top:75px}}
