@@ -23,7 +23,8 @@ function allCaseRecords(){
  const byId=new Map(existingRecords.map(r=>[r.case_id,{
   case_id:r.case_id,algorithm:r.algorithm,setup:r.setup,orientation:r.orientation,
   imageData:r.image_data||null,imageOriginal:r.image_original||null,
-  status:r.status,sourcePage:r.source_page
+  status:r.status,sourcePage:r.source_page,
+  hasDraft:!!r.hasDraft,hasPublished:!!r.hasPublished,originalEdited:!!r.originalEdited
  }]));
  for(const r of stagedRecords())byId.set(r.case_id,r);
  return [...byId.values()];
@@ -520,7 +521,29 @@ async function verifyPublishedEdits(libraryId,approved){
  }
 }
 async function saveAll(){
- guard();const pending=stagedRecords();if(!pending.length){if($('import-library').value&&existingRecords.length)return $('import-library').value;throw Error('Nenhum caso para salvar.');}
+ guard();
+ if(editingOriginal()){
+  if(originalUnavailable())throw Error(originalBaseInfo().editError);
+  const changed=stagedRecords().filter(r=>editedCaseIds.has(r.case_id));
+  if(!changed.length)return ORIGINAL;
+  if(changed.some(r=>!String(r.algorithm||'').trim()))throw Error('Os casos editados precisam ter algoritmo.');
+  busy=true;$('import-save').disabled=true;$('import-publish').disabled=true;
+  try{
+   await standardizeImages(changed);
+   await saveOriginalDraftsBatch(changed,(done,total)=>status('Salvando edições originais: '+done+'/'+total));
+   const mapped=new Map(existingRecords.map(r=>[r.case_id,r]));
+   for(const r of changed){
+    r.hasDraft=true;r.originalEdited=true;
+    mapped.set(r.case_id,{case_id:r.case_id,algorithm:r.algorithm,setup:r.setup,
+     orientation:r.orientation,image_data:r.imageData,image_original:r.imageOriginal,
+     status:r.status,source_page:r.sourcePage,hasDraft:true,
+     hasPublished:!!r.hasPublished,originalEdited:true});
+   }
+   existingRecords=[...mapped.values()];clearLocalEdits();
+  }finally{busy=false;$('import-save').disabled=false;update();}
+  return ORIGINAL;
+ }
+ const pending=stagedRecords();if(!pending.length){if($('import-library').value&&existingRecords.length)return $('import-library').value;throw Error('Nenhum caso para salvar.');}
  if(pending.some(r=>r.status==='approved'&&!String(r.algorithm||'').trim()))throw Error('Preencha o algoritmo de cada caso aprovado.');
  let libraryId=$('import-library').value;
  if(!libraryId){
@@ -549,12 +572,28 @@ $('import-save').addEventListener('click',async()=>{try{await saveAll();status('
 $('import-publish').addEventListener('click',async()=>{
  try{
   guard();if(notYetApproved().length)throw Error('Aprove antes os casos editados: '+notYetApproved().join(', '));
-  const approved=allCaseRecords().filter(r=>r.status==='approved');
+  const approved=allCaseRecords().filter(r=>r.status==='approved'&&(!editingOriginal()||editedCaseIds.has(r.case_id)||r.hasDraft));
   if(!approved.length)throw Error('Aprove ao menos um caso antes de publicar.');
-  const target=libraryList().find(l=>l.id===$('import-library').value)?.title||$('import-new-library').value.trim();
+  const target=editingOriginal()?'Base Original':libraryList().find(l=>l.id===$('import-library').value)?.title||$('import-new-library').value.trim();
   if(!confirm('Publicar os casos aprovados em "'+target+'"? Os alunos poderão escolher esta biblioteca após sincronizar.'))return;
-  const id=await saveAll();const count=await publishApprovedLibrary(id);
-  await verifyPublishedEdits(id,approved);
+  const id=await saveAll();
+  let count;
+  if(id===ORIGINAL){
+   count=await publishOriginalOverrides(approved.map(r=>r.case_id));
+   const verified=await verifyOriginalCases(approved.map(r=>r.case_id));
+   const byId=new Map(verified.map(r=>[r.id,r]));
+   for(const row of approved){
+    const final=byId.get(row.case_id);
+    if(!final||String(final.algorithm||'')!==String(row.algorithm||'')||
+     String(final.setup||'')!==String(row.setup||'')||
+     String(final.orientation||'')!==String(row.orientation||'')||
+     (final.imageData||null)!==(row.imageData||null))
+      throw Error('O banco não confirmou a publicação da edição original '+row.case_id);
+   }
+  }else{
+   count=await publishApprovedLibrary(id);
+   await verifyPublishedEdits(id,approved);
+  }
   editedCaseIds.clear();libraryOptions();$('import-library').value=id;renderLibraryCards();renderDefaults();update();
   await loadExistingLibrary();
   status('Publicação confirmada para '+count+' caso'+(count===1?'':'s')+' aprovado'+(count===1?'':'s')+'. Dados recarregados do banco.');
