@@ -287,6 +287,26 @@ async function loadExistingLibrary(){
   existingRecords=[];records=[];clearLocalEdits();editedCaseIds.clear();loadedLibraryId='';
   renderLibraryCards();update();return;
  }
+ if(id===ORIGINAL){
+  try{
+   await loadOriginalBase();
+   const info=originalBaseInfo();
+   if(info.state!=='active')throw Error(info.error||'A Base Original não está disponível.');
+   existingRecords=['f2l','pll'].flatMap(originalEditorCases).map(r=>({
+    case_id:r.case_id,algorithm:r.algorithm,setup:r.setup,orientation:r.orientation||'',
+    image_data:r.imageData||null,image_original:r.imageOriginal||null,
+    status:r.status,source_page:r.sourcePage||null,
+    hasDraft:r.hasDraft,hasPublished:r.hasPublished,originalEdited:r.originalEdited
+   }));
+   loadedLibraryId=ORIGINAL;clearLocalEdits();editedCaseIds.clear();
+   if(stage==='oll'){stage='f2l';$('import-stage').value='f2l';}
+   $('import-rename-title').value='';
+   resetCaseFilters();showExistingStage();renderLibraryCards();
+   status('Base Original carregada ('+existingRecords.length+' casos de F2L e PLL). '+(info.editable?
+    'Escolha um caso para editar ou restaurar.':'Edição indisponível: '+info.editError));
+  }catch(e){status('Não foi possível abrir a Base Original: '+e.message);}
+  return;
+ }
  try{
   const query='select=case_id,algorithm,setup,orientation,image_data,image_original,status,source_page&library_id=eq.'+encodeURIComponent(id)+'&limit=150';
   const fallback='select=case_id,algorithm,setup,orientation,image_data,status,source_page&library_id=eq.'+encodeURIComponent(id)+'&limit=150';
@@ -321,7 +341,8 @@ function showExistingStage(){
  if(unsavedStages.has(stage)){records=unsavedStages.get(stage).map(r=>({...r}));update();return;}
  records=existingRecords.filter(r=>CASE_BY_ID.get(r.case_id)?.stage===stage).map(r=>({
  case_id:r.case_id,algorithm:r.algorithm,setup:r.setup,orientation:r.orientation,imageData:r.image_data||r.image_original||null,imageOriginal:r.image_original||r.image_data||null,
- status:r.status,sourcePage:r.source_page,page:r.source_page,confidence:'manual',alternatives:[]}));
+ status:r.status,sourcePage:r.source_page,page:r.source_page,confidence:'manual',alternatives:[],
+ hasDraft:!!r.hasDraft,hasPublished:!!r.hasPublished,originalEdited:!!r.originalEdited}));
  update();
 }
 $('import-reload')?.addEventListener('click',async()=>{
@@ -337,6 +358,9 @@ async function selectLibrary(id,scroll=false){
  if(id)localStorage.setItem(LAST_LIBRARY,id);
  const library=libraryList().find(l=>l.id===id);
  if(library)$('import-rename-title').value=library.title;
+ if(id===ORIGINAL)$('import-rename-title').value='';
+ $('import-rename-library').disabled=id===ORIGINAL;
+ $('import-delete-library').disabled=id===ORIGINAL;
  await loadExistingLibrary();
  if(scroll)document.getElementById('hub-cases')?.scrollIntoView({behavior:'smooth',block:'start'});
 }
