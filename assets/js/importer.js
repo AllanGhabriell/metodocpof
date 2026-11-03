@@ -121,13 +121,20 @@ function update(){
  const checked=records.filter(r=>r.status==='approved').length,unknown=records.filter(r=>!['nome','algoritmo','visual','manual'].includes(r.confidence)).length;
  const anyApproved=allCaseRecords().some(r=>r.status==='approved');
  const pendingApproval=notYetApproved();
- $('import-count').textContent=records.length+' de '+LIMITS[stage]+' casos · '+checked+' aprovados · '+unknown+' exigem conferência da identidade';
- $('import-publish-summary').textContent=pendingApproval.length?pendingApproval.length+' edição(ões) aguardando aprovação.':checked+' caso'+(checked===1?'':'s')+' aprovado'+(checked===1?'':'s')+' nesta etapa';
- $('import-publish').disabled=busy||!anyApproved||pendingApproval.length>0||(!$('import-library').value&&$('import-new-library').value.trim().length<2);
- const approvedCount=allCaseRecords().filter(r=>r.status==='approved').length;
+ $('import-count').textContent=(editingOriginal()?'Base Original · ':'')+records.length+' de '+LIMITS[stage]+' casos · '+checked+' aprovados'+(editingOriginal()?'':' · '+unknown+' exigem conferência da identidade');
+ $('import-publish-summary').textContent=originalUnavailable()?originalBaseInfo().editError:pendingApproval.length?pendingApproval.length+' edição(ões) aguardando aprovação.':checked+' caso'+(checked===1?'':'s')+' aprovado'+(checked===1?'':'s')+' nesta etapa';
+ const originalChanged=allCaseRecords().some(r=>editedCaseIds.has(r.case_id)||r.hasDraft);
+ $('import-publish').disabled=busy||originalUnavailable()||!anyApproved||pendingApproval.length>0||
+ (editingOriginal()&&!originalChanged)||(!$('import-library').value&&$('import-new-library').value.trim().length<2);
+ $('import-save').disabled=busy||originalUnavailable();
+ const approvedCount=allCaseRecords().filter(r=>r.status==='approved'&&(!editingOriginal()||editedCaseIds.has(r.case_id)||r.hasDraft)).length;
  $('import-publish').textContent=approvedCount?'Publicar '+approvedCount+' aprovado'+(approvedCount===1?'':'s'):'Publicar casos aprovados';
  $('import-results').hidden=!records.length;
- const empty=$('import-empty-state');if(empty){empty.hidden=!!records.length;empty.innerHTML='<h2>Editar casos da biblioteca</h2><p>'+($('import-library').value?'Esta etapa ainda não tem casos cadastrados. Se houver outra etapa, escolha F2L, OLL ou PLL acima. Você também pode importar um PDF.':'Selecione uma biblioteca acima para editar os casos existentes.')+'</p>'; }
+ const empty=$('import-empty-state');if(empty){
+  empty.hidden=!!records.length;
+  empty.innerHTML='<h2>Editar casos da biblioteca</h2><p>'+(editingOriginal()&&stage==='oll'?'Não existe Base Original de OLL no sistema. Escolha F2L ou PLL.':$('import-library').value?'Esta etapa não contém casos. Escolha outra etapa ou importe um PDF em uma biblioteca comum.':'Selecione uma biblioteca acima para editar os casos existentes.')+'</p>';
+ }
+ const disabledEdit=originalUnavailable()?'disabled title="Instale a migração SQL da Base Original"':'';
  const fixed=FIXED_CASES.filter(c=>c.stage===stage);
  const search=String($('import-case-search').value||'').trim().toLowerCase();
  const filter=$('import-case-filter').value||'all';
@@ -141,14 +148,15 @@ function update(){
  $('import-cards').innerHTML=visible.length?visible.map(({r,i})=>'<article class="importer-card" data-index="'+i+'">'+
  '<div class="importer-card-title"><h3>'+esc(CASE_BY_ID.get(r.case_id)?.name||r.case_id)+'</h3><span class="'+(['nome','algoritmo','visual','manual'].includes(r.confidence)?'importer-detected':'importer-warning')+'">'+(r.confidence==='nome'?'Nome reconhecido':r.confidence==='algoritmo'?'Algoritmo reconhecido':r.confidence==='visual'?'Diagrama reconhecido':r.confidence==='manual'?'Caso salvo':'Conferir associação')+'</span></div>'+
  '<img src="'+esc(r.imageData||'')+'" alt="Recorte do '+esc(r.case_id)+'" loading="lazy">'+
- '<label>Caso fixo<select data-field="case_id">'+fixed.map(c=>'<option value="'+esc(c.id)+'" '+(c.id===r.case_id?'selected':'')+'>'+esc(c.name)+' ('+c.id+')</option>').join('')+'</select></label>'+
- '<label>Algoritmo<input data-field="algorithm" value="'+esc(r.algorithm||'')+'" placeholder="Sequência para resolver o caso"></label>'+
- '<label>Setup<input data-field="setup" value="'+esc(r.setup||'')+'" placeholder="Sequência para montar o caso"></label>'+
- '<label>Orientação<input data-field="orientation" value="'+esc(r.orientation||'')+'" placeholder="Ex.: branco embaixo, frente vermelha"></label>'+
- '<label>Revisão<select data-field="status"><option value="draft" '+(r.status==='draft'?'selected':'')+'>Pendente</option><option value="approved" '+(r.status==='approved'?'selected':'')+'>Aprovado</option><option value="rejected" '+(r.status==='rejected'?'selected':'')+'>Rejeitado</option></select></label>'+
+ '<label>Caso fixo<select data-field="case_id" '+(editingOriginal()?'disabled':'')+'>'+fixed.map(c=>'<option value="'+esc(c.id)+'" '+(c.id===r.case_id?'selected':'')+'>'+esc(c.name)+' ('+c.id+')</option>').join('')+'</select></label>'+
+ '<label>Algoritmo<input data-field="algorithm" '+disabledEdit+' value="'+esc(r.algorithm||'')+'" placeholder="Sequência para resolver o caso"></label>'+
+ '<label>Setup<input data-field="setup" '+disabledEdit+' value="'+esc(r.setup||'')+'" placeholder="Sequência para montar o caso"></label>'+
+ '<label>Orientação<input data-field="orientation" '+disabledEdit+' value="'+esc(r.orientation||'')+'" placeholder="Ex.: branco embaixo, frente vermelha"></label>'+
+ '<label>Revisão<select data-field="status" '+disabledEdit+'><option value="draft" '+(r.status==='draft'?'selected':'')+'>Pendente</option><option value="approved" '+(r.status==='approved'?'selected':'')+'>Aprovado</option><option value="rejected" '+(r.status==='rejected'?'selected':'')+'>Rejeitado</option></select></label>'+
  (r.page?'<small>Página '+r.page+' · '+(r.alternatives?.length?'Possui algoritmos alternativos':'Uma sequência reconhecida')+'</small>':'<small>Versão já cadastrada</small>')+
  (r.rect?'<div class="importer-crop-controls"><span>Corrigir enquadramento:</span><button type="button" data-crop="up" data-index="'+i+'" title="Subir recorte">↑</button><button type="button" data-crop="left" data-index="'+i+'" title="Mover à esquerda">←</button><button type="button" data-crop="right" data-index="'+i+'" title="Mover à direita">→</button><button type="button" data-crop="down" data-index="'+i+'" title="Descer recorte">↓</button><button type="button" data-crop="zoom-in" data-index="'+i+'" title="Aproximar">+</button><button type="button" data-crop="zoom-out" data-index="'+i+'" title="Afastar">−</button></div>':'')+
- '<div class="importer-card-actions"><button type="button" data-edit-image="'+i+'" class="importer-edit-image" '+(!r.imageData?'disabled':'')+'>✎ Editar imagem / retoque</button><button type="button" data-approve="'+i+'" '+(r.status==='approved'?'disabled':'')+'>'+(r.status==='approved'?'✓ Aprovado':'✓ Aprovar caso')+'</button><button type="button" data-rotate="'+i+'" data-direction="-1" aria-label="Girar 90 graus no sentido anti-horário">↶ 90°</button><button type="button" data-rotate="'+i+'" data-direction="1" aria-label="Girar 90 graus no sentido horário">↷ 90°</button><button type="button" data-download="'+i+'">Baixar imagem</button></div>'+
+ '<label class="hub-case-image-upload">Adicionar ou substituir imagem <input type="file" data-image-upload="'+i+'" accept="image/png,image/jpeg,image/webp" '+disabledEdit+'></label>'+
+ '<div class="importer-card-actions"><button type="button" data-edit-image="'+i+'" class="importer-edit-image" '+(!r.imageData||originalUnavailable()?'disabled':'')+'>✎ Editar imagem / retoque</button><button type="button" data-approve="'+i+'" '+(r.status==='approved'||originalUnavailable()?'disabled':'')+'>'+(r.status==='approved'?'✓ Aprovado':'✓ Aprovar caso')+'</button><button type="button" data-rotate="'+i+'" data-direction="-1" aria-label="Girar 90 graus no sentido anti-horário">↶ 90°</button><button type="button" data-rotate="'+i+'" data-direction="1" aria-label="Girar 90 graus no sentido horário">↷ 90°</button><button type="button" data-download="'+i+'">Baixar imagem</button></div>'+
  '</article>').join(''):'<p class="hub-filter-empty">Nenhum caso corresponde à busca. Altere os filtros para visualizar os demais.</p>';
 }
 function saveBlob(name,data){const url=URL.createObjectURL(new Blob([data],{type:'application/json'})),a=document.createElement('a');a.href=url;a.download=name;a.click();setTimeout(()=>URL.revokeObjectURL(url),1000)}
