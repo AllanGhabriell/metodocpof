@@ -1,6 +1,6 @@
 /* GitHub Pages app shell — network-first, version-aware resource fallback.
    Never reuse an old JS module under a different ?v= version. */
-const CACHE='cfop-studio-offline-20261103-v52';
+const CACHE='cfop-studio-offline-20261103-v53';
 const CORE=[
  './index.html','./studio.html','./f2l.html','./oll.html','./pll.html','./importer.html',
  './cross.html','./scramble.html',
@@ -33,9 +33,9 @@ const CORE=[
  './assets/css/notice-banner.css?v=20261031-admin-2',
  './assets/css/cursor-glow.css?v=1',
  './assets/css/trainer-unified.css?v=20261103-mobile-2',
- './assets/css/importer.css?v=20261103-libraryhub-1',
+ './assets/css/importer.css?v=20261103-libraryhub-2',
  './assets/js/library-trainer.js?v=20261031-8',
- './assets/js/importer.js?v=20261103-libraryhub-1',
+ './assets/js/importer.js?v=20261103-libraryhub-2',
  './v2/data/case-catalog.mjs','./v2/data/algorithm-match.mjs','./v2/data/image-match.mjs','./v2/data/pdf-layout.mjs','./v2/cloud/libraries.mjs?v=20261031-4',
  './v2/cursor-glow.js?v=20261030-31'
 ];
