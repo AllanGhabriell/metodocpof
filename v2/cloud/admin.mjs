@@ -28,9 +28,9 @@ export function adminPanel(){
  '<section class="card admin-case-library-entry" aria-labelledby="admin-case-library-heading">'+
  '<div class="admin-case-library-entry__content"><span class="eyebrow">Bibliotecas de casos</span><h2 id="admin-case-library-heading">Gerenciar bibliotecas F2L, OLL e PLL</h2>'+
  '<p class="muted">Edite imagens, rotação, recortes, algoritmos e setups de bibliotecas já publicadas. Não é necessário importar o PDF novamente.</p></div>'+
- '<div class="admin-case-library-entry__actions"><a class="admin-case-library-entry__primary" href="studio.html?page=admin-libraries">Ver minhas bibliotecas</a>'+
- '<a class="admin-case-library-entry__secondary" href="importer.html">Abrir editor</a>'+
- '<a class="admin-case-library-entry__secondary" href="studio.html?page=admin-defaults">Definir base principal</a></div>'+
+ '<div class="admin-case-library-entry__actions"><a class="admin-case-library-entry__primary" href="importer.html">Abrir Bibliotecas</a>'+
+ '<a class="admin-case-library-entry__secondary" href="importer.html#hub-cases">Editar casos</a>'+
+ '<a class="admin-case-library-entry__secondary" href="importer.html#hub-defaults">Definir base principal</a></div>'+
  '</section>'+
 
  '<p class="notice">Tempo de uso estimado por atividade com a página aberta e em primeiro plano, a partir da ativação do registro. Não inclui uso anterior nem atividade offline.</p>'+
