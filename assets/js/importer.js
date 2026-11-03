@@ -240,7 +240,7 @@ $('import-file').addEventListener('change',()=>{
  $('import-run').click();
 });
 $('import-run').addEventListener('click',async()=>{
- if(busy)return;try{guard();const file=$('import-file').files[0];if(!file)throw Error('Selecione um PDF.');
+ if(busy)return;try{guard();if(editingOriginal())throw Error('Para adicionar casos por PDF, crie uma biblioteca comum. Na Original, edite os casos diretamente ou envie a imagem de cada caso.');const file=$('import-file').files[0];if(!file)throw Error('Selecione um PDF.');
  if(file.size>20e6)throw Error('PDF maior que 20 MB.');if(!/\.pdf$/i.test(file.name)&&file.type!=='application/pdf')throw Error('Para reconhecimento automático, envie um PDF.');
  stage=$('import-stage').value;busy=true;$('import-run').disabled=true;pdfFile=file;
  await analyzePdf(file);
@@ -355,6 +355,7 @@ async function loadExistingLibrary(){
    loadedLibraryId=ORIGINAL;clearLocalEdits();editedCaseIds.clear();
    if(stage==='oll'){stage='f2l';$('import-stage').value='f2l';}
    $('import-rename-title').value='';
+   $('import-rename-library').disabled=true;$('import-delete-library').disabled=true;
    resetCaseFilters();showExistingStage();renderLibraryCards();
    status('Base Original carregada ('+existingRecords.length+' casos de F2L e PLL). '+(info.editable?
     'Escolha um caso para editar ou restaurar.':'Edição indisponível: '+info.editError));
@@ -378,6 +379,7 @@ async function loadExistingLibrary(){
   existingRecords=[...byId.values()];
   const currentLibrary=libraryList().find(l=>l.id===id);
   if(currentLibrary)$('import-rename-title').value=currentLibrary.title;
+  $('import-rename-library').disabled=false;$('import-delete-library').disabled=false;
   clearLocalEdits();editedCaseIds.clear();loadedLibraryId=id;
   resetCaseFilters();showExistingStage();
   if(!records.length&&existingRecords.length&&!context.get('stage')){
@@ -475,10 +477,11 @@ $('import-global-apply').addEventListener('click',async()=>{
   if(all){
    const library=$('import-library').value;
    if(!library)throw Error('Selecione uma biblioteca existente para ajustar todas as etapas.');
+   if(originalUnavailable())throw Error(originalBaseInfo().editError);
    const combined=new Map(existingRecords.map(r=>[r.case_id,{
      case_id:r.case_id,algorithm:r.algorithm,setup:r.setup,orientation:r.orientation,
      imageData:r.image_data,imageOriginal:r.image_original||null,status:r.status,
-     sourcePage:r.source_page,confidence:'manual'}]));
+     sourcePage:r.source_page,confidence:'manual',hasDraft:r.hasDraft,hasPublished:r.hasPublished}]));
    for(const r of stagedRecords())combined.set(r.case_id,r);
    targets=[...combined.values()];
   }
@@ -488,10 +491,17 @@ $('import-global-apply').addEventListener('click',async()=>{
   const changed=await bulkAdjustImages(targets,{x,y,zoom},(done,total)=>status('Ajustando imagens: '+done+'/'+total));
   targets.filter(r=>r.imageUpdatedAt).forEach(markEdited);
   if(all){
-   await saveLibraryCasesBatch($('import-library').value,targets,(done,total)=>status('Salvando rascunhos: '+done+'/'+total));
+   const changedRecords=targets.filter(r=>r.imageUpdatedAt);
+   if(editingOriginal()){
+    await saveOriginalDraftsBatch(changedRecords,(done,total)=>status('Salvando ajustes da Original: '+done+'/'+total));
+    changedRecords.forEach(r=>{r.hasDraft=true;r.originalEdited=true});
+   }else{
+    await saveLibraryCasesBatch($('import-library').value,targets,(done,total)=>status('Salvando rascunhos: '+done+'/'+total));
+   }
    existingRecords=targets.map(r=>({
      case_id:r.case_id,algorithm:r.algorithm,setup:r.setup,orientation:r.orientation,
-     image_data:r.imageData,image_original:r.imageOriginal,status:r.status,source_page:r.sourcePage
+     image_data:r.imageData,image_original:r.imageOriginal,status:r.status,source_page:r.sourcePage,
+     hasDraft:r.hasDraft,hasPublished:r.hasPublished,originalEdited:r.originalEdited
    }));
    clearLocalEdits();showExistingStage();
   }else update();
@@ -499,7 +509,8 @@ $('import-global-apply').addEventListener('click',async()=>{
  }catch(err){status('Ajuste geral não aplicado: '+err.message)}finally{busy=false;$('import-global-apply').disabled=false}
 });
 $('import-approve-all').addEventListener('click',()=>{
- records.forEach(r=>{if(r.algorithm.trim())r.status='approved'});update();
+ if(originalUnavailable())return status(originalBaseInfo().editError);
+ records.forEach(r=>{if(r.algorithm.trim()&&r.status!=='approved'){r.status='approved';markEdited(r)}});update();
  status('Casos com algoritmo marcados como aprovados. Confira individualmente a identidade e o recorte antes de salvar.');
 });
 async function verifyPublishedEdits(libraryId,approved){
