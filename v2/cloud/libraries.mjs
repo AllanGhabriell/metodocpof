@@ -38,7 +38,7 @@ function mergeOriginalPublished(base){
  const entry=originalOverrides.get(base.id)?.published;
  if(!entry)return {...base};
  const {imageOriginal,status,...rest}=entry;
- return {...base,...rest,id:base.id,stage:base.stage};
+ return {...base,...rest,id:base.id,stage:base.stage,originalEdited:true};
 }
 
 export const originalCases=stage=>isOriginalOwner()&&originalState==='active'?originalRows
