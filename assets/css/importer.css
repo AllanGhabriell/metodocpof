@@ -161,3 +161,10 @@ html{scroll-behavior:smooth}
 .importer-pdf-optional{margin-top:18px}
 @media(max-width:860px){.hub-default-grid{grid-template-columns:1fr}.importer-hub-nav{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media(max-width:540px){.importer-hub-nav{gap:7px;margin:16px 0}.importer-hub-nav a{padding:9px 7px;font-size:12px;min-height:46px}.hub-library-grid{grid-template-columns:1fr}.hub-default-card{padding:14px}#hub-libraries,#hub-defaults,#hub-pdf,.importer-anchor{scroll-margin-top:75px}}
+
+.hub-library-management{display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:end;gap:10px;padding:10px 0}
+.hub-library-management label{display:grid;gap:6px;color:#d9e8fc;font-size:13px;font-weight:700}
+.hub-library-management input{min-height:43px;width:100%;min-width:0;border:1px solid rgba(132,182,243,.56);border-radius:10px;padding:9px 12px;color:#f1faff;background:#0c2845}
+.importer-panel button.importer-danger{grid-column:1/-1;justify-self:start;background:rgba(87,28,40,.45);border-color:rgba(224,121,136,.55);color:#ffe1e4}
+.importer-panel button.importer-danger:hover,.importer-panel button.importer-danger:focus-visible{background:rgba(122,38,55,.6);border-color:#ffabb8}
+@media(max-width:600px){.hub-library-management{grid-template-columns:1fr}.hub-library-management button{width:100%}}
