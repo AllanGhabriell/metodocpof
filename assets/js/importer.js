@@ -11,8 +11,11 @@ const context=new URLSearchParams(location.search);
 const $=id=>document.getElementById(id);
 let records=[],stage='f2l',busy=false,doc=null,pdfFile=null,pageImageCache=new Map(),existingRecords=[];
 const unsavedStages=new Map();
+const editedCaseIds=new Set();
 function rememberStage(){unsavedStages.set(stage,records.map(r=>({...r})));}
 function clearLocalEdits(){unsavedStages.clear();}
+function markEdited(record){if(record?.case_id)editedCaseIds.add(record.case_id);}
+function notYetApproved(){const byId=new Map(stagedRecords().map(r=>[r.case_id,r]));return [...editedCaseIds].filter(id=>byId.has(id)&&byId.get(id).status!=='approved');}
 function stagedRecords(){
  const stages=new Map(unsavedStages);
  stages.set(stage,records);
@@ -49,9 +52,10 @@ function cropRotated(data,turns){
 function update(){
  const checked=records.filter(r=>r.status==='approved').length,unknown=records.filter(r=>!['nome','algoritmo','visual','manual'].includes(r.confidence)).length;
  const anyApproved=stagedRecords().some(r=>r.status==='approved');
+ const pendingApproval=notYetApproved();
  $('import-count').textContent=records.length+' de '+LIMITS[stage]+' casos · '+checked+' aprovados · '+unknown+' exigem conferência da identidade';
- $('import-publish-summary').textContent=checked+' caso'+(checked===1?'':'s')+' aprovado'+(checked===1?'':'s')+' nesta etapa';
- $('import-publish').disabled=busy||!anyApproved||(!$('import-library').value&&$('import-new-library').value.trim().length<2);
+ $('import-publish-summary').textContent=pendingApproval.length?pendingApproval.length+' edição(ões) aguardando aprovação.':checked+' caso'+(checked===1?'':'s')+' aprovado'+(checked===1?'':'s')+' nesta etapa';
+ $('import-publish').disabled=busy||!anyApproved||pendingApproval.length>0||(!$('import-library').value&&$('import-new-library').value.trim().length<2);
  $('import-publish').textContent=checked?'Publicar '+checked+' aprovado'+(checked===1?'':'s'):'Publicar casos aprovados';
  $('import-results').hidden=!records.length;
  const fixed=FIXED_CASES.filter(c=>c.stage===stage);
@@ -139,7 +143,8 @@ $('import-cards').addEventListener('change',e=>{
  const card=e.target.closest('[data-index]');if(!card)return;const r=records[Number(card.dataset.index)],field=e.target.dataset.field;if(!r||!field)return;
  const next=e.target.value;
  if(field==='case_id'&&records.some(o=>o!==r&&o.case_id===next)){status('Esse caso já está associado a outro recorte. Escolha um caso disponível.');e.target.value=r.case_id;return}
- r[field]=next;if(field==='case_id')r.confidence='manual';
+ const previous=r[field];r[field]=next;if(field==='case_id')r.confidence='manual';
+ if(previous!==next&&['algorithm','setup','orientation','case_id'].includes(field))markEdited(r);
  if(field==='status'&&next==='approved'&&!r.algorithm.trim()){r.status='draft';e.target.value='draft';return status('Informe um algoritmo antes de aprovar o caso.')}
  if(['algorithm','setup','orientation','case_id'].includes(field)&&r.status==='approved'){
    r.status='draft';update();status('Edição salva somente como rascunho. Aprove novamente para publicar.');
@@ -150,7 +155,7 @@ $('import-cards').addEventListener('click',async e=>{
  const crop=e.target.closest('button[data-crop]');
  const editImage=e.target.closest('button[data-edit-image]');
  if(editImage){const r=records[Number(editImage.dataset.editImage)];if(!r?.imageData)return status('Este caso não possui imagem. Importe um PDF ou selecione outro caso.');
-  await openImageEditor(r,(result,original)=>{r.imageOriginal ||= original;r.imageData=result;r.status='draft';r.imageUpdatedAt=Date.now();update();status('Imagem de '+r.case_id+' corrigida. Reaprove e salve para atualizar a biblioteca.');});return}
+  await openImageEditor(r,(result,original)=>{r.imageOriginal ||= original;r.imageData=result;r.status='draft';r.imageUpdatedAt=Date.now();markEdited(r);update();status('Imagem de '+r.case_id+' corrigida. Reaprove e salve para atualizar a biblioteca.');});return}
  if(crop){
   const r=records[Number(crop.dataset.index)];if(!r?.rect||!doc)return status('Reimporte o PDF para ajustar o recorte.');
   const page=await renderPage(r.page);
@@ -165,7 +170,7 @@ $('import-cards').addEventListener('click',async e=>{
   rect.h=Math.max(35,Math.min(page.height,rect.h));
   rect.x=Math.max(0,Math.min(page.width-rect.w,rect.x));
   rect.y=Math.max(0,Math.min(page.height-rect.h,rect.y));
-  r.rect=rect;r.imageData=cropDiagram(page,rect);r.status='draft';
+  r.rect=rect;r.imageData=cropDiagram(page,rect);r.status='draft';markEdited(r);
   page.canvas.width=0;page.canvas.height=0;pageImageCache.clear();
   update();status('Recorte de '+r.case_id+' ajustado. Confira a imagem e aprove novamente.');
   return;
@@ -174,7 +179,7 @@ $('import-cards').addEventListener('click',async e=>{
   if(!r.algorithm?.trim())return status('Informe o algoritmo desse caso antes de aprová-lo.');
   r.status='approved';update();status('Caso '+r.case_id+' aprovado para publicação.');return
  }
- if(a){const r=records[Number(a.dataset.rotate)];if(r?.imageData){const direction=Number(a.dataset.direction)===-1?-1:1;r.rotation=((r.rotation||0)+direction+4)%4;r.imageOriginal ||=r.imageData;r.imageData=await cropRotated(r.imageData,direction);if(r.status==='approved')r.status='draft';update();status('Imagem girada '+(direction===1?'no sentido horário':'no sentido anti-horário')+'. Confira e aprove novamente antes de publicar.')}}
+ if(a){const r=records[Number(a.dataset.rotate)];if(r?.imageData){const direction=Number(a.dataset.direction)===-1?-1:1;r.rotation=((r.rotation||0)+direction+4)%4;r.imageOriginal ||=r.imageData;r.imageData=await cropRotated(r.imageData,direction);markEdited(r);if(r.status==='approved')r.status='draft';update();status('Imagem girada '+(direction===1?'no sentido horário':'no sentido anti-horário')+'. Confira e aprove novamente antes de publicar.')}}
  if(b){const r=records[Number(b.dataset.download)];if(r?.imageData){const link=document.createElement('a');link.href=r.imageData;link.download=r.case_id+'.webp';link.click()}}
 });
 $('import-create-library').addEventListener('click',async()=>{
@@ -182,7 +187,7 @@ $('import-create-library').addEventListener('click',async()=>{
  const l=await createLibrary(title);libraryOptions();$('import-library').value=l.id;localStorage.setItem(LAST_LIBRARY,l.id);update();status('Biblioteca '+title+' criada. Revise e aprove os casos antes de publicar.')}catch(e){status(e.message)}
 });
 async function loadExistingLibrary(){
- const id=$('import-library').value;existingRecords=[];clearLocalEdits();if(!id){records=[];update();return}
+ const id=$('import-library').value;existingRecords=[];clearLocalEdits();editedCaseIds.clear();if(!id){records=[];update();return}
  try{
   const query='select=case_id,algorithm,setup,orientation,image_data,image_original,status,source_page&library_id=eq.'+encodeURIComponent(id)+'&limit=150';
   const fallback='select=case_id,algorithm,setup,orientation,image_data,status,source_page&library_id=eq.'+encodeURIComponent(id)+'&limit=150';
@@ -219,7 +224,7 @@ $('import-rename-library').addEventListener('click',async()=>{try{guard();const 
 $('import-stage').addEventListener('change',()=>{rememberStage();stage=$('import-stage').value;showExistingStage();status('Etapa alterada. As edições de outras etapas serão incluídas ao salvar.')});
 $('import-new-library').addEventListener('input',()=>{
  const anyApproved=stagedRecords().some(r=>r.status==='approved');
- $('import-publish').disabled=busy||!anyApproved||(!$('import-library').value&&$('import-new-library').value.trim().length<2);
+ $('import-publish').disabled=busy||!anyApproved||notYetApproved().length>0||(!$('import-library').value&&$('import-new-library').value.trim().length<2);
 });
 $('import-global-apply').addEventListener('click',async()=>{
  try{guard();if(busy)return;const x=Number($('import-global-x').value),y=Number($('import-global-y').value),zoom=Number($('import-global-zoom').value)/100;
@@ -240,6 +245,7 @@ $('import-global-apply').addEventListener('click',async()=>{
   if(!confirm('Aplicar o ajuste às imagens de '+(all?'toda a biblioteca':'etapa '+stage.toUpperCase())+'? '+(all?'As mudanças de todas as etapas serão salvas como rascunhos. ':'')+'Os casos alterados precisarão de nova aprovação.'))return;
   busy=true;$('import-global-apply').disabled=true;
   const changed=await bulkAdjustImages(targets,{x,y,zoom},(done,total)=>status('Ajustando imagens: '+done+'/'+total));
+  targets.filter(r=>r.imageUpdatedAt).forEach(markEdited);
   if(all){
    await saveLibraryCasesBatch($('import-library').value,targets,(done,total)=>status('Salvando rascunhos: '+done+'/'+total));
    existingRecords=targets.map(r=>({
