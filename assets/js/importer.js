@@ -229,6 +229,10 @@ function showExistingStage(){
  status:r.status,sourcePage:r.source_page,page:r.source_page,confidence:'manual',alternatives:[]}));
  update();
 }
+$('import-reload')?.addEventListener('click',async()=>{
+ if(editedCaseIds.size&&!confirm('Descartar alterações locais não publicadas e recarregar o banco?'))return;
+ await loadExistingLibrary();
+});
 $('import-library').addEventListener('change',()=>{
  const id=$('import-library').value;
  if(id)localStorage.setItem(LAST_LIBRARY,id);
@@ -254,7 +258,7 @@ $('import-global-apply').addEventListener('click',async()=>{
      case_id:r.case_id,algorithm:r.algorithm,setup:r.setup,orientation:r.orientation,
      imageData:r.image_data,imageOriginal:r.image_original||null,status:r.status,
      sourcePage:r.source_page,confidence:'manual'}]));
-   for(const r of records)combined.set(r.case_id,r);
+   for(const r of stagedRecords())combined.set(r.case_id,r);
    targets=[...combined.values()];
   }
   if(!targets.some(r=>r.imageData))throw Error('Não há imagens disponíveis.');
@@ -268,7 +272,7 @@ $('import-global-apply').addEventListener('click',async()=>{
      case_id:r.case_id,algorithm:r.algorithm,setup:r.setup,orientation:r.orientation,
      image_data:r.imageData,image_original:r.imageOriginal,status:r.status,source_page:r.sourcePage
    }));
-   showExistingStage();
+   clearLocalEdits();showExistingStage();
   }else update();
   status(changed+' imagens padronizadas em 512 × 512 WebP. Revise, aprove e publique para atualizar os casos.');
  }catch(err){status('Ajuste geral não aplicado: '+err.message)}finally{busy=false;$('import-global-apply').disabled=false}
