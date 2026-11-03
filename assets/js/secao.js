@@ -1204,6 +1204,32 @@ document.addEventListener('DOMContentLoaded', () => {
     if(controlsRow){
       controlsRow.classList.toggle('is-competitive',competitive);
       controlsRow.classList.toggle('is-sequential',sequential);
+      // Navegação sequencial: posicionamento explícito para evitar conflitos de CSS legado.
+      if(sequential){
+        controlsRow.style.setProperty('display','grid','important');
+        controlsRow.style.setProperty('grid-template-columns','minmax(0,1fr) minmax(0,1fr)','important');
+        controlsRow.style.setProperty('gap','10px','important');
+        if(prevBtn){
+          prevBtn.style.setProperty('grid-column','1','important');
+          prevBtn.style.setProperty('grid-row','1','important');
+          prevBtn.style.setProperty('width','100%','important');
+          prevBtn.style.setProperty('max-width','none','important');
+        }
+        if(nextBtn){
+          nextBtn.style.setProperty('grid-column','2','important');
+          nextBtn.style.setProperty('grid-row','1','important');
+          nextBtn.style.setProperty('width','100%','important');
+          nextBtn.style.setProperty('max-width','none','important');
+        }
+      }else{
+        controlsRow.style.removeProperty('display');
+        controlsRow.style.removeProperty('grid-template-columns');
+        controlsRow.style.removeProperty('gap');
+        for(const button of [prevBtn,nextBtn]){
+          if(!button)continue;
+          for(const prop of ['grid-column','grid-row','width','max-width'])button.style.removeProperty(prop);
+        }
+      }
       controlsRow.classList.toggle('has-recognition',competitive&&!!trainerRecognizedButton&&!trainerRecognizedButton.hidden);
     }
     if(trainerPrioritize)trainerPrioritize.checked=!!state.trainingConfig.prioritizeHard;
