@@ -10,6 +10,9 @@ const LAST_LIBRARY='cpof-admin-last-library-v1';
 const context=new URLSearchParams(location.search);
 const $=id=>document.getElementById(id);
 let records=[],stage='f2l',busy=false,doc=null,pdfFile=null,pageImageCache=new Map(),existingRecords=[];
+const unsavedStages=new Map();
+function rememberStage(){if(records.length)unsavedStages.set(stage,records.map(r=>({...r})));}
+function clearLocalEdits(){unsavedStages.clear();}
 const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
 const status=s=>{$('import-status').textContent=s;const near=$('import-action-status');if(near)near.textContent=s};
 const owner=()=>isAdmin()&&cloudUser()?.email?.toLowerCase()==='coelhodatoca124@gmail.com';
@@ -46,7 +49,7 @@ function update(){
  '<label>Revisão<select data-field="status"><option value="draft" '+(r.status==='draft'?'selected':'')+'>Pendente</option><option value="approved" '+(r.status==='approved'?'selected':'')+'>Aprovado</option><option value="rejected" '+(r.status==='rejected'?'selected':'')+'>Rejeitado</option></select></label>'+
  (r.page?'<small>Página '+r.page+' · '+(r.alternatives?.length?'Possui algoritmos alternativos':'Uma sequência reconhecida')+'</small>':'<small>Versão já cadastrada</small>')+
  (r.rect?'<div class="importer-crop-controls"><span>Corrigir enquadramento:</span><button type="button" data-crop="up" data-index="'+i+'" title="Subir recorte">↑</button><button type="button" data-crop="left" data-index="'+i+'" title="Mover à esquerda">←</button><button type="button" data-crop="right" data-index="'+i+'" title="Mover à direita">→</button><button type="button" data-crop="down" data-index="'+i+'" title="Descer recorte">↓</button><button type="button" data-crop="zoom-in" data-index="'+i+'" title="Aproximar">+</button><button type="button" data-crop="zoom-out" data-index="'+i+'" title="Afastar">−</button></div>':'')+
- '<div class="importer-card-actions"><button type="button" data-edit-image="'+i+'" class="importer-edit-image" '+(!r.imageData?'disabled':'')+'>✎ Editar imagem / retoque</button><button type="button" data-approve="'+i+'" '+(r.status==='approved'?'disabled':'')+'>'+(r.status==='approved'?'✓ Aprovado':'✓ Aprovar caso')+'</button><button type="button" data-rotate="'+i+'">Girar imagem 90°</button><button type="button" data-download="'+i+'">Baixar imagem</button></div>'+
+ '<div class="importer-card-actions"><button type="button" data-edit-image="'+i+'" class="importer-edit-image" '+(!r.imageData?'disabled':'')+'>✎ Editar imagem / retoque</button><button type="button" data-approve="'+i+'" '+(r.status==='approved'?'disabled':'')+'>'+(r.status==='approved'?'✓ Aprovado':'✓ Aprovar caso')+'</button><button type="button" data-rotate="'+i+'" data-direction="-1" aria-label="Girar 90 graus no sentido anti-horário">↶ 90°</button><button type="button" data-rotate="'+i+'" data-direction="1" aria-label="Girar 90 graus no sentido horário">↷ 90°</button><button type="button" data-download="'+i+'">Baixar imagem</button></div>'+
  '</article>').join('')
 }
 function saveBlob(name,data){const url=URL.createObjectURL(new Blob([data],{type:'application/json'})),a=document.createElement('a');a.href=url;a.download=name;a.click();setTimeout(()=>URL.revokeObjectURL(url),1000)}
@@ -130,7 +133,7 @@ $('import-cards').addEventListener('click',async e=>{
  const a=e.target.closest('[data-rotate]'),b=e.target.closest('[data-download]'),approve=e.target.closest('[data-approve]');
  const crop=e.target.closest('button[data-crop]');
  const editImage=e.target.closest('button[data-edit-image]');
- if(editImage){const r=records[Number(editImage.dataset.editImage)];if(!r?.imageData)return status('Imagem indisponível. Importe o PDF primeiro.');
+ if(editImage){const r=records[Number(editImage.dataset.editImage)];if(!r?.imageData)return status('Este caso não possui imagem. Importe um PDF ou selecione outro caso.');
   await openImageEditor(r,(result,original)=>{r.imageOriginal ||= original;r.imageData=result;r.status='draft';r.imageUpdatedAt=Date.now();update();status('Imagem de '+r.case_id+' corrigida. Reaprove e salve para atualizar a biblioteca.');});return}
  if(crop){
   const r=records[Number(crop.dataset.index)];if(!r?.rect||!doc)return status('Reimporte o PDF para ajustar o recorte.');
@@ -155,7 +158,7 @@ $('import-cards').addEventListener('click',async e=>{
   if(!r.algorithm?.trim())return status('Informe o algoritmo desse caso antes de aprová-lo.');
   r.status='approved';update();status('Caso '+r.case_id+' aprovado para publicação.');return
  }
- if(a){const r=records[Number(a.dataset.rotate)];if(r?.imageData){r.rotation=(r.rotation+1)%4;r.imageData=await cropRotated(r.imageData,1);if(r.status==='approved')r.status='draft';update();status('Imagem girada. Confira e aprove novamente antes de publicar.')}}
+ if(a){const r=records[Number(a.dataset.rotate)];if(r?.imageData){const direction=Number(a.dataset.direction)===-1?-1:1;r.rotation=((r.rotation||0)+direction+4)%4;r.imageOriginal ||=r.imageData;r.imageData=await cropRotated(r.imageData,direction);if(r.status==='approved')r.status='draft';update();status('Imagem girada '+(direction===1?'no sentido horário':'no sentido anti-horário')+'. Confira e aprove novamente antes de publicar.')}}
  if(b){const r=records[Number(b.dataset.download)];if(r?.imageData){const link=document.createElement('a');link.href=r.imageData;link.download=r.case_id+'.webp';link.click()}}
 });
 $('import-create-library').addEventListener('click',async()=>{
@@ -163,7 +166,7 @@ $('import-create-library').addEventListener('click',async()=>{
  const l=await createLibrary(title);libraryOptions();$('import-library').value=l.id;localStorage.setItem(LAST_LIBRARY,l.id);update();status('Biblioteca '+title+' criada. Revise e aprove os casos antes de publicar.')}catch(e){status(e.message)}
 });
 async function loadExistingLibrary(){
- const id=$('import-library').value;existingRecords=[];if(!id){records=[];update();return}
+ const id=$('import-library').value;existingRecords=[];clearLocalEdits();if(!id){records=[];update();return}
  try{
   const query='select=case_id,algorithm,setup,orientation,image_data,image_original,status,source_page&library_id=eq.'+encodeURIComponent(id)+'&limit=150';
   const fallback='select=case_id,algorithm,setup,orientation,image_data,status,source_page&library_id=eq.'+encodeURIComponent(id)+'&limit=150';
@@ -176,13 +179,14 @@ async function loadExistingLibrary(){
    fetchRows('cfop_library_cases')
   ]);
   const byId=new Map((published||[]).map(r=>[r.case_id,r]));
-  for(const d of drafts||[])byId.set(d.case_id,d);
+  for(const d of drafts||[]){const previous=byId.get(d.case_id);if(!previous||d.status==='approved'||d.status==='draft')byId.set(d.case_id,{...previous,...d,image_data:d.image_data||previous?.image_data,image_original:d.image_original||previous?.image_original});}
   existingRecords=[...byId.values()];
   showExistingStage();
   status(existingRecords.length?'Biblioteca carregada. Você pode editar e revisar qualquer etapa.':'Biblioteca vazia. Envie um PDF.');
  }catch(e){status('Erro ao carregar: '+e.message)}
 }
 function showExistingStage(){
+ if(unsavedStages.has(stage)){records=unsavedStages.get(stage).map(r=>({...r}));update();return;}
  records=existingRecords.filter(r=>CASE_BY_ID.get(r.case_id)?.stage===stage).map(r=>({
  case_id:r.case_id,algorithm:r.algorithm,setup:r.setup,orientation:r.orientation,imageData:r.image_data,imageOriginal:r.image_original||null,
  status:r.status,sourcePage:r.source_page,page:r.source_page,confidence:'manual',alternatives:[]}));
@@ -196,7 +200,7 @@ $('import-library').addEventListener('change',()=>{
  update();loadExistingLibrary();
 });
 $('import-rename-library').addEventListener('click',async()=>{try{guard();const id=$('import-library').value;if(!id)throw Error('Selecione uma biblioteca.');await renameLibrary(id,$('import-new-library').value.trim(),'');libraryOptions();$('import-library').value=id;status('Nome da biblioteca atualizado para os usuários online.')}catch(e){status(e.message)}});
-$('import-stage').addEventListener('change',()=>{stage=$('import-stage').value;showExistingStage();status('Etapa alterada. Escolha um caso ou importe um PDF.')});
+$('import-stage').addEventListener('change',()=>{rememberStage();stage=$('import-stage').value;showExistingStage();status('Etapa alterada. As edições não salvas das outras etapas foram mantidas nesta página.')});
 $('import-new-library').addEventListener('input',()=>{
  const count=records.filter(r=>r.status==='approved').length;
  $('import-publish').disabled=busy||count===0||(!$('import-library').value&&$('import-new-library').value.trim().length<2);
@@ -249,7 +253,7 @@ async function saveAll(){
  }
 
  busy=true;$('import-save').disabled=true;$('import-publish').disabled=true;
- try{await standardizeImages(records);await saveLibraryCasesBatch(libraryId,records,(done,total)=>status('Salvando '+done+'/'+total+' casos…'))}
+ try{await standardizeImages(records);await saveLibraryCasesBatch(libraryId,records,(done,total)=>status('Salvando '+done+'/'+total+' casos…'));unsavedStages.delete(stage)}
  finally{busy=false;$('import-save').disabled=false;update()}
  return libraryId;
 }
@@ -276,6 +280,6 @@ $('import-clear').addEventListener('click',()=>{records=[];update();status('Revi
   if(library)$('import-new-library').value=library.title;
   await loadExistingLibrary();
  }
- update();status('Selecione um PDF; a análise começa automaticamente.');
+ update();status(existingRecords.length?'Biblioteca pronta para edição. Abra um caso, ajuste a imagem e salve ou publique as alterações.':'Selecione um PDF para criar os primeiros casos.');
  }catch(e){$('importer-access').textContent='Não foi possível confirmar seu acesso: '+e.message}
 })();
