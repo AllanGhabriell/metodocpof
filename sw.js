@@ -1,6 +1,6 @@
 /* GitHub Pages app shell — network-first, version-aware resource fallback.
    Never reuse an old JS module under a different ?v= version. */
-const CACHE='cfop-studio-offline-20261031-v48';
+const CACHE='cfop-studio-offline-20261103-v49';
 const CORE=[
  './index.html','./studio.html','./f2l.html','./oll.html','./pll.html','./importer.html',
  './cross.html','./scramble.html',
@@ -12,7 +12,7 @@ const CORE=[
  './v2/features/cross-timer.mjs?v=20261031-4',
  './v2/features/cross-ideas.mjs?v=20261031-1',
  './v2/features/cross.mjs?v=20261031-guided-2',
- './v2/app.js?v=20261031-share-profile-1',
+ './v2/app.js?v=20261103-profile-2',
  './assets/css/journey.css?v=20261031-1',
  './v2/features/progression.mjs?v=20261031-rpg-2',
  './v2/features/journey.mjs?v=20261031-rpg-3',
@@ -32,7 +32,7 @@ const CORE=[
  './assets/css/studio-admin-mobile.css?v=20261031-1',
  './assets/css/notice-banner.css?v=20261031-admin-2',
  './assets/css/cursor-glow.css?v=1',
- './assets/css/trainer-unified.css?v=20261031-4',
+ './assets/css/trainer-unified.css?v=20261103-mobile-2',
  './assets/css/importer.css?v=20261031-4',
  './assets/js/library-trainer.js?v=20261031-8',
  './assets/js/importer.js?v=20261031-8',
@@ -51,14 +51,14 @@ const OPTIONAL=[
  './v2/features/sticker-editor.mjs',
  './v2/cloud/cloud.mjs?v=20261031-58','./v2/cloud/coach-merge.mjs',
  './v2/cloud/project-config.mjs',
- './v2/cloud/identity.mjs','./v2/features/avatar-crop.mjs',
+ './v2/cloud/identity.mjs?v=20261103-profile-2','./v2/features/avatar-crop.mjs',
  './assets/js/notice-banner.js?v=20261031-admin-notify-1','./assets/css/notice-banner.css?v=20261031-admin-2',
  './v2/features/achievements.mjs','./v2/features/share-cards.mjs',
  './v2/cloud/admin.mjs?v=20261031-timers-5','./v2/cloud/admin-timer.mjs?v=20261031-2',
  './assets/css/admin-timer.css?v=20261031-1','./v2/cloud/online.mjs?v=20261030-55',
  './v2/data/pdf-import.mjs',
  './assets/js/trainer-coach.js?v=20261030-43',
- './assets/js/secao.js?v=20261031-7',
+ './assets/js/secao.js?v=20261103-session-1',
  './assets/css/trainer-unified.css?v=20261030-43',
  './assets/js/scramble.js?v=20261031-timer-interact-2',
  './assets/css/scramble.css?v=20261031-9'
