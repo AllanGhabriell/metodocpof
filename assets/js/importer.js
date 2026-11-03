@@ -142,7 +142,23 @@ $('import-run').addEventListener('click',async()=>{
 $('import-cards').addEventListener('change',e=>{
  const card=e.target.closest('[data-index]');if(!card)return;const r=records[Number(card.dataset.index)],field=e.target.dataset.field;if(!r||!field)return;
  const next=e.target.value;
- if(field==='case_id'&&records.some(o=>o!==r&&o.case_id===next)){status('Esse caso já está associado a outro recorte. Escolha um caso disponível.');e.target.value=r.case_id;return}
+ if(field==='case_id'){
+  if(next===r.case_id)return;
+  const other=records.find(o=>o!==r&&o.case_id===next);
+  if(other){
+   const previous=r.case_id;
+   other.case_id=previous;r.case_id=next;
+   r.confidence='manual';other.confidence='manual';
+   r.status='draft';other.status='draft';
+   markEdited(r);markEdited(other);
+   update();status('Associações de '+previous+' e '+next+' trocadas. Confira os dois casos e aprove novamente.');
+   return;
+  }
+  if(existingRecords.some(x=>x.case_id===r.case_id)){
+   e.target.value=r.case_id;
+   return status('Para uma biblioteca já publicada, troque a posição com outro caso existente ou importe o caso ausente. Isso evita deixar uma cópia antiga publicada.');
+  }
+ }
  const previous=r[field];r[field]=next;if(field==='case_id')r.confidence='manual';
  if(previous!==next&&['algorithm','setup','orientation','case_id'].includes(field))markEdited(r);
  if(field==='status'&&next==='approved'&&!r.algorithm.trim()){r.status='draft';e.target.value='draft';return status('Informe um algoritmo antes de aprovar o caso.')}
