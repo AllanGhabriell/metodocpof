@@ -1402,7 +1402,7 @@ document.addEventListener('DOMContentLoaded', () => {
     imgEl.hidden = false;
     const variant=currentLibraryVariant();
     const src=variant
-      ? (variant.imageData||unavailableImage(variant.missing?'missing':'no-image'))
+      ? (variant.imageData||(variant.originalFallback?`${pageSet}/${currentCase}.png`:unavailableImage(variant.missing?'missing':'no-image')))
       : `${pageSet}/${currentCase}.png`;
     // Altera a imagem imediatamente para não confundir um caso antigo com o novo.
     imgEl.alt=variant?(variant.imageData?'Imagem da biblioteca: ':'Imagem indisponível para ')+(variant.name||variant.id):'Caso '+pageSet.toUpperCase()+' '+currentCase;
@@ -1493,7 +1493,7 @@ document.addEventListener('DOMContentLoaded', () => {
     if (state.excluded.includes(caseId)) btn.classList.add('is-excluded');
     const variant=window.CPOFLibrary?.get(pageSet,caseId);
     const src=variant===null? `${pageSet}/${caseId}.png`
-      :(variant?.imageData||unavailableImage(variant?.missing?'missing':'no-image'));
+      :(variant?.imageData||(variant?.originalFallback?`${pageSet}/${caseId}.png`:unavailableImage(variant?.missing?'missing':'no-image')));
     btn.innerHTML = [
       `<img src="${src}" alt="Caso ${caseId}" loading="lazy">`,
       `<span class="exclude-case-id">Caso ${caseId}</span>`,
