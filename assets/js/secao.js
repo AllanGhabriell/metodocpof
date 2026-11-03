@@ -1670,7 +1670,7 @@ document.addEventListener('DOMContentLoaded', () => {
   function completeSession() {
     completed = true;
     if(sessionSummaryEl)sessionSummaryEl.textContent=`${sessionTargetCount} casos concluídos · ${sessionAttempts} tentativas · ${sessionHardAttempts} marcações de Difícil`;
-    if(nextStageButton){const next=pageSet==='f2l'?'oll':pageSet==='oll'?'pll':'f2l';nextStageButton.textContent='Ir para '+next.toUpperCase();nextStageButton.dataset.destination=next+'.html;'}
+    if(nextStageButton){const next=pageSet==='f2l'?'oll':pageSet==='oll'?'pll':'f2l';nextStageButton.textContent='Ir para '+next.toUpperCase();nextStageButton.dataset.destination=next+'.html'}
     const title=finalScreen?.querySelector('h2');
     if(title)title.textContent=state.competitive.enabled
       ?'Treino competitivo finalizado'
@@ -2165,7 +2165,7 @@ document.addEventListener('DOMContentLoaded', () => {
   panelClose.addEventListener('click', closeMenu);
   galleryEl.addEventListener('scroll', onGalleryScroll);
   restartSessionBtn.addEventListener('click', () => restartSession(false, false));
-  nextStageButton?.addEventListener('click',()=>location.assign((nextStageButton.dataset.destination||'index.html').replace(/;$/,'')));
+  nextStageButton?.addEventListener('click',()=>location.assign(nextStageButton.dataset.destination||'index.html'));
   exitStageButton?.addEventListener('click',()=>location.assign('index.html'));
 
   caseMask.addEventListener('mousemove', (e) => {
