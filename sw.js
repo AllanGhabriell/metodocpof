@@ -1,6 +1,6 @@
 /* GitHub Pages app shell — network-first, version-aware resource fallback.
    Never reuse an old JS module under a different ?v= version. */
-const CACHE='cfop-studio-offline-20261103-v54';
+const CACHE='cfop-studio-offline-20261103-v55';
 const CORE=[
  './index.html','./studio.html','./f2l.html','./oll.html','./pll.html','./importer.html',
  './cross.html','./scramble.html',
@@ -12,7 +12,7 @@ const CORE=[
  './v2/features/cross-timer.mjs?v=20261031-4',
  './v2/features/cross-ideas.mjs?v=20261031-1',
  './v2/features/cross.mjs?v=20261031-guided-2',
- './v2/app.js?v=20261103-libraryhub-2',
+ './v2/app.js?v=20261103-originaledit-1',
  './assets/css/journey.css?v=20261031-1',
  './v2/features/progression.mjs?v=20261031-rpg-2',
  './v2/features/journey.mjs?v=20261031-rpg-3',
@@ -33,10 +33,10 @@ const CORE=[
  './assets/css/notice-banner.css?v=20261031-admin-2',
  './assets/css/cursor-glow.css?v=1',
  './assets/css/trainer-unified.css?v=20261103-mobile-2',
- './assets/css/importer.css?v=20261103-libraryhub-3',
- './assets/js/library-trainer.js?v=20261031-8',
- './assets/js/importer.js?v=20261103-libraryhub-3',
- './v2/data/case-catalog.mjs','./v2/data/algorithm-match.mjs','./v2/data/image-match.mjs','./v2/data/pdf-layout.mjs','./v2/cloud/libraries.mjs?v=20261031-4',
+ './assets/css/importer.css?v=20261103-originaledit-1',
+ './assets/js/library-trainer.js?v=20261103-originaledit-1',
+ './assets/js/importer.js?v=20261103-originaledit-1',
+ './v2/data/case-catalog.mjs','./v2/data/algorithm-match.mjs','./v2/data/image-match.mjs','./v2/data/pdf-layout.mjs','./v2/cloud/libraries.mjs?v=20261103-originaledit-1',
  './v2/cursor-glow.js?v=20261030-31'
 ];
 const OPTIONAL=[
@@ -58,7 +58,7 @@ const OPTIONAL=[
  './assets/css/admin-timer.css?v=20261031-1','./v2/cloud/online.mjs?v=20261030-55',
  './v2/data/pdf-import.mjs',
  './assets/js/trainer-coach.js?v=20261030-43',
- './assets/js/secao.js?v=20261103-session-1',
+ './assets/js/secao.js?v=20261103-originaledit-1',
  './assets/css/trainer-unified.css?v=20261030-43',
  './assets/js/scramble.js?v=20261031-timer-interact-2',
  './assets/css/scramble.css?v=20261031-9'
