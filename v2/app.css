@@ -600,3 +600,9 @@ body::before{z-index:0}.cfop-cursor-glow{z-index:0}.app{z-index:1}
 .identity-limits p{margin:6px 0;color:#bcdced;line-height:1.45;font-size:13px}
 .identity-limits strong{color:#eefbff}
 @media(max-width:500px){.cfop-notice-backdrop{align-items:center;padding:16px}.cfop-notice-dialog{padding:23px 18px;border-radius:18px;gap:13px}}
+
+/* Administração: edição de bibliotecas já cadastradas. */
+.admin-library-edit-list{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:10px;margin:16px 0}
+.admin-library-edit-link{display:flex;flex-direction:column;gap:7px;padding:15px;border:1px solid rgba(139,188,243,.32);border-radius:13px;background:rgba(13,34,67,.5);text-decoration:none!important;color:#eef6ff!important}
+.admin-library-edit-link:hover,.admin-library-edit-link:focus-visible{border-color:rgba(134,210,246,.8);background:rgba(22,52,91,.7)}
+.admin-library-edit-link span{font-size:12px;color:#b4cee6}
