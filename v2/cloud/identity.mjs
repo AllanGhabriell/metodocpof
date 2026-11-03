@@ -74,18 +74,15 @@ export function identityPanel(){
  const cantPhoto=!privileged&&(id.avatarBlocked||photoRemaining===0||photoWaiting);
  return '<section class="card identity-editor"><div class="identity-editor-heading"><div class="identity-photo-frame">'+av+'</div><div><h2>'+
   (authenticated?'Seu nome e foto':'Cubista Anônimo')+'</h2><p class="muted">'+
-  (authenticated?'O apelido é exclusivo. Sua foto é quadrada e compactada antes de ser enviada ao banco.':
+  (authenticated?'Personalize como você aparece na Academia CFOP.':
    'Você pode treinar sem login. Seus registros ficam somente neste navegador e podem desaparecer ao limpar os dados ou trocar de aparelho.')+
   '</p></div></div>'+
   (authenticated?
    (id.error?'<p role="alert" class="notice">'+esc(id.error)+'</p>':'')+
    (first?'<p class="notice">Escolha um nome para personalizar sua conta. Nenhuma outra conta poderá usar o mesmo apelido.</p>':'')+
-   '<div class="identity-limits" aria-live="polite">'+
-    '<p><strong>Nome:</strong> '+(privileged?'Alterações ilimitadas para administradores.':(quota?(nameRemaining+' de 3 alterações restantes hoje'):'Até 3 mudanças por dia')+' · intervalo de 30 minutos.'+(nameWaiting?whenNext(quota.name_next_at):''))+'</p>'+
-    '<p><strong>Foto:</strong> '+(privileged?'Alterações ilimitadas para administradores.':(quota?(photoRemaining+' de 6 alterações restantes hoje'):'Até 6 mudanças por dia')+' · pausas progressivas de 5, 15, 30, 60 e 120 minutos.'+(photoWaiting?whenNext(quota.photo_next_at):''))+'</p>'+
-    '</div>'+
+   ((nameWaiting||photoWaiting||nameRemaining===0||photoRemaining===0)?'<p class="notice" role="status">'+(nameWaiting?'Você poderá alterar seu nome '+whenNext(quota.name_next_at)+'. ':'')+(photoWaiting?'Você poderá alterar sua foto '+whenNext(quota.photo_next_at)+'. ':'')+(nameRemaining===0&&!nameWaiting?'Limite de alterações de nome atingido hoje. ':'')+(photoRemaining===0&&!photoWaiting?'Limite de alterações de foto atingido hoje.':'')+'</p>':'')+
    '<form id="cfop-identity-form" class="studio-form identity-form">'+
-    '<label>Nome exclusivo<input class="field" name="nickname" autocomplete="nickname" maxlength="36" minlength="3" required value="'+esc(id.nickname||'')+'" '+(cantRename?'disabled':'')+' placeholder="Escolha seu apelido"></label>'+
+    '<label>Nome de usuário<input class="field" name="nickname" autocomplete="nickname" maxlength="36" minlength="3" required value="'+esc(id.nickname||'')+'" '+(cantRename?'disabled':'')+' placeholder="Escolha seu apelido"></label>'+
     (id.nameLocked&&!privileged?'<p class="muted">A administração bloqueou mudanças no nome.</p>':'')+
     '<div class="identity-actions"><button type="submit" '+(cantRename?'disabled':'')+'>Salvar nome</button>'+
     '<label class="identity-upload-link '+(cantPhoto?'disabled':'')+'">Escolher foto<input type="file" id="cfop-avatar-file" accept="image/*" '+(cantPhoto?'disabled':'')+' hidden></label>'+
