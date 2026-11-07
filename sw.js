@@ -49,7 +49,7 @@ const OPTIONAL=[
  './v2/features/progress.mjs','./v2/features/academy-insights.mjs?v=20261106-delete-fix-3',
  './v2/features/practice.mjs','./v2/features/editor.mjs',
  './v2/features/sticker-editor.mjs',
- './v2/cloud/cloud.mjs?v=20261106-delete-fix-3','./v2/cloud/coach-merge.mjs?v=20261106-delete-fix-3',
+ './v2/cloud/cloud.mjs?v=20261031-58','./v2/cloud/coach-merge.mjs?v=20261106-delete-fix-3',
  './v2/cloud/project-config.mjs',
  './v2/cloud/identity.mjs?v=20261103-profile-2','./v2/features/avatar-crop.mjs',
  './assets/js/notice-banner.js?v=20261031-admin-notify-1','./assets/css/notice-banner.css?v=20261031-admin-2',
