@@ -1,4 +1,4 @@
-import {academyActivityData,academyDashboard} from './academy-insights.mjs?v=20261106-stats-fix-1';
+import {academyActivityData,academyDashboard} from './academy-insights.mjs?v=20261106-delete-fix-3';
 import {adminXpAdjustment,serverXpBalance} from '../cloud/cloud.mjs?v=20261031-58';
 import {identityState,identityPanel} from '../cloud/identity.mjs';
 import {achievementBonus,earnedAchievements} from './achievements.mjs?v=20261031-rpg-2';
