@@ -45,7 +45,29 @@ export function mergeCoachActivity(local=[],remote=[]){
  return uniqueList(local,remote,e=>String(e.uid||[e.stage,e.caseId,e.at,e.mode,e.ms,e.grade].join('|')),12000,
   e=>STAGES.includes(e.stage)&&e.caseId!=null&&Number.isFinite(Number(e.at)));
 }
-export function mergeCubeTimes(local=[],remote=[]){
- return uniqueList(local,remote,t=>String(t.uid||[t.date,t.scramble,t.ms].join('|')),3500,
-  t=>typeof t.date==='string'&&typeof t.scramble==='string'&&Number.isFinite(t.ms)&&t.ms>=0);
+// IDs estáveis evitam recriar resoluções editadas e permitem exclusões definitivas.
+export function cubeSolveKey(t){
+ if(!t||typeof t!=='object')return '';
+ if(t.id)return 'id:'+String(t.id);
+ if(t.uid)return 'uid:'+String(t.uid);
+ return 'legacy:'+String(t.date||'')+'|'+String(t.scramble||'')+'|'+String(t.ms||0);
+}
+export function mergeCubeDeletionMarks(local=[],remote=[]){
+ const marks=new Map();
+ for(const m of [...(Array.isArray(local)?local:[]),...(Array.isArray(remote)?remote:[])]){
+  if(!m||typeof m.key!=='string'||!m.key||m.key.length>400||!Number.isFinite(Number(m.at)))continue;
+  const old=marks.get(m.key);
+  if(!old||Number(m.at)>Number(old.at)||(Number(m.at)===Number(old.at)&&m.deleted))marks.set(m.key,{key:m.key,at:Number(m.at),deleted:!!m.deleted});
+ }
+ return [...marks.values()].sort((a,b)=>a.at-b.at).slice(-7000);
+}
+export function mergeCubeTimes(local=[],remote=[],deletions=[]){
+ const byKey=new Map();
+ const forbidden=new Set(deletions.filter(d=>d.deleted).map(d=>d.key));
+ for(const item of [...(Array.isArray(remote)?remote:[]),...(Array.isArray(local)?local:[])]){
+  if(!validObj(item)||typeof item.date!=='string'||typeof item.scramble!=='string'||!Number.isFinite(item.ms)||item.ms<0)continue;
+  const key=cubeSolveKey(item);
+  if(key&&!forbidden.has(key))byKey.set(key,item);
+ }
+ return [...byKey.values()].sort((a,b)=>Date.parse(a.date)-Date.parse(b.date)).slice(-3500);
 }
