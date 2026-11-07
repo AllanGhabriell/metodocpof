@@ -327,7 +327,11 @@ async function syncIteration(){
   }else{
    saved=await rest('cfop_user_state',{method:'POST',body,prefer:'resolution=ignore-duplicates,return=representation'});
   }
-  if(Array.isArray(saved)&&saved.length){if(!sameLocal)hydrate(merged);lastSynced=Date.now();setStatus('sincronizado');return true}
+  if(Array.isArray(saved)&&saved.length){
+   // Uma exclusão feita enquanto a rede respondia não pode ser sobrescrita por um snapshot antigo.
+   if(JSON.stringify(localData())!==JSON.stringify(local)){queue=true;lastSynced=Date.now();return true}
+   if(!sameLocal)hydrate(merged);lastSynced=Date.now();setStatus('sincronizado');return true
+  }
  }
  throw Error('Conflito de sincronização. Tente novamente para preservar as alterações de ambos os dispositivos.');
 }
