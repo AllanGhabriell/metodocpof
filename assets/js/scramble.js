@@ -10,9 +10,10 @@ const readDeleted=()=>{try{return JSON.parse(localStorage.getItem(deletedKey)||'
 function markTimerChanges(before,after){
  const prev=new Map(before.map(r=>[cubeSolveKey(r),r]));
  const next=new Map(after.map(r=>[cubeSolveKey(r),r]));
- const stamp=Date.now(),changes=[];
- for(const id of prev.keys())if(!next.has(id))changes.push({key:id,at:stamp,deleted:true});
- for(const id of next.keys())if(!prev.has(id))changes.push({key:id,at:stamp,deleted:false});
+ const prior=readDeleted(),last=new Map(prior.map(m=>[m.key,Number(m.at)||0]));
+ const stamp=id=>Math.max(Date.now(),(last.get(id)||0)+1),changes=[];
+ for(const id of prev.keys())if(!next.has(id))changes.push({key:id,at:stamp(id),deleted:true});
+ for(const id of next.keys())if(!prev.has(id))changes.push({key:id,at:stamp(id),deleted:false});
  if(changes.length)localStorage.setItem(deletedKey,JSON.stringify(mergeCubeDeletionMarks(readDeleted(),changes)));
  markLocalChange();
 }
