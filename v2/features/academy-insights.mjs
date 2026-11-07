@@ -1,5 +1,6 @@
 /* Dados locais verificáveis: resoluções do cronômetro e casos registrados no treinador. */
 import {normalizeAll,effective} from '../timer/records.mjs?v=20261106-stats-fix-1';
+import {cubeSolveAliases} from '../cloud/coach-merge.mjs?v=20261106-delete-fix-3';
 const DAY=86400000;
 function safeArray(name){try{const x=JSON.parse(localStorage.getItem(name)||'[]');return Array.isArray(x)?x:[]}catch{return []}}
 const localDate=value=>{const d=new Date(value);if(!Number.isFinite(d.getTime()))return '';return [d.getFullYear(),String(d.getMonth()+1).padStart(2,'0'),String(d.getDate()).padStart(2,'0')].join('-')};
@@ -7,7 +8,7 @@ const recentDays=count=>Array.from({length:count},(_,i)=>{const d=new Date();d.s
 const average=arr=>arr.length?arr.reduce((a,b)=>a+b,0)/arr.length:null;
 const formatSeconds=ms=>Number.isFinite(ms)?(ms/1000).toFixed(2)+'s':'—';
 // Mesma fonte de verdade e mesmas penalidades do histórico do cronômetro.
-function timerSolves(){return normalizeAll(safeArray('cpof-scramble-times-v1')).filter(r=>!r.archived&&Number.isFinite(effective(r))&&effective(r)>=1000&&effective(r)<=3600000)}
+function timerSolves(){const blocked=new Set(safeArray('cpof-scramble-deleted-v1').filter(m=>m.deleted).map(m=>m.key));return normalizeAll(safeArray('cpof-scramble-times-v1')).filter(r=>!r.archived&&!cubeSolveAliases(r).some(key=>blocked.has(key))&&Number.isFinite(effective(r))&&effective(r)>=1000&&effective(r)<=3600000)}
 export function academyActivityData(extraRecords=[]){
  const cases=safeArray('cpof-academy-activity-v1').filter(r=>['f2l','oll','pll'].includes(r?.stage)&&r?.caseId!=null&&Number.isFinite(Number(r.at)));
  const times=timerSolves();
