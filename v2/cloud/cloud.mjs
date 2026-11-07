@@ -1,9 +1,9 @@
-import {mergeCoachState,mergeCoachActivity,mergeCubeTimes} from './coach-merge.mjs';
+import {mergeCoachState,mergeCoachActivity,mergeCubeTimes,mergeCubeDeletionMarks} from './coach-merge.mjs?v=20261106-timer-delete-1';
 import {PUBLIC_SUPABASE_CONFIG} from './project-config.mjs';
 // Cloud backend: Supabase Auth + PostgREST. Somente chave pública no navegador.
 // TODA autorização administrativa é revalidada por RLS no banco; UI não é uma barreira de segurança.
 const CONF='cfop-cloud-config-v1',AUTH='cfop-cloud-session-v1',TOMBS='cfop-case-tombstones-v1';
-const KEYS={progress:'cfop-studio-progress-v1',times:'cfop-v2-times',drafts:'cfop-case-drafts',tombstones:TOMBS,coach:'cpof-academy-coach-v1',academyActivity:'cpof-academy-activity-v1',scrambleTimes:'cpof-scramble-times-v1'};
+const KEYS={progress:'cfop-studio-progress-v1',times:'cfop-v2-times',drafts:'cfop-case-drafts',tombstones:TOMBS,coach:'cpof-academy-coach-v1',academyActivity:'cpof-academy-activity-v1',scrambleTimes:'cpof-scramble-times-v1',scrambleDeleted:'cpof-scramble-deleted-v1'};
 // Uma única configuração pública para todos os visitantes.
 const publicConfig=validateConfig(PUBLIC_SUPABASE_CONFIG.url,PUBLIC_SUPABASE_CONFIG.publishableKey);
 const previousConfig=read(CONF,null);
@@ -246,7 +246,7 @@ function localData(){
   drafts:read(KEYS.drafts,[]),tombstones:read(KEYS.tombstones,[]),
   coach:read(KEYS.coach,{}),
   academyActivity:read(KEYS.academyActivity,[]),
-  scrambleTimes:read(KEYS.scrambleTimes,[])};
+  scrambleTimes:read(KEYS.scrambleTimes,[]),scrambleDeleted:read(KEYS.scrambleDeleted,[])};
 
 }
 function mergeList(a=[],b=[],id,max=4000,choose=null){
@@ -281,6 +281,7 @@ function mergeDraft(a,b){
 function mergeData(a={},b={}){
  const ta=mergeList(a.tombstones,b.tombstones,t=>t.key,500,(x,y)=>x.at>=y.at?x:y);
  const removed=new Map(ta.map(t=>[t.key,Number(t.at)||0]));
+ const scrambleDeleted=mergeCubeDeletionMarks(a.scrambleDeleted,b.scrambleDeleted);
  const drafts=mergeList(a.drafts,b.drafts,d=>d.stage+':'+d.id,400,mergeDraft)
   .filter(d=>Number(d.updatedAt||0)>=Number(removed.get(d.stage+':'+d.id)||0));
  return {
@@ -289,7 +290,7 @@ function mergeData(a={},b={}){
   drafts,tombstones:ta,
   coach:mergeCoachState(a.coach,b.coach),
   academyActivity:mergeCoachActivity(a.academyActivity,b.academyActivity),
-  scrambleTimes:mergeCubeTimes(a.scrambleTimes,b.scrambleTimes)
+  scrambleTimes:mergeCubeTimes(a.scrambleTimes,b.scrambleTimes,scrambleDeleted),scrambleDeleted
  };
 }
 function hydrate(data){
@@ -302,6 +303,8 @@ function hydrate(data){
   save(KEYS.coach,data.coach);
   save(KEYS.academyActivity,data.academyActivity);
   save(KEYS.scrambleTimes,data.scrambleTimes);
+  save(KEYS.scrambleDeleted,data.scrambleDeleted);
+  if(typeof window!=='undefined')window.dispatchEvent(new Event('cfop:timer-records-updated'));
   onHydrate(data);
  }finally{muted=false}
 }
@@ -362,7 +365,7 @@ export async function initializeCloud({changed=()=>{},hydrated=()=>{}}={}){
  }catch(e){setStatus('erro-conexao',e.message)}
  // Treinos feitos em outra aba são sincronizados após uma alteração local.
  if(typeof window!=='undefined')window.addEventListener('storage',event=>{
-  if([KEYS.coach,KEYS.academyActivity,KEYS.scrambleTimes].includes(event.key))markLocalChange();
+  if([KEYS.coach,KEYS.academyActivity,KEYS.scrambleTimes,KEYS.scrambleDeleted].includes(event.key))markLocalChange();
  });
  // Cloud data is periodically reconciled when signed in; local saving also triggers an upload.
  setInterval(()=>{if(isAuthenticated())syncCloud().catch(()=>{})},45000);
