@@ -190,7 +190,7 @@ document.querySelector('.scramble-clock').addEventListener('click',event=>{
 });
 historyManager=createTimerHistory({root:$('solve-list'),getRecords:()=>times,setRecords:next=>{
  times=normalizeAll(next);localStorage.setItem(key,JSON.stringify(times));},
- onUpdate:()=>{renderStats();const panel=$('scramble-record-share');if(panel)panel.hidden=true;},kind:'3x3'});
+ onUpdate:()=>{if(lastResult&&!times.some(t=>t.id===lastResult.id&&!t.archived&&Number.isFinite(effective(t))))lastResult=null;renderStats();const panel=$('scramble-record-share');if(panel)panel.hidden=true;},kind:'3x3'});
 $('share-evolution').addEventListener('click',async()=>{
  try{await downloadOrShare(shareImage({title:'Minha evolução no 3×3',subtitle:'Academia CFOP · últimos tempos',solves:times.filter(t=>!t.archived)}),'academia-cfop-evolucao-3x3.png')}
  catch(e){alert('Não foi possível compartilhar: '+e.message)}
@@ -250,7 +250,7 @@ $('scramble-share-photo')?.addEventListener('change',e=>{
  }
 });
 document.querySelectorAll('[data-share-record]').forEach(button=>button.addEventListener('click',async()=>{
- const record=lastResult||times.filter(t=>t.penalty!=='DNF'&&!t.archived).at(-1);
+ const record=(lastResult&&times.some(t=>t.id===lastResult.id&&!t.archived&&Number.isFinite(effective(t)))?lastResult:null)||times.filter(t=>!t.archived&&Number.isFinite(effective(t))).at(-1);
  const node=$('scramble-share-status');if(!record){if(node)node.textContent='Ainda não há registro para compartilhar.';return}
  button.disabled=true;if(node)node.textContent='Criando cartão de recorde…';
  try{
