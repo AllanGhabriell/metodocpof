@@ -1,4 +1,4 @@
-import {mergeCoachState,mergeCoachActivity,mergeCubeTimes,mergeCubeDeletionMarks} from './coach-merge.mjs?v=20261106-timer-delete-1';
+import {mergeCoachState,mergeCoachActivity,mergeCubeTimes,mergeCubeDeletionMarks} from './coach-merge.mjs?v=20261106-delete-fix-3';
 import {PUBLIC_SUPABASE_CONFIG} from './project-config.mjs';
 // Cloud backend: Supabase Auth + PostgREST. Somente chave pública no navegador.
 // TODA autorização administrativa é revalidada por RLS no banco; UI não é uma barreira de segurança.
