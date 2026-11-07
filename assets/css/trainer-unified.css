@@ -981,3 +981,15 @@ body[data-set] .trainer-gallery-hint{opacity:.75}
  body[data-set] .trainer-gallery-select-actions button{flex:1 1 85px}
  body[data-set] .trainer-gallery-apply-actions button{flex:1 1 100px}
 }
+
+
+/* Compact, searchable case gallery */
+body[data-set] .trainer-gallery-search-label{display:flex;align-items:center;gap:9px;font-size:12px}
+body[data-set] .trainer-gallery-search-label input{flex:1;min-width:0;min-height:40px;border:1px solid rgba(133,181,225,.4);border-radius:9px;background:#102c4b;color:#fff;padding:8px 12px;font:inherit}
+body[data-set] .trainer-gallery-search-label input::placeholder{color:#b0c3d4}
+body[data-set] .trainer-gallery-advanced{border-top:1px solid rgba(133,181,225,.22);padding-top:7px}
+body[data-set] .trainer-gallery-advanced summary{cursor:pointer;font-size:12px;color:#b5d5ed}
+body[data-set] .trainer-gallery-advanced .trainer-gallery-select-actions{margin-top:9px}
+body[data-set] .trainer-gallery-apply-actions #gallery-exclude{background:#235b89;color:#fff}
+body[data-set] .trainer-gallery-apply-actions #gallery-include{background:#173a5a;color:#e0f1ff}
+@media(max-width:560px){body[data-set] .trainer-gallery-search-label{width:100%}body[data-set] .trainer-gallery-apply-actions button{flex:1 1 130px}body[data-set] .trainer-gallery-tools{gap:8px}}
