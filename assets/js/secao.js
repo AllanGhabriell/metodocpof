@@ -12,7 +12,7 @@ document.addEventListener('DOMContentLoaded', () => {
   // Preferência curta e independente do cookie grande de configurações.
   const MODE_KEY = `cpof_last_training_mode_v1_${pageSet}`;
   const UI_SCALE_KEY = 'cpof_ui_scale';
-  const PAGE_SIZE = 6;
+  const PAGE_SIZE = 120;
   const MAX_UNDO = 160;
   const C_ARM_MS = 1500;
   const IS_TOUCH_DEVICE = window.matchMedia('(hover: none), (pointer: coarse)').matches;
@@ -366,6 +366,20 @@ document.addEventListener('DOMContentLoaded', () => {
   let galleryCaseOrder = [];
   let galleryRendered = 0;
   let galleryBusy = false;
+  let galleryMulti = false, galleryFilter = 'all', galleryAnchor = null;
+  const gallerySelected = new Set();
+  const galleryTools = document.createElement('div');
+  galleryTools.className = 'trainer-gallery-tools';
+  galleryTools.innerHTML = '<p id="gallery-count" role="status" aria-live="polite"></p>'+
+    '<div class="trainer-gallery-toprow"><label>Mostrar <select id="gallery-filter"><option value="all">Todos</option><option value="active">Ativos</option><option value="excluded">Excluídos</option></select></label>'+
+    '<button type="button" id="gallery-multi" aria-pressed="false">Selecionar vários</button></div>'+
+    '<div id="gallery-bulk" class="trainer-gallery-bulk" hidden><p id="gallery-selected-count" aria-live="polite">0 selecionados</p>'+
+    '<div class="trainer-gallery-select-actions"><button type="button" id="gallery-all">Selecionar visíveis</button><button type="button" id="gallery-invert">Inverter seleção</button><button type="button" id="gallery-clear">Desmarcar</button></div>'+
+    '<div class="trainer-gallery-apply-actions"><button type="button" id="gallery-only">Treinar somente estes</button><button type="button" id="gallery-include">Reincluir</button><button type="button" id="gallery-exclude">Excluir</button></div>'+
+    '<p class="trainer-gallery-hint">Celular: toque para marcar. Computador: Ctrl para vários e Shift para um intervalo.</p></div>';
+  galleryWrap.insertBefore(galleryTools,galleryEl);
+  const galleryControl = id => galleryTools.querySelector('#'+id);
+
 
   function normalizeKeybinds(raw) {
     const base = defaults.keybinds || {};
@@ -1491,15 +1505,26 @@ document.addEventListener('DOMContentLoaded', () => {
     btn.className = 'exclude-card';
     btn.dataset.case = String(caseId);
     if (state.excluded.includes(caseId)) btn.classList.add('is-excluded');
+    if (gallerySelected.has(caseId)) btn.classList.add('is-selected');
+    btn.setAttribute('aria-pressed',String(galleryMulti && gallerySelected.has(caseId)));
     const variant=window.CPOFLibrary?.get(pageSet,caseId);
     const src=variant===null? `${pageSet}/${caseId}.png`
       :(variant?.imageData||(variant?.originalFallback?`${pageSet}/${caseId}.png`:unavailableImage(variant?.missing?'missing':'no-image')));
     btn.innerHTML = [
       `<img src="${src}" alt="Caso ${caseId}" loading="lazy">`,
       `<span class="exclude-case-id">Caso ${caseId}</span>`,
-      `<span class="exclude-case-action">${state.excluded.includes(caseId) ? 'Reincluir' : 'Excluir'}</span>`
+      `<span class="exclude-case-action">${galleryMulti?(gallerySelected.has(caseId)?'✓ Selecionado':'Selecionar'):(state.excluded.includes(caseId)?'Reincluir':'Excluir')}</span>`
     ].join('');
-    btn.addEventListener('click', () => toggleCaseExcluded(caseId, btn));
+    btn.addEventListener('click',event=>{
+      if(!galleryMulti){toggleCaseExcluded(caseId,btn);return}
+      const visible=galleryVisibleCases();
+      if(event.shiftKey && galleryAnchor && visible.includes(galleryAnchor)){
+        const a=visible.indexOf(galleryAnchor),b=visible.indexOf(caseId);
+        visible.slice(Math.min(a,b),Math.max(a,b)+1).forEach(id=>gallerySelected.add(id));
+      } else if(gallerySelected.has(caseId))gallerySelected.delete(caseId);
+      else gallerySelected.add(caseId);
+      galleryAnchor=caseId;updateGalleryControls();refreshGallerySelection();
+    });
     return btn;
   }
 
@@ -1527,6 +1552,7 @@ document.addEventListener('DOMContentLoaded', () => {
       if (label) label.textContent = excludedNow ? 'Reincluir' : 'Excluir';
     }
 
+    updateGalleryControls();
     if (currentCase === caseId && excludedNow && !completed) {
       moveToNextCaseAfterSolve(0, 'good', false);
     } else {
@@ -1534,11 +1560,62 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   }
 
+  function galleryVisibleCases(){
+    const allowed=new Set(publicAllowedIds()),excluded=new Set(state.excluded);
+    return galleryCaseOrder.filter(id=>allowed.has(id)&&(galleryFilter==='all'||(galleryFilter==='excluded'?excluded.has(id):!excluded.has(id))));
+  }
+  function updateGalleryControls(){
+    const all=publicAllowedIds(),active=all.filter(id=>!state.excluded.includes(id));
+    galleryControl('gallery-count').textContent=active.length+' ativos · '+(all.length-active.length)+' excluídos · '+all.length+' disponíveis';
+    galleryControl('gallery-selected-count').textContent=gallerySelected.size+' selecionados';
+    galleryControl('gallery-bulk').hidden=!galleryMulti;
+    galleryControl('gallery-multi').textContent=galleryMulti?'Concluir seleção':'Selecionar vários';
+    galleryControl('gallery-multi').setAttribute('aria-pressed',String(galleryMulti));
+    for(const id of ['gallery-only','gallery-include','gallery-exclude','gallery-clear'])galleryControl(id).disabled=!gallerySelected.size;
+  }
+  function refreshGallerySelection(){
+    galleryEl.querySelectorAll('.exclude-card').forEach(card=>{
+      const selected=galleryMulti&&gallerySelected.has(card.dataset.case);
+      card.classList.toggle('is-selected',selected);card.setAttribute('aria-pressed',String(selected));
+      const label=card.querySelector('.exclude-case-action');
+      if(label)label.textContent=galleryMulti?(selected?'✓ Selecionado':'Selecionar'):(state.excluded.includes(card.dataset.case)?'Reincluir':'Excluir');
+    });
+  }
+  function applyGallerySelection(operation){
+    const allowed=publicAllowedIds(),targets=new Set([...gallerySelected].filter(id=>allowed.includes(id)));
+    if(!targets.size)return;
+    const old=new Set(state.excluded);
+    const next=operation==='only'?allowed.filter(id=>!targets.has(id)):operation==='exclude'?[...old,...targets]:[...old].filter(id=>!targets.has(id));
+    if(next.length>=allowed.length){showToast('Mantenha pelo menos um caso ativo');return}
+    pushUndo('gallery-bulk');
+    state.excluded=sortCaseIds([...new Set(next)]);
+    gallerySelected.clear();galleryAnchor=null;
+    save();
+    if(isOrderedTrainingMode()){clampOrderedIndex();state.orderedTraining.queue=orderedQueue();sessionTargetCount=orderedTotal()}
+    else sessionTargetCount=unexcludedCases().length;
+    updateRemaining();
+    if(currentCase&&state.excluded.includes(currentCase)){
+      const available=unexcludedCases();if(available.length)setCurrentCase(available[0],true);
+    }
+    renderCaseScene();refreshGallery();
+    showToast(operation==='only'?'Treino limitado aos casos selecionados':operation==='include'?'Casos reincluídos':'Casos excluídos');
+  }
+  galleryControl('gallery-multi').addEventListener('click',()=>{
+    galleryMulti=!galleryMulti;gallerySelected.clear();galleryAnchor=null;updateGalleryControls();refreshGallerySelection();
+  });
+  galleryControl('gallery-filter').addEventListener('change',event=>{galleryFilter=event.target.value;galleryAnchor=null;refreshGallery()});
+  galleryControl('gallery-all').addEventListener('click',()=>{galleryVisibleCases().forEach(id=>gallerySelected.add(id));updateGalleryControls();refreshGallerySelection()});
+  galleryControl('gallery-invert').addEventListener('click',()=>{galleryVisibleCases().forEach(id=>gallerySelected.has(id)?gallerySelected.delete(id):gallerySelected.add(id));updateGalleryControls();refreshGallerySelection()});
+  galleryControl('gallery-clear').addEventListener('click',()=>{gallerySelected.clear();galleryAnchor=null;updateGalleryControls();refreshGallerySelection()});
+  galleryControl('gallery-only').addEventListener('click',()=>applyGallerySelection('only'));
+  galleryControl('gallery-include').addEventListener('click',()=>applyGallerySelection('include'));
+  galleryControl('gallery-exclude').addEventListener('click',()=>applyGallerySelection('exclude'));
+
   function renderNextGalleryPage() {
-    if (galleryBusy || galleryRendered >= galleryCaseOrder.length) return;
+    if (galleryBusy || galleryRendered >= galleryVisibleCases().length) return;
     galleryBusy = true;
     galleryLoading.hidden = false;
-    const slice = galleryCaseOrder.filter(id=>publicAllowedIds().includes(id)).slice(galleryRendered, galleryRendered + PAGE_SIZE);
+    const slice = galleryVisibleCases().slice(galleryRendered, galleryRendered + PAGE_SIZE);
     slice.forEach((id) => galleryEl.appendChild(createGalleryCard(id)));
     galleryRendered += slice.length;
     galleryBusy = false;
@@ -1547,10 +1624,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
   function refreshGallery() {
     galleryCaseOrder = rankByMostRecentSolved();
+    updateGalleryControls();
     galleryRendered = 0;
     galleryEl.innerHTML = '';
     renderNextGalleryPage();
-    while (galleryRendered < galleryCaseOrder.length && galleryEl.scrollHeight <= galleryEl.clientHeight) {
+    while (galleryRendered < galleryVisibleCases().length && galleryEl.scrollHeight <= galleryEl.clientHeight) {
       renderNextGalleryPage();
     }
   }
