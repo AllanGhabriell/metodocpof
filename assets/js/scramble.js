@@ -3,8 +3,8 @@ import {cube3D} from '../../v2/cube/visual.mjs?v=20261030-8';
 import {normalizeAll,newId,statistics,effective,format,celebrate,shareImage,downloadOrShare} from '../../v2/timer/records.mjs?v=20261031-profile-1';
 import {createTimerHistory} from './timer-history-ui.mjs?v=20261031-profile-1';
 import {recordTimerSolve} from '../../v2/timer/telemetry.mjs?v=20261031-1';
-import {markLocalChange} from '../../v2/cloud/cloud.mjs?v=20261031-58';
-import {cubeSolveKey,mergeCubeDeletionMarks} from '../../v2/cloud/coach-merge.mjs?v=20261106-timer-delete-1';
+import {markLocalChange} from '../../v2/cloud/cloud.mjs?v=20261106-delete-fix-3';
+import {cubeSolveKey,cubeSolveAliases,mergeCubeDeletionMarks} from '../../v2/cloud/coach-merge.mjs?v=20261106-delete-fix-3';
 const key='cpof-scramble-times-v1', deletedKey='cpof-scramble-deleted-v1';
 const readDeleted=()=>{try{return JSON.parse(localStorage.getItem(deletedKey)||'[]')}catch{return []}};
 function markTimerChanges(before,after){
@@ -12,20 +12,21 @@ function markTimerChanges(before,after){
  const next=new Map(after.map(r=>[cubeSolveKey(r),r]));
  const prior=readDeleted(),last=new Map(prior.map(m=>[m.key,Number(m.at)||0]));
  const stamp=id=>Math.max(Date.now(),(last.get(id)||0)+1),changes=[];
- for(const id of prev.keys())if(!next.has(id))changes.push({key:id,at:stamp(id),deleted:true});
- for(const id of next.keys())if(!prev.has(id))changes.push({key:id,at:stamp(id),deleted:false});
+ for(const [id,item] of prev)if(!next.has(id))for(const key of cubeSolveAliases(item))changes.push({key,at:stamp(key),deleted:true});
+ for(const [id,item] of next)if(!prev.has(id))for(const key of cubeSolveAliases(item))changes.push({key,at:stamp(key),deleted:false});
  if(changes.length)localStorage.setItem(deletedKey,JSON.stringify(mergeCubeDeletionMarks(readDeleted(),changes)));
  markLocalChange();
 }
-function persistTimes(next){const before=times.slice();times=normalizeAll(next);localStorage.setItem(key,JSON.stringify(times));markTimerChanges(before,times)}
+function activeTimerRecords(records){const blocked=new Set(readDeleted().filter(m=>m.deleted).map(m=>m.key));return normalizeAll(records).filter(r=>!cubeSolveAliases(r).some(k=>blocked.has(k)))}
+function persistTimes(next){const before=times.slice();markTimerChanges(before,normalizeAll(next));times=activeTimerRecords(next);localStorage.setItem(key,JSON.stringify(times))}
 function reloadTimerRecords(){
  if(running)return;
- try{times=normalizeAll(JSON.parse(localStorage.getItem(key)||'[]'))}catch{times=[]}
+ try{times=activeTimerRecords(JSON.parse(localStorage.getItem(key)||'[]'))}catch{times=[]}
  if(lastResult&&!times.some(t=>t.id===lastResult.id&&!t.archived&&Number.isFinite(effective(t))))lastResult=null;
  renderStats();
 }
 let sharePhotoFile=null;
-let times=[];try{times=normalizeAll(JSON.parse(localStorage.getItem(key)||'[]'))}catch{}
+let times=[];try{times=activeTimerRecords(JSON.parse(localStorage.getItem(key)||'[]'))}catch{}
 let historyManager=null,lastResult=null;
 let sequence='',state=solved(),running=false,started=0,raf=0,elapsed=0,view='timer',yaw=-35,pitch=-27,inspection=false,inspectionStarted=0,inspectionRaf=0,inspectionEnabled=localStorage.getItem('academy-inspection')==='true',scrambleLength=[15,20,25].includes(Number(localStorage.getItem('academy-scramble-length')))?Number(localStorage.getItem('academy-scramble-length')):20,cubeView=localStorage.getItem('academy-cube-view')==='2d'?'2d':'3d';
 const $=id=>document.getElementById(id);
