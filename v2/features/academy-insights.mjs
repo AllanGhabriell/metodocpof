@@ -1,13 +1,16 @@
 /* Dados locais verificáveis: resoluções do cronômetro e casos registrados no treinador. */
+import {normalizeAll,effective} from '../timer/records.mjs?v=20261106-stats-fix-1';
 const DAY=86400000;
 function safeArray(name){try{const x=JSON.parse(localStorage.getItem(name)||'[]');return Array.isArray(x)?x:[]}catch{return []}}
 const localDate=value=>{const d=new Date(value);if(!Number.isFinite(d.getTime()))return '';return [d.getFullYear(),String(d.getMonth()+1).padStart(2,'0'),String(d.getDate()).padStart(2,'0')].join('-')};
 const recentDays=count=>Array.from({length:count},(_,i)=>{const d=new Date();d.setHours(12,0,0,0);d.setDate(d.getDate()-(count-1-i));return {key:localDate(d),day:d}});
 const average=arr=>arr.length?arr.reduce((a,b)=>a+b,0)/arr.length:null;
 const formatSeconds=ms=>Number.isFinite(ms)?(ms/1000).toFixed(2)+'s':'—';
+// Mesma fonte de verdade e mesmas penalidades do histórico do cronômetro.
+function timerSolves(){return normalizeAll(safeArray('cpof-scramble-times-v1')).filter(r=>!r.archived&&Number.isFinite(effective(r))&&effective(r)>=1000&&effective(r)<=3600000)}
 export function academyActivityData(extraRecords=[]){
  const cases=safeArray('cpof-academy-activity-v1').filter(r=>['f2l','oll','pll'].includes(r?.stage)&&r?.caseId!=null&&Number.isFinite(Number(r.at)));
- const times=safeArray('cpof-scramble-times-v1').filter(r=>Number.isFinite(r?.ms)&&r.ms>=1000&&r.ms<=3600000&&typeof r.date==='string');
+ const times=timerSolves();
  const byDate=new Map();
  const add=(key,type)=>{if(!key)return;const r=byDate.get(key)||{date:key,cases:0,solves:0,other:0};r[type]++;byDate.set(key,r)};
  for(const x of cases)add(localDate(x.at),'cases');
@@ -18,7 +21,7 @@ export function academyActivityData(extraRecords=[]){
  let streak=0;const active=new Set([...byDate.keys()].filter(k=>{const x=byDate.get(k);return x.cases+x.solves+x.other>0}));
  const cursor=new Date();cursor.setHours(12,0,0,0);if(!active.has(today))cursor.setDate(cursor.getDate()-1);
  while(active.has(localDate(cursor))){streak++;cursor.setDate(cursor.getDate()-1)}
- const speed=times.slice(-45).map(t=>t.ms),best=speed.length?Math.min(...speed):null,mean=average(speed);
+ const speed=times.slice(-45).map(effective),best=times.length?Math.min(...times.map(effective)):null,mean=average(speed);
  const deviation=mean&&speed.length>1?Math.sqrt(speed.reduce((s,x)=>s+(x-mean)**2,0)/speed.length):null;
  return {cases,times,byDate,days,today,yesterday,streak,speed,best,mean,deviation};
 }
@@ -114,13 +117,13 @@ export function academyTrainingPanel(records){
  const maxMode=Math.max(1,...Object.values(modesCount));
  const xp=coachXp(records);
  const lastWeek=records.filter(r=>r.at>=now-7*DAY);
- const measured=lastWeek.filter(r=>Number.isFinite(r.ms)&&r.ms>=100);
+ const measured=timerSolves().filter(r=>{const at=Date.parse(r.date);return Number.isFinite(at)&&at>=weekStart&&at<=now});
  const difficult=lastWeek.filter(r=>r.grade==='bad'||r.grade==='medium'||settings.stages?.[r.stage]?.cases?.[r.caseId]?.rating==='hard');
  const touched=new Set(lastWeek.map(r=>r.stage));
  const missions=[
   {label:'Praticar 12 casos',progress:lastWeek.length,target:12,detail:'Qualquer modo'},
   {label:'Reforçar 3 casos difíceis',progress:difficult.length,target:3,detail:'Casos desafiadores'},
-  {label:'Registrar 3 tempos',progress:measured.length,target:3,detail:'Cronometragem real'},
+  {label:'Registrar 3 tempos',progress:measured.length,target:3,detail:'Cronômetro 3×3 · últimos 7 dias'},
   {label:'Passar pelas 3 etapas',progress:touched.size,target:3,detail:'F2L, OLL e PLL'}
  ];
  const missionsHtml='<section class="academy-insight-card academy-missions"><header><div><span class="academy-overline">MISSÕES DA SEMANA</span><h2>Pequenos desafios, sem obrigação</h2></div><span class="academy-stat-mark">'+missions.filter(m=>m.progress>=m.target).length+' / '+missions.length+' concluídos</span></header>'+
