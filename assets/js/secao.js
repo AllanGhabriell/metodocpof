@@ -1592,7 +1592,7 @@ document.addEventListener('DOMContentLoaded', () => {
     gallerySelected.clear();galleryAnchor=null;
     save();
     if(isOrderedTrainingMode()){clampOrderedIndex();state.orderedTraining.queue=orderedQueue();sessionTargetCount=orderedTotal()}
-    else sessionTargetCount=unexcludedCases().length;
+    else {sessionCasePool=buildSessionPool();sessionResolved=new Set([...sessionResolved].filter(id=>sessionCasePool.includes(id)));sessionTargetCount=sessionCasePool.length;}
     updateRemaining();
     if(currentCase&&state.excluded.includes(currentCase)){
       const available=unexcludedCases();if(available.length)setCurrentCase(available[0],true);
