@@ -3,7 +3,7 @@ import {adminPanel,adminLoad,adminClick,adminSubmit} from './cloud/admin.mjs?v=2
 import {cloudStatus,loadAccountExtras,startActivityTracking,recordActivity,isConfigured,isAuthenticated,isAdmin,cloudUser,cloudPanel,signInWithGoogle,signIn,signUp,recoverPassword,updatePassword,signOut,syncCloud,initializeCloud,acceptAuthRedirect,markLocalChange,markDraftDeleted,cloudProfileRefresh,cloudNoticeOverlay,markNoticeRead,publishedCases,publishCase,unpublishCase,loadPublishedCases} from './cloud/cloud.mjs?v=20261031-58';
 import {onlinePage,onlineInit,onlineLoad,onlineClick,onlineSubmit} from './cloud/online.mjs?v=20261030-55';
 import {crossPage,crossClick,crossChange} from './features/cross.mjs';
-import {awardActivity,progressDashboard,progressData,reloadProgress,saveFeatureData,planPage,profilePage,progressClick,progressSubmit,progressImport,checkReminder,progressSummary} from './features/progress.mjs?v=20261031-rpg-3';
+import {awardActivity,progressDashboard,progressData,reloadProgress,saveFeatureData,planPage,profilePage,progressClick,progressSubmit,progressImport,checkReminder,progressSummary} from './features/progress.mjs?v=20261106-stats-fix-1';
 import {loadJourney,journeyEquip,journeyAnswers} from './features/journey.mjs?v=20261031-rpg-3';
 import {saveAcademyGoals} from './features/academy-insights.mjs';
 import {identityState,loadIdentity,saveIdentity} from './cloud/identity.mjs?v=20261103-profile-2';
