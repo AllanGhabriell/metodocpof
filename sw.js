@@ -1,6 +1,6 @@
 /* GitHub Pages app shell — network-first, version-aware resource fallback.
    Never reuse an old JS module under a different ?v= version. */
-const CACHE='cfop-studio-offline-20261103-v56';
+const CACHE='cfop-studio-offline-20261106-v57';
 const CORE=[
  './index.html','./studio.html','./f2l.html','./oll.html','./pll.html','./importer.html',
  './cross.html','./scramble.html',
@@ -12,11 +12,11 @@ const CORE=[
  './v2/features/cross-timer.mjs?v=20261031-4',
  './v2/features/cross-ideas.mjs?v=20261031-1',
  './v2/features/cross.mjs?v=20261031-guided-2',
- './v2/app.js?v=20261103-originaledit-1',
+ './v2/app.js?v=20261106-delete-fix-3',
  './assets/css/journey.css?v=20261031-1',
  './v2/features/progression.mjs?v=20261031-rpg-2',
  './v2/features/journey.mjs?v=20261031-rpg-3',
- './v2/features/progress.mjs?v=20261031-rpg-3',
+ './v2/features/progress.mjs?v=20261106-delete-fix-3',
  './v2/features/achievements.mjs?v=20261031-rpg-2',
  './v2/features/share-cards.mjs?v=20261031-rpg-4',
  './v2/features/share-profile.mjs?v=20261031-1',
@@ -46,10 +46,10 @@ const OPTIONAL=[
  './v2/cube/case-visual.mjs','./v2/cube/recognition.mjs',
  './v2/cube/f2l-recognition.mjs','./v2/cube/validation.mjs',
  './v2/timer/stats.mjs','./v2/features/cross.mjs?v=20261031-brand-cfop-1','./v2/features/cross-physical.mjs?v=20261031-brand-cfop-1',
- './v2/features/progress.mjs','./v2/features/academy-insights.mjs',
+ './v2/features/progress.mjs','./v2/features/academy-insights.mjs?v=20261106-delete-fix-3',
  './v2/features/practice.mjs','./v2/features/editor.mjs',
  './v2/features/sticker-editor.mjs',
- './v2/cloud/cloud.mjs?v=20261031-58','./v2/cloud/coach-merge.mjs',
+ './v2/cloud/cloud.mjs?v=20261106-delete-fix-3','./v2/cloud/coach-merge.mjs?v=20261106-delete-fix-3',
  './v2/cloud/project-config.mjs',
  './v2/cloud/identity.mjs?v=20261103-profile-2','./v2/features/avatar-crop.mjs',
  './assets/js/notice-banner.js?v=20261031-admin-notify-1','./assets/css/notice-banner.css?v=20261031-admin-2',
@@ -60,7 +60,7 @@ const OPTIONAL=[
  './assets/js/trainer-coach.js?v=20261030-43',
  './assets/js/secao.js?v=20261103-originaledit-1',
  './assets/css/trainer-unified.css?v=20261030-43',
- './assets/js/scramble.js?v=20261031-timer-interact-2',
+ './assets/js/scramble.js?v=20261106-delete-fix-3',
  './assets/css/scramble.css?v=20261031-9'
 ];
 self.addEventListener('install',event=>{
