@@ -3,7 +3,26 @@ import {cube3D} from '../../v2/cube/visual.mjs?v=20261030-8';
 import {normalizeAll,newId,statistics,effective,format,celebrate,shareImage,downloadOrShare} from '../../v2/timer/records.mjs?v=20261031-profile-1';
 import {createTimerHistory} from './timer-history-ui.mjs?v=20261031-profile-1';
 import {recordTimerSolve} from '../../v2/timer/telemetry.mjs?v=20261031-1';
-const key='cpof-scramble-times-v1';
+import {markLocalChange} from '../../v2/cloud/cloud.mjs?v=20261031-58';
+import {cubeSolveKey,mergeCubeDeletionMarks} from '../../v2/cloud/coach-merge.mjs?v=20261106-timer-delete-1';
+const key='cpof-scramble-times-v1', deletedKey='cpof-scramble-deleted-v1';
+const readDeleted=()=>{try{return JSON.parse(localStorage.getItem(deletedKey)||'[]')}catch{return []}};
+function markTimerChanges(before,after){
+ const prev=new Map(before.map(r=>[cubeSolveKey(r),r]));
+ const next=new Map(after.map(r=>[cubeSolveKey(r),r]));
+ const stamp=Date.now(),changes=[];
+ for(const id of prev.keys())if(!next.has(id))changes.push({key:id,at:stamp,deleted:true});
+ for(const id of next.keys())if(!prev.has(id))changes.push({key:id,at:stamp,deleted:false});
+ if(changes.length)localStorage.setItem(deletedKey,JSON.stringify(mergeCubeDeletionMarks(readDeleted(),changes)));
+ markLocalChange();
+}
+function persistTimes(next){const before=times.slice();times=normalizeAll(next);localStorage.setItem(key,JSON.stringify(times));markTimerChanges(before,times)}
+function reloadTimerRecords(){
+ if(running)return;
+ try{times=normalizeAll(JSON.parse(localStorage.getItem(key)||'[]'))}catch{times=[]}
+ if(lastResult&&!times.some(t=>t.id===lastResult.id&&!t.archived&&Number.isFinite(effective(t))))lastResult=null;
+ renderStats();
+}
 let sharePhotoFile=null;
 let times=[];try{times=normalizeAll(JSON.parse(localStorage.getItem(key)||'[]'))}catch{}
 let historyManager=null,lastResult=null;
@@ -67,7 +86,7 @@ function stop(){if(!running)return;running=false;cancelAnimationFrame(raf);elaps
   if(panel)panel.hidden=false;
   const label=$('scramble-record-label');
   if(label)label.textContent='Seu novo melhor tempo: '+fmt(elapsed)+' segundos';
- }localStorage.setItem(key,JSON.stringify(times.slice(-3500)));$('timer-display').textContent=fmt(elapsed);$('timer-status').textContent='Tempo salvo · toque para começar outra resolução';scramble();renderStats();
+ }localStorage.setItem(key,JSON.stringify(times.slice(-3500)));markLocalChange();$('timer-display').textContent=fmt(elapsed);$('timer-status').textContent='Tempo salvo · toque para começar outra resolução';scramble();renderStats();
  recordTimerSolve('3x3',solve.ms,true).catch(()=>{});
  // O aviso de recorde é flutuante e nunca força a rolagem da tela.
 }
@@ -189,7 +208,7 @@ document.querySelector('.scramble-clock').addEventListener('click',event=>{
  if(event.target.closest('button,a,input,select,textarea'))return;action()
 });
 historyManager=createTimerHistory({root:$('solve-list'),getRecords:()=>times,setRecords:next=>{
- times=normalizeAll(next);localStorage.setItem(key,JSON.stringify(times));},
+ persistTimes(next);},
  onUpdate:()=>{if(lastResult&&!times.some(t=>t.id===lastResult.id&&!t.archived&&Number.isFinite(effective(t))))lastResult=null;renderStats();const panel=$('scramble-record-share');if(panel)panel.hidden=true;},kind:'3x3'});
 $('share-evolution').addEventListener('click',async()=>{
  try{await downloadOrShare(shareImage({title:'Minha evolução no 3×3',subtitle:'Academia CFOP · últimos tempos',solves:times.filter(t=>!t.archived)}),'academia-cfop-evolucao-3x3.png')}
@@ -265,6 +284,9 @@ document.querySelectorAll('[data-share-record]').forEach(button=>button.addEvent
  }catch(err){if(node)node.textContent='Não foi possível compartilhar: '+err.message}
  finally{button.disabled=false}
 }));
-$('clear-times').addEventListener('click',()=>{if(times.length&&confirm('Excluir TODOS os tempos locais, incluindo sessões arquivadas? Esta ação não pode ser desfeita.')){times=[];localStorage.removeItem(key);renderStats()}});
+$('clear-times').addEventListener('click',()=>{if(times.length&&confirm('Excluir TODOS os tempos locais, incluindo sessões arquivadas? Esta ação não pode ser desfeita.')){persistTimes([]);lastResult=null;renderStats()}});
+window.addEventListener('storage',e=>{if(e.key===key||e.key===deletedKey)reloadTimerRecords()});
+window.addEventListener('cfop:timer-records-updated',reloadTimerRecords);
+document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible')reloadTimerRecords()});
 window.addEventListener('resize',()=>{if(view==='stats')renderStats()});
 scramble();renderStats();setView(new URLSearchParams(location.search).get('view')==='stats'?'stats':new URLSearchParams(location.search).get('view')==='history'?'history':'timer');
