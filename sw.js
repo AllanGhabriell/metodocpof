@@ -1,6 +1,6 @@
 /* GitHub Pages app shell — network-first, version-aware resource fallback.
    Never reuse an old JS module under a different ?v= version. */
-const CACHE='cfop-studio-offline-20261106-v57';
+const CACHE='cfop-studio-offline-20261106-v58';
 const CORE=[
  './index.html','./studio.html','./f2l.html','./oll.html','./pll.html','./importer.html',
  './cross.html','./scramble.html',
@@ -58,7 +58,7 @@ const OPTIONAL=[
  './assets/css/admin-timer.css?v=20261031-1','./v2/cloud/online.mjs?v=20261030-55',
  './v2/data/pdf-import.mjs',
  './assets/js/trainer-coach.js?v=20261030-43',
- './assets/js/secao.js?v=20261103-originaledit-1',
+ './assets/js/secao.js?v=20261106-stage-navigation-1',
  './assets/css/trainer-unified.css?v=20261030-43',
  './assets/js/scramble.js?v=20261106-delete-fix-3',
  './assets/css/scramble.css?v=20261031-9'
