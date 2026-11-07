@@ -369,17 +369,19 @@ document.addEventListener('DOMContentLoaded', () => {
   let galleryCaseOrder = [];
   let galleryRendered = 0;
   let galleryBusy = false;
-  let galleryMulti = false, galleryFilter = 'all', galleryAnchor = null;
+  let galleryMulti = false, galleryFilter = 'all', gallerySearch = '', galleryAnchor = null;
   const gallerySelected = new Set();
   const galleryTools = document.createElement('div');
   galleryTools.className = 'trainer-gallery-tools';
   galleryTools.innerHTML = '<p id="gallery-count" role="status" aria-live="polite"></p>'+
     '<div class="trainer-gallery-toprow"><label>Mostrar <select id="gallery-filter"><option value="all">Todos</option><option value="active">Ativos</option><option value="excluded">Excluídos</option></select></label>'+
-    '<button type="button" id="gallery-multi" aria-pressed="false">Selecionar vários</button></div>'+
+    '<button type="button" id="gallery-multi" aria-pressed="false">Selecionar vários</button></div>'+ 
+    '<label class="trainer-gallery-search-label" for="gallery-search">Buscar caso <input id="gallery-search" type="search" inputmode="numeric" placeholder="Ex.: 12" autocomplete="off"></label>'+
     '<div id="gallery-bulk" class="trainer-gallery-bulk" hidden><p id="gallery-selected-count" aria-live="polite">0 selecionados</p>'+
-    '<div class="trainer-gallery-select-actions"><button type="button" id="gallery-all">Selecionar visíveis</button><button type="button" id="gallery-invert">Inverter seleção</button><button type="button" id="gallery-clear">Desmarcar</button></div>'+
-    '<div class="trainer-gallery-apply-actions"><button type="button" id="gallery-only">Treinar somente estes</button><button type="button" id="gallery-include">Reincluir</button><button type="button" id="gallery-exclude">Excluir</button></div>'+
-    '<p class="trainer-gallery-hint">Celular: toque para marcar. Computador: Ctrl para vários e Shift para um intervalo.</p></div>';
+    '<div class="trainer-gallery-select-actions"><button type="button" id="gallery-all">Selecionar resultados</button><button type="button" id="gallery-clear">Desmarcar</button></div>'+
+    '<div class="trainer-gallery-apply-actions"><button type="button" id="gallery-exclude">Excluir selecionados</button><button type="button" id="gallery-include">Reincluir selecionados</button></div>'+ 
+    '<details class="trainer-gallery-advanced"><summary>Mais opções</summary><div class="trainer-gallery-select-actions"><button type="button" id="gallery-invert">Inverter seleção</button><button type="button" id="gallery-only">Treinar somente estes</button></div></details>'+
+    '<p class="trainer-gallery-hint">Toque nos casos para marcar. Shift seleciona um intervalo no computador.</p></div>';
   galleryWrap.insertBefore(galleryTools,galleryEl);
   const galleryControl = id => galleryTools.querySelector('#'+id);
 
@@ -1565,12 +1567,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
   function galleryVisibleCases(){
     const allowed=new Set(publicAllowedIds()),excluded=new Set(state.excluded);
-    return galleryCaseOrder.filter(id=>allowed.has(id)&&(galleryFilter==='all'||(galleryFilter==='excluded'?excluded.has(id):!excluded.has(id))));
+    return galleryCaseOrder.filter(id=>allowed.has(id)&&(!gallerySearch||String(id).toLowerCase().includes(gallerySearch))&&(galleryFilter==='all'||(galleryFilter==='excluded'?excluded.has(id):!excluded.has(id))));
   }
   function updateGalleryControls(){
     const all=publicAllowedIds(),active=all.filter(id=>!state.excluded.includes(id));
     galleryControl('gallery-count').textContent=active.length+' ativos · '+(all.length-active.length)+' excluídos · '+all.length+' disponíveis';
-    galleryControl('gallery-selected-count').textContent=gallerySelected.size+' selecionados';
+    galleryControl('gallery-selected-count').textContent=gallerySelected.size+' selecionados · '+galleryVisibleCases().length+' resultados';
     galleryControl('gallery-bulk').hidden=!galleryMulti;
     galleryControl('gallery-multi').textContent=galleryMulti?'Concluir seleção':'Selecionar vários';
     galleryControl('gallery-multi').setAttribute('aria-pressed',String(galleryMulti));
@@ -1607,6 +1609,7 @@ document.addEventListener('DOMContentLoaded', () => {
     galleryMulti=!galleryMulti;gallerySelected.clear();galleryAnchor=null;updateGalleryControls();refreshGallerySelection();
   });
   galleryControl('gallery-filter').addEventListener('change',event=>{galleryFilter=event.target.value;galleryAnchor=null;refreshGallery()});
+  galleryControl('gallery-search').addEventListener('input',event=>{gallerySearch=event.target.value.trim().toLowerCase();galleryAnchor=null;refreshGallery()});
   galleryControl('gallery-all').addEventListener('click',()=>{galleryVisibleCases().forEach(id=>gallerySelected.add(id));updateGalleryControls();refreshGallerySelection()});
   galleryControl('gallery-invert').addEventListener('click',()=>{galleryVisibleCases().forEach(id=>gallerySelected.has(id)?gallerySelected.delete(id):gallerySelected.add(id));updateGalleryControls();refreshGallerySelection()});
   galleryControl('gallery-clear').addEventListener('click',()=>{gallerySelected.clear();galleryAnchor=null;updateGalleryControls();refreshGallerySelection()});
@@ -1626,7 +1629,7 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   function refreshGallery() {
-    galleryCaseOrder = rankByMostRecentSolved();
+    galleryCaseOrder = sortCaseIds(publicAllowedIds());
     updateGalleryControls();
     galleryRendered = 0;
     galleryEl.innerHTML = '';
