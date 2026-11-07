@@ -361,6 +361,9 @@ document.addEventListener('DOMContentLoaded', () => {
   const SESSION_MODES=new Set(['random','adaptive']);
   const sessionSummaryEl=document.getElementById('trainer-session-summary');
   const nextStageButton=document.querySelector('[data-next-stage]');
+  const stageChoices=['f2l','oll','pll'].filter(stage=>stage!==pageSet);
+  const alternateStageButton=nextStageButton?.cloneNode(true)||null;
+  if(alternateStageButton){alternateStageButton.dataset.nextStage='';nextStageButton.after(alternateStageButton)}
   const exitStageButton=document.querySelector('[data-exit-stage]');
 
   let galleryCaseOrder = [];
@@ -1774,7 +1777,12 @@ document.addEventListener('DOMContentLoaded', () => {
   function completeSession() {
     completed = true;
     if(sessionSummaryEl)sessionSummaryEl.textContent=`${sessionTargetCount} casos concluídos · ${sessionAttempts} tentativas · ${sessionHardAttempts} marcações de Difícil`;
-    if(nextStageButton){const next=pageSet==='f2l'?'oll':pageSet==='oll'?'pll':'f2l';nextStageButton.textContent='Ir para '+next.toUpperCase();nextStageButton.dataset.destination=next+'.html'}
+    [nextStageButton,alternateStageButton].forEach((button,index)=>{
+      if(!button)return;
+      const destination=stageChoices[index];
+      button.textContent='Ir para '+destination.toUpperCase();
+      button.dataset.destination=destination+'.html';
+    });
     const title=finalScreen?.querySelector('h2');
     if(title)title.textContent=state.competitive.enabled
       ?'Treino competitivo finalizado'
@@ -1826,7 +1834,12 @@ document.addEventListener('DOMContentLoaded', () => {
     const position=index>=0?index:Math.max(0,Number(state.orderedTraining.index)||0);
     const next=position+1;
     state.orderedTraining.index=next;
-    if(next>=list.length){completeSession();return}
+    if(next>=list.length){
+      // O sequencial é uma biblioteca navegável, não uma sessão de desempenho.
+      state.orderedTraining.index=0;
+      if(list.length){setCurrentCase(list[0],true);save();renderCaseScene();preloadAnother();showToast('Fim da lista · voltando ao primeiro caso')}
+      return;
+    }
     setCurrentCase(list[next],true);
     save();renderCaseScene();preloadAnother();
   }
@@ -2269,7 +2282,7 @@ document.addEventListener('DOMContentLoaded', () => {
   panelClose.addEventListener('click', closeMenu);
   galleryEl.addEventListener('scroll', onGalleryScroll);
   restartSessionBtn.addEventListener('click', () => restartSession(false, false));
-  nextStageButton?.addEventListener('click',()=>location.assign(nextStageButton.dataset.destination||'index.html'));
+  [nextStageButton,alternateStageButton].forEach(button=>button?.addEventListener('click',()=>location.assign(button.dataset.destination||'index.html')));
   exitStageButton?.addEventListener('click',()=>location.assign('index.html'));
 
   caseMask.addEventListener('mousemove', (e) => {
