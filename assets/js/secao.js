@@ -1371,7 +1371,11 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     renderCaseScene().catch(console.warn)
   });
+  document.addEventListener('cpof:case-edited',event=>{
+    if(event.detail?.stage===pageSet&&event.detail?.caseId===currentCase)renderCaseScene().catch(console.warn);
+  });
   async function renderCaseScene() {
+    document.dispatchEvent(new CustomEvent('cpof:trainer-current-case',{detail:{stage:pageSet,caseId:currentCase,completed}}));
     renderLastCaseInfo();
     renderCompetitiveSetup();
     updateTimerDisplays();
