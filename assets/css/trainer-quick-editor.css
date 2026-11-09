@@ -49,3 +49,11 @@ body[data-set] .trainer-quick-edit:focus-visible{outline:3px solid #a8e9ff}
 .cpof-editor-dialog{padding:12px}
 .cpof-editor-title h2{font-size:16px}
 }
+
+/* Campos e ações nativas de área de transferência */
+.trainer-quick-field{display:grid;gap:7px;min-width:0}
+.trainer-quick-field>label{font-size:13px;color:#d8eafa}
+.trainer-quick-clipboard-actions{display:flex;flex-wrap:wrap;gap:7px}
+.trainer-quick-dialog .trainer-quick-clipboard-actions button{min-height:34px;font-size:12px;padding:6px 10px;background:#193e5e;border-color:#638db1}
+.trainer-quick-field textarea,.trainer-quick-field input{user-select:text!important;-webkit-user-select:text!important;pointer-events:auto;caret-color:#e9f7ff}
+.trainer-quick-field textarea:focus,.trainer-quick-field input:focus{outline:2px solid #8cccf5;outline-offset:1px}
