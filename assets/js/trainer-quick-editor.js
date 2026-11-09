@@ -88,6 +88,22 @@ async function verifyPublished(library,record){
    throw Error('O banco não confirmou a publicação. O rascunho permanece salvo.');
  }
 }
+async function guardSingleCasePublication(library,targetId){
+ // A RPC existente publica todos os rascunhos aprovados da biblioteca.
+ // Não permitir que uma edição rápida publique alterações pendentes de outros casos.
+ const query='select=case_id,algorithm,setup,orientation,image_data,status&library_id=eq.'+encodeURIComponent(library)+'&status=eq.approved&limit=150';
+ const [drafts,published]=await Promise.all([
+  cloudTable('cfop_library_case_drafts',{query}),
+  cloudTable('cfop_library_cases',{query})
+ ]);
+ const publicById=new Map((published||[]).map(row=>[row.case_id,row]));
+ const changed=(drafts||[]).filter(row=>{
+  if(row.case_id===targetId)return false;
+  const original=publicById.get(row.case_id);
+  return !original||['algorithm','setup','orientation','image_data'].some(field=>String(row[field]||'')!==String(original[field]||''));
+ });
+ if(changed.length)throw Error('Há '+changed.length+' outra(s) edição(ões) aprovadas aguardando publicação nesta biblioteca. Para não publicar outros casos, conclua essas edições no Gerenciador de Bibliotecas.');
+}
 async function openCaseEditor(){
  if(working||dialog)return;
  if(!authorized())return;
@@ -158,6 +174,7 @@ async function openCaseEditor(){
      await saveOriginalDraftsBatch([updated]);
      if(publish)await publishOriginalOverrides([id]);
     }else{
+     if(publish)await guardSingleCasePublication(library,id);
      await saveLibraryCase(library,updated);
      if(publish)await publishApprovedLibrary(library);
     }
