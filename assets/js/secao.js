@@ -2108,6 +2108,10 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   function handleShortcuts(e) {
+    // Editores modais têm prioridade absoluta sobre os atalhos do treinador,
+    // inclusive quando uma captura de atalho estava aberta anteriormente.
+    if (e.target?.closest?.('.trainer-quick-backdrop, .cpof-editor-backdrop') ||
+        document.querySelector('.trainer-quick-backdrop, .cpof-editor-backdrop')) return;
     if (capturingKeybind) {
       e.preventDefault();
       e.stopPropagation();
