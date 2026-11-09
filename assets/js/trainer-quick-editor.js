@@ -127,10 +127,16 @@ async function openCaseEditor(){
     '<p class="trainer-quick-status" data-edit-status role="status" aria-live="polite"></p>'+
     '<footer class="trainer-quick-footer"><button type="button" data-close>Cancelar</button><button type="button" data-save>Salvar rascunho</button><button type="button" data-publish class="trainer-quick-primary">Salvar e publicar</button></footer></section>';
   document.body.append(win);
+  // Não deixe eventos de teclado da edição chegarem aos atalhos de treino.
+  win.addEventListener('keydown',event=>{
+   if(event.key==='Escape'&&!working){event.stopPropagation();closeDialog();return}
+   event.stopPropagation();
+  });
   const preview=win.querySelector('[data-preview]'),upload=win.querySelector('[data-upload]');
   win.querySelector('[data-algorithm]').value=record.algorithm;
   win.querySelector('[data-setup]').value=record.setup;
   win.querySelector('[data-orientation]').value=record.orientation;
+  win.querySelector('[data-algorithm]').focus();
   const fallback=document.getElementById('case-image')?.getAttribute('src')||'';
   let imageData=record.imageData,imageOriginal=record.imageOriginal||record.imageData||null;
   const updatePreview=()=>{preview.src=imageData||fallback;preview.hidden=!(imageData||fallback)};
