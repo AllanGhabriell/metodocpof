@@ -120,9 +120,9 @@ async function openCaseEditor(){
     '<header class="trainer-quick-header"><div><small>ADMINISTRADOR · '+esc(stage.toUpperCase())+'</small><h2 id="trainer-quick-heading">Editar caso '+esc(String(legacy))+'</h2><p>Biblioteca: '+esc(library==='original'?'Base original':selectedLibraryName(stage))+'</p></div><button type="button" data-close aria-label="Fechar">✕</button></header>'+
     '<div class="trainer-quick-body"><div class="trainer-quick-image"><img data-preview alt="Imagem atual do caso"><button type="button" data-edit-image>✎ Editar imagem / retoque</button>'+
     '<label>Substituir imagem <input data-upload type="file" accept="image/png,image/jpeg,image/webp"></label></div>'+
-    '<div class="trainer-quick-fields"><label>Algoritmo <textarea data-algorithm rows="3" spellcheck="false" placeholder="Algoritmo de resolução"></textarea></label>'+
-    '<label>Setup <textarea data-setup rows="3" spellcheck="false" placeholder="Sequência para montar o caso"></textarea></label>'+
-    '<label>Orientação <input data-orientation type="text" maxlength="160" placeholder="Ex.: branco embaixo, frente vermelha"></label>'+
+    '<div class="trainer-quick-fields"><div class="trainer-quick-field"><label for="trainer-algorithm-input">Algoritmo</label><div class="trainer-quick-clipboard-actions"><button type="button" data-clipboard-paste="algorithm" title="Colar o último texto copiado">📋 Colar último copiado</button><button type="button" data-clipboard-copy="algorithm">Copiar texto</button></div><textarea id="trainer-algorithm-input" data-algorithm rows="3" spellcheck="false" placeholder="Algoritmo de resolução"></textarea></div>'+
+    '<div class="trainer-quick-field"><label for="trainer-setup-input">Setup</label><div class="trainer-quick-clipboard-actions"><button type="button" data-clipboard-paste="setup" title="Colar o último texto copiado">📋 Colar último copiado</button><button type="button" data-clipboard-copy="setup">Copiar texto</button></div><textarea id="trainer-setup-input" data-setup rows="3" spellcheck="false" placeholder="Sequência para montar o caso"></textarea></div>'+
+    '<div class="trainer-quick-field"><label for="trainer-orientation-input">Orientação</label><div class="trainer-quick-clipboard-actions"><button type="button" data-clipboard-paste="orientation" title="Colar o último texto copiado">📋 Colar último copiado</button></div><input id="trainer-orientation-input" data-orientation type="text" maxlength="160" placeholder="Ex.: branco embaixo, frente vermelha"></div>'+
     '<p>A edição altera somente este caso nesta biblioteca. Salvar rascunho não modifica a versão pública.</p></div></div>'+
     '<p class="trainer-quick-status" data-edit-status role="status" aria-live="polite"></p>'+
     '<footer class="trainer-quick-footer"><button type="button" data-close>Cancelar</button><button type="button" data-save>Salvar rascunho</button><button type="button" data-publish class="trainer-quick-primary">Salvar e publicar</button></footer></section>';
@@ -137,6 +137,41 @@ async function openCaseEditor(){
   win.querySelector('[data-setup]').value=record.setup;
   win.querySelector('[data-orientation]').value=record.orientation;
   win.querySelector('[data-algorithm]').focus();
+  // Acesso à área de transferência acontece exclusivamente após clique explícito.
+  // O navegador pode negar permissão, inclusive com o conteúdo copiado corretamente.
+  const editable={algorithm:win.querySelector('[data-algorithm]'),setup:win.querySelector('[data-setup]'),orientation:win.querySelector('[data-orientation]')};
+  win.querySelectorAll('[data-clipboard-paste]').forEach(button=>button.addEventListener('click',async()=>{
+   const field=editable[button.dataset.clipboardPaste];
+   if(!field||working)return;
+   try{
+    if(!navigator.clipboard?.readText)throw Error('clipboard-unavailable');
+    const value=await navigator.clipboard.readText();
+    if(!value){announce('A área de transferência está vazia. Copie primeiro o algoritmo na origem (Ctrl+C) e tente novamente.');field.focus();return}
+    field.focus();
+    const start=field.selectionStart??field.value.length,end=field.selectionEnd??start;
+    field.setRangeText(value,start,end,'end');
+    field.dispatchEvent(new Event('input',{bubbles:true}));
+    announce('Texto colado no campo de '+button.dataset.clipboardPaste+'. Confira antes de salvar.');
+   }catch(err){
+    console.warn('Leitura da área de transferência não autorizada:',err?.name||'indisponível');
+    field.focus();
+    announce('O navegador bloqueou a leitura do clipboard. Autorize a permissão de área de transferência do site, ou copie novamente e use Ctrl+V. No Windows, Win+V mostra o histórico copiado.');
+   }
+  }));
+  win.querySelectorAll('[data-clipboard-copy]').forEach(button=>button.addEventListener('click',async()=>{
+   const field=editable[button.dataset.clipboardCopy];
+   if(!field||working)return;
+   if(!field.value){announce('Este campo está vazio.');field.focus();return}
+   try{
+    if(!navigator.clipboard?.writeText)throw Error('clipboard-unavailable');
+    await navigator.clipboard.writeText(field.value);
+    announce('Texto copiado para a área de transferência.');
+   }catch(err){
+    field.focus();field.select();
+    announce('O navegador não autorizou copiar automaticamente. O texto foi selecionado; pressione Ctrl+C.');
+   }
+  }));
+
   const fallback=document.getElementById('case-image')?.getAttribute('src')||'';
   let imageData=record.imageData,imageOriginal=record.imageOriginal||record.imageData||null;
   const updatePreview=()=>{preview.src=imageData||fallback;preview.hidden=!(imageData||fallback)};
