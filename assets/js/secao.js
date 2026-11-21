@@ -1047,18 +1047,108 @@ document.addEventListener('DOMContentLoaded', () => {
     history[historyIndex].visible = caseVisible;
   }
 
-  function preloadAnother() {
-    let next = null;
-    if (isOrderedTrainingMode()) {
-      const list = orderedQueue();
-      const idx = Math.max(0, Number(state.orderedTraining.index) || 0);
-      next = list[idx + 1] || null;
-    } else {
-      const list = availableCases();
-      next = list.find((id) => id !== currentCase) || null;
-    }
-    if (next&&window.CPOFLibrary&&window.CPOFLibrary.get(pageSet,next)===null) C.preloadImage(`${pageSet}/${next}.png`).catch(() => {});
+  // Cache leve de imagens: nenhuma seleção de treino é executada aqui.
+  // O sorteio e suas consequências continuam exclusivamente em pickNextCase().
+  const imageCache = new Map();
+  const imageQueue = [];
+  const IMAGE_RESERVE = 5;
+  const IMAGE_CONCURRENCY = 2;
+  let activeImageLoads = 0;
+  let imageRenderVersion = 0;
+  let imageLoadingTimer = null;
+  const loadingIndicator = document.createElement('div');
+  loadingIndicator.className = 'trainer-image-loading';
+  loadingIndicator.setAttribute('role', 'status');
+  loadingIndicator.setAttribute('aria-label', 'Carregando imagem do caso');
+  loadingIndicator.hidden = true;
+  loadingIndicator.innerHTML = '<span class="trainer-image-spinner" aria-hidden="true"></span><span>Carregando caso…</span>';
+  imgWrap?.appendChild(loadingIndicator);
+  const loadingStyle = document.createElement('style');
+  loadingStyle.textContent = `
+    body[data-set] .img-wrap{position:relative}
+    body[data-set] .trainer-image-loading[hidden]{display:none!important}
+    body[data-set] .trainer-image-loading{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;z-index:3;color:#cde8ff;font:600 12px system-ui,sans-serif;pointer-events:none;background:radial-gradient(ellipse at center,#17345a,#0a1c34)}
+    body[data-set] .trainer-image-spinner{width:29px;height:29px;border:3px solid #87c9f044;border-top-color:#9cdefb;border-radius:50%;animation:trainer-image-spin .65s linear infinite}
+    @keyframes trainer-image-spin{to{transform:rotate(360deg)}}
+    @media(prefers-reduced-motion:reduce){body[data-set] .trainer-image-spinner{animation-duration:1.5s}}
+  `;
+  document.head.appendChild(loadingStyle);
+  function imageSource(id) {
+    const variant = window.CPOFLibrary?.get(pageSet, id);
+    return variant
+      ? (variant.imageData || (variant.originalFallback ? `${pageSet}/${id}.png` : unavailableImage(variant.missing ? 'missing' : 'no-image')))
+      : `${pageSet}/${id}.png`;
   }
+  function pumpImageQueue() {
+    while (activeImageLoads < IMAGE_CONCURRENCY && imageQueue.length) {
+      const job = imageQueue.shift();
+      if (!job || !imageCache.has(job.src)) continue;
+      activeImageLoads++;
+      const image = new Image();
+      image.onload = async () => {
+        try {
+          if (typeof image.decode === 'function') await image.decode();
+          job.resolve(job.src);
+        } catch (error) { job.reject(error); }
+        finally { activeImageLoads--; pumpImageQueue(); }
+      };
+      image.onerror = () => { job.reject(new Error('Imagem indisponível')); activeImageLoads--; pumpImageQueue(); };
+      image.src = job.src;
+    }
+  }
+  function readyImage(src, priority = false) {
+    if (imageCache.has(src)) return imageCache.get(src);
+    let resolveJob, rejectJob;
+    const promise = new Promise((resolve, reject) => { resolveJob = resolve; rejectJob = reject; });
+    // Evita rejeições não observadas quando o usuário muda de caso rapidamente.
+    promise.catch(() => {});
+    imageCache.set(src, promise);
+    const job = {src, resolve: resolveJob, reject: rejectJob};
+    if (priority) imageQueue.unshift(job);
+    else imageQueue.push(job);
+    pumpImageQueue();
+    return promise;
+  }
+  function preloadAnother() {
+    if (!currentCase || completed) return;
+    const candidates = isOrderedTrainingMode()
+      ? (() => {
+          const list = orderedQueue();
+          const index = list.indexOf(currentCase);
+          return Array.from({length: Math.min(IMAGE_RESERVE, Math.max(0,list.length-1))},
+            (_, offset) => list[(Math.max(0,index)+offset+1)%list.length]);
+        })()
+      : availableCases().filter(id => id !== currentCase).slice(0, IMAGE_RESERVE);
+    const sources = [imageSource(currentCase), ...candidates.map(imageSource)];
+    const keep = new Set(sources);
+    // Não descarta a imagem atualmente em uso nem as promessas ativas.
+    for (const key of imageCache.keys()) if (!keep.has(key)) imageCache.delete(key);
+    for (const source of sources.slice(1)) readyImage(source).catch(() => {});
+  }
+  // Sons sintetizados curtos: nenhum arquivo de áudio extra ou requisição de rede.
+  let feedbackAudio = null;
+  function playTrainerClick() {
+    try {
+      const AudioContextType = window.AudioContext || window.webkitAudioContext;
+      if (!AudioContextType) return;
+      if (!feedbackAudio) feedbackAudio = new AudioContextType();
+      if (feedbackAudio.state === 'suspended') feedbackAudio.resume().catch(() => {});
+      const oscillator = feedbackAudio.createOscillator();
+      const gain = feedbackAudio.createGain();
+      const now = feedbackAudio.currentTime;
+      oscillator.type = 'sine';
+      oscillator.frequency.setValueAtTime(690,now);
+      oscillator.frequency.exponentialRampToValueAtTime(520,now+0.045);
+      gain.gain.setValueAtTime(0.0001,now);
+      gain.gain.exponentialRampToValueAtTime(0.045,now+0.008);
+      gain.gain.exponentialRampToValueAtTime(0.0001,now+0.065);
+      oscillator.connect(gain).connect(feedbackAudio.destination);
+      oscillator.start(now);
+      oscillator.stop(now+0.07);
+    } catch (_) { /* Áudio nunca deve interromper o treino. */ }
+  }
+  [prevBtn,nextBtn,skipBtn,trainerEasyButton,trainerHardButton]
+    .filter(Boolean).forEach(button => button.addEventListener('click', playTrainerClick));
 
   function startSessionTimer(manualRequest) {
     if (manualRequest && !state.timerState.enabled) {
@@ -1375,6 +1465,10 @@ document.addEventListener('DOMContentLoaded', () => {
     if(event.detail?.stage===pageSet&&event.detail?.caseId===currentCase)renderCaseScene().catch(console.warn);
   });
   async function renderCaseScene() {
+    // Invalida carregamentos anteriores também quando o caso fica oculto/finaliza.
+    ++imageRenderVersion;
+    clearTimeout(imageLoadingTimer);
+    loadingIndicator.hidden = true;
     document.dispatchEvent(new CustomEvent('cpof:trainer-current-case',{detail:{stage:pageSet,caseId:currentCase,completed}}));
     renderLastCaseInfo();
     renderCompetitiveSetup();
@@ -1427,15 +1521,38 @@ document.addEventListener('DOMContentLoaded', () => {
     const src=variant
       ? (variant.imageData||(variant.originalFallback?`${pageSet}/${currentCase}.png`:unavailableImage(variant.missing?'missing':'no-image')))
       : `${pageSet}/${currentCase}.png`;
-    // Altera a imagem imediatamente para não confundir um caso antigo com o novo.
-    imgEl.alt=variant?(variant.imageData?'Imagem da biblioteca: ':'Imagem indisponível para ')+(variant.name||variant.id):'Caso '+pageSet.toUpperCase()+' '+currentCase;
-    imgEl.src=src;
+    // Exibir somente imagens prontas e pertencentes ao caso atual.
+    const version = ++imageRenderVersion;
+    clearTimeout(imageLoadingTimer);
+    loadingIndicator.hidden = true;
+    imgEl.hidden = true;
+    const requestedCase = currentCase;
+    const alt = variant?(variant.imageData?'Imagem da biblioteca: ':'Imagem indisponível para ')+(variant.name||variant.id):'Caso '+pageSet.toUpperCase()+' '+requestedCase;
+    const imagePromise = readyImage(src, true);
+    preloadAnother();
+    imageLoadingTimer = setTimeout(() => {
+      if (version === imageRenderVersion && !completed && currentCase === requestedCase && caseVisible) {
+        loadingIndicator.hidden = false;
+      }
+    }, 40);
     try {
-      if(src.startsWith('data:image/'))return;
-      await C.preloadImage(src);
-    } catch (e) {
-      // Não interrompe o treino se um PNG estiver temporariamente indisponível.
-      console.warn('Imagem do caso indisponível:',src);
+      await imagePromise;
+      if (version !== imageRenderVersion || currentCase !== requestedCase || completed) return;
+      imgEl.alt = alt;
+      imgEl.src = src;
+      imgEl.hidden = false;
+    } catch (error) {
+      if (version !== imageRenderVersion || currentCase !== requestedCase || completed) return;
+      console.warn('Imagem do caso indisponível:',src,error);
+      imageCache.delete(src);
+      imgEl.alt = 'Imagem indisponível para o caso ' + requestedCase;
+      imgEl.src = unavailableImage('no-image');
+      imgEl.hidden = false;
+    } finally {
+      if (version === imageRenderVersion) {
+        clearTimeout(imageLoadingTimer);
+        loadingIndicator.hidden = true;
+      }
     }
   }
 
