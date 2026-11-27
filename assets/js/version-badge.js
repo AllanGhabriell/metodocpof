@@ -3,7 +3,7 @@
  * Não confundir com versões de cache dos arquivos CSS/JS.
  */
 (() => {
-  const APP_VERSION = '5.04';
+  const APP_VERSION = '5.05';
   window.CFOP_APP_VERSION = APP_VERSION;
   function mountVersion() {
     if (!document.body || document.getElementById('cfop-app-version')) return;
